@@ -1840,6 +1840,20 @@ any doBye(any ex)
    return ex;
 }
 
+// (while 'any . prg) -> any
+any doWhile(any x) {
+   any cond, a;
+   cell c1;
+
+   cond = car(x = cdr(x)),  x = cdr(x);
+   Push(c1, Nil);
+   while (!isNil(a = EVAL(cond))) {
+      val(At) = a;
+      data(c1) = prog(x);
+   }
+   return Pop(c1);
+}
+
 // (do 'flg|num ['any | (NIL 'any . prg) | (T 'any . prg) ..]) -> any
 any doDo(any x)
 {

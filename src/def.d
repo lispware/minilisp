@@ -38,8 +38,10 @@ any doCdr(any);
 any doQuote(any);
 #define doDump_D (any)(Mem+69)
 any doDump(any);
-#define doEq_D (any)(Mem+72)
+#define doWhile_D (any)(Mem+72)
+any doWhile(any);
+#define doEq_D (any)(Mem+75)
 any doEq(any);
-#define doIf_D (any)(Mem+75)
+#define doIf_D (any)(Mem+78)
 any doIf(any);
 #endif
