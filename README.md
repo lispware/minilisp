@@ -13,7 +13,7 @@ lisp.c is the LISP interpreter and can be built using a regular C compiler as fo
 cl lisp.c
 ```
 
-### Linux and OSX
+### Linux and MacOS/OS X
 
 ```bash
 gcc lisp.c -o lisp
