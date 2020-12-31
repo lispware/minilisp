@@ -1,3 +1,5 @@
+# The test file
+
 (de F (X Y) 
     (let A 10 
          (let (AA 20 BB 30)
@@ -81,5 +83,8 @@
 (setq Z (MKLST (+ 1234 MILL)))
 
 (prinl (LEN Z))
+
+
+(let L '( 1 2 3) (while L (prinl (car L)) (setq L (cdr L))))
 
 (bye)

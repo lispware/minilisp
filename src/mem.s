@@ -18,6 +18,7 @@ car {doCar}
 cdr {doCdr}
 quote {doQuote}
 dump {doDump}
+while {doWhile}
 = {doEq}
 if {doIf}
 G ((X)(+  1 2 X))
