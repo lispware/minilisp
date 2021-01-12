@@ -2600,6 +2600,8 @@ any evList(any ex)
 {
     any foo;
 
+    if (ex == Nil) return Nil;
+
     if (isNum(foo = car(ex)))
         return ex;
 
