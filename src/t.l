@@ -48,7 +48,6 @@
 
 (de MKLST (N)
     (make (do N (link 1))))
-    #(make (DO N (quote () (link 1)))))
 
 (de LEN (L)
     (let LL 0 
@@ -64,11 +63,24 @@
      )
 )
 
+(setq AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA 100)
+(setq BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB 123)
+(prinl (+ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB))
+
+
+(setq longnumber 1234567890)
+(prinl (+ (* longnumber 10) 1))
+
+(setq shorttxt "ABCD")
+(prinl shorttxt)
+(setq longtxt "A REALLY LONG TXT")
+(prinl longtxt)
 
 (setq L4 (make (link 1) (link 2) (link 3) ) )
 (prinl (car L4))
 (prinl (car (cdr L4)))
 (prinl (car (cdr (cdr L4))))
+
 
 (setq  FAC1 (quote (N) (if (= N 0) 1 (* N (FAC1 (- N 1))))))
 
@@ -84,7 +96,15 @@
 
 (prinl (LEN Z))
 
+(prinl ABCD)
+#(prinl ABCDEDFHIJK)
+#(setq longtxt "A REALLY LONG TXT")
 
 (let L '( 1 2 3) (while L (prinl (car L)) (setq L (cdr L))))
+
+(in "t.l" (do 10 (prinl (char))))
+(out "ABCD" (prinl "HELLO WORLD"))
+(in "ABCD" (do 11 (prinl (char))))
+
 
 (bye)

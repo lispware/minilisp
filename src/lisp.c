@@ -47,6 +47,8 @@ typedef enum
     FUNC,
     PTR_CELL,
     INTERN,
+    BIN,
+    BIN_START,
 } CellPartType;
 
 CellPartType getCARType(any cell)
@@ -236,7 +238,7 @@ any EVAL(any x)
    {
       return x;
    }
-   else if (isTxt(x))
+   else if (isTxt(x) || getCARType(x) == BIN_START)
    {
       return val(x);
    }
@@ -268,6 +270,8 @@ extern any TheKey, TheCls, Thrown;
 extern any Intern[2], Transient[2];
 extern any ApplyArgs, ApplyBody;
 
+void printTXT(any);
+void printLongTXT(any);
 static void gc(long long c);
 uword getHeapSize(void);
 /* Prototypes */
@@ -414,7 +418,20 @@ int getByte1(int *i, uword *p, any *q)
 {
     int c;
 
-    *i = BITS - 1, *p = (uword)*q , *q = NULL;
+    if (getCARType(*q) == TXT)
+    {
+        (*q)=(*q)->car;
+        *i = BITS, *p = (uword)(*q) , *q = NULL;
+    }
+    else if (getCARType(*q) == BIN_START)
+    {
+        (*q)=(*q)->car;
+        *i = BITS, *p = (uword)((*q)->car) , *q = ((*q)->cdr);
+    }
+    else
+    {
+        giveup("Cant getByte");
+    }
 
     c = *p & 127, *p >>= 8, *i -= 8;
 
@@ -428,11 +445,13 @@ int getByte(int *i, uword *p, any *q)
     if (*i == 0)
     {
         if (!*q)
+        {
             return 0;
-        if (isNum(*q))
-            *i = BITS-2,  *p = (uword)*q >> 2,  *q = NULL;
+        }
         else
-            *i = BITS,  *p = (uword)tail(*q),  *q = val(*q);
+        {
+            *i = BITS,  *p = (uword)((*q)->car),  *q = (*q)->cdr;
+        }
     }
     c = *p & 127,  *p >>= 8;
     if (*i >= 8)
@@ -480,20 +499,30 @@ void putByte(int c, int *i, uword *p, any *q, cell *cp)
 
     if (*i != BITS)
         *p |= (uword)c << *i;
+
     if (*i + d  > BITS)
     {
         if (*q)
         {
-            *q = val(*q) = consName(*p, Zero);
+            any x = consName(*p, Zero);
+            setCARType(x, BIN);
+            (*q)->cdr = x;
+            *q = x;
         }
         else
         {
-            Push(*cp, consSym(NULL,0));
-            //tail(data(*cp)) = *q = consName(*p, Zero); // TODO WHATS GOING ON
+            any x = consSym(NULL, 0);
+            setCARType(x, BIN_START);
+            Push(*cp, x);
+            any y = consName(*p, Zero);
+            setCARType(y, BIN);
+            (*cp).car->car = *q = y;
+
         }
         *p = c >> BITS - *i;
         *i -= BITS;
     }
+
     *i += d;
 }
 
@@ -501,13 +530,8 @@ any popSym(int i, uword n, any q, cell *cp)
 {
     if (q)
     {
-        val(q) = i <= (BITS-2)? box(n) : consName(n, Zero);
-        return Pop(*cp);
-    }
-    if (i > BITS-1)
-    {
-        Push(*cp, consSym(NULL,0));
-        //tail(data(*cp)) = consName(n, Zero); // TODO WHATS GOING ON
+        //val(q) = i <= (BITS-2)? box(n) : consName(n, Zero);
+        q->cdr = consName(n, Nil);
         return Pop(*cp);
     }
     return consSym(NULL,n);
@@ -536,7 +560,7 @@ int symBytes(any x)
 
 any isIntern(any nm, any tree[2])
 {
-    any x;
+    any x, y, z;
     word n;
 
     if (isTxt(nm))
@@ -550,8 +574,83 @@ any isIntern(any nm, any tree[2])
             x = n<0? cadr(x) : cddr(x);
         }
     }
+    else
+    {
+        for (x = tree[1];  x != Nil;)
+        {
+            y = nm->car;
+            z = x->car->car;
+            while ((n = (word)(car(y)) - (word)car(z)) == 0)
+            {
+                if (getCARType(y) != BIN) return car(x);
+                y=y->cdr;
+                z=z->cdr;
+            }
+
+            x = n<0? cadr(x) : cddr(x);
+        }
+    }
+
+
 
     return NULL;
+}
+
+any internBin(any sym, any tree[2])
+{
+    any nm, x, y, z;
+    word n;
+
+    x = tree[1];
+
+    if (x == Nil)
+    {
+        tree[1] = consIntern(sym, Nil);
+        return tree[1];
+    }
+
+    for (;;)
+    {
+
+        y = sym->car;
+        z = x->car->car;
+        while ((n = (word)(car(y)) - (word)car(z)) == 0)
+        {
+            if (getCARType(y) != BIN) return sym;
+            y=y->cdr;
+            z=z->cdr;
+        }
+
+        if (Nil == cdr(x))
+        {
+            cdr(x) = n < 0 ? consIntern(consIntern(sym, Nil), Nil) : consIntern(Nil, consIntern(sym, Nil));
+            return sym;
+        }
+        if (n < 0)
+        {
+            if (Nil != cadr(x))
+            {
+                x = cadr(x);
+            }
+            else
+            {
+                cadr(x) = consIntern(sym, Nil);
+                return sym;
+            }
+        }
+        else
+        {
+            if (Nil != cddr(x))
+            {
+                x = cddr(x);
+            }
+            else
+            {
+                cddr(x) = consIntern(sym, Nil);
+                return sym;
+            }
+        }
+    }
 }
 
 any intern(any sym, any tree[2])
@@ -559,13 +658,16 @@ any intern(any sym, any tree[2])
    any nm, x;
    word n;
 
+
+   if (getCARType(sym) == BIN_START) return internBin(sym, tree);
+
    nm = sym;
 
    x = tree[0];
    if (Nil == x)
    {
       tree[0] = consIntern(sym, Nil);
-      return sym;
+      return tree[0];
    }
    for (;;)
    {
@@ -820,7 +922,6 @@ void pathString(any x, char *p)
     uword w;
     char *h;
 
-    x = x->car;
     if ((c = getByte1(&i, &w, &x)) == '+')
     {
         *p++ = c,  c = getByte(&i, &w, &x);
@@ -1108,39 +1209,6 @@ static any rdList(void)
     return Pop(c1);
 }
 
-/* Try for anonymous symbol */
-static any anonymous(any s)
-{
-    int c, i;
-    uword w;
-    unsigned long long n;
-    heap *h;
-
-    if ((c = getByte1(&i, &w, &s)) != '$')
-    {
-        return NULL;
-    }
-    n = 0;
-    while (c = getByte(&i, &w, &s))
-    {
-        if (c < '0' || c > '9')
-            return NULL;
-        n = n * 10 + c - '0';
-    }
-    n *= sizeof(cell);
-    h = Heaps;
-    do
-    {
-        if ((any)n > h->cells  &&  (any)n < h->cells + CELLS)
-        {
-            return symPtr((any)n);
-        }
-    }
-    while (h = h->next);
-
-    return NULL;
-}
-
 /* Read one expression */
 static any read0(bool top)
 {
@@ -1223,11 +1291,11 @@ static any read0(bool top)
     for (;;)
     {
         count++;
-        if (count > 6)
-        {
-            printf("%s too long\n", (char*)&w);
-            bye(0);
-        }
+        // if (count > 6)
+        // {
+        //     printf("%s too long\n", (char*)&w);
+        //     bye(0);
+        // }
         Env.get();
         if (strchr(Delim, Chr))
         {
@@ -1241,11 +1309,8 @@ static any read0(bool top)
     }
 
     y = popSym(i, w, p, &c1);
+    //printf("%p --> CAR = %p CDR = %p \n", y, y->car, y->cdr);
     if (x = symToNum(tail(y), 0, '.', 0))
-    {
-        return x;
-    }
-    if (x = anonymous(name(y)))
     {
         return x;
     }
@@ -1255,7 +1320,7 @@ static any read0(bool top)
     }
 
     intern(y, Intern);
-    val(y) = Nil;
+    //val(y) = Nil;
     return y;
 }
 
@@ -1457,32 +1522,43 @@ void outNum(word n)
 /* Print one expression */
 void print(any x)
 {
-   if (x == T)
-   {
-      printf("T");
-      return;
-   }
+    if (x == T)
+    {
+        printf("T");
+        return;
+    }
 
-   if (x == Nil)
-   {
-      printf("Nil");
-      return;
-   }
+    if (x == Nil)
+    {
+        printf("Nil");
+        return;
+    }
 
-   if (isNum(x))
-   {
-      outNum(unBox(x));
-      return;
-   }
-   printf ("TODO NOT A NUMBER %p %p\n", x, Nil);
-   return;
+    if (isNum(x))
+    {
+        outNum(unBox(x));
+        return;
+    }
+    if (getCARType(x) == TXT)
+    {
+        printf("%s", (char*)&x->car);
+        return;
+    }
+    if (getCARType(x) == BIN_START)
+    {
+        printLongTXT(x);
+        return;
+    }
+
+    printf ("TODO NOT A NUMBER %p %p\n", x, Nil);
+    return;
 }
 
 void prin(any x)
 {
     if (x == Nil)
     {
-        printf("T");
+        printf("Nil");
         return;
     }
 
@@ -1496,10 +1572,20 @@ void prin(any x)
         {
             printf("T");
         }
+        else if (getCARType(x) == TXT)
+        {
+            printLongTXT(x);
+        }
+        else if (getCARType(x) == BIN_START)
+        {
+            printLongTXT(x);
+
+        }
         else if (isSym(x))
         {
             int i, c;
             uword w;
+            while(1);
 
             for (x = name(x), c = getByte1(&i, &w, &x); c; c = getByte(&i, &w, &x))
             {
@@ -1558,7 +1644,7 @@ any symToNum(any sym, int scl, int sep, int ign)
     uword w;
     bool sign, frac;
     long long n;
-    any s = sym->car;
+    any s = sym;
 
 
     if (!(c = getByte1(&i, &w, &s)))
@@ -1840,6 +1926,87 @@ any doBye(any ex)
    return ex;
 }
 
+
+void wrOpen(any ex, any x, outFrame *f) {
+   //NeedSymb(ex,x);
+   if (isNil(x))
+      f->fp = stdout;
+   else {
+      char *nm = (char *)malloc(pathSize(x));
+
+      pathString(x,nm);
+      if (nm[0] == '+') {
+         if (!(f->fp = fopen(nm+1, "a")))
+            openErr(ex, nm);
+      }
+      else if (!(f->fp = fopen(nm, "w")))
+         openErr(ex, nm);
+
+      free(nm);
+   }
+}
+
+
+// (char) -> sym
+// (char 'num) -> sym
+// (char 'sym) -> num
+any doChar(any ex) {
+   any x = cdr(ex);
+
+   if (x == Nil) {
+      if (!Chr)
+         Env.get();
+      x = Chr<0? Nil : mkChar(Chr);
+      Env.get();
+      return x;
+   }
+   // TODO - fix this up
+   // if (isNum(x = EVAL(car(x)))) {
+   //    int c = (int)unBox(x);
+
+   //    ////if (c == 0)
+   //    ////   return Nil;
+   //    ////if (c == 127)
+   //    ////   return mkChar2('^','?');
+   //    ////if (c < ' ')
+   //    ////   return mkChar2('^', c + 0x40);
+   //    return mkChar(c);
+   // }
+   // if (isSym(x)) {
+   //    int c;
+
+   //    if ((c = firstByte(x)) != '^')
+   //       return box(c);
+   //    return box((c = secondByte(x)) == '?'? 127 : c & 0x1F);
+   // }
+   atomError(ex,x);
+}
+
+any doIn(any ex) {
+   any x;
+   inFrame f;
+
+   x = cdr(ex),  x = EVAL(car(x));
+   rdOpen(ex,x,&f);
+   pushInFiles(&f);
+   x = prog(cddr(ex));
+   popInFiles();
+   return x;
+}
+
+// (out 'any . prg) -> any
+any doOut(any ex) {
+   any x;
+   outFrame f;
+
+   x = cdr(ex),  x = EVAL(car(x));
+   wrOpen(ex,x,&f);
+   pushOutFiles(&f);
+   x = prog(cddr(ex));
+   popOutFiles();
+   return x;
+}
+
 // (while 'any . prg) -> any
 any doWhile(any x) {
    any cond, a;
@@ -1930,6 +2097,19 @@ static void mark(any x)
 
     if (x == Nil) return;
 
+    if (getCARType(x) == BIN_START)
+    {
+        mark(cdr(x));
+        x = x->car;
+        while(x && x != Nil)
+        {
+            mark(x);
+            x=x->cdr;
+        }
+        return;
+    }
+
+
     if (getCARType(x) == PTR_CELL || getCARType(x) == INTERN) mark(car(x));
 
     while (1)
@@ -1940,6 +2120,11 @@ static void mark(any x)
         if (x==Nil) break;
         if (getMark(x)) break;
         setMark(x, 1);
+        if (getCARType(x) == BIN_START)
+        {
+            setMark(x, 0);
+            mark(x);
+        }
         if (getCARType(x) == PTR_CELL || getCARType(x) == INTERN) mark(car(x));
     }
 }
@@ -2018,14 +2203,17 @@ void markAll()
 
    for (i = 0; i < MEMS; i += 3)
    {
+       setMark((any)&Mem[i], 0);
        mark((any)&Mem[i]);
    }
 
    /* Mark */
-   mark(Intern[0]);
-   mark(Transient[0]);
-   mark(ApplyArgs);
-   mark(ApplyBody);
+   setMark(Intern[0], 0);mark(Intern[0]);
+   setMark(Intern[1], 0);mark(Intern[1]);
+   setMark(Transient[0], 0);mark(Transient[0]);
+   setMark(Transient[1], 0);mark(Transient[1]);
+   if (ApplyArgs) setMark(ApplyArgs, 0);mark(ApplyArgs);
+   if (ApplyBody) setMark(ApplyBody, 0);mark(ApplyBody);
    for (p = Env.stack; p; p = cdr(p))
    {
       mark(car(p));
@@ -2048,24 +2236,28 @@ void markAll()
 
 any doDump(any ignore)
 {
-    return ignore;
     static int COUNT=0;
     char debugFileName[100];
     sprintf(debugFileName, "debug-%03d.mem", COUNT++);
-    if (T == cadr(ignore))
-    {
-        markAll();
-        sweep(0);
-    }
-    if ( 0 == car(cadr(ignore)))
-    {
-        markAll();
-        sweep(1);
-    }
+    // if (T == cadr(ignore))
+    // {
+    //     markAll();
+    //     sweep(0);
+    // }
+    // if ( 0 == car(cadr(ignore)))
+    // {
+    //     markAll();
+    //     sweep(1);
+    // }
 
-    if ( 0 == car(cadr(ignore)))
+    // if ( 0 == car(cadr(ignore)))
+    // {
+    //     gc(CELLS);
+    // }
+
+    if (T != cadr(ignore))
     {
-        gc(CELLS);
+        return ignore;
     }
 
     FILE *mem;
@@ -2410,6 +2602,9 @@ any evList(any ex)
 
     if (isNum(foo = car(ex)))
         return ex;
+
+    if (getCARType(ex) == BIN_START) return Nil;
+
     if (isCell(foo))
     {
         if (isNum(foo = evList(foo)))
@@ -2438,24 +2633,26 @@ any loadAll(any ex)
    return x;
 }
 
+void printLongTXT(any nm)
+{
+    int i, c;
+    word w;
+
+    c = getByte1(&i, &w, &nm);
+    do
+    {
+        if (c == '"'  ||  c == '\\')
+        {
+            Env.put('\\');
+        }
+        Env.put(c);
+    }
+   while (c = getByte(&i, &w, &nm));
+}
+
 void printTXT(any cell)
 {
-        uword w = (uword)cell->car;
-
-        printf("<");
-        for(int i = 0; i < 8; i++)
-        {
-            uword c = w & (uword)0xff00000000000000;
-            c >>= 56;
-            if (!c)
-            {
-                w <<= 8;
-                continue;
-            }
-            printf("%c", (char)c);
-            w <<= 8;
-        }
-        printf(">");
+    printLongTXT(cell);
 }
 
 void printNUM(any cell)

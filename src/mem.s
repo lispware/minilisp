@@ -19,6 +19,9 @@ cdr {doCdr}
 quote {doQuote}
 dump {doDump}
 while {doWhile}
+in {doIn}
+out {doOut}
+char {doChar}
 = {doEq}
 if {doIf}
 G ((X)(+  1 2 X))

@@ -8,5 +8,5 @@ echo ./gen mem.s
 ./gen mem.s
 fi
 
-echo gcc lisp.c -o lisp
-gcc lisp.c -o lisp
+echo gcc -g3 lisp.c -o lisp
+gcc -g3 lisp.c -o lisp

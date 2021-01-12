@@ -40,8 +40,14 @@ any doQuote(any);
 any doDump(any);
 #define doWhile_D (any)(Mem+72)
 any doWhile(any);
-#define doEq_D (any)(Mem+75)
+#define doIn_D (any)(Mem+75)
+any doIn(any);
+#define doOut_D (any)(Mem+78)
+any doOut(any);
+#define doChar_D (any)(Mem+81)
+any doChar(any);
+#define doEq_D (any)(Mem+84)
 any doEq(any);
-#define doIf_D (any)(Mem+78)
+#define doIf_D (any)(Mem+87)
 any doIf(any);
 #endif
