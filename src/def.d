@@ -46,8 +46,10 @@ any doIn(any);
 any doOut(any);
 #define doChar_D (any)(Mem+81)
 any doChar(any);
-#define doEq_D (any)(Mem+84)
+#define doLine_D (any)(Mem+84)
+any doLine(any);
+#define doEq_D (any)(Mem+87)
 any doEq(any);
-#define doIf_D (any)(Mem+87)
+#define doIf_D (any)(Mem+90)
 any doIf(any);
 #endif

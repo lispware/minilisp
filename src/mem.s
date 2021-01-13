@@ -22,6 +22,7 @@ while {doWhile}
 in {doIn}
 out {doOut}
 char {doChar}
+line {doLine}
 = {doEq}
 if {doIf}
 G ((X)(+  1 2 X))

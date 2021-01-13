@@ -1550,6 +1550,23 @@ void print(any x)
         return;
     }
 
+    if (getCARType(x) == PTR_CELL && getCDRType(x) == PTR_CELL)
+    {
+        printf("(");
+        print(x->car);
+        while (x != Nil)
+        {
+            x = x->cdr;
+            if (x->car != Nil)
+            {
+                printf(" ");
+                print(x->car);
+            }
+        }
+        printf(")");
+        return;
+    }
+
     printf ("TODO NOT A NUMBER %p %p\n", x, Nil);
     return;
 }
@@ -1947,6 +1964,37 @@ void wrOpen(any ex, any x, outFrame *f) {
 }
 
 
+// (line 'flg) -> lst|sym
+any doLine(any x) {
+   any y;
+   int i;
+   word w;
+   cell c1;
+
+   if (!Chr)
+      Env.get();
+   if (eol())
+      return Nil;
+   x = cdr(x);
+   if (isNil(EVAL(car(x)))) {
+      Push(c1, cons(mkChar(Chr), Nil));
+      y = data(c1);
+      for (;;) {
+         if (Env.get(), eol())
+            return Pop(c1);
+         y = cdr(y) = cons(mkChar(Chr), Nil);
+      }
+   }
+   else {
+      putByte1(Chr, &i, &w, &y);
+      for (;;) {
+         if (Env.get(), eol())
+            return popSym(i, w, y, &c1);
+         putByte(Chr, &i, &w, &y, &c1);
+      }
+   }
+}
+
 // (char) -> sym
 // (char 'num) -> sym
 // (char 'sym) -> num
@@ -2255,7 +2303,7 @@ any doDump(any ignore)
     //     gc(CELLS);
     // }
 
-    if (T != cadr(ignore))
+    if (Nil == ignore)
     {
         return ignore;
     }
