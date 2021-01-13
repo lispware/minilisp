@@ -23,6 +23,8 @@ in {doIn}
 out {doOut}
 char {doChar}
 line {doLine}
+not {doNot}
+hs {doHS}
 = {doEq}
 if {doIf}
 G ((X)(+  1 2 X))

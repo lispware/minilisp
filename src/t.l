@@ -51,14 +51,10 @@
 
 (de LEN (L)
     (let LL 0 
-         (do (* 10 10 10 10 10 10 10)
-         (if (= Nil L)
-             LL
+         (while (not (= Nil L))
              (setq LL (+ 1 LL))
              (setq L (cdr L))
          )
-         )
-
          LL
      )
 )
@@ -107,4 +103,5 @@
 (in "ABCD" (do 11 (prinl (char))))
 
 
+(hs)
 (bye)

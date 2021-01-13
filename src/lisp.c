@@ -751,6 +751,16 @@ any doHide(any ex)
    return Nil;
 }
 
+// (not 'any) -> flg
+any doNot(any x) {
+   any a;
+
+   if (isNil(a = EVAL(cadr(x))))
+      return T;
+   val(At) = a;
+   return Nil;
+}
+
 // (c...r 'lst) -> any
 any doCar(any ex)
 {
@@ -2280,6 +2290,12 @@ void markAll()
          mark(((catchFrame*)p)->tag);
       mark(((catchFrame*)p)->fin);
    }
+}
+
+any doHS(any ignore)
+{
+    getHeapSize();
+    return ignore;
 }
 
 any doDump(any ignore)

@@ -48,8 +48,12 @@ any doOut(any);
 any doChar(any);
 #define doLine_D (any)(Mem+84)
 any doLine(any);
-#define doEq_D (any)(Mem+87)
+#define doNot_D (any)(Mem+87)
+any doNot(any);
+#define doHS_D (any)(Mem+90)
+any doHS(any);
+#define doEq_D (any)(Mem+93)
 any doEq(any);
-#define doIf_D (any)(Mem+90)
+#define doIf_D (any)(Mem+96)
 any doIf(any);
 #endif
