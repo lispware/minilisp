@@ -1486,8 +1486,18 @@ any load(any ex, int pr, any x)
         else
         {
             Push(c2, val(At));
-            x = val(At) = EVAL(data(c1));
-            val(At3) = val(At2),  val(At2) = data(c2);
+            x = EVAL(data(c1));
+            cdr(At) = x;
+            setCDRType(At, getCDRType(x));
+            //x = val(At) = EVAL(data(c1));
+
+            cdr(At2) = c2.car;
+            setCDRType(At2, getCARType(&c2));
+
+            cdr(At3) = cdr(At2);
+            setCDRType(At3, getCDRType(At2));
+
+            //val(At3) = val(At2),  val(At2) = data(c2);
             outString("-> "),  fflush(OutFile),  print(x),  newline();
         }
         drop(c1);
