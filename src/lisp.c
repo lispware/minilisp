@@ -2015,6 +2015,13 @@ any doLine(any x) {
    }
 }
 
+
+any doLongFunc(any x)
+{
+    printf("LONG FUNCTION CALLED\n");
+    return x;
+}
+
 // (char) -> sym
 // (char 'num) -> sym
 // (char 'sym) -> num
@@ -2793,15 +2800,15 @@ int main(int ac, char *av[])
       CellPartType carType = getCARType(cell);
       CellPartType cdrType = getCDRType(cell);
 
-      if (TXT == carType && cdrType != FUNC && cell->cdr)
+      if ((BIN_START == carType || TXT == carType) && cdrType != FUNC && cell->cdr)
       {
          intern(cell, Intern);
       }
-      else if (TXT == carType && cdrType == FUNC && cell->cdr)
+      else if ((BIN_START == carType || TXT == carType) && cdrType == FUNC && cell->cdr)
       {
          intern(cell, Intern);
       }
-      else if (TXT == carType)
+      else if ((BIN_START == carType || TXT == carType))
       {
          intern(cell, Intern);
       }

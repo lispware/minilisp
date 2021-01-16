@@ -29,3 +29,5 @@ hs {doHS}
 if {doIf}
 G ((X)(+  1 2 X))
 Z 10
+ABCDEFGHIJ 10
+ABCDEFGHIJK {doLongFunc}
