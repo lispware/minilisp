@@ -2015,6 +2015,11 @@ any doLine(any x) {
    }
 }
 
+any doVeryLongFunc(any x)
+{
+    printf("VERY LONG FUNCTION CALLED\n");
+    return x;
+}
 
 any doLongFunc(any x)
 {

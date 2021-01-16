@@ -163,12 +163,13 @@ static void mkSym(char *name, char *value, CellPartType type)
         }
         else if (i == BITS)
         {
+            char buf[100];
+            sprintf(buf, "((any)(Mem + %d))", MemIdx);
+            MemGen[MemIdx-2] = strdup(buf);
+
             addWord(w);
             addWord(0);
             addType(mkType(BIN, PTR_CELL));
-            char buf[100];
-            sprintf(buf, "(" WORD_FORMAT_STRING ")", MemIdx - 6);
-            MemGen[MemIdx-5] = strdup(buf);
 
             i = 0;
             w = 0;

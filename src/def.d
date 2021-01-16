@@ -58,4 +58,6 @@ any doEq(any);
 any doIf(any);
 #define doLongFunc_D (any)(Mem+150)
 any doLongFunc(any);
+#define doVeryLongFunc_D (any)(Mem+159)
+any doVeryLongFunc(any);
 #endif
