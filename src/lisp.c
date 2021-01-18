@@ -2179,7 +2179,7 @@ static void mark(any x)
 
     if (getCARType(x) == BIN_START)
     {
-        mark(cdr(x));
+        if (getCDRType(x) == PTR_CELL) mark(cdr(x));
         x = x->car;
         while(x && x != Nil)
         {
