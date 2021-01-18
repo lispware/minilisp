@@ -2388,7 +2388,7 @@ uword getHeapSize(void)
         p = car(p);
     }
 
-    printf("MEM SIZE = %lld FREE = %lld Nil = %p\n", size, sizeFree, Nil);
+    printf("MEM SIZE = %lld FREE = %lld\n", size, sizeFree);
 
     return size;
 }
