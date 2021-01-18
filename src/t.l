@@ -93,14 +93,17 @@
 (prinl (LEN Z))
 
 (prinl ABCD)
-#(prinl ABCDEDFHIJK)
-#(setq longtxt "A REALLY LONG TXT")
 
 (let L '( 1 2 3) (while L (prinl (car L)) (setq L (cdr L))))
 
 (in "t.l" (do 10 (prinl (char))))
 (out "ABCD" (prinl "HELLO WORLD"))
 (in "ABCD" (do 11 (prinl (char))))
+
+
+(prinl ABCDEFGHIJ)
+(ABCDEFGHIJK)
+(ABCDEFGHIJABCDEFGHIJK)
 
 
 (hs)

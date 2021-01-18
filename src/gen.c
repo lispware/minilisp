@@ -35,6 +35,8 @@ void eofErr(void)
 typedef WORD_TYPE WORD;
 typedef SIGNED_WORD_TYPE SIGNED_WORD;
 
+#define BITS (8*((int)sizeof(long long)))
+
 typedef enum {NO,YES} BOOL;
 
 
@@ -58,6 +60,9 @@ typedef enum
     NUM,
     FUNC,
     PTR_CELL,
+    INTERN,
+    BIN,
+    BIN_START,
 } CellPartType;
 
 
@@ -130,21 +135,67 @@ static int lookup(symbol **tree, char *name)
 
 static void mkSym(char *name, char *value, CellPartType type)
 {
-    BOOL BIN = NO;
     int i=0, d;
     WORD_TYPE w=0, c;
+    int bin = 0;
+    int bin_start=MemIdx;
 
     while(*name)
     {
+        if (!bin && i == BITS)
+        {
+            // deal with BIN
+
+            addWord(0);
+            char buf[100];
+            sprintf(buf, "((any)(Mem + %d))", MemIdx+2);
+            MemGen[MemIdx-1] = strdup(buf);
+            addWord(0);
+            addType(mkType(BIN_START, PTR_CELL));
+
+            addWord(w);
+            addWord(0);
+            addType(mkType(BIN, PTR_CELL));
+
+            bin = 1;
+            i = 0;
+            w = 0;
+        }
+        else if (i == BITS)
+        {
+            char buf[100];
+            sprintf(buf, "((any)(Mem + %d))", MemIdx);
+            MemGen[MemIdx-2] = strdup(buf);
+
+            addWord(w);
+            addWord(0);
+            addType(mkType(BIN, PTR_CELL));
+
+            i = 0;
+            w = 0;
+        }
+
         c = *name++;
-        //w <<= 8;
         w |= (c << i);
         i+=8;
     }
 
-    addWord(w);
-    addWord(0);
-    addType(mkType(TXT, type));
+    if (bin)
+    {
+            char buf[100];
+            sprintf(buf, "((any)(Mem + %d))", MemIdx);
+            MemGen[MemIdx-2] = strdup(buf);
+
+            addWord(w);
+            addWord(0);
+            addType(mkType(BIN, PTR_CELL));
+    }
+    else
+    {
+        addWord(w);
+        addWord(0);
+        addType(mkType(TXT, type));
+    }
 }
 
 void addType(CellPartType type)
@@ -530,8 +581,8 @@ int main(int ac, char *av[])
                 fprintf(fpSYM, " (any)(Mem+%d)\n", x);
                 sprintf(buf, "((any)(Mem + 0))");
                 MemGen[x+1] = strdup(buf);
-                sprintf(buf, "0x%x", mkType(TXT, PTR_CELL));
-                MemGen[x+2] = strdup(buf);
+                //sprintf(buf, "0x%x", mkType(TXT, PTR_CELL));
+                //MemGen[x+2] = strdup(buf);
             }
 
             if (skip() == '{')
@@ -559,7 +610,14 @@ int main(int ac, char *av[])
                 fprintf(fpSYM, "_D (any)(Mem+%d)\n", x);
                 sprintf(buf, "((any)(%s))", Token);
                 MemGen[x+1] = strdup(buf);
-                sprintf(buf, "0x%x", mkType(TXT, FUNC));
+                if (!strcmp(MemGen[x+2], "0x407"))
+                {
+                    sprintf(buf, "0x%x", mkType(BIN_START, FUNC));
+                }
+                else
+                {
+                    sprintf(buf, "0x%x", mkType(TXT, FUNC));
+                }
                 MemGen[x+2] = strdup(buf);
                 fprintf(fpSYM, "any %s(any);\n", Token);
             }
@@ -568,8 +626,8 @@ int main(int ac, char *av[])
                 int v = read0(YES);
                 sprintf(buf, "(Mem+%d)", v);
                 MemGen[x + 1] = strdup(buf);
-                sprintf(buf, WORD_FORMAT_STRING, mkType(TXT, PTR_CELL));
-                MemGen[x + 2] = strdup(buf);
+                // sprintf(buf, WORD_FORMAT_STRING, mkType(TXT, PTR_CELL));
+                // MemGen[x + 2] = strdup(buf);
             }
 
             while (skip() == ',')          // Properties

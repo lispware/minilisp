@@ -1486,8 +1486,18 @@ any load(any ex, int pr, any x)
         else
         {
             Push(c2, val(At));
-            x = val(At) = EVAL(data(c1));
-            val(At3) = val(At2),  val(At2) = data(c2);
+            x = EVAL(data(c1));
+            cdr(At) = x;
+            setCDRType(At, getCDRType(x));
+            //x = val(At) = EVAL(data(c1));
+
+            cdr(At2) = c2.car;
+            setCDRType(At2, getCARType(&c2));
+
+            cdr(At3) = cdr(At2);
+            setCDRType(At3, getCDRType(At2));
+
+            //val(At3) = val(At2),  val(At2) = data(c2);
             outString("-> "),  fflush(OutFile),  print(x),  newline();
         }
         drop(c1);
@@ -2005,6 +2015,18 @@ any doLine(any x) {
    }
 }
 
+any doVeryLongFunc(any x)
+{
+    printf("VERY LONG FUNCTION CALLED\n");
+    return x;
+}
+
+any doLongFunc(any x)
+{
+    printf("LONG FUNCTION CALLED\n");
+    return x;
+}
+
 // (char) -> sym
 // (char 'num) -> sym
 // (char 'sym) -> num
@@ -2157,7 +2179,7 @@ static void mark(any x)
 
     if (getCARType(x) == BIN_START)
     {
-        mark(cdr(x));
+        if (getCDRType(x) == PTR_CELL) mark(cdr(x));
         x = x->car;
         while(x && x != Nil)
         {
@@ -2783,15 +2805,15 @@ int main(int ac, char *av[])
       CellPartType carType = getCARType(cell);
       CellPartType cdrType = getCDRType(cell);
 
-      if (TXT == carType && cdrType != FUNC && cell->cdr)
+      if ((BIN_START == carType || TXT == carType) && cdrType != FUNC && cell->cdr)
       {
          intern(cell, Intern);
       }
-      else if (TXT == carType && cdrType == FUNC && cell->cdr)
+      else if ((BIN_START == carType || TXT == carType) && cdrType == FUNC && cell->cdr)
       {
          intern(cell, Intern);
       }
-      else if (TXT == carType)
+      else if ((BIN_START == carType || TXT == carType))
       {
          intern(cell, Intern);
       }

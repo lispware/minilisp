@@ -1,4 +1,4 @@
-#define MEMS 138
+#define MEMS 171
 any Mem[] = {
     (any)(Mem + 0), (any)(Mem + 0), (any)(0x404),
     (any)(0x6c694e), (any)(0x0), (any)0x401,
@@ -46,4 +46,15 @@ any Mem[] = {
     (any)(any)(Mem + 105), (any)(any)(Mem + 126), (any)0x10404,
     (any)(0x5a), (any)(Mem+135), (any)0x401,
     (any)(0xa), (any)(0x0), (any)0x402,
+    (any)((any)(Mem + 141)), (any)(Mem+147), (any)0x407,
+    (any)(0x4847464544434241), (any)((any)(Mem + 144)), (any)0x406,
+    (any)(0x4a49), (any)(0x0), (any)0x406,
+    (any)(0xa), (any)(0x0), (any)0x402,
+    (any)((any)(Mem + 153)), (any)((any)(doLongFunc)), (any)0x307,
+    (any)(0x4847464544434241), (any)((any)(Mem + 156)), (any)0x406,
+    (any)(0x4b4a49), (any)(0x0), (any)0x406,
+    (any)((any)(Mem + 162)), (any)((any)(doVeryLongFunc)), (any)0x307,
+    (any)(0x4847464544434241), (any)((any)(Mem + 165)), (any)0x406,
+    (any)(0x4645444342414a49), (any)((any)(Mem + 168)), (any)0x406,
+    (any)(0x4b4a494847), (any)(0x0), (any)0x406,
 };
