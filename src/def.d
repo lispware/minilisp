@@ -6,58 +6,61 @@
 #define At2 (any)(Mem+12)
 #define At3 (any)(Mem+15)
 #define Zero (any)(Mem+18)
-#define doBye_D (any)(Mem+24)
+#define One (any)(Mem+24)
+#define doBye_D (any)(Mem+30)
 any doBye(any);
-#define doDe_D (any)(Mem+27)
+#define doDe_D (any)(Mem+33)
 any doDe(any);
-#define doAdd_D (any)(Mem+30)
+#define doAdd_D (any)(Mem+36)
 any doAdd(any);
-#define doSub_D (any)(Mem+33)
+#define doSub_D (any)(Mem+39)
 any doSub(any);
-#define doMul_D (any)(Mem+36)
+#define doMul_D (any)(Mem+42)
 any doMul(any);
-#define doLet_D (any)(Mem+39)
+#define doLet_D (any)(Mem+45)
 any doLet(any);
-#define doPrin_D (any)(Mem+42)
+#define doPrin_D (any)(Mem+48)
 any doPrin(any);
-#define doDo_D (any)(Mem+45)
+#define doDo_D (any)(Mem+51)
 any doDo(any);
-#define doSetq_D (any)(Mem+48)
+#define doSetq_D (any)(Mem+54)
 any doSetq(any);
-#define doMake_D (any)(Mem+51)
+#define doMake_D (any)(Mem+57)
 any doMake(any);
-#define doLink_D (any)(Mem+54)
+#define doLink_D (any)(Mem+60)
 any doLink(any);
-#define doCons_D (any)(Mem+57)
+#define doCons_D (any)(Mem+63)
 any doCons(any);
-#define doCar_D (any)(Mem+60)
+#define doCar_D (any)(Mem+66)
 any doCar(any);
-#define doCdr_D (any)(Mem+63)
+#define doCdr_D (any)(Mem+69)
 any doCdr(any);
-#define doQuote_D (any)(Mem+66)
+#define doQuote_D (any)(Mem+72)
 any doQuote(any);
-#define doDump_D (any)(Mem+69)
+#define doDump_D (any)(Mem+75)
 any doDump(any);
-#define doWhile_D (any)(Mem+72)
+#define doWhile_D (any)(Mem+78)
 any doWhile(any);
-#define doIn_D (any)(Mem+75)
+#define doIn_D (any)(Mem+81)
 any doIn(any);
-#define doOut_D (any)(Mem+78)
+#define doOut_D (any)(Mem+84)
 any doOut(any);
-#define doChar_D (any)(Mem+81)
+#define doChar_D (any)(Mem+87)
 any doChar(any);
-#define doLine_D (any)(Mem+84)
+#define doLine_D (any)(Mem+90)
 any doLine(any);
-#define doNot_D (any)(Mem+87)
+#define doNot_D (any)(Mem+93)
 any doNot(any);
-#define doHS_D (any)(Mem+90)
+#define doFor_D (any)(Mem+96)
+any doFor(any);
+#define doHS_D (any)(Mem+99)
 any doHS(any);
-#define doEq_D (any)(Mem+93)
+#define doEq_D (any)(Mem+102)
 any doEq(any);
-#define doIf_D (any)(Mem+96)
+#define doIf_D (any)(Mem+105)
 any doIf(any);
-#define doLongFunc_D (any)(Mem+150)
+#define doLongFunc_D (any)(Mem+159)
 any doLongFunc(any);
-#define doVeryLongFunc_D (any)(Mem+159)
+#define doVeryLongFunc_D (any)(Mem+168)
 any doVeryLongFunc(any);
 #endif

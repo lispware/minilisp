@@ -105,6 +105,13 @@
 (ABCDEFGHIJK)
 (ABCDEFGHIJABCDEFGHIJK)
 
+(let X 0
+    (for N 10000 (setq X (+ X N))) (prinl X))
+(let X 0
+    (for N 10000 (setq X (+ X N)) (setq X (+ X N))) (prinl X))
+(let X 0
+    (for N '( 1 2 3 4 5 6 7 8 9 10) (setq X (+ X N))) (prinl X))
+
 
 (hs)
 (bye)

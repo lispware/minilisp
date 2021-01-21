@@ -2,6 +2,7 @@
 @@ [At2] Nil
 @@@ [At3] Nil
 Zero [Zero] 0
+One [One] 1
 bye {doBye}
 de {doDe}
 + {doAdd}
@@ -24,6 +25,7 @@ out {doOut}
 char {doChar}
 line {doLine}
 not {doNot}
+for {doFor}
 hs {doHS}
 = {doEq}
 if {doIf}
