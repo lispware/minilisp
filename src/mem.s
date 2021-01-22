@@ -26,6 +26,7 @@ char {doChar}
 line {doLine}
 not {doNot}
 for {doFor}
+run {doRun}
 hs {doHS}
 = {doEq}
 if {doIf}

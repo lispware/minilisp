@@ -53,14 +53,16 @@ any doLine(any);
 any doNot(any);
 #define doFor_D (any)(Mem+96)
 any doFor(any);
-#define doHS_D (any)(Mem+99)
+#define doRun_D (any)(Mem+99)
+any doRun(any);
+#define doHS_D (any)(Mem+102)
 any doHS(any);
-#define doEq_D (any)(Mem+102)
+#define doEq_D (any)(Mem+105)
 any doEq(any);
-#define doIf_D (any)(Mem+105)
+#define doIf_D (any)(Mem+108)
 any doIf(any);
-#define doLongFunc_D (any)(Mem+159)
+#define doLongFunc_D (any)(Mem+162)
 any doLongFunc(any);
-#define doVeryLongFunc_D (any)(Mem+168)
+#define doVeryLongFunc_D (any)(Mem+171)
 any doVeryLongFunc(any);
 #endif
