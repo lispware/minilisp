@@ -775,15 +775,17 @@ any doRun(any x) {
          data(c1) = isSym(data(c1))? val(data(c1)) : run(data(c1));
       else {
          int cnt, n, i, j;
-         struct {  // bindFrame
-            struct bindFrame *link;
-            int i, cnt;
-            struct {any sym; any val;} bnd[length(x)];
-         } f;
+         //struct {  // bindFrame
+         //   struct bindFrame *link;
+         //   int i, cnt;
+         //   struct {any sym; any val;} bnd[length(x)];
+         //} f;
+
+         bindFrame *f = allocFrame(length(x));
 
          x = cdr(x),  x = EVAL(car(x));
          j = cnt = (int)unBox(y);
-         n = f.i = f.cnt = 0;
+         n = f->i = f->cnt = 0;
          do {
             ++n;
             if ((i = p->i) <= 0  &&  (p->i -= cnt, i == 0)) {
@@ -801,9 +803,9 @@ any doRun(any x) {
                if (p->i < 0)
                   for (i = 0;  i < p->cnt;  ++i) {
                      if (p->bnd[i].sym == car(x)) {
-                        f.bnd[f.cnt].val = val(f.bnd[f.cnt].sym = car(x));
+                        f->bnd[f->cnt].val = val(f->bnd[f->cnt].sym = car(x));
                         val(car(x)) = p->bnd[i].val;
-                        ++f.cnt;
+                        ++f->cnt;
                         goto next;
                      }
                   }
@@ -812,11 +814,11 @@ any doRun(any x) {
             }
 next:       x = cdr(x);
          }
-         f.link = Env.bind,  Env.bind = (bindFrame*)&f;
+         f->link = Env.bind,  Env.bind = (bindFrame*)&f;
          data(c1) = isSym(data(c1))? val(data(c1)) : prog(data(c1));
-         while (--f.cnt >= 0)
-            val(f.bnd[f.cnt].sym) = f.bnd[f.cnt].val;
-         Env.bind = f.link;
+         while (--f->cnt >= 0)
+            val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
+         Env.bind = f->link;
          do {
             for (p = Env.bind, i = n;  --i;  p = p->link);
             if (p->i < 0  &&  (p->i += cnt) == 0)
@@ -838,51 +840,53 @@ next:       x = cdr(x);
 any doFor(any x) {
    any y, body, cond, a;
    cell c1;
-   struct {  // bindFrame
-      struct bindFrame *link;
-      int i, cnt;
-      struct {any sym; any val;} bnd[2];
-   } f;
+   // struct {  // bindFrame
+   //    struct bindFrame *link;
+   //    int i, cnt;
+   //    struct {any sym; any val;} bnd[2];
+   // } f;
 
-   f.link = Env.bind,  Env.bind = (bindFrame*)&f;
-   f.i = 0;
+   bindFrame *f = allocFrame(2);
+
+   f->link = Env.bind,  Env.bind = f;
+   f->i = 0;
    if (!isCell(y = car(x = cdr(x))) || !isCell(cdr(y))) {
       if (!isCell(y)) {
-         f.cnt = 1;
-         f.bnd[0].sym = y;
-         f.bnd[0].val = val(y);
+         f->cnt = 1;
+         f->bnd[0].sym = y;
+         f->bnd[0].val = val(y);
       }
       else {
-         f.cnt = 2;
-         f.bnd[0].sym = cdr(y);
-         f.bnd[0].val = val(cdr(y));
-         f.bnd[1].sym = car(y);
-         f.bnd[1].val = val(car(y));
-         val(f.bnd[1].sym) = Zero;
+         f->cnt = 2;
+         f->bnd[0].sym = cdr(y);
+         f->bnd[0].val = val(cdr(y));
+         f->bnd[1].sym = car(y);
+         f->bnd[1].val = val(car(y));
+         val(f->bnd[1].sym) = Zero;
       }
       y = Nil;
       x = cdr(x),  Push(c1, EVAL(car(x)));
       if (isNum(data(c1)))
-         f.bnd[0].sym->cdr  = mkNum(0);
+         f->bnd[0].sym->cdr  = mkNum(0);
       body = x = cdr(x);
       for (;;) {
          if (isNum(data(c1))) {
             word l,r;
-            l = f.bnd[0].sym->cdr->car;
-            f.bnd[0].sym->cdr = mkNum(l + 1);
+            l = (word) f->bnd[0].sym->cdr->car;
             r = num(data(c1)->car);
             if ( l >= r ) 
                break;
+            f->bnd[0].sym->cdr->car = (any)(l + 1);
          }
          else {
             if (Nil == (data(c1)))
                break;
-            val(f.bnd[0].sym) = car(data(c1));
+            val(f->bnd[0].sym) = car(data(c1));
             if (Nil == (data(c1) = cdr(data(c1))))
                data(c1) = Nil;
          }
-         if (f.cnt == 2)
-            val(f.bnd[1].sym) = (any)(num(val(f.bnd[1].sym)) + 4);
+         if (f->cnt == 2)
+            val(f->bnd[1].sym) = (any)(num(val(f->bnd[1].sym)) + 4);
          do {
             if (!isNum(y = car(x))) {
                if (isSym(y))
@@ -913,33 +917,33 @@ any doFor(any x) {
       }
    for1:
       drop(c1);
-      if (f.cnt == 2)
-         val(f.bnd[1].sym) = f.bnd[1].val;
-      val(f.bnd[0].sym) = f.bnd[0].val;
-      Env.bind = f.link;
+      if (f->cnt == 2)
+         val(f->bnd[1].sym) = f->bnd[1].val;
+      val(f->bnd[0].sym) = f->bnd[0].val;
+      Env.bind = f->link;
       return y;
    }
    if (!isCell(car(y))) {
-      f.cnt = 1;
-      f.bnd[0].sym = car(y);
-      f.bnd[0].val = val(car(y));
+      f->cnt = 1;
+      f->bnd[0].sym = car(y);
+      f->bnd[0].val = val(car(y));
    }
    else {
-      f.cnt = 2;
-      f.bnd[0].sym = cdar(y);
-      f.bnd[0].val = val(cdar(y));
-      f.bnd[1].sym = caar(y);
-      f.bnd[1].val = val(caar(y));
-      val(f.bnd[1].sym) = Zero;
+      f->cnt = 2;
+      f->bnd[0].sym = cdar(y);
+      f->bnd[0].val = val(cdar(y));
+      f->bnd[1].sym = caar(y);
+      f->bnd[1].val = val(caar(y));
+      val(f->bnd[1].sym) = Zero;
    }
    y = cdr(y);
-   val(f.bnd[0].sym) = EVAL(car(y));
+   val(f->bnd[0].sym) = EVAL(car(y));
    y = cdr(y),  cond = car(y),  y = cdr(y);
    Push(c1,Nil);
    body = x = cdr(x);
    for (;;) {
-      if (f.cnt == 2)
-         val(f.bnd[1].sym) = (any)(num(val(f.bnd[1].sym)) + 4);
+      if (f->cnt == 2)
+         val(f->bnd[1].sym) = (any)(num(val(f->bnd[1].sym)) + 4);
       if (isNil(a = EVAL(cond)))
          break;
       val(At) = a;
@@ -970,14 +974,14 @@ any doFor(any x) {
          }
       } while (isCell(x = cdr(x)));
       if (isCell(y))
-         val(f.bnd[0].sym) = prog(y);
+         val(f->bnd[0].sym) = prog(y);
       x = body;
    }
 for2:
-   if (f.cnt == 2)
-      val(f.bnd[1].sym) = f.bnd[1].val;
-   val(f.bnd[0].sym) = f.bnd[0].val;
-   Env.bind = f.link;
+   if (f->cnt == 2)
+      val(f->bnd[1].sym) = f->bnd[1].val;
+   val(f->bnd[0].sym) = f->bnd[0].val;
+   Env.bind = f->link;
    return Pop(c1);
 }
 
