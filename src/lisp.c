@@ -11,11 +11,25 @@
 #define CELLS (1024*1024/sizeof(cell))
 #endif
 
-#define WORD ((int)sizeof(long long))
+#if INTPTR_MAX == INT32_MAX
+    #define WORD_TYPE uint32_t
+    #define SIGNED_WORD_TYPE int32_t
+    #define WORD_FORMAT_STRING "0x%x"
+    #define WORD_FORMAT_STRING_D "%d"
+#elif INTPTR_MAX == INT64_MAX
+    #define WORD_TYPE uint64_t
+    #define SIGNED_WORD_TYPE int64_t
+    #define WORD_FORMAT_STRING "0x%llx"
+    #define WORD_FORMAT_STRING_D "%ld"
+#else
+    #error "Unsupported bit width"
+#endif
+
+#define WORD ((int)sizeof(WORD_TYPE))
 #define BITS (8*WORD)
 
-typedef signed long long word;
-typedef unsigned long long uword;
+typedef SIGNED_WORD_TYPE word;
+typedef WORD_TYPE uword;
 typedef unsigned char byte;
 typedef unsigned char *ptr;
 
@@ -93,8 +107,23 @@ int getMark(any cell)
     return cell->type.parts[3];
 }
 
-#include "def.d"
-#include "mem.d"
+#if INTPTR_MAX == INT32_MAX
+    #define WORD_TYPE uint32_t
+    #define SIGNED_WORD_TYPE int32_t
+    #define WORD_FORMAT_STRING "0x%x"
+    #define WORD_FORMAT_STRING_D "%d"
+    #include "def32.d"
+    #include "mem32.d"
+#elif INTPTR_MAX == INT64_MAX
+    #define WORD_TYPE uint64_t
+    #define SIGNED_WORD_TYPE int64_t
+    #define WORD_FORMAT_STRING "0x%llx"
+    #define WORD_FORMAT_STRING_D "%ld"
+    #include "def64.d"
+    #include "mem64.d"
+#else
+    #error "Unsupported bit width"
+#endif
 
 typedef struct heap
 {
@@ -273,7 +302,7 @@ extern any ApplyArgs, ApplyBody;
 any mkNum(word n);
 void printTXT(any);
 void printLongTXT(any);
-static void gc(long long c);
+static void gc(word c);
 uword getHeapSize(void);
 /* Prototypes */
 void *alloc(void*,size_t);
@@ -282,13 +311,13 @@ void argError(any,any) ;
 void atomError(any,any) ;
 void begString(void);
 void brkLoad(any);
-int bufNum(char[BITS/2],long long);
+int bufNum(char[BITS/2],word);
 int bufSize(any);
 void bufString(any,char*);
 void bye(int) ;
 void pairError(any,any) ;
 any circ(any);
-long long compare(any,any);
+word compare(any,any);
 any consIntern(any,any);
 any cons(any,any);
 any consName(uword,any);
@@ -299,7 +328,7 @@ bool equal(any,any);
 void err(any,any,char*,...) ;
 any evExpr(any,any);
 any evList(any);
-long long evNum(any,any);
+word evNum(any,any);
 any evSym(any);
 void execError(char*) ;
 int firstByte(any);
@@ -323,7 +352,7 @@ any name(any);
 void numError(any,any) ;
 any numToSym(any,int,int,int);
 void outName(any);
-void outNum(long long);
+void outNum(word);
 void outString(char*);
 void pack(any,int*,uword*,any*,cell*);
 int pathSize(any);
@@ -350,7 +379,7 @@ void undefined(any,any);
 void unwind (catchFrame*);
 void varError(any,any) ;
 void wrOpen(any,any,outFrame*);
-long long xNum(any,any);
+word xNum(any,any);
 any xSym(any);
 
 /* List length calculation */
@@ -1750,9 +1779,9 @@ void outString(char *s)
         Env.put(*s++);
 }
 
-int bufNum(char buf[BITS/2], long long n)
+int bufNum(char buf[BITS/2], word n)
 {
-    return sprintf(buf, "%lld", n); // TODO - this is not quite right for 32 bit
+    return sprintf(buf, WORD_FORMAT_STRING_D, n); // TODO - this is not quite right for 32 bit
 }
 
 void outNum(word n)
@@ -1904,7 +1933,7 @@ any symToNum(any sym, int scl, int sep, int ign)
     int i;
     uword w;
     bool sign, frac;
-    long long n;
+    word n;
     any s = sym;
 
 
@@ -2342,7 +2371,7 @@ any doDo(any x)
     x = cdr(x);
     if (isNil(f = EVAL(car(x))))
         return Nil;
-    if (isNum(f) && num(f) < 0)
+    if (isNum(f) && f->car < 0)
         return Nil;
     else
         N = (word)f->car;
@@ -2620,13 +2649,13 @@ uword getHeapSize(void)
         p = car(p);
     }
 
-    printf("MEM SIZE = %lld FREE = %lld\n", size, sizeFree);
+    printf("MEM SIZE = " WORD_FORMAT_STRING_D " FREE = " WORD_FORMAT_STRING_D "\n", size, sizeFree);
 
     return size;
 }
 
 /* Garbage collector */
-static void gc(long long c)
+static void gc(word c)
 {
     any p;
     heap *h;
@@ -2772,7 +2801,7 @@ void heapAlloc(void)
    heap *h;
    cell *p;
 
-   h = (heap*)((long long)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
+   h = (heap*)((word)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
    h->next = Heaps,  Heaps = h;
    p = h->cells + CELLS-1;
    do
@@ -2977,7 +3006,7 @@ void printTXT(any cell)
 
 void printNUM(any cell)
 {
-    printf("%lld", (long long)cell->car);
+    printf(WORD_FORMAT_STRING_D, (word)cell->car);
 }
 
 void printCell(any cell)

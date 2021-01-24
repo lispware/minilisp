@@ -23,11 +23,15 @@ void eofErr(void)
 #if INTPTR_MAX == INT32_MAX
     #define WORD_TYPE uint32_t
     #define SIGNED_WORD_TYPE int32_t
-    #define WORD_FORMAT_STRING "0x%lx"
+    #define WORD_FORMAT_STRING "0x%x"
+    #define MEMFILE "mem32.d"
+    #define DEFFILE "def32.d"
 #elif INTPTR_MAX == INT64_MAX
     #define WORD_TYPE uint64_t
     #define SIGNED_WORD_TYPE int64_t
-    #define WORD_FORMAT_STRING "0x%llx"
+    #define WORD_FORMAT_STRING "0x%lx"
+    #define MEMFILE "mem64.d"
+    #define DEFFILE "def64.d"
 #else
     #error "Unsupported bit width"
 #endif
@@ -35,7 +39,7 @@ void eofErr(void)
 typedef WORD_TYPE WORD;
 typedef SIGNED_WORD_TYPE SIGNED_WORD;
 
-#define BITS (8*((int)sizeof(long long)))
+#define BITS (8*((int)sizeof(WORD)))
 
 typedef enum {NO,YES} BOOL;
 
@@ -524,9 +528,9 @@ int main(int ac, char *av[])
     char *p;
     int x; 
     FILE *fpSYM;
-    FILE *fpMem = fopen("mem.d", "w");
+    FILE *fpMem = fopen(MEMFILE, "w");
 
-    if ((fpSYM = fopen("def.d", "w")) == NULL)
+    if ((fpSYM = fopen(DEFFILE, "w")) == NULL)
     {
         giveup("Can't create output files");
     }
@@ -612,11 +616,11 @@ int main(int ac, char *av[])
                 MemGen[x+1] = strdup(buf);
                 if (!strcmp(MemGen[x+2], "0x407"))
                 {
-                    sprintf(buf, "0x%x", mkType(BIN_START, FUNC));
+                    sprintf(buf, WORD_FORMAT_STRING, (WORD_TYPE) mkType(BIN_START, FUNC));
                 }
                 else
                 {
-                    sprintf(buf, "0x%x", mkType(TXT, FUNC));
+                    sprintf(buf, WORD_FORMAT_STRING, (WORD_TYPE) mkType(TXT, FUNC));
                 }
                 MemGen[x+2] = strdup(buf);
                 fprintf(fpSYM, "any %s(any);\n", Token);
