@@ -29,7 +29,7 @@ void eofErr(void)
 #elif INTPTR_MAX == INT64_MAX
     #define WORD_TYPE uint64_t
     #define SIGNED_WORD_TYPE int64_t
-    #define WORD_FORMAT_STRING "0x%lx"
+    #define WORD_FORMAT_STRING "0x%llx"
     #define MEMFILE "mem64.d"
     #define DEFFILE "def64.d"
 #else
