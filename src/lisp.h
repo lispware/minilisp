@@ -1,7 +1,10 @@
 #ifndef __LISP_H__
 #define __LISP_H__
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
+#include <setjmp.h>
 
 #ifndef CELLS
 #define CELLS (1024*1024/sizeof(cell))
@@ -60,5 +63,84 @@ typedef enum
     BIN,
     BIN_START,
 } CellPartType;
+
+typedef struct heap
+{
+   cell cells[CELLS];
+   struct heap *next;
+}
+heap;
+
+typedef struct bindFrame
+{
+   struct bindFrame *link;
+   int i, cnt;
+   struct {any sym; any val;} bnd[1];
+}
+bindFrame;
+
+typedef struct inFrame
+{
+   struct inFrame *link;
+   void (*get)(void);
+   FILE *fp;
+   int next;
+}
+inFrame;
+
+typedef struct outFrame
+{
+   struct outFrame *link;
+   void (*put)(int);
+   FILE *fp;
+}
+outFrame;
+
+typedef struct parseFrame
+{
+   int i;
+   uword w;
+   any sym, nm;
+}
+parseFrame;
+
+typedef struct stkEnv
+{
+   cell *stack, *arg;
+   bindFrame *bind;
+   int next;
+   any key, cls, *make, *yoke;
+   inFrame *inFrames;
+   outFrame *outFrames;
+   parseFrame *parser;
+   void (*get)(void);
+   void (*put)(int);
+   bool brk;
+}
+stkEnv;
+
+typedef struct catchFrame
+{
+   struct catchFrame *link;
+   any tag, fin;
+   stkEnv env;
+   jmp_buf rst;
+}
+catchFrame;
+
+typedef struct
+{
+        any sym; any val;
+}
+bindFrameBind;
+
+#define bindFrameSize (sizeof(bindFrame))
+#define bindSize (sizeof(bindFrameBind))
+static inline bindFrame *allocFrame(int l)
+{
+    int s1 = bindFrameSize;
+    int s2 = (l - 1) * bindSize;
+    return (bindFrame*)malloc(s1 + s2);
+};
 
 #endif
