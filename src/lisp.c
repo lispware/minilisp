@@ -20,7 +20,7 @@
     #define WORD_TYPE uint64_t
     #define SIGNED_WORD_TYPE int64_t
     #define WORD_FORMAT_STRING "0x%llx"
-    #define WORD_FORMAT_STRING_D "%ld"
+    #define WORD_FORMAT_STRING_D "%lld"
 #else
     #error "Unsupported bit width"
 #endif
@@ -108,17 +108,9 @@ int getMark(any cell)
 }
 
 #if INTPTR_MAX == INT32_MAX
-    #define WORD_TYPE uint32_t
-    #define SIGNED_WORD_TYPE int32_t
-    #define WORD_FORMAT_STRING "0x%x"
-    #define WORD_FORMAT_STRING_D "%d"
     #include "def32.d"
     #include "mem32.d"
 #elif INTPTR_MAX == INT64_MAX
-    #define WORD_TYPE uint64_t
-    #define SIGNED_WORD_TYPE int64_t
-    #define WORD_FORMAT_STRING "0x%llx"
-    #define WORD_FORMAT_STRING_D "%ld"
     #include "def64.d"
     #include "mem64.d"
 #else
