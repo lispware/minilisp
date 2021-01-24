@@ -11,11 +11,25 @@
 #define CELLS (1024*1024/sizeof(cell))
 #endif
 
-#define WORD ((int)sizeof(long long))
+#if INTPTR_MAX == INT32_MAX
+    #define WORD_TYPE uint32_t
+    #define SIGNED_WORD_TYPE int32_t
+    #define WORD_FORMAT_STRING "0x%x"
+    #define WORD_FORMAT_STRING_D "%d"
+#elif INTPTR_MAX == INT64_MAX
+    #define WORD_TYPE uint64_t
+    #define SIGNED_WORD_TYPE int64_t
+    #define WORD_FORMAT_STRING "0x%llx"
+    #define WORD_FORMAT_STRING_D "%lld"
+#else
+    #error "Unsupported bit width"
+#endif
+
+#define WORD ((int)sizeof(WORD_TYPE))
 #define BITS (8*WORD)
 
-typedef signed long long word;
-typedef unsigned long long uword;
+typedef SIGNED_WORD_TYPE word;
+typedef WORD_TYPE uword;
 typedef unsigned char byte;
 typedef unsigned char *ptr;
 
@@ -93,8 +107,15 @@ int getMark(any cell)
     return cell->type.parts[3];
 }
 
-#include "def.d"
-#include "mem.d"
+#if INTPTR_MAX == INT32_MAX
+    #include "def32.d"
+    #include "mem32.d"
+#elif INTPTR_MAX == INT64_MAX
+    #include "def64.d"
+    #include "mem64.d"
+#else
+    #error "Unsupported bit width"
+#endif
 
 typedef struct heap
 {
@@ -270,9 +291,10 @@ extern any TheKey, TheCls, Thrown;
 extern any Intern[2], Transient[2];
 extern any ApplyArgs, ApplyBody;
 
+any mkNum(word n);
 void printTXT(any);
 void printLongTXT(any);
-static void gc(long long c);
+static void gc(word c);
 uword getHeapSize(void);
 /* Prototypes */
 void *alloc(void*,size_t);
@@ -281,13 +303,13 @@ void argError(any,any) ;
 void atomError(any,any) ;
 void begString(void);
 void brkLoad(any);
-int bufNum(char[BITS/2],long long);
+int bufNum(char[BITS/2],word);
 int bufSize(any);
 void bufString(any,char*);
 void bye(int) ;
 void pairError(any,any) ;
 any circ(any);
-long long compare(any,any);
+word compare(any,any);
 any consIntern(any,any);
 any cons(any,any);
 any consName(uword,any);
@@ -298,7 +320,7 @@ bool equal(any,any);
 void err(any,any,char*,...) ;
 any evExpr(any,any);
 any evList(any);
-long long evNum(any,any);
+word evNum(any,any);
 any evSym(any);
 void execError(char*) ;
 int firstByte(any);
@@ -322,7 +344,7 @@ any name(any);
 void numError(any,any) ;
 any numToSym(any,int,int,int);
 void outName(any);
-void outNum(long long);
+void outNum(word);
 void outString(char*);
 void pack(any,int*,uword*,any*,cell*);
 int pathSize(any);
@@ -349,7 +371,7 @@ void undefined(any,any);
 void unwind (catchFrame*);
 void varError(any,any) ;
 void wrOpen(any,any,outFrame*);
-long long xNum(any,any);
+word xNum(any,any);
 any xSym(any);
 
 /* List length calculation */
@@ -385,7 +407,7 @@ static inline any run(any x)
    {
       y = EVAL(car(x));
    }
-   while (isCell(x = cdr(x)));
+   while (Nil != (x = cdr(x)));
    val(At) = Pop(at);
    return y;
 }
@@ -759,6 +781,229 @@ any doNot(any x) {
       return T;
    val(At) = a;
    return Nil;
+}
+
+
+any doRun(any x) {
+   any y;
+   cell c1;
+   bindFrame *p;
+
+   x = cdr(x),  data(c1) = EVAL(car(x)),  x = cdr(x);
+   if (!isNum(data(c1))) {
+      Save(c1);
+      if (!isNum(y = EVAL(car(x))) || !(p = Env.bind))
+         data(c1) = isSym(data(c1))? val(data(c1)) : run(data(c1));
+      else {
+         int cnt, n, i, j;
+         //struct {  // bindFrame
+         //   struct bindFrame *link;
+         //   int i, cnt;
+         //   struct {any sym; any val;} bnd[length(x)];
+         //} f;
+
+         bindFrame *f = allocFrame(length(x));
+
+         x = cdr(x),  x = EVAL(car(x));
+         j = cnt = (int)unBox(y);
+         n = f->i = f->cnt = 0;
+         do {
+            ++n;
+            if ((i = p->i) <= 0  &&  (p->i -= cnt, i == 0)) {
+               for (i = 0;  i < p->cnt;  ++i) {
+                  y = val(p->bnd[i].sym);
+                  val(p->bnd[i].sym) = p->bnd[i].val;
+                  p->bnd[i].val = y;
+               }
+               if (p->cnt  &&  p->bnd[0].sym == At  &&  !--j)
+                  break;
+            }
+         } while (p = p->link);
+         while (isCell(x)) {
+            for (p = Env.bind, j = n; ; p = p->link) {
+               if (p->i < 0)
+                  for (i = 0;  i < p->cnt;  ++i) {
+                     if (p->bnd[i].sym == car(x)) {
+                        f->bnd[f->cnt].val = val(f->bnd[f->cnt].sym = car(x));
+                        val(car(x)) = p->bnd[i].val;
+                        ++f->cnt;
+                        goto next;
+                     }
+                  }
+               if (!--j)
+                  break;
+            }
+next:       x = cdr(x);
+         }
+         f->link = Env.bind,  Env.bind = (bindFrame*)&f;
+         data(c1) = isSym(data(c1))? val(data(c1)) : prog(data(c1));
+         while (--f->cnt >= 0)
+            val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
+         Env.bind = f->link;
+         do {
+            for (p = Env.bind, i = n;  --i;  p = p->link);
+            if (p->i < 0  &&  (p->i += cnt) == 0)
+               for (i = p->cnt;  --i >= 0;) {
+                  y = val(p->bnd[i].sym);
+                  val(p->bnd[i].sym) = p->bnd[i].val;
+                  p->bnd[i].val = y;
+               }
+         } while (--n);
+      }
+      drop(c1);
+   }
+   return data(c1);
+}
+
+// (for sym 'num ['any | (NIL 'any . prg) | (T 'any . prg) ..]) -> any
+// (for sym|(sym2 . sym) 'lst ['any | (NIL 'any . prg) | (T 'any . prg) ..]) -> any
+// (for (sym|(sym2 . sym) 'any1 'any2 [. prg]) ['any | (NIL 'any . prg) | (T 'any . prg) ..]) -> any
+any doFor(any x) {
+   any y, body, cond, a;
+   cell c1;
+   // struct {  // bindFrame
+   //    struct bindFrame *link;
+   //    int i, cnt;
+   //    struct {any sym; any val;} bnd[2];
+   // } f;
+
+   bindFrame *f = allocFrame(2);
+
+   f->link = Env.bind,  Env.bind = f;
+   f->i = 0;
+   if (!isCell(y = car(x = cdr(x))) || !isCell(cdr(y))) {
+      if (!isCell(y)) {
+         f->cnt = 1;
+         f->bnd[0].sym = y;
+         f->bnd[0].val = val(y);
+      }
+      else {
+         f->cnt = 2;
+         f->bnd[0].sym = cdr(y);
+         f->bnd[0].val = val(cdr(y));
+         f->bnd[1].sym = car(y);
+         f->bnd[1].val = val(car(y));
+         val(f->bnd[1].sym) = Zero;
+      }
+      y = Nil;
+      x = cdr(x),  Push(c1, EVAL(car(x)));
+      if (isNum(data(c1)))
+         f->bnd[0].sym->cdr  = mkNum(0);
+      body = x = cdr(x);
+      for (;;) {
+         if (isNum(data(c1))) {
+            word l,r;
+            l = (word) f->bnd[0].sym->cdr->car;
+            r = num(data(c1)->car);
+            if ( l >= r ) 
+               break;
+            f->bnd[0].sym->cdr->car = (any)(l + 1);
+         }
+         else {
+            if (Nil == (data(c1)))
+               break;
+            val(f->bnd[0].sym) = car(data(c1));
+            if (Nil == (data(c1) = cdr(data(c1))))
+               data(c1) = Nil;
+         }
+         if (f->cnt == 2)
+            val(f->bnd[1].sym) = (any)(num(val(f->bnd[1].sym)) + 4);
+         do {
+            if (!isNum(y = car(x))) {
+               if (isSym(y))
+                  y = val(y);
+               else if (isNil(car(y))) {
+                  y = cdr(y);
+                  if (isNil(a = EVAL(car(y)))) {
+                     y = prog(cdr(y));
+                     goto for1;
+                  }
+                  val(At) = a;
+                  y = Nil;
+               }
+               else if (car(y) == T) {
+                  y = cdr(y);
+                  if (!isNil(a = EVAL(car(y)))) {
+                     val(At) = a;
+                     y = prog(cdr(y));
+                     goto for1;
+                  }
+                  y = Nil;
+               }
+               else
+                  y = evList(y);
+            }
+         } while (Nil != (x = cdr(x)));
+         x = body;
+      }
+   for1:
+      drop(c1);
+      if (f->cnt == 2)
+         val(f->bnd[1].sym) = f->bnd[1].val;
+      val(f->bnd[0].sym) = f->bnd[0].val;
+      Env.bind = f->link;
+      return y;
+   }
+   if (!isCell(car(y))) {
+      f->cnt = 1;
+      f->bnd[0].sym = car(y);
+      f->bnd[0].val = val(car(y));
+   }
+   else {
+      f->cnt = 2;
+      f->bnd[0].sym = cdar(y);
+      f->bnd[0].val = val(cdar(y));
+      f->bnd[1].sym = caar(y);
+      f->bnd[1].val = val(caar(y));
+      val(f->bnd[1].sym) = Zero;
+   }
+   y = cdr(y);
+   val(f->bnd[0].sym) = EVAL(car(y));
+   y = cdr(y),  cond = car(y),  y = cdr(y);
+   Push(c1,Nil);
+   body = x = cdr(x);
+   for (;;) {
+      if (f->cnt == 2)
+         val(f->bnd[1].sym) = (any)(num(val(f->bnd[1].sym)) + 4);
+      if (isNil(a = EVAL(cond)))
+         break;
+      val(At) = a;
+      do {
+         if (!isNum(data(c1) = car(x))) {
+            if (isSym(data(c1)))
+               data(c1) = val(data(c1));
+            else if (isNil(car(data(c1)))) {
+               data(c1) = cdr(data(c1));
+               if (isNil(a = EVAL(car(data(c1))))) {
+                  data(c1) = prog(cdr(data(c1)));
+                  goto for2;
+               }
+               val(At) = a;
+               data(c1) = Nil;
+            }
+            else if (car(data(c1)) == T) {
+               data(c1) = cdr(data(c1));
+               if (!isNil(a = EVAL(car(data(c1))))) {
+                  val(At) = a;
+                  data(c1) = prog(cdr(data(c1)));
+                  goto for2;
+               }
+               data(c1) = Nil;
+            }
+            else
+               data(c1) = evList(data(c1));
+         }
+      } while (isCell(x = cdr(x)));
+      if (isCell(y))
+         val(f->bnd[0].sym) = prog(y);
+      x = body;
+   }
+for2:
+   if (f->cnt == 2)
+      val(f->bnd[1].sym) = f->bnd[1].val;
+   val(f->bnd[0].sym) = f->bnd[0].val;
+   Env.bind = f->link;
+   return Pop(c1);
 }
 
 // (c...r 'lst) -> any
@@ -1526,9 +1771,9 @@ void outString(char *s)
         Env.put(*s++);
 }
 
-int bufNum(char buf[BITS/2], long long n)
+int bufNum(char buf[BITS/2], word n)
 {
-    return sprintf(buf, "%lld", n); // TODO - this is not quite right for 32 bit
+    return sprintf(buf, WORD_FORMAT_STRING_D, n); // TODO - this is not quite right for 32 bit
 }
 
 void outNum(word n)
@@ -1680,7 +1925,7 @@ any symToNum(any sym, int scl, int sep, int ign)
     int i;
     uword w;
     bool sign, frac;
-    long long n;
+    word n;
     any s = sym;
 
 
@@ -1743,6 +1988,14 @@ any symToNum(any sym, int scl, int sep, int ign)
     r->car = (any)n;
     r->type.parts[0] = NUM;
 
+    return r;
+}
+
+any mkNum(word n)
+{
+    any r = cons(Nil, Nil);
+    r->car = (any)n;
+    r->type.parts[0] = NUM;
     return r;
 }
 
@@ -2110,7 +2363,7 @@ any doDo(any x)
     x = cdr(x);
     if (isNil(f = EVAL(car(x))))
         return Nil;
-    if (isNum(f) && num(f) < 0)
+    if (isNum(f) && f->car < 0)
         return Nil;
     else
         N = (word)f->car;
@@ -2388,13 +2641,13 @@ uword getHeapSize(void)
         p = car(p);
     }
 
-    printf("MEM SIZE = %lld FREE = %lld Nil = %p\n", size, sizeFree, Nil);
+    printf("MEM SIZE = " WORD_FORMAT_STRING_D " FREE = " WORD_FORMAT_STRING_D "\n", size, sizeFree);
 
     return size;
 }
 
 /* Garbage collector */
-static void gc(long long c)
+static void gc(word c)
 {
     any p;
     heap *h;
@@ -2540,7 +2793,7 @@ void heapAlloc(void)
    heap *h;
    cell *p;
 
-   h = (heap*)((long long)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
+   h = (heap*)((word)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
    h->next = Heaps,  Heaps = h;
    p = h->cells + CELLS-1;
    do
@@ -2745,7 +2998,7 @@ void printTXT(any cell)
 
 void printNUM(any cell)
 {
-    printf("%lld", (long long)cell->car);
+    printf(WORD_FORMAT_STRING_D, (word)cell->car);
 }
 
 void printCell(any cell)
