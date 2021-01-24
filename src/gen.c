@@ -663,6 +663,8 @@ int main(int ac, char *av[])
     // x = ramSym("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl", "20", Type_Num);
     // printf("%d\n", x);
 
+    fprintf(fpMem, "#ifndef __MEM_D__\n");
+    fprintf(fpMem, "#define __MEM_D__\n");
     fprintf(fpMem, "#define MEMS %d\n", MemIdx);
     fprintf(fpMem, "any Mem[] = {\n");
 
@@ -672,6 +674,7 @@ int main(int ac, char *av[])
         fprintf(fpMem, "    (any)%s, (any)%s, (any)%s,\n", MemGen[i], MemGen[i + 1], MemGen[i + 2]);
     }
     fprintf(fpMem, "};\n");
+    fprintf(fpMem, "#endif\n");
     fclose(fpMem);
 
 

@@ -1,3 +1,5 @@
+#ifndef __MEM_D__
+#define __MEM_D__
 #define MEMS 216
 any Mem[] = {
     (any)(Mem + 0), (any)(Mem + 0), (any)(0x404),
@@ -73,3 +75,4 @@ any Mem[] = {
     (any)(0x4a494847), (any)((any)(Mem + 213)), (any)0x406,
     (any)(0x4b), (any)(0x0), (any)0x406,
 };
+#endif
