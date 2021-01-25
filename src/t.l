@@ -27,6 +27,11 @@
 (prinl (F 1 2)))
 
 
+(de M X (prinl X))
+(M 1)
+(M 1 2 3)
+
+
 (prinl 123)
 (setq L1 (cons 1 (cons 2 (cons 3 Nil))))
 (setq L2 (cdr L1))

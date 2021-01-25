@@ -161,7 +161,8 @@ static inline uword length(any x)
 {
    uword n;
 
-   if (cdr(x) == x) return 0;
+   if (getCDRType(x) != PTR_CELL) return 0;
+   if (cdr(x) == x || cdr(x) == 0) return 0;
 
    for (n = 0; x != Nil; x = cdr(x)) ++n;
    return n;
@@ -2616,7 +2617,7 @@ any evExpr(any expr, any x)
    f->i = (bindSize * (length(y)+2)) / (2*sizeof(any)) - 1;
    f->cnt = 1,  f->bnd[0].sym = At,  f->bnd[0].val = val(At);
 
-   while (y != Nil && y != cdr(y))
+   while (y != Nil && y != cdr(y) && 0 != cdr(y))
    {
       f->bnd[f->cnt].sym = car(y);
       f->bnd[f->cnt].val = EVAL(car(x));
