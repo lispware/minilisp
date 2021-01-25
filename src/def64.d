@@ -1,5 +1,6 @@
 #ifndef __SYM_D__
 #define __SYM_D__
+extern any Mem[];
 #define Nil ((any)(Mem+0))
 #define T ((any)(Mem+6))
 #define At (any)(Mem+9)

@@ -143,4 +143,51 @@ static inline bindFrame *allocFrame(int l)
     return (bindFrame*)malloc(s1 + s2);
 };
 
+
+/* Number access */
+#define num(x)          ((word)(x))
+#define txt(n)          ((any)(num(n)<<1|1))
+#define box(n)          ((any)(num(n)<<2|2))
+#define unBox(n)        (num(n->car))
+
+/* Symbol access */
+#define symPtr(x)       (x)
+#define val(x)          ((x)->cdr)
+
+#define tail(x)         (x)
+
+/* Cell access */
+#define car(x)          ((x)->car)
+#define cdr(x)          ((x)->cdr)
+#define caar(x)         (car(car(x)))
+#define cadr(x)         (car(cdr(x)))
+#define cdar(x)         (cdr(car(x)))
+#define cddr(x)         (cdr(cdr(x)))
+#define caaar(x)        (car(car(car(x))))
+#define caadr(x)        (car(car(cdr(x))))
+#define cadar(x)        (car(cdr(car(x))))
+#define caddr(x)        (car(cdr(cdr(x))))
+#define cdaar(x)        (cdr(car(car(x))))
+#define cdadr(x)        (cdr(car(cdr(x))))
+#define cddar(x)        (cdr(cdr(car(x))))
+#define cdddr(x)        (cdr(cdr(cdr(x))))
+#define cadddr(x)       (car(cdr(cdr(cdr(x)))))
+#define cddddr(x)       (cdr(cdr(cdr(cdr(x)))))
+
+#define data(c)         ((c).car)
+#define Save(c)         ((c).cdr=Env.stack, Env.stack=&(c))
+#define drop(c)         (Env.stack=(c).cdr)
+#define Push(c,x)       (data(c)=(x), Save(c))
+#define Pop(c)          (drop(c), data(c))
+
+#define Bind(s,f)       ((f).i=0, (f).cnt=1, (f).bnd[0].sym=(s), (f).bnd[0].val=val(s), (f).link=Env.bind, Env.bind=&(f))
+#define Unbind(f)       (val((f).bnd[0].sym)=(f).bnd[0].val, Env.bind=(f).link)
+
+/* Predicates */
+#define isNil(x)        ((x)==Nil)
+#define isTxt(x)        (((any)(x))->type.parts[0] == TXT)
+#define isNum(x)        (((any)(x))->type.parts[0] == NUM)
+#define isCell(x)        (((any)(x))->type.parts[0] == PTR_CELL)
+#define isFunc(x)        (((any)(x))->type.parts[1] == FUNC)
+
 #endif

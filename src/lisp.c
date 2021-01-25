@@ -26,51 +26,6 @@
 /*** Macros ***/
 #define Free(p)         ((p)->car=Avail, (p)->cdr=0, (p)->type._t=0,  Avail=(p))
 
-/* Number access */
-#define num(x)          ((word)(x))
-#define txt(n)          ((any)(num(n)<<1|1))
-#define box(n)          ((any)(num(n)<<2|2))
-#define unBox(n)        (num(n->car))
-
-/* Symbol access */
-#define symPtr(x)       (x)
-#define val(x)          ((x)->cdr)
-
-#define tail(x)         (x)
-
-/* Cell access */
-#define car(x)          ((x)->car)
-#define cdr(x)          ((x)->cdr)
-#define caar(x)         (car(car(x)))
-#define cadr(x)         (car(cdr(x)))
-#define cdar(x)         (cdr(car(x)))
-#define cddr(x)         (cdr(cdr(x)))
-#define caaar(x)        (car(car(car(x))))
-#define caadr(x)        (car(car(cdr(x))))
-#define cadar(x)        (car(cdr(car(x))))
-#define caddr(x)        (car(cdr(cdr(x))))
-#define cdaar(x)        (cdr(car(car(x))))
-#define cdadr(x)        (cdr(car(cdr(x))))
-#define cddar(x)        (cdr(cdr(car(x))))
-#define cdddr(x)        (cdr(cdr(cdr(x))))
-#define cadddr(x)       (car(cdr(cdr(cdr(x)))))
-#define cddddr(x)       (cdr(cdr(cdr(cdr(x)))))
-
-#define data(c)         ((c).car)
-#define Save(c)         ((c).cdr=Env.stack, Env.stack=&(c))
-#define drop(c)         (Env.stack=(c).cdr)
-#define Push(c,x)       (data(c)=(x), Save(c))
-#define Pop(c)          (drop(c), data(c))
-
-#define Bind(s,f)       ((f).i=0, (f).cnt=1, (f).bnd[0].sym=(s), (f).bnd[0].val=val(s), (f).link=Env.bind, Env.bind=&(f))
-#define Unbind(f)       (val((f).bnd[0].sym)=(f).bnd[0].val, Env.bind=(f).link)
-
-/* Predicates */
-#define isNil(x)        ((x)==Nil)
-#define isTxt(x)        (((any)(x))->type.parts[0] == TXT)
-#define isNum(x)        (((any)(x))->type.parts[0] == NUM)
-#define isCell(x)        (((any)(x))->type.parts[0] == PTR_CELL)
-#define isFunc(x)        (((any)(x))->type.parts[1] == FUNC)
 bool isSym(any x)
 {
    if (x) return 0;
@@ -205,6 +160,8 @@ any xSym(any);
 static inline uword length(any x)
 {
    uword n;
+
+   if (cdr(x) == x) return 0;
 
    for (n = 0; x != Nil; x = cdr(x)) ++n;
    return n;
@@ -600,15 +557,6 @@ any doHide(any ex)
    return Nil;
 }
 
-// (not 'any) -> flg
-any doNot(any x) {
-   any a;
-
-   if (isNil(a = EVAL(cadr(x))))
-      return T;
-   val(At) = a;
-   return Nil;
-}
 
 
 any doRun(any x) {
@@ -831,6 +779,15 @@ for2:
    val(f->bnd[0].sym) = f->bnd[0].val;
    Env.bind = f->link;
    return Pop(c1);
+}
+
+any doNot(any x) {
+   any a;
+
+   if (isNil(a = EVAL(cadr(x))))
+      return T;
+   val(At) = a;
+   return Nil;
 }
 
 // (c...r 'lst) -> any
@@ -2658,11 +2615,14 @@ any evExpr(any expr, any x)
    f->link = Env.bind,  Env.bind = f;
    f->i = (bindSize * (length(y)+2)) / (2*sizeof(any)) - 1;
    f->cnt = 1,  f->bnd[0].sym = At,  f->bnd[0].val = val(At);
-   while (y != Nil)
+
+   while (y != Nil && y != cdr(y))
    {
       f->bnd[f->cnt].sym = car(y);
       f->bnd[f->cnt].val = EVAL(car(x));
-      ++f->cnt, x = cdr(x), y = cdr(y);
+      ++f->cnt;
+      x = cdr(x);
+      y = cdr(y);
    }
 
    if (isNil(y)) {
