@@ -1,5 +1,8 @@
 #ifndef __MEM_D__
 #define __MEM_D__
+#include "lisp.h"
+#include "cell.h"
+#include "def64.d"
 any Mem[] = {
     (any)(Mem + 0), (any)(Mem + 0), (any)(0x404),
     (any)(0x6c694e), (any)(0x0), (any)0x401,

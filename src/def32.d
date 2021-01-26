@@ -66,4 +66,7 @@ any doIf(any);
 any doLongFunc(any);
 #define doVeryLongFunc_D (any)(Mem+195)
 any doVeryLongFunc(any);
+
+#define MEMS 216
+
 #endif

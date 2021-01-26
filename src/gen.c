@@ -24,13 +24,13 @@ void eofErr(void)
     #define WORD_TYPE uint32_t
     #define SIGNED_WORD_TYPE int32_t
     #define WORD_FORMAT_STRING "0x%x"
-    #define MEMFILE "mem32.d"
+    #define MEMFILE "mem32.c"
     #define DEFFILE "def32.d"
 #elif INTPTR_MAX == INT64_MAX
     #define WORD_TYPE uint64_t
     #define SIGNED_WORD_TYPE int64_t
     #define WORD_FORMAT_STRING "0x%llx"
-    #define MEMFILE "mem64.d"
+    #define MEMFILE "mem64.c"
     #define DEFFILE "def64.d"
 #else
     #error "Unsupported bit width"
@@ -537,6 +537,7 @@ int main(int ac, char *av[])
 
     fprintf(fpSYM, "#ifndef __SYM_D__\n");
     fprintf(fpSYM, "#define __SYM_D__\n");
+
     fprintf(fpSYM, "extern any Mem[];\n");
     fprintf(fpSYM, "#define Nil ((any)(Mem+0))\n");
     fprintf(fpSYM, "#define T ((any)(Mem+6))\n");
@@ -666,7 +667,11 @@ int main(int ac, char *av[])
 
     fprintf(fpMem, "#ifndef __MEM_D__\n");
     fprintf(fpMem, "#define __MEM_D__\n");
-    fprintf(fpMem, "#define MEMS %d\n", MemIdx);
+
+    fprintf(fpMem, "#include \"lisp.h\"\n");
+    fprintf(fpMem, "#include \"cell.h\"\n");
+    fprintf(fpMem, "#include \"%s\"\n", DEFFILE);
+
     fprintf(fpMem, "any Mem[] = {\n");
 
     fprintf(fpMem, "    (any)(Mem + 0), (any)(Mem + 0), (any)(0x404),\n");
@@ -679,8 +684,9 @@ int main(int ac, char *av[])
     fclose(fpMem);
 
 
-fprintf(fpSYM, "#endif\n");
-fclose(fpSYM);
+    fprintf(fpSYM, "\n#define MEMS %d\n", MemIdx);
+    fprintf(fpSYM, "\n#endif\n");
+    fclose(fpSYM);
 
     return 0;
 }

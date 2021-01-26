@@ -13,14 +13,11 @@
 
 #if INTPTR_MAX == INT32_MAX
     #include "def32.d"
-    #include "mem32.d"
 #elif INTPTR_MAX == INT64_MAX
     #include "def64.d"
-    #include "mem64.d"
 #else
     #error "Unsupported bit width"
 #endif
-
 
 
 /*** Macros ***/
