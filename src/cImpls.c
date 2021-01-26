@@ -10,7 +10,7 @@
 #endif
 
 
-any doNot1(any x) {
+any doNot(any x) {
    any a;
 
    if (isNil(a = EVAL(cadr(x))))

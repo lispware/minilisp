@@ -190,4 +190,7 @@ static inline bindFrame *allocFrame(int l)
 #define isCell(x)        (((any)(x))->type.parts[0] == PTR_CELL)
 #define isFunc(x)        (((any)(x))->type.parts[1] == FUNC)
 
+any evList(any);
+any EVAL(any x);
+
 #endif

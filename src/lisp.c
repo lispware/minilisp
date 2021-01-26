@@ -779,15 +779,6 @@ for2:
    return Pop(c1);
 }
 
-any doNot(any x) {
-   any a;
-
-   if (isNil(a = EVAL(cadr(x))))
-      return T;
-   val(At) = a;
-   return Nil;
-}
-
 // (c...r 'lst) -> any
 any doCar(any ex)
 {
