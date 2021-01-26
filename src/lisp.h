@@ -190,7 +190,40 @@ static inline bindFrame *allocFrame(int l)
 #define isCell(x)        (((any)(x))->type.parts[0] == PTR_CELL)
 #define isFunc(x)        (((any)(x))->type.parts[1] == FUNC)
 
+
+/* Error checking */
+#define NeedNum(ex,x)   if (!isNum(x)) numError(ex,x)
+#define NeedSym(ex,x)   if (!isSym(x)) symError(ex,x)
+#define NeedPair(ex,x)  if (!isCell(x)) pairError(ex,x)
+#define NeedAtom(ex,x)  if (isCell(x)) atomError(ex,x)
+#define NeedLst(ex,x)   if (!isCell(x) && !isNil(x)) lstError(ex,x)
+#define NeedVar(ex,x)   if (isNum(x)) varError(ex,x)
+
 any evList(any);
 any EVAL(any x);
+void lstError(any,any) ;
+any consIntern(any x, any y);
+/* Construct a cell */
+any cons(any x, any y);
+
+/* Construct a symbol */
+any consSym(any val, uword w);
+
+/* Construct a name cell */
+any consName(uword w, any n);
+
+#define evSubr(f,x)     (*(FunPtr)(num(f)))(x)
+
+/* Globals */
+extern int Chr, Trace;
+extern char **AV, *AV0, *Home;
+extern heap *Heaps;
+extern cell *Avail;
+extern stkEnv Env;
+extern catchFrame *CatchPtr;
+extern FILE *InFile, *OutFile;
+extern any TheKey, TheCls, Thrown;
+extern any Intern[2], Transient[2];
+extern any ApplyArgs, ApplyBody;
 
 #endif

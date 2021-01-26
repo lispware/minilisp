@@ -48,27 +48,6 @@ any EVAL(any x)
    }
 }
 
-#define evSubr(f,x)     (*(FunPtr)(num(f)))(x)
-
-/* Error checking */
-#define NeedNum(ex,x)   if (!isNum(x)) numError(ex,x)
-#define NeedSym(ex,x)   if (!isSym(x)) symError(ex,x)
-#define NeedPair(ex,x)  if (!isCell(x)) pairError(ex,x)
-#define NeedAtom(ex,x)  if (isCell(x)) atomError(ex,x)
-#define NeedLst(ex,x)   if (!isCell(x) && !isNil(x)) lstError(ex,x)
-#define NeedVar(ex,x)   if (isNum(x)) varError(ex,x)
-
-/* Globals */
-extern int Chr, Trace;
-extern char **AV, *AV0, *Home;
-extern heap *Heaps;
-extern cell *Avail;
-extern stkEnv Env;
-extern catchFrame *CatchPtr;
-extern FILE *InFile, *OutFile;
-extern any TheKey, TheCls, Thrown;
-extern any Intern[2], Transient[2];
-extern any ApplyArgs, ApplyBody;
 
 any mkNum(word n);
 void printTXT(any);
@@ -111,7 +90,6 @@ void giveup(char*) ;
 void heapAlloc(void);
 any intern(any,any[2]);
 any isIntern(any,any[2]);
-void lstError(any,any) ;
 any load(any,int,any);
 any loadAll(any);
 any method(any);
@@ -776,38 +754,6 @@ for2:
       val(f->bnd[1].sym) = f->bnd[1].val;
    val(f->bnd[0].sym) = f->bnd[0].val;
    Env.bind = f->link;
-   return Pop(c1);
-}
-
-// (c...r 'lst) -> any
-any doCar(any ex)
-{
-   any x = cdr(ex);
-   x = EVAL(car(x));
-   NeedLst(ex,x);
-   return car(x);
-}
-
-any doCdr(any ex)
-{
-   any x = cdr(ex);
-   x = EVAL(car(x));
-   NeedLst(ex,x);
-   return cdr(x);
-}
-
-any doCons(any x)
-{
-   any y;
-   cell c1;
-
-   x = cdr(x);
-   Push(c1, y = cons(EVAL(car(x)),Nil));
-   while (Nil != (cdr(x = cdr(x))))
-   {
-      y = cdr(y) = cons(EVAL(car(x)),Nil);
-   }
-   cdr(y) = EVAL(car(x));
    return Pop(c1);
 }
 
