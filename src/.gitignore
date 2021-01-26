@@ -1,2 +1,5 @@
 gen
-lisp
+lisp32
+lisp64
+ABCD
+out

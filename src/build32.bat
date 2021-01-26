@@ -5,4 +5,4 @@ goto buildlisp
 cl /Zi gen.c
 gen mem.s
 :buildlisp
-cl /Zi lisp.c cell.c mem32.c
+cl /Zi cImpls.c lisp.c cell.c mem32.c /o lisp32.exe
