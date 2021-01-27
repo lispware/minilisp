@@ -226,7 +226,15 @@ extern any TheKey, TheCls, Thrown;
 extern any Intern[2], Transient[2];
 extern any ApplyArgs, ApplyBody;
 
+any doFor(any x);
+any doSetq(any x);
+
+any mkNum(word n);
+void printTXT(any);
+void printLongTXT(any);
+
 bool isSym(any x);
+
 
 uword length(any x);
 any prog(any x);
