@@ -226,4 +226,9 @@ extern any TheKey, TheCls, Thrown;
 extern any Intern[2], Transient[2];
 extern any ApplyArgs, ApplyBody;
 
+bool isSym(any x);
+
+uword length(any x);
+any prog(any x);
+any run(any x);
 #endif
