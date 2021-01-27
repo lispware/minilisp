@@ -334,3 +334,46 @@ any doSetq(any ex)
 
     return val(y);
 }
+
+
+// (link 'any ..) -> any
+any doLink(any x)
+{
+    any y;
+
+    if (!Env.make)
+    {
+        makeError(x);
+    }
+    x = cdr(x);
+    do
+    {
+        y = EVAL(car(x));
+        Env.make = &cdr(*Env.make = cons(y, Nil));
+    }
+    while (Nil != (x = cdr(x)));
+    return y;
+}
+
+// (make .. [(made 'lst ..)] .. [(link 'any ..)] ..) -> any
+any doMake(any x)
+{
+    any *make, *yoke;
+    cell c1;
+
+    Push(c1, Nil);
+    make = Env.make;
+    yoke = Env.yoke;
+    Env.make = Env.yoke = &data(c1);
+
+    while (Nil != (x = cdr(x)))
+    {
+        if (isCell(car(x)))
+        {
+            evList(car(x));
+        }
+    }
+    Env.yoke = yoke;
+    Env.make = make;
+    return Pop(c1);
+}

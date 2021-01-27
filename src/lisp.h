@@ -226,6 +226,12 @@ extern any TheKey, TheCls, Thrown;
 extern any Intern[2], Transient[2];
 extern any ApplyArgs, ApplyBody;
 
+void makeError(any ex);
+void varError(any,any) ;
+void numError(any,any) ;
+int getByte1(int *i, uword *p, any *q);
+int getByte(int *i, uword *p, any *q);
+
 any doFor(any x);
 any doSetq(any x);
 
@@ -236,7 +242,90 @@ void printLongTXT(any);
 bool isSym(any x);
 
 
+any symToNum(any sym, int scl, int sep, int ign);
+any mkNum(word n);
+any doAdd(any ex);
+any doSub(any ex);
+any doMul(any ex);
+
+
+
 uword length(any x);
 any prog(any x);
 any run(any x);
+uword getHeapSize(void);
+/* Prototypes */
+void *alloc(void*,size_t);
+any apply(any,any,bool,int,cell*);
+void argError(any,any) ;
+void atomError(any,any) ;
+void begString(void);
+void brkLoad(any);
+int bufNum(char[BITS/2],word);
+int bufSize(any);
+void bufString(any,char*);
+void bye(int) ;
+void pairError(any,any) ;
+any circ(any);
+word compare(any,any);
+any consIntern(any,any);
+any cons(any,any);
+any consName(uword,any);
+any consSym(any,uword);
+void newline(void);
+any endString(void);
+bool equal(any,any);
+void err(any,any,char*,...) ;
+any evExpr(any,any);
+any evList(any);
+word evNum(any,any);
+any evSym(any);
+void execError(char*) ;
+int firstByte(any);
+any get(any,any);
+int getByte(int*,uword*,any*);
+int getByte1(int*,uword*,any*);
+void getStdin(void);
+void giveup(char*) ;
+void heapAlloc(void);
+any intern(any,any[2]);
+any isIntern(any,any[2]);
+any load(any,int,any);
+any loadAll(any);
+any method(any);
+any mkChar(int);
+any mkSym(byte*);
+any mkStr(char*);
+any mkTxt(int);
+any name(any);
+any numToSym(any,int,int,int);
+void outName(any);
+void outNum(word);
+void outString(char*);
+void pack(any,int*,uword*,any*,cell*);
+int pathSize(any);
+void pathString(any,char*);
+void popInFiles(void);
+void popOutFiles(void);
+any popSym(int,uword,any,cell*);
+void prin(any);
+void print(any);
+void protError(any,any) ;
+void pushInFiles(inFrame*);
+void pushOutFiles(outFrame*);
+void put(any,any,any);
+void putByte(int,int*,uword*,any*,cell*);
+void putByte1(int,int*,uword*,any*);
+void putStdout(int);
+void rdOpen(any,any,inFrame*);
+any read1(int);
+void space(void);
+int symBytes(any);
+void symError(any,any) ;
+any symToNum(any,int,int,int);
+void undefined(any,any);
+void unwind (catchFrame*);
+void wrOpen(any,any,outFrame*);
+word xNum(any,any);
+any xSym(any);
 #endif
