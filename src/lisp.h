@@ -328,4 +328,23 @@ void unwind (catchFrame*);
 void wrOpen(any,any,outFrame*);
 word xNum(any,any);
 any xSym(any);
+any doPrin(any x);
+
+any doQuote(any x);
+any doEq(any x);
+any doIf(any x);
+any doDe(any ex);
+
+void redefine(any ex, any s, any x);
+void redefMsg(any x, any y);
+
+any doLine(any x) ;
+any doVeryLongFunc(any x);
+any doLongFunc(any x);
+any doChar(any ex) ;
+any doIn(any ex) ;
+any doOut(any ex) ;
+any doWhile(any x) ;
+any doDo(any x);
+bool eol(void);
 #endif
