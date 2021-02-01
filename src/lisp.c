@@ -1848,41 +1848,6 @@ void printNUM(any cell)
     printf(WORD_FORMAT_STRING_D, (word)cell->car);
 }
 
-void printCell(any cell)
-{
-    if (cell == Nil)
-    {
-        printf("Nil");
-        return;
-    }
-
-    CellPartType carType = getCARType(cell);
-
-    if (carType == TXT)
-    {
-        printTXT(cell);
-    }
-    else if (carType == NUM)
-    {
-        printNUM(cell);
-    }
-
-    if (isList(cell))
-    {
-        printf("(");
-        while(isList(cell))
-        {
-            carType = getCARType(cell);
-            if (carType == TXT) printTXT(cell);
-            else if (carType == NUM) printNUM(cell);
-            else printCell(cell->car);
-            cell = cell->cdr;
-            printf(" ");
-        }
-        printf(")");
-    }
-}
-
 /*** Main ***/
 int main(int ac, char *av[])
 {

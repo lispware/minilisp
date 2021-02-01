@@ -28,11 +28,6 @@ void setList(any cell)
     cell->type.parts[2] = 1;
 }
 
-int isList(any cell)
-{
-    return cell->type.parts[2];
-}
-
 void setMark(any cell, int m)
 {
     cell->type.parts[3] = m;

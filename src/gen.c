@@ -214,7 +214,6 @@ WORD mkConsType(CellPartType carType, CellPartType cdrType)
     PartType t = {0};
     t.parts[0] = carType;
     t.parts[1] = cdrType;
-    t.parts[2] = 1;
     return t._t;
 }
 
