@@ -1,11 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <ctype.h>
-#include <string.h>
-#include <errno.h>
-#include <setjmp.h>
-#include <stdint.h>
 
 #include "lisp.h"
 
@@ -429,16 +421,6 @@ static any read0(bool);
 
 static char Delim[] = " \t\n\r\"'(),[]`~{}";
 
-static void openErr(any ex, char *s)
-{
-    err(ex, NULL, "%s open: %s", s, strerror(errno));
-}
-
-static void eofErr(void)
-{
-    err(NULL, NULL, "EOF Overrun");
-}
-
 /* Buffer size */
 int bufSize(any x)
 {
@@ -486,67 +468,6 @@ void bufString(any x, char *p)
     *p = '\0';
 }
 
-void pathString(any x, char *p)
-{
-    int c, i;
-    uword w;
-    char *h;
-
-    if ((c = getByte1(&i, &w, &x)) == '+')
-    {
-        *p++ = c,  c = getByte(&i, &w, &x);
-    }
-    if (c != '@')
-    {
-        while (*p++ = c)
-        {
-            c = getByte(&i, &w, &x);
-        }
-    }
-    else
-    {
-        if (h = Home)
-        {
-            do
-            {
-                *p++ = *h++;
-            }
-            while (*h);
-        }
-
-        while (*p++ = getByte(&i, &w, &x));
-    }
-}
-
-void rdOpen(any ex, any x, inFrame *f)
-{
-    //NeedSymb(ex,x); // TODO WHAT IS THIS ABOUT?
-    if (isNil(x))
-    {
-        f->fp = stdin;
-    }
-    else
-    {
-        int ps = pathSize(x);
-        char *nm = (char*)malloc(ps);
-
-        pathString(x,nm);
-        if (nm[0] == '+')
-        {
-            if (!(f->fp = fopen(nm+1, "a+")))
-            {
-                openErr(ex, nm);
-            }
-            fseek(f->fp, 0L, SEEK_SET);
-        }
-        else if (!(f->fp = fopen(nm, "r")))
-        {
-            openErr(ex, nm);
-        }
-
-        free(nm);
-    }
-}
 
 /*** Reading ***/
 void getStdin(void)
@@ -554,41 +475,6 @@ void getStdin(void)
     Chr = getc(InFile);
 }
 
-void pushInFiles(inFrame *f)
-{
-    f->next = Chr,  Chr = 0;
-    InFile = f->fp;
-    f->get = Env.get,  Env.get = getStdin;
-    f->link = Env.inFrames,  Env.inFrames = f;
-}
-
-void pushOutFiles(outFrame *f)
-{
-    OutFile = f->fp;
-    f->put = Env.put,  Env.put = putStdout;
-    f->link = Env.outFrames,  Env.outFrames = f;
-}
-
-void popInFiles(void)
-{
-    if (InFile != stdin)
-    {
-        fclose(InFile);
-    }
-    Chr = Env.inFrames->next;
-    Env.get = Env.inFrames->get;
-    InFile = (Env.inFrames = Env.inFrames->link)?  Env.inFrames->fp : stdin;
-}
-
-void popOutFiles(void)
-{
-    if (OutFile != stdout && OutFile != stderr)
-    {
-        fclose(OutFile);
-    }
-    Env.put = Env.outFrames->put;
-    OutFile = (Env.outFrames = Env.outFrames->link)? Env.outFrames->fp : stdout;
-}
 
 /* Skip White Space and Comments */
 static int skipc(int c)
@@ -1233,24 +1119,6 @@ void prin(any x)
 
 
 
-void wrOpen(any ex, any x, outFrame *f) {
-   //NeedSymb(ex,x);
-   if (isNil(x))
-      f->fp = stdout;
-   else {
-      char *nm = (char *)malloc(pathSize(x));
-
-      pathString(x,nm);
-      if (nm[0] == '+') {
-         if (!(f->fp = fopen(nm+1, "a")))
-            openErr(ex, nm);
-      }
-      else if (!(f->fp = fopen(nm, "w")))
-         openErr(ex, nm);
-
-      free(nm);
-   }
-}
 
 
 ///////////////////////////////////////////////

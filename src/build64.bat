@@ -5,4 +5,4 @@ goto buildlisp
 cl /Zi gen.c
 gen mem.s
 :buildlisp
-cl /Zi cImpls.c lisp.c cell.c mem64.c math.c /o lisp64.exe
+cl /Zi flow.c lisp.c cell.c mem64.c math.c /o lisp64.exe

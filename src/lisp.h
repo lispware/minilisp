@@ -3,8 +3,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <stdarg.h>
+#include <ctype.h>
+#include <string.h>
+#include <errno.h>
 #include <setjmp.h>
+#include <stdint.h>
 
 #ifndef CELLS
 #define CELLS (1024*1024/sizeof(cell))
@@ -329,6 +333,8 @@ void wrOpen(any,any,outFrame*);
 word xNum(any,any);
 any xSym(any);
 any doPrin(any x);
+void openErr(any ex, char *s);
+void eofErr(void);
 
 any doQuote(any x);
 any doEq(any x);
