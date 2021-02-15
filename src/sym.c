@@ -49,7 +49,7 @@ int getByte(int *i, uword *p, any *q)
 
     if (*i == 0)
     {
-        if (!*q)
+        if (!*q || *q == Nil)
         {
             return 0;
         }
