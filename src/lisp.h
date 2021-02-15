@@ -337,6 +337,8 @@ void openErr(any ex, char *s);
 void eofErr(void);
 void comment(void);
 
+any doHide(any);
+
 any doQuote(any x);
 any doEq(any x);
 any doIf(any x);

@@ -828,3 +828,41 @@ void pathString(any x, char *p)
     }
 }
 
+
+void sym2str(any nm, char *buf)
+{
+    int i, c, ctr=0;
+    word w;
+
+    c = getByte1(&i, &w, &nm);
+    do
+    {
+        if (c == '"'  ||  c == '\\')
+        {
+            Env.put('\\');
+            buf[ctr++]=c;
+        }
+        Env.put(c);
+        buf[ctr++]=c;
+    }
+   while (c = getByte(&i, &w, &nm));
+    buf[ctr++]=0;
+}
+
+
+any doCall(any ex)
+{
+    char buf[1024];
+    any y;
+    any x = cdr(ex);
+    if (isNil(y = EVAL(car(x))))
+        return Nil;
+    printf ("----------------\n");
+    printLongTXT(y);
+    sym2str(y, buf);
+    printf("\nExecuting %s\n", buf);
+    system(buf);
+
+    printf ("\n----------------\n");
+    return x;
+}

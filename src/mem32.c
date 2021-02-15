@@ -76,5 +76,6 @@ any Mem[] = {
     (any)(0x46454443), (any)((any)(Mem + 210)), (any)0x406,
     (any)(0x4a494847), (any)((any)(Mem + 213)), (any)0x406,
     (any)(0x4b), (any)(0x0), (any)0x406,
+    (any)(0x6c6c6163), (any)((any)(doCall)), (any)0x301,
 };
 #endif
