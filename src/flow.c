@@ -861,3 +861,49 @@ any doCall(any ex)
     system(buf);
     return x;
 }
+
+void pack(any x, int *i, uword *p, any *q, cell *cp)
+{
+   int c, j;
+   word w;
+
+   if (isCell(x))
+   {
+      do
+      {
+         pack(car(x), i, p, q, cp);
+      }
+      while (Nil != (x = cdr(x)));
+   }
+   if (isNum(x)) {
+      char buf[BITS/2], *b = buf;
+
+      bufNum(buf, unBox(x));
+      do
+         putByte(*b++, i, p, q, cp);
+      while (*b);
+   }
+   else if (!isNil(x))
+      for (x = name(x), c = getByte1(&j, &w, &x); c; c = getByte(&j, &w, &x))
+         putByte(c, i, p, q, cp);
+}
+
+// (pack 'any ..) -> sym
+any doPack(any x)
+{
+   int i;
+   word w;
+   any y;
+   cell c1, c2;
+
+   x = cdr(x),  Push(c1, EVAL(car(x)));
+   putByte0(&i, &w, &y);
+   pack(data(c1), &i, &w, &y, &c2);
+   while (Nil != (x = cdr(x)))
+   {
+      pack(data(c1) = EVAL(car(x)), &i, &w, &y, &c2);
+   }
+   y = popSym(i, w, y, &c2);
+   drop(c1);
+   return i? y : Nil;
+}

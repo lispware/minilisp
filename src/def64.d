@@ -68,7 +68,9 @@ any doLongFunc(any);
 any doVeryLongFunc(any);
 #define doCall_D (any)(Mem+183)
 any doCall(any);
+#define doPack_D (any)(Mem+186)
+any doPack(any);
 
-#define MEMS 186
+#define MEMS 189
 
 #endif

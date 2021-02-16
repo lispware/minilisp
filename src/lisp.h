@@ -318,6 +318,7 @@ void protError(any,any) ;
 void pushInFiles(inFrame*);
 void pushOutFiles(outFrame*);
 void put(any,any,any);
+void putByte0(int *i, uword *p, any *q);
 void putByte(int,int*,uword*,any*,cell*);
 void putByte1(int,int*,uword*,any*);
 void putStdout(int);

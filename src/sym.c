@@ -90,6 +90,13 @@ any mkChar(int c)
    return consSym(NULL, c & 127);
 }
 
+void putByte0(int *i, uword *p, any *q)
+{
+    *p = 0;
+    *i = 0;
+    *q = NULL;
+}
+
 void putByte1(int c, int *i, uword *p, any *q)
 {
     *p = c & 127;

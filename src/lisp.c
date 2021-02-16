@@ -193,7 +193,7 @@ void print(any x)
         outNum(unBox(x));
         return;
     }
-    if (getCARType(x) == TXT)
+    if (getCARType(x) == TXT || getCARType(x) == BIN_START)
     {
         printLongTXT(x);
         return;
