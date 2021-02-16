@@ -195,11 +195,6 @@ void print(any x)
     }
     if (getCARType(x) == TXT)
     {
-        printf("%s", (char*)&x->car);
-        return;
-    }
-    if (getCARType(x) == BIN_START)
-    {
         printLongTXT(x);
         return;
     }
@@ -533,11 +528,6 @@ void printLongTXT(any nm)
         Env.put(c);
     }
    while (c = getByte(&i, &w, &nm));
-}
-
-void printTXT(any cell)
-{
-    printLongTXT(cell);
 }
 
 void printNUM(any cell)

@@ -857,12 +857,7 @@ any doCall(any ex)
     any x = cdr(ex);
     if (isNil(y = EVAL(car(x))))
         return Nil;
-    printf ("----------------\n");
-    printLongTXT(y);
     sym2str(y, buf);
-    printf("\nExecuting %s\n", buf);
     system(buf);
-
-    printf ("\n----------------\n");
     return x;
 }
