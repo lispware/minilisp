@@ -71,6 +71,19 @@
 (prinl "12345678")
 (prinl "1234567812345678")
 
+(prinl (pack 1 2 3 4))
+(prinl (pack 1 2 3 4 5))
+(prinl (pack 1 2 3 4 5 6 7 8))
+(prinl (pack 1 2 3 4 5 6 7 8))
+(prinl (pack "1" "2" "3" "4"))
+(prinl (pack "1" "2" "3" "4" "5"))
+(prinl (pack "1" "2" "3" "4" "5" "6" "7" "8"))
+(prinl (pack "1" "2" "3" "4" "5" "6" "7" "8"))
+(if (= "hello world" (pack "hello" " " "world"))
+    (prinl "pack passed")
+    (prinl "pack failed")
+    (bye))
+
 (setq longnumber 1234567890)
 (prinl (+ (* longnumber 10) 1))
 

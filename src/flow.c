@@ -397,8 +397,87 @@ any doQuote(any x)
     return cdr(x);
 }
 
-// (== 'any ..) -> flg
+
+int compareBIN(any x1, any x2)
+{
+    return 1;
+    do
+    {
+        CellPartType t1, t2;
+        t1 = getCARType(x1);
+        t2 = getCARType(x2);
+        if (t1 != BIN || t1 != t2) return 0;
+        if (x1->car != x2->car) return 0;
+        x1 = x1->cdr;
+        x2 = x2->cdr;
+
+    }
+    while(x1 != Nil);
+
+    return 1;
+}
+
+
 any doEq(any x)
+{
+   cell c1;
+    x = cdr(x);
+
+    if (x == Nil)
+    {
+        return T;
+    }
+
+    Push(c1, EVAL(car(x)));
+
+    any v = EVAL(car(x));
+    CellPartType vt = getCARType(v);
+
+    x = cdr(x);
+
+    while(x != Nil)
+    {
+        any v2 = EVAL(car(x));
+        CellPartType t = getCARType(v2);
+        if (t != vt) {drop(c1); return Nil;}
+
+        if(t == NUM || t == TXT)
+        {
+            if (car(v2) != car(v)) {drop(c1); return Nil;}
+        }
+        else if (t == BIN_START)
+        {
+            any p1 = car(v);
+            any p2 = car(v2);
+            do
+            {
+                if (car(p1) != car(p2)) {drop(c1); return Nil;}
+                p1 = cdr(p1);
+                p2 = cdr(p2);
+            }
+            while (p1 != Nil);
+
+            drop(c1);
+            return p2 == Nil? T : Nil;
+        }
+        else
+        {
+              if ( v != v2)
+              {
+                 drop(c1);
+                 return Nil;
+              }
+        }
+
+        x = cdr(x);
+    }
+
+    drop(c1);
+    return T;
+}
+
+// (== 'any ..) -> flg
+any doEq2(any x)
 {
    cell c1;
 
@@ -406,7 +485,20 @@ any doEq(any x)
    while (Nil != (x = cdr(x)))
    {
       //if (data(c1) != EVAL(car(x))) { // TODO CHECK IT OUT
-      if (car(data(c1)) != car(EVAL(car(x))))
+      any x1 = car(data(c1));
+      any x2 = car(EVAL(car(x)));
+
+      if (x1 && getCARType(x1) == BIN)
+      {
+          //if (!compareBIN(x1, x2))
+          //{
+          //       drop(c1);
+          //       return Nil;
+          //}
+      }
+
+
+      if ( x1 != x2)
       {
          drop(c1);
          return Nil;
