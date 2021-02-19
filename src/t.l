@@ -120,6 +120,20 @@
 (out "ABCD" (prinl "HELLO WORLD"))
 (in "ABCD" (do 11 (prinl (char))))
 
+(out "ABCD"
+     (prinl "LINE 1")
+     (prinl "A VERY LONG LONG LINE 2"))
+
+(in "ABCD"
+    (let (L1 (pack (line))
+          L2 (pack (line)))
+          (if (= L1 "LINE 1") 
+              (if (= L2 "A VERY LONG LONG LINE 2") (prinl "LINE TEST PASSED") (prinl "LINE TEST FAILED IN THE SECOND STRING"))
+              (prinl "LINE TEST FAILED IN THE FIRST STRING"))
+     ))
+         
+    
+
 
 (prinl ABCDEFGHIJ)
 (ABCDEFGHIJK)
