@@ -179,13 +179,13 @@ static inline bindFrame *allocFrame(int l)
 #define cddddr(x)       (cdr(cdr(cdr(cdr(x)))))
 
 #define data(c)         ((c).car)
-#define Save(c)         ((c).cdr=Env.stack, Env.stack=&(c))
-#define drop(c)         (Env.stack=(c).cdr)
+#define Save(c)         ((c).cdr=CONTEXT.Env.stack, CONTEXT.Env.stack=&(c))
+#define drop(c)         (CONTEXT.Env.stack=(c).cdr)
 #define Push(c,x)       (data(c)=(x), Save(c))
 #define Pop(c)          (drop(c), data(c))
 
-#define Bind(s,f)       ((f).i=0, (f).cnt=1, (f).bnd[0].sym=(s), (f).bnd[0].val=val(s), (f).link=Env.bind, Env.bind=&(f))
-#define Unbind(f)       (val((f).bnd[0].sym)=(f).bnd[0].val, Env.bind=(f).link)
+#define Bind(s,f)       ((f).i=0, (f).cnt=1, (f).bnd[0].sym=(s), (f).bnd[0].val=val(s), (f).link=CONTEXT.Env.bind, CONTEXT.Env.bind=&(f))
+#define Unbind(f)       (val((f).bnd[0].sym)=(f).bnd[0].val, CONTEXT.Env.bind=(f).link)
 
 /* Predicates */
 #define isNil(x)        ((x)==Nil)
@@ -219,16 +219,32 @@ any consName(uword w, any n);
 #define evSubr(f,x)     (*(FunPtr)(num(f)))(x)
 
 /* Globals */
-extern int Chr, Trace;
-extern char **AV, *AV0, *Home;
-extern heap *Heaps;
-extern cell *Avail;
-extern stkEnv Env;
-extern catchFrame *CatchPtr;
-extern FILE *InFile, *OutFile;
-extern any TheKey, TheCls, Thrown;
-extern any Intern[2], Transient[2];
-extern any ApplyArgs, ApplyBody;
+// extern int Chr, Trace;
+// extern char **AV, *AV0, *Home;
+// extern heap *Heaps;
+// extern cell *Avail;
+// extern stkEnv Env;
+// extern catchFrame *CatchPtr;
+// extern FILE *InFile, *OutFile;
+// extern any TheKey, TheCls, Thrown;
+// extern any Intern[2], Transient[2];
+// extern any ApplyArgs, ApplyBody;
+
+typedef struct
+{
+    /* Globals */
+    int Chr, Trace;
+    char **AV, *AV0, *Home;
+    heap *Heaps;
+    cell *Avail;
+    stkEnv Env;
+    catchFrame *CatchPtr;
+    FILE *InFile, *OutFile;
+    any Intern[2], Transient[2];
+    any ApplyArgs, ApplyBody;
+}
+Context;
+
 
 void makeError(any ex);
 void varError(any,any) ;
@@ -357,4 +373,8 @@ any doOut(any ex) ;
 any doWhile(any x) ;
 any doDo(any x);
 bool eol(void);
+
+extern Context CONTEXT;
+
+
 #endif
