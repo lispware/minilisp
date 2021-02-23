@@ -102,7 +102,7 @@ any doRun(any x) {
    x = cdr(x),  data(c1) = EVAL(car(x)),  x = cdr(x);
    if (!isNum(data(c1))) {
       Save(c1);
-      if (!isNum(y = EVAL(car(x))) || !(p = Env.bind))
+      if (!isNum(y = EVAL(car(x))) || !(p = CONTEXT.Env.bind))
          data(c1) = isSym(data(c1))? val(data(c1)) : run(data(c1));
       else {
          int cnt, n, i, j;
@@ -130,7 +130,7 @@ any doRun(any x) {
             }
          } while (p = p->link);
          while (isCell(x)) {
-            for (p = Env.bind, j = n; ; p = p->link) {
+            for (p = CONTEXT.Env.bind, j = n; ; p = p->link) {
                if (p->i < 0)
                   for (i = 0;  i < p->cnt;  ++i) {
                      if (p->bnd[i].sym == car(x)) {
@@ -145,13 +145,13 @@ any doRun(any x) {
             }
 next:       x = cdr(x);
          }
-         f->link = Env.bind,  Env.bind = (bindFrame*)&f;
+         f->link = CONTEXT.Env.bind,  CONTEXT.Env.bind = (bindFrame*)&f;
          data(c1) = isSym(data(c1))? val(data(c1)) : prog(data(c1));
          while (--f->cnt >= 0)
             val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
-         Env.bind = f->link;
+         CONTEXT.Env.bind = f->link;
          do {
-            for (p = Env.bind, i = n;  --i;  p = p->link);
+            for (p = CONTEXT.Env.bind, i = n;  --i;  p = p->link);
             if (p->i < 0  &&  (p->i += cnt) == 0)
                for (i = p->cnt;  --i >= 0;) {
                   y = val(p->bnd[i].sym);
@@ -179,7 +179,7 @@ any doFor(any x) {
 
    bindFrame *f = allocFrame(2);
 
-   f->link = Env.bind,  Env.bind = f;
+   f->link = CONTEXT.Env.bind,  CONTEXT.Env.bind = f;
    f->i = 0;
    if (!isCell(y = car(x = cdr(x))) || !isCell(cdr(y))) {
       if (!isCell(y)) {
@@ -251,7 +251,7 @@ any doFor(any x) {
       if (f->cnt == 2)
          val(f->bnd[1].sym) = f->bnd[1].val;
       val(f->bnd[0].sym) = f->bnd[0].val;
-      Env.bind = f->link;
+      CONTEXT.Env.bind = f->link;
       return y;
    }
    if (!isCell(car(y))) {
@@ -312,7 +312,7 @@ for2:
    if (f->cnt == 2)
       val(f->bnd[1].sym) = f->bnd[1].val;
    val(f->bnd[0].sym) = f->bnd[0].val;
-   Env.bind = f->link;
+   CONTEXT.Env.bind = f->link;
    return Pop(c1);
 }
 
@@ -341,7 +341,7 @@ any doLink(any x)
 {
     any y;
 
-    if (!Env.make)
+    if (!CONTEXT.Env.make)
     {
         makeError(x);
     }
@@ -349,7 +349,7 @@ any doLink(any x)
     do
     {
         y = EVAL(car(x));
-        Env.make = &cdr(*Env.make = cons(y, Nil));
+        CONTEXT.Env.make = &cdr(*CONTEXT.Env.make = cons(y, Nil));
     }
     while (Nil != (x = cdr(x)));
     return y;
@@ -362,9 +362,9 @@ any doMake(any x)
     cell c1;
 
     Push(c1, Nil);
-    make = Env.make;
-    yoke = Env.yoke;
-    Env.make = Env.yoke = &data(c1);
+    make = CONTEXT.Env.make;
+    yoke = CONTEXT.Env.yoke;
+    CONTEXT.Env.make = CONTEXT.Env.yoke = &data(c1);
 
     while (Nil != (x = cdr(x)))
     {
@@ -373,8 +373,8 @@ any doMake(any x)
             evList(car(x));
         }
     }
-    Env.yoke = yoke;
-    Env.make = make;
+    CONTEXT.Env.yoke = yoke;
+    CONTEXT.Env.make = make;
     return Pop(c1);
 }
 
@@ -558,7 +558,7 @@ any doLet(any x)
         // TODO check out how to do stack 
         bindFrame *f = allocFrame((length(y)+1)/2);
 
-        f->link = Env.bind,  Env.bind = f;
+        f->link = CONTEXT.Env.bind,  CONTEXT.Env.bind = f;
         f->i = f->cnt = 0;
         do
         {
@@ -571,7 +571,7 @@ any doLet(any x)
         x = prog(cdr(x));
         while (--f->cnt >= 0)
             val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
-        Env.bind = f->link;
+        CONTEXT.Env.bind = f->link;
 
         free(f);
     }
@@ -608,15 +608,15 @@ void redefine(any ex, any s, any x)
 
 void redefMsg(any x, any y)
 {
-   FILE *oSave = OutFile;
+   FILE *oSave = CONTEXT.OutFile;
 
-   OutFile = stderr;
+   CONTEXT.OutFile = stderr;
    outString("# ");
    print(x);
    if (y)
       space(), print(y);
    outString(" redefined\n");
-   OutFile = oSave;
+   CONTEXT.OutFile = oSave;
 }
 
 
@@ -627,26 +627,26 @@ any doLine(any x) {
    word w;
    cell c1;
 
-   if (!Chr)
-      Env.get();
+   if (!CONTEXT.Chr)
+      CONTEXT.Env.get();
    if (eol())
       return Nil;
    x = cdr(x);
    if (isNil(EVAL(car(x)))) {
-      Push(c1, cons(mkChar(Chr), Nil));
+      Push(c1, cons(mkChar(CONTEXT.Chr), Nil));
       y = data(c1);
       for (;;) {
-         if (Env.get(), eol())
+         if (CONTEXT.Env.get(), eol())
             return Pop(c1);
-         y = cdr(y) = cons(mkChar(Chr), Nil);
+         y = cdr(y) = cons(mkChar(CONTEXT.Chr), Nil);
       }
    }
    else {
-      putByte1(Chr, &i, &w, &y);
+      putByte1(CONTEXT.Chr, &i, &w, &y);
       for (;;) {
-         if (Env.get(), eol())
+         if (CONTEXT.Env.get(), eol())
             return popSym(i, w, y, &c1);
-         putByte(Chr, &i, &w, &y, &c1);
+         putByte(CONTEXT.Chr, &i, &w, &y, &c1);
       }
    }
 }
@@ -670,10 +670,10 @@ any doChar(any ex) {
    any x = cdr(ex);
 
    if (x == Nil) {
-      if (!Chr)
-         Env.get();
-      x = Chr<0? Nil : mkChar(Chr);
-      Env.get();
+      if (!CONTEXT.Chr)
+         CONTEXT.Env.get();
+      x = CONTEXT.Chr<0? Nil : mkChar(CONTEXT.Chr);
+      CONTEXT.Env.get();
       return x;
    }
    // TODO - fix this up
@@ -854,38 +854,38 @@ void eofErr(void)
 
 void pushInFiles(inFrame *f)
 {
-    f->next = Chr,  Chr = 0;
-    InFile = f->fp;
-    f->get = Env.get,  Env.get = getStdin;
-    f->link = Env.inFrames,  Env.inFrames = f;
+    f->next = CONTEXT.Chr,  CONTEXT.Chr = 0;
+    CONTEXT.InFile = f->fp;
+    f->get = CONTEXT.Env.get,  CONTEXT.Env.get = getStdin;
+    f->link = CONTEXT.Env.inFrames,  CONTEXT.Env.inFrames = f;
 }
 
 void pushOutFiles(outFrame *f)
 {
-    OutFile = f->fp;
-    f->put = Env.put,  Env.put = putStdout;
-    f->link = Env.outFrames,  Env.outFrames = f;
+    CONTEXT.OutFile = f->fp;
+    f->put = CONTEXT.Env.put,  CONTEXT.Env.put = putStdout;
+    f->link = CONTEXT.Env.outFrames,  CONTEXT.Env.outFrames = f;
 }
 
 void popInFiles(void)
 {
-    if (InFile != stdin)
+    if (CONTEXT.InFile != stdin)
     {
-        fclose(InFile);
+        fclose(CONTEXT.InFile);
     }
-    Chr = Env.inFrames->next;
-    Env.get = Env.inFrames->get;
-    InFile = (Env.inFrames = Env.inFrames->link)?  Env.inFrames->fp : stdin;
+    CONTEXT.Chr = CONTEXT.Env.inFrames->next;
+    CONTEXT.Env.get = CONTEXT.Env.inFrames->get;
+    CONTEXT.InFile = (CONTEXT.Env.inFrames = CONTEXT.Env.inFrames->link)?  CONTEXT.Env.inFrames->fp : stdin;
 }
 
 void popOutFiles(void)
 {
-    if (OutFile != stdout && OutFile != stderr)
+    if (CONTEXT.OutFile != stdout && CONTEXT.OutFile != stderr)
     {
-        fclose(OutFile);
+        fclose(CONTEXT.OutFile);
     }
-    Env.put = Env.outFrames->put;
-    OutFile = (Env.outFrames = Env.outFrames->link)? Env.outFrames->fp : stdout;
+    CONTEXT.Env.put = CONTEXT.Env.outFrames->put;
+    CONTEXT.OutFile = (CONTEXT.Env.outFrames = CONTEXT.Env.outFrames->link)? CONTEXT.Env.outFrames->fp : stdout;
 }
 
 void pathString(any x, char *p)
@@ -907,7 +907,7 @@ void pathString(any x, char *p)
     }
     else
     {
-        if (h = Home)
+        if (h = CONTEXT.Home)
         {
             do
             {
@@ -931,10 +931,10 @@ void sym2str(any nm, char *buf)
     {
         if (c == '"'  ||  c == '\\')
         {
-            Env.put('\\');
+            CONTEXT.Env.put('\\');
             buf[ctr++]=c;
         }
-        Env.put(c);
+        CONTEXT.Env.put(c);
         buf[ctr++]=c;
     }
    while (c = getByte(&i, &w, &nm));

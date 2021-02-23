@@ -2,7 +2,7 @@
 #include "cell.h"
 
 /*** Macros ***/
-#define Free(p)         ((p)->car=Avail, (p)->cdr=0, (p)->type._t=0,  Avail=(p))
+#define Free(p)         ((p)->car=CONTEXT.Avail, (p)->cdr=0, (p)->type._t=0,  CONTEXT.Avail=(p))
 
 
 #if INTPTR_MAX == INT32_MAX
@@ -78,8 +78,8 @@ void sweep(int free)
    heap *h;
    int c =100;
    /* Sweep */
-   if(free)Avail = NULL;
-   h = Heaps;
+   if(free)CONTEXT.Avail = NULL;
+   h = CONTEXT.Heaps;
    if (c) {
       do {
          p = h->cells + CELLS-1;
@@ -102,7 +102,7 @@ void sweep(int free)
       //}
    }
 
-   printf("AVAIL = %p\n", Avail);
+   printf("AVAIL = %p\n", CONTEXT.Avail);
 }
 
 
@@ -135,17 +135,17 @@ void markAll()
    }
 
    /* Mark */
-   setMark(Intern[0], 0);mark(Intern[0]);
-   setMark(Intern[1], 0);mark(Intern[1]);
-   setMark(Transient[0], 0);mark(Transient[0]);
-   setMark(Transient[1], 0);mark(Transient[1]);
-   if (ApplyArgs) setMark(ApplyArgs, 0);mark(ApplyArgs);
-   if (ApplyBody) setMark(ApplyBody, 0);mark(ApplyBody);
-   for (p = Env.stack; p; p = cdr(p))
+   setMark(CONTEXT.Intern[0], 0);mark(CONTEXT.Intern[0]);
+   setMark(CONTEXT.Intern[1], 0);mark(CONTEXT.Intern[1]);
+   setMark(CONTEXT.Transient[0], 0);mark(CONTEXT.Transient[0]);
+   setMark(CONTEXT.Transient[1], 0);mark(CONTEXT.Transient[1]);
+   if (CONTEXT.ApplyArgs) setMark(CONTEXT.ApplyArgs, 0);mark(CONTEXT.ApplyArgs);
+   if (CONTEXT.ApplyBody) setMark(CONTEXT.ApplyBody, 0);mark(CONTEXT.ApplyBody);
+   for (p = CONTEXT.Env.stack; p; p = cdr(p))
    {
       mark(car(p));
    }
-   for (p = (any)Env.bind;  p;  p = (any)((bindFrame*)p)->link)
+   for (p = (any)CONTEXT.Env.bind;  p;  p = (any)((bindFrame*)p)->link)
    {
       for (i = ((bindFrame*)p)->cnt;  --i >= 0;)
       {
@@ -153,7 +153,7 @@ void markAll()
          mark(((bindFrame*)p)->bnd[i].val);
       }
    }
-   for (p = (any)CatchPtr; p; p = (any)((catchFrame*)p)->link)
+   for (p = (any)CONTEXT.CatchPtr; p; p = (any)((catchFrame*)p)->link)
    {
       if (((catchFrame*)p)->tag)
          mark(((catchFrame*)p)->tag);
@@ -203,7 +203,7 @@ any doDump(any ignore)
         dump(mem, (any)(&Mem[i]));
     }
 
-    heap *h = Heaps;
+    heap *h = CONTEXT.Heaps;
 
     dumpHeaps(mem, h);
 
@@ -217,7 +217,7 @@ uword getHeapSize(void)
 {
     uword size = 0;
     uword sizeFree = 0;
-    heap *h = Heaps;
+    heap *h = CONTEXT.Heaps;
     do
     {
         any p = h->cells + CELLS-1;
@@ -228,7 +228,7 @@ uword getHeapSize(void)
         while (--p >= h->cells);
     } while (h = h->next);
 
-    any p = Avail;
+    any p = CONTEXT.Avail;
     while (p)
     {
         sizeFree++;
@@ -251,8 +251,8 @@ static void gc(word c)
     doDump(Nil);
 
     /* Sweep */
-    Avail = NULL;
-    h = Heaps;
+    CONTEXT.Avail = NULL;
+    h = CONTEXT.Heaps;
     if (c)
     {
         do
@@ -296,7 +296,7 @@ any cons(any x, any y)
 {
     cell *p;
 
-    if (!(p = Avail))
+    if (!(p = CONTEXT.Avail))
     {
         cell c1, c2;
 
@@ -304,9 +304,9 @@ any cons(any x, any y)
         Push(c2,y);
         gc(CELLS);
         drop(c1);
-        p = Avail;
+        p = CONTEXT.Avail;
     }
-    Avail = p->car;
+    CONTEXT.Avail = p->car;
     p->car = x;
     p->cdr = y;
     setCARType(p, PTR_CELL);
@@ -319,7 +319,7 @@ any consSym(any val, uword w)
 {
     cell *p;
 
-    if (!(p = Avail)) {
+    if (!(p = CONTEXT.Avail)) {
         cell c1;
 
         if (!val)
@@ -329,9 +329,9 @@ any consSym(any val, uword w)
             gc(CELLS);
             drop(c1);
         }
-        p = Avail;
+        p = CONTEXT.Avail;
     }
-    Avail = p->car;
+    CONTEXT.Avail = p->car;
     p->cdr = val ? val : p;
     p->car = (any)w;
     setCARType(p, TXT);
@@ -344,12 +344,12 @@ any consName(uword w, any n)
 {
    cell *p;
 
-   if (!(p = Avail))
+   if (!(p = CONTEXT.Avail))
    {
       gc(CELLS);
-      p = Avail;
+      p = CONTEXT.Avail;
    }
-   Avail = p->car;
+   CONTEXT.Avail = p->car;
    p = symPtr(p);
    p->car = (any)w;
    p->cdr = n;
@@ -365,7 +365,7 @@ void heapAlloc(void)
    cell *p;
 
    h = (heap*)((word)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
-   h->next = Heaps,  Heaps = h;
+   h->next = CONTEXT.Heaps,  CONTEXT.Heaps = h;
    p = h->cells + CELLS-1;
    do
    {

@@ -42,15 +42,20 @@ static void gc(word c);
 
 
 /* Globals */
-int Chr, Trace;
-char **AV, *AV0, *Home;
-heap *Heaps;
-cell *Avail;
-stkEnv Env;
-catchFrame *CatchPtr;
-FILE *InFile, *OutFile;
-any Intern[2], Transient[2];
-any ApplyArgs, ApplyBody;
+// int Chr, Trace;
+// char **AV, *AV0, *Home;
+// heap *Heaps;
+// cell *Avail;
+// stkEnv Env;
+// catchFrame *CatchPtr;
+// FILE *InFile, *OutFile;
+// any Intern[2], Transient[2];
+// any ApplyArgs, ApplyBody;
+
+
+Context CONTEXT;
+
+
 
 ///////////////////////////////////////////////
 //               sym.c
@@ -81,29 +86,29 @@ any load(any ex, int pr, any x)
     x = Nil;
     for (;;)
     {
-        if (InFile != stdin)
+        if (CONTEXT.InFile != stdin)
         {
             data(c1) = read1(0);
         }
         else
         {
-            if (pr && !Chr)
-                Env.put(pr), space(), fflush(OutFile);
+            if (pr && !CONTEXT.Chr)
+                CONTEXT.Env.put(pr), space(), fflush(CONTEXT.OutFile);
             data(c1) = read1('\n');
-            while (Chr > 0)
+            while (CONTEXT.Chr > 0)
             {
-                if (Chr == '\n')
+                if (CONTEXT.Chr == '\n')
                 {
-                    Chr = 0;
+                    CONTEXT.Chr = 0;
                     break;
                 }
-                if (Chr == '#')
+                if (CONTEXT.Chr == '#')
                     comment();
                 else
                 {
-                    if (Chr > ' ')
+                    if (CONTEXT.Chr > ' ')
                         break;
-                    Env.get();
+                    CONTEXT.Env.get();
                 }
             }
         }
@@ -114,7 +119,7 @@ any load(any ex, int pr, any x)
             return x;
         }
         Save(c1);
-        if (InFile != stdin || Chr || !pr)
+        if (CONTEXT.InFile != stdin || CONTEXT.Chr || !pr)
             // TODO - WHY @ does not work in files
             x = EVAL(data(c1));
         else
@@ -132,7 +137,7 @@ any load(any ex, int pr, any x)
             setCDRType(At3, getCDRType(At2));
 
             //val(At3) = val(At2),  val(At2) = data(c2);
-            outString("-> "),  fflush(OutFile),  print(x),  newline();
+            outString("-> "),  fflush(CONTEXT.OutFile),  print(x),  newline();
         }
         drop(c1);
     }
@@ -141,23 +146,23 @@ any load(any ex, int pr, any x)
 /*** Prining ***/
 void putStdout(int c)
 {
-    putc(c, OutFile);
+    putc(c, CONTEXT.OutFile);
 }
 
 void newline(void)
 {
-    Env.put('\n');
+    CONTEXT.Env.put('\n');
 }
 
 void space(void)
 {
-    Env.put(' ');
+    CONTEXT.Env.put(' ');
 }
 
 void outString(char *s)
 {
     while (*s)
-        Env.put(*s++);
+        CONTEXT.Env.put(*s++);
 }
 
 int bufNum(char buf[BITS/2], word n)
@@ -256,13 +261,13 @@ void prin(any x)
             for (x = name(x), c = getByte1(&i, &w, &x); c; c = getByte(&i, &w, &x))
             {
                 if (c != '^')
-                    Env.put(c);
+                    CONTEXT.Env.put(c);
                 else if (!(c = getByte(&i, &w, &x)))
-                    Env.put('^');
+                    CONTEXT.Env.put('^');
                 else if (c == '?')
-                    Env.put(127);
+                    CONTEXT.Env.put(127);
                 else
-                    Env.put(c &= 0x1F);
+                    CONTEXT.Env.put(c &= 0x1F);
             }
         }
         else
@@ -364,7 +369,7 @@ any evExpr(any expr, any x)
 
    bindFrame *f = allocFrame(length(y)+2);
 
-   f->link = Env.bind,  Env.bind = f;
+   f->link = CONTEXT.Env.bind,  CONTEXT.Env.bind = f;
    f->i = (bindSize * (length(y)+2)) / (2*sizeof(any)) - 1;
    f->cnt = 1,  f->bnd[0].sym = At,  f->bnd[0].val = val(At);
 
@@ -419,15 +424,15 @@ any evExpr(any expr, any x)
       }
       while (f->i);
 
-      n = Env.next,  Env.next = cnt;
-      arg = Env.arg,  Env.arg = c;
+      n = CONTEXT.Env.next,  CONTEXT.Env.next = cnt;
+      arg = CONTEXT.Env.arg,  CONTEXT.Env.arg = c;
       x = prog(cdr(expr));
       if (cnt)
       {
          drop(c[cnt-1]);
       }
 
-      Env.arg = arg,  Env.next = n;
+      CONTEXT.Env.arg = arg,  CONTEXT.Env.next = n;
       free(c);
    }
 
@@ -436,7 +441,7 @@ any evExpr(any expr, any x)
       val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
    }
 
-   Env.bind = f->link;
+   CONTEXT.Env.bind = f->link;
    free(f);
    return x;
 }
@@ -508,8 +513,8 @@ any loadAll(any ex)
 {
    any x = Nil;
 
-   while (*AV  &&  strcmp(*AV,"-") != 0)
-      x = load(ex, 0, mkStr(*AV++));
+   while (*CONTEXT.AV  &&  strcmp(*CONTEXT.AV,"-") != 0)
+      x = load(ex, 0, mkStr(*CONTEXT.AV++));
    return x;
 }
 
@@ -523,9 +528,9 @@ void printLongTXT(any nm)
     {
         if (c == '"'  ||  c == '\\')
         {
-            Env.put('\\');
+            CONTEXT.Env.put('\\');
         }
-        Env.put(c);
+        CONTEXT.Env.put(c);
     }
    while (c = getByte(&i, &w, &nm));
 }
@@ -541,12 +546,12 @@ int main(int ac, char *av[])
    if (ac == 0) printf("STRANGE\n");
 
    av++;
-   AV = av;
+   CONTEXT.AV = av;
    heapAlloc();
    doDump(Nil);
    //getHeapSize();
    //CELLS = 1;
-   Intern[0] = Intern[1] = Transient[0] = Transient[1] = Nil;
+   CONTEXT.Intern[0] = CONTEXT.Intern[1] = CONTEXT.Transient[0] = CONTEXT.Transient[1] = Nil;
 
    Mem[4] = (any)Mem; // TODO - SETTING THE VALUE OF NIL
    Mem[7] = (any)(Mem+6); // TODO - SETTING THE VALUE OF NIL
@@ -559,22 +564,22 @@ int main(int ac, char *av[])
 
       if ((BIN_START == carType || TXT == carType) && cdrType != FUNC && cell->cdr)
       {
-         intern(cell, Intern);
+         intern(cell, CONTEXT.Intern);
       }
       else if ((BIN_START == carType || TXT == carType) && cdrType == FUNC && cell->cdr)
       {
-         intern(cell, Intern);
+         intern(cell, CONTEXT.Intern);
       }
       else if ((BIN_START == carType || TXT == carType))
       {
-         intern(cell, Intern);
+         intern(cell, CONTEXT.Intern);
       }
    }
 
-   InFile = stdin, Env.get = getStdin;
-   OutFile = stdout, Env.put = putStdout;
-   ApplyArgs = cons(cons(consSym(Nil, 0), Nil), Nil);
-   ApplyBody = cons(Nil, Nil);
+   CONTEXT.InFile = stdin, CONTEXT.Env.get = getStdin;
+   CONTEXT.OutFile = stdout, CONTEXT.Env.put = putStdout;
+   CONTEXT.ApplyArgs = cons(cons(consSym(Nil, 0), Nil), Nil);
+   CONTEXT.ApplyBody = cons(Nil, Nil);
 
    doDump(Nil);
    //getHeapSize();
