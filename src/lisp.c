@@ -56,7 +56,6 @@ static void gc(word c);
 Context CONTEXT;
 
 
-
 ///////////////////////////////////////////////
 //               sym.c
 ///////////////////////////////////////////////
@@ -541,16 +540,9 @@ void printNUM(any cell)
 }
 
 /*** Main ***/
-int main(int ac, char *av[])
+int main_thread()
 {
-   if (ac == 0) printf("STRANGE\n");
-
-   av++;
-   CONTEXT.AV = av;
    heapAlloc();
-   doDump(Nil);
-   //getHeapSize();
-   //CELLS = 1;
    CONTEXT.Intern[0] = CONTEXT.Intern[1] = CONTEXT.Transient[0] = CONTEXT.Transient[1] = Nil;
 
    Mem[4] = (any)Mem; // TODO - SETTING THE VALUE OF NIL
@@ -576,15 +568,23 @@ int main(int ac, char *av[])
       }
    }
 
-   CONTEXT.InFile = stdin, CONTEXT.Env.get = getStdin;
-   CONTEXT.OutFile = stdout, CONTEXT.Env.put = putStdout;
-   CONTEXT.ApplyArgs = cons(cons(consSym(Nil, 0), Nil), Nil);
-   CONTEXT.ApplyBody = cons(Nil, Nil);
+}
 
-   doDump(Nil);
-   //getHeapSize();
-   loadAll(NULL);
-   while (!feof(stdin))
-      load(NULL, ':', Nil);
-   bye(0);
+int main(int ac, char *av[])
+{
+    main_thread(ac, NULL);
+    av++;
+    CONTEXT.AV = av;
+
+    CONTEXT.InFile = stdin, CONTEXT.Env.get = getStdin;
+    CONTEXT.OutFile = stdout, CONTEXT.Env.put = putStdout;
+    CONTEXT.ApplyArgs = cons(cons(consSym(Nil, 0), Nil), Nil);
+    CONTEXT.ApplyBody = cons(Nil, Nil);
+
+    doDump(Nil);
+    //getHeapSize();
+    loadAll(NULL);
+    while (!feof(stdin))
+        load(NULL, ':', Nil);
+    bye(0);
 }
