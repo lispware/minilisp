@@ -54,7 +54,10 @@ typedef struct _cell
 }
 cell, *any;
 
-typedef any (*FunPtr)(any);
+
+struct _Context;
+
+typedef any (*FunPtr)(struct _Context *, any);
 
 typedef enum
 {
@@ -216,7 +219,7 @@ any consSym(any val, uword w);
 /* Construct a name cell */
 any consName(uword w, any n);
 
-#define evSubr(f,x)     (*(FunPtr)(num(f)))(x)
+#define evSubr(f,x)     (*(FunPtr)(num(f)))(_CONTEXT_PTR, x)
 
 /* Globals */
 // extern int Chr, Trace;
@@ -230,7 +233,7 @@ any consName(uword w, any n);
 // extern any Intern[2], Transient[2];
 // extern any ApplyArgs, ApplyBody;
 
-typedef struct
+typedef struct _Context
 {
     /* Globals */
     int Chr, Trace;
@@ -252,8 +255,8 @@ void numError(any,any) ;
 int getByte1(int *i, uword *p, any *q);
 int getByte(int *i, uword *p, any *q);
 
-any doFor(any x);
-any doSetq(any x);
+any doFor(Context*, any x);
+any doSetq(Context*, any x);
 
 any mkNum(word n);
 void printTXT(any);
@@ -264,9 +267,9 @@ bool isSym(any x);
 
 any symToNum(any sym, int scl, int sep, int ign);
 any mkNum(word n);
-any doAdd(any ex);
-any doSub(any ex);
-any doMul(any ex);
+any doAdd(Context*, any ex);
+any doSub(Context*, any ex);
+any doMul(Context*, any ex);
 
 
 
@@ -349,29 +352,29 @@ void unwind (catchFrame*);
 void wrOpen(any,any,outFrame*);
 word xNum(any,any);
 any xSym(any);
-any doPrin(any x);
+any doPrin(Context*, any x);
 void openErr(any ex, char *s);
 void eofErr(void);
 void comment(void);
 
-any doHide(any);
+any doHide(Context*, any);
 
-any doQuote(any x);
-any doEq(any x);
-any doIf(any x);
-any doDe(any ex);
+any doQuote(Context*, any x);
+any doEq(Context*, any x);
+any doIf(Context*, any x);
+any doDe(Context*, any ex);
 
 void redefine(any ex, any s, any x);
 void redefMsg(any x, any y);
 
-any doLine(any x) ;
-any doVeryLongFunc(any x);
-any doLongFunc(any x);
-any doChar(any ex) ;
-any doIn(any ex) ;
-any doOut(any ex) ;
-any doWhile(any x) ;
-any doDo(any x);
+any doLine(Context*, any x) ;
+any doVeryLongFunc(Context*, any x);
+any doLongFunc(Context*, any x);
+any doChar(Context*, any ex) ;
+any doIn(Context*, any ex) ;
+any doOut(Context*, any ex) ;
+any doWhile(Context*, any x) ;
+any doDo(Context*, any x);
 bool eol(void);
 
 extern Context CONTEXT;

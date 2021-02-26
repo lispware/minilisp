@@ -115,7 +115,7 @@ any load(any ex, int pr, any x)
         if (isNil(data(c1)))
         {
             popInFiles();
-            doHide(Nil);
+            doHide(_CONTEXT_PTR, Nil);
             return x;
         }
         Save(c1);
@@ -582,7 +582,7 @@ int main(int ac, char *av[])
     _CONTEXT_PTR->ApplyArgs = cons(cons(consSym(Nil, 0), Nil), Nil);
     _CONTEXT_PTR->ApplyBody = cons(Nil, Nil);
 
-    doDump(Nil);
+    doDump(_CONTEXT_PTR, Nil);
     //getHeapSize();
     loadAll(NULL);
     while (!feof(stdin))

@@ -53,7 +53,7 @@ inline any run(any x)
 
 
 
-any doNot(any x) {
+any doNot(Context *CONTEXT_PTR, any x) {
    any a;
 
    if (isNil(a = EVAL(cadr(x))))
@@ -63,7 +63,7 @@ any doNot(any x) {
 }
 
 // (c...r 'lst) -> any
-any doCar(any ex)
+any doCar(Context *CONTEXT_PTR, any ex)
 {
    any x = cdr(ex);
    x = EVAL(car(x));
@@ -71,7 +71,7 @@ any doCar(any ex)
    return car(x);
 }
 
-any doCdr(any ex)
+any doCdr(Context *CONTEXT_PTR, any ex)
 {
    any x = cdr(ex);
    x = EVAL(car(x));
@@ -79,7 +79,7 @@ any doCdr(any ex)
    return cdr(x);
 }
 
-any doCons(any x)
+any doCons(Context *CONTEXT_PTR, any x)
 {
    any y;
    cell c1;
@@ -94,7 +94,7 @@ any doCons(any x)
    return Pop(c1);
 }
 
-any doRun(any x) {
+any doRun(Context *CONTEXT_PTR, any x) {
    any y;
    cell c1;
    bindFrame *p;
@@ -168,7 +168,7 @@ next:       x = cdr(x);
 // (for sym 'num ['any | (NIL 'any . prg) | (T 'any . prg) ..]) -> any
 // (for sym|(sym2 . sym) 'lst ['any | (NIL 'any . prg) | (T 'any . prg) ..]) -> any
 // (for (sym|(sym2 . sym) 'any1 'any2 [. prg]) ['any | (NIL 'any . prg) | (T 'any . prg) ..]) -> any
-any doFor(any x) {
+any doFor(Context *CONTEXT_PTR, any x) {
    any y, body, cond, a;
    cell c1;
    // struct {  // bindFrame
@@ -318,7 +318,7 @@ for2:
 
 
 // (setq var 'any ..) -> any
-any doSetq(any ex)
+any doSetq(Context *CONTEXT_PTR, any ex)
 {
     any x, y;
 
@@ -337,7 +337,7 @@ any doSetq(any ex)
 
 
 // (link 'any ..) -> any
-any doLink(any x)
+any doLink(Context *CONTEXT_PTR, any x)
 {
     any y;
 
@@ -356,7 +356,7 @@ any doLink(any x)
 }
 
 // (make .. [(made 'lst ..)] .. [(link 'any ..)] ..) -> any
-any doMake(any x)
+any doMake(Context *CONTEXT_PTR, any x)
 {
     any *make, *yoke;
     cell c1;
@@ -379,7 +379,7 @@ any doMake(any x)
 }
 
 // (prin 'any ..) -> any
-any doPrin(any x)
+any doPrin(Context *CONTEXT_PTR, any x)
 {
    any y = Nil;
 
@@ -392,7 +392,7 @@ any doPrin(any x)
 }
 
 // (quote . any) -> any
-any doQuote(any x)
+any doQuote(Context *CONTEXT_PTR, any x)
 {
     return cdr(x);
 }
@@ -418,7 +418,7 @@ int compareBIN(any x1, any x2)
 }
 
 
-any doEq(any x)
+any doEq(Context *CONTEXT_PTR, any x)
 {
    cell c1;
     x = cdr(x);
@@ -477,7 +477,7 @@ any doEq(any x)
 }
 
 // (== 'any ..) -> flg
-any doEq2(any x)
+any doEq2(Context *CONTEXT_PTR, any x)
 {
    cell c1;
 
@@ -509,7 +509,7 @@ any doEq2(any x)
 }
 
 // (if 'any1 any2 . prg) -> any
-any doIf(any x)
+any doIf(Context *CONTEXT_PTR, any x)
 {
    any a;
 
@@ -522,7 +522,7 @@ any doIf(any x)
 }
 
 // (de sym . any) -> sym
-any doDe(any ex)
+any doDe(Context *CONTEXT_PTR, any ex)
 {
    redefine(ex, cadr(ex), cddr(ex));
    return cadr(ex);
@@ -540,7 +540,7 @@ any doDe(any ex)
  * and restored after the let binding
  *
  */
-any doLet(any x)
+any doLet(Context *CONTEXT_PTR, any x)
 {
     any y;
 
@@ -579,7 +579,7 @@ any doLet(any x)
 }
 
 // (bye 'num|NIL)
-any doBye(any ex)
+any doBye(Context *CONTEXT_PTR, any ex)
 {
    printf("\n");
    bye(0);
@@ -621,7 +621,7 @@ void redefMsg(any x, any y)
 
 
 // (line 'flg) -> lst|sym
-any doLine(any x) {
+any doLine(Context *CONTEXT_PTR, any x) {
    any y;
    int i;
    word w;
@@ -651,13 +651,13 @@ any doLine(any x) {
    }
 }
 
-any doVeryLongFunc(any x)
+any doVeryLongFunc(Context *CONTEXT_PTR, any x)
 {
     printf("VERY LONG FUNCTION CALLED\n");
     return x;
 }
 
-any doLongFunc(any x)
+any doLongFunc(Context *CONTEXT_PTR, any x)
 {
     printf("LONG FUNCTION CALLED\n");
     return x;
@@ -666,7 +666,7 @@ any doLongFunc(any x)
 // (char) -> sym
 // (char 'num) -> sym
 // (char 'sym) -> num
-any doChar(any ex) {
+any doChar(Context *CONTEXT_PTR, any ex) {
    any x = cdr(ex);
 
    if (x == Nil) {
@@ -698,7 +698,7 @@ any doChar(any ex) {
    atomError(ex,x);
 }
 
-any doIn(any ex) {
+any doIn(Context *CONTEXT_PTR, any ex) {
    any x;
    inFrame f;
 
@@ -711,7 +711,7 @@ any doIn(any ex) {
 }
 
 // (out 'any . prg) -> any
-any doOut(any ex) {
+any doOut(Context *CONTEXT_PTR, any ex) {
    any x;
    outFrame f;
 
@@ -724,7 +724,7 @@ any doOut(any ex) {
 }
 
 // (while 'any . prg) -> any
-any doWhile(any x) {
+any doWhile(Context *CONTEXT_PTR, any x) {
    any cond, a;
    cell c1;
 
@@ -738,7 +738,7 @@ any doWhile(any x) {
 }
 
 // (do 'flg|num ['any | (NIL 'any . prg) | (T 'any . prg) ..]) -> any
-any doDo(any x)
+any doDo(Context *CONTEXT_PTR, any x)
 {
     any f, y, z, a;
     word N=-1;
@@ -942,7 +942,7 @@ void sym2str(any nm, char *buf)
 }
 
 
-any doCall(any ex)
+any doCall(Context *CONTEXT_PTR, any ex)
 {
     char buf[1024];
     any y;
@@ -981,7 +981,7 @@ void pack(any x, int *i, uword *p, any *q, cell *cp)
 }
 
 // (pack 'any ..) -> sym
-any doPack(any x)
+any doPack(Context *CONTEXT_PTR, any x)
 {
    int i;
    word w;

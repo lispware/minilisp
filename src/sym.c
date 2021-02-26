@@ -355,7 +355,7 @@ any mkStr(char *s)
 }
 
 // (==== ['sym ..]) -> NIL
-any doHide(any ex)
+any doHide(Context* CONTEXT_PTR, any ex)
 {
     // TODO - is this needed?
    printf("%p\n", ex);

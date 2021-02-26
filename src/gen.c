@@ -624,7 +624,7 @@ int main(int ac, char *av[])
                     sprintf(buf, WORD_FORMAT_STRING, (WORD_TYPE) mkType(TXT, FUNC));
                 }
                 MemGen[x+2] = strdup(buf);
-                fprintf(fpSYM, "any %s(any);\n", Token);
+                fprintf(fpSYM, "any %s(Context *, any);\n", Token);
             }
             else
             {                                 // Value

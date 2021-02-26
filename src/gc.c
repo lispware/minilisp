@@ -161,13 +161,13 @@ void markAll()
    }
 }
 
-any doHS(any ignore)
+any doHS(Context *CONTEXT_PTR, any ignore)
 {
     getHeapSize();
     return ignore;
 }
 
-any doDump(any ignore)
+any doDump(Context *CONTEXT_PTR, any ignore)
 {
     static int COUNT=0;
     char debugFileName[100];
@@ -246,9 +246,9 @@ static void gc(word c)
     any p;
     heap *h;
 
-    doDump(Nil);
+    doDump(_CONTEXT_PTR, Nil);
     markAll();
-    doDump(Nil);
+    doDump(_CONTEXT_PTR, Nil);
 
     /* Sweep */
     CONTEXT.Avail = NULL;
@@ -277,7 +277,7 @@ static void gc(word c)
         }
     }
 
-    doDump(Nil);
+    doDump(_CONTEXT_PTR, Nil);
     return;
 }
 

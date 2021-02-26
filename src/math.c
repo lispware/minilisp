@@ -92,7 +92,7 @@ any mkNum(word n)
 }
 
 // (+ 'num ..) -> num
-any doAdd(any ex)
+any doAdd(Context *CONTEXT_PTR, any ex)
 {
     any x, y;
     uword n=0;
@@ -116,7 +116,7 @@ any doAdd(any ex)
     return r;
 }
 
-any doSub(any ex)
+any doSub(Context *CONTEXT_PTR, any ex)
 {
     any x, y;
     uword n=0;
@@ -140,7 +140,7 @@ any doSub(any ex)
     return r;
 }
 
-any doMul(any ex)
+any doMul(Context *CONTEXT_PTR, any ex)
 {
     any x, y;
     uword n=0;
