@@ -29,11 +29,11 @@ int pathSize(any x)
     {
         return bufSize(x);
     }
-    if (!CONTEXT.Home)
+    if (!CONTEXT_PTR->Home)
     {
         return symBytes(x);
     }
-    return strlen(CONTEXT.Home) + symBytes(x);
+    return strlen(CONTEXT_PTR->Home) + symBytes(x);
 }
 
 void bufString(any x, char *p)
@@ -66,55 +66,55 @@ void bufString(any x, char *p)
 /*** Reading ***/
 void getStdin(void)
 {
-    CONTEXT.Chr = getc(CONTEXT.InFile);
+    CONTEXT_PTR->Chr = getc(CONTEXT_PTR->InFile);
 }
 
 
 /* Skip White Space and Comments */
 static int skipc(int c)
 {
-    if (CONTEXT.Chr < 0)
+    if (CONTEXT_PTR->Chr < 0)
     {
-        return CONTEXT.Chr;
+        return CONTEXT_PTR->Chr;
     }
     for (;;)
     {
-        while (CONTEXT.Chr <= ' ')
+        while (CONTEXT_PTR->Chr <= ' ')
         {
-            CONTEXT.Env.get();
-            if (CONTEXT.Chr < 0)
+            CONTEXT_PTR->Env.get();
+            if (CONTEXT_PTR->Chr < 0)
             {
-                return CONTEXT.Chr;
+                return CONTEXT_PTR->Chr;
             }
         }
-        if (CONTEXT.Chr != c)
+        if (CONTEXT_PTR->Chr != c)
         {
-            return CONTEXT.Chr;
+            return CONTEXT_PTR->Chr;
         }
-        CONTEXT.Env.get();
-        while (CONTEXT.Chr != '\n')
+        CONTEXT_PTR->Env.get();
+        while (CONTEXT_PTR->Chr != '\n')
         {
-            if (CONTEXT.Chr < 0)
+            if (CONTEXT_PTR->Chr < 0)
             {
-                return CONTEXT.Chr;
+                return CONTEXT_PTR->Chr;
             }
-            CONTEXT.Env.get();
+            CONTEXT_PTR->Env.get();
         }
     }
 }
 
 void comment(void)
 {
-    CONTEXT.Env.get();
-    if (CONTEXT.Chr != '{')
+    CONTEXT_PTR->Env.get();
+    if (CONTEXT_PTR->Chr != '{')
     {
-        while (CONTEXT.Chr != '\n')
+        while (CONTEXT_PTR->Chr != '\n')
         {
-            if (CONTEXT.Chr < 0)
+            if (CONTEXT_PTR->Chr < 0)
             {
                 return;
             }
-            CONTEXT.Env.get();
+            CONTEXT_PTR->Env.get();
         }
     }
     else
@@ -122,21 +122,21 @@ void comment(void)
         int n = 0;
 
         for (;;) {  // #{block-comment}# from Kriangkrai Soatthiyanont
-            CONTEXT.Env.get();
-            if (CONTEXT.Chr < 0)
+            CONTEXT_PTR->Env.get();
+            if (CONTEXT_PTR->Chr < 0)
             {
                 return;
             }
-            if (CONTEXT.Chr == '#'  &&  (CONTEXT.Env.get(), CONTEXT.Chr == '{'))
+            if (CONTEXT_PTR->Chr == '#'  &&  (CONTEXT_PTR->Env.get(), CONTEXT_PTR->Chr == '{'))
             {
                 ++n;
             }
-            else if (CONTEXT.Chr == '}'  &&  (CONTEXT.Env.get(), CONTEXT.Chr == '#')  &&  --n < 0)
+            else if (CONTEXT_PTR->Chr == '}'  &&  (CONTEXT_PTR->Env.get(), CONTEXT_PTR->Chr == '#')  &&  --n < 0)
             {
                 break;
             }
         }
-        CONTEXT.Env.get();
+        CONTEXT_PTR->Env.get();
     }
 }
 
@@ -144,22 +144,22 @@ static int skip(void)
 {
     for (;;)
     {
-        if (CONTEXT.Chr < 0)
+        if (CONTEXT_PTR->Chr < 0)
         {
-            return CONTEXT.Chr;
+            return CONTEXT_PTR->Chr;
         }
-        while (CONTEXT.Chr <= ' ')
+        while (CONTEXT_PTR->Chr <= ' ')
         {
-            CONTEXT.Env.get();
-            if (CONTEXT.Chr < 0)
+            CONTEXT_PTR->Env.get();
+            if (CONTEXT_PTR->Chr < 0)
             {
-                return CONTEXT.Chr;
+                return CONTEXT_PTR->Chr;
             }
         }
 
-        if (CONTEXT.Chr != '#')
+        if (CONTEXT_PTR->Chr != '#')
         {
-            return CONTEXT.Chr;
+            return CONTEXT_PTR->Chr;
         }
         comment();
     }
@@ -170,17 +170,17 @@ static bool testEsc(void)
 {
     for (;;)
     {
-        if (CONTEXT.Chr < 0)
+        if (CONTEXT_PTR->Chr < 0)
             return NO;
-        if (CONTEXT.Chr != '\\')
+        if (CONTEXT_PTR->Chr != '\\')
             return YES;
-        if (CONTEXT.Env.get(), CONTEXT.Chr != '\n')
+        if (CONTEXT_PTR->Env.get(), CONTEXT_PTR->Chr != '\n')
             return YES;
         do
         {
-            CONTEXT.Env.get();
+            CONTEXT_PTR->Env.get();
         }
-        while (CONTEXT.Chr == ' '  ||  CONTEXT.Chr == '\t');
+        while (CONTEXT_PTR->Chr == ' '  ||  CONTEXT_PTR->Chr == '\t');
     }
 }
 
@@ -194,20 +194,20 @@ static any rdList(void)
     {
         if (skip() == ')')
         {
-            CONTEXT.Env.get();
+            CONTEXT_PTR->Env.get();
             return Nil;
         }
-        if (CONTEXT.Chr == ']')
+        if (CONTEXT_PTR->Chr == ']')
         {
             return Nil;
         }
-        if (CONTEXT.Chr != '~')
+        if (CONTEXT_PTR->Chr != '~')
         {
             x = cons(read0(NO),Nil);
             Push(c1, x);
             break;
         }
-        CONTEXT.Env.get();
+        CONTEXT_PTR->Env.get();
 
         x = read0(NO);
         Push(c1, x);
@@ -226,28 +226,28 @@ static any rdList(void)
     {
         if (skip() == ')')
         {
-            CONTEXT.Env.get();
+            CONTEXT_PTR->Env.get();
             break;
         }
-        if (CONTEXT.Chr == ']')
+        if (CONTEXT_PTR->Chr == ']')
             break;
-        if (CONTEXT.Chr == '.')
+        if (CONTEXT_PTR->Chr == '.')
         {
-            CONTEXT.Env.get();
-            cdr(x) = skip()==')' || CONTEXT.Chr==']'? data(c1) : read0(NO);
+            CONTEXT_PTR->Env.get();
+            cdr(x) = skip()==')' || CONTEXT_PTR->Chr==']'? data(c1) : read0(NO);
             if (skip() == ')')
-                CONTEXT.Env.get();
-            else if (CONTEXT.Chr != ']')
+                CONTEXT_PTR->Env.get();
+            else if (CONTEXT_PTR->Chr != ']')
                 err(NULL, x, "Bad dotted pair");
             break;
         }
-        if (CONTEXT.Chr != '~')
+        if (CONTEXT_PTR->Chr != '~')
         {
             x = cdr(x) = cons(read0(NO),Nil);
         }
         else
         {
-            CONTEXT.Env.get();
+            CONTEXT_PTR->Env.get();
             cdr(x) = read0(NO);
             cdr(x) = EVAL(cdr(x));
             while (isCell(cdr(x)))
@@ -273,69 +273,69 @@ static any read0(bool top)
             return Nil;
         eofErr();
     }
-    if (CONTEXT.Chr == '(')
+    if (CONTEXT_PTR->Chr == '(')
     {
-        CONTEXT.Env.get();
+        CONTEXT_PTR->Env.get();
         x = rdList();
-        if (top  &&  CONTEXT.Chr == ']')
-            CONTEXT.Env.get();
+        if (top  &&  CONTEXT_PTR->Chr == ']')
+            CONTEXT_PTR->Env.get();
         return x;
     }
-    if (CONTEXT.Chr == '[')
+    if (CONTEXT_PTR->Chr == '[')
     {
-        CONTEXT.Env.get();
+        CONTEXT_PTR->Env.get();
         x = rdList();
-        if (CONTEXT.Chr != ']')
+        if (CONTEXT_PTR->Chr != ']')
             err(NULL, x, "Super parentheses mismatch");
-        CONTEXT.Env.get();
+        CONTEXT_PTR->Env.get();
         return x;
     }
-    if (CONTEXT.Chr == '\'')
+    if (CONTEXT_PTR->Chr == '\'')
     {
-        CONTEXT.Env.get();
+        CONTEXT_PTR->Env.get();
         return cons(doQuote_D, read0(top));
     }
-    if (CONTEXT.Chr == ',')
+    if (CONTEXT_PTR->Chr == ',')
     {
-        CONTEXT.Env.get();
+        CONTEXT_PTR->Env.get();
         return read0(top);
     }
-    if (CONTEXT.Chr == '`')
+    if (CONTEXT_PTR->Chr == '`')
     {
-        CONTEXT.Env.get();
+        CONTEXT_PTR->Env.get();
         Push(c1, read0(top));
         x = EVAL(data(c1));
         drop(c1);
         return x;
     }
-    if (CONTEXT.Chr == '"')
+    if (CONTEXT_PTR->Chr == '"')
     {
-        CONTEXT.Env.get();
-        if (CONTEXT.Chr == '"')
+        CONTEXT_PTR->Env.get();
+        if (CONTEXT_PTR->Chr == '"')
         {
-            CONTEXT.Env.get();
+            CONTEXT_PTR->Env.get();
             return Nil;
         }
         if (!testEsc())
             eofErr();
-        putByte1(CONTEXT.Chr, &i, &w, &p);
-        while (CONTEXT.Env.get(), CONTEXT.Chr != '"')
+        putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
+        while (CONTEXT_PTR->Env.get(), CONTEXT_PTR->Chr != '"')
         {
             if (!testEsc())
                 eofErr();
-            putByte(CONTEXT.Chr, &i, &w, &p, &c1);
+            putByte(CONTEXT_PTR->Chr, &i, &w, &p, &c1);
         }
-        y = popSym(i, w, p, &c1),  CONTEXT.Env.get();
-        if (x = isIntern(tail(y), CONTEXT.Transient))
+        y = popSym(i, w, p, &c1),  CONTEXT_PTR->Env.get();
+        if (x = isIntern(tail(y), CONTEXT_PTR->Transient))
             return x;
-        intern(y, CONTEXT.Transient);
+        intern(y, CONTEXT_PTR->Transient);
         return y;
     }
-    if (strchr(Delim, CONTEXT.Chr))
-        err(NULL, NULL, "Bad input '%c' (%d)", isprint(CONTEXT.Chr)? CONTEXT.Chr:'?', CONTEXT.Chr);
-    if (CONTEXT.Chr == '\\')
-        CONTEXT.Env.get();
-    putByte1(CONTEXT.Chr, &i, &w, &p);
+    if (strchr(Delim, CONTEXT_PTR->Chr))
+        err(NULL, NULL, "Bad input '%c' (%d)", isprint(CONTEXT_PTR->Chr)? CONTEXT_PTR->Chr:'?', CONTEXT_PTR->Chr);
+    if (CONTEXT_PTR->Chr == '\\')
+        CONTEXT_PTR->Env.get();
+    putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
 
     int count=0;
     for (;;)
@@ -346,16 +346,16 @@ static any read0(bool top)
         //     printf("%s too long\n", (char*)&w);
         //     bye(0);
         // }
-        CONTEXT.Env.get();
-        if (strchr(Delim, CONTEXT.Chr))
+        CONTEXT_PTR->Env.get();
+        if (strchr(Delim, CONTEXT_PTR->Chr))
         {
             break;
         }
-        if (CONTEXT.Chr == '\\')
+        if (CONTEXT_PTR->Chr == '\\')
         {
-            CONTEXT.Env.get();
+            CONTEXT_PTR->Env.get();
         }
-        putByte(CONTEXT.Chr, &i, &w, &p, &c1);
+        putByte(CONTEXT_PTR->Chr, &i, &w, &p, &c1);
     }
 
     y = popSym(i, w, p, &c1);
@@ -364,21 +364,21 @@ static any read0(bool top)
     {
         return x;
     }
-    if (x = isIntern(tail(y), CONTEXT.Intern))
+    if (x = isIntern(tail(y), CONTEXT_PTR->Intern))
     {
         return x;
     }
 
-    intern(y, CONTEXT.Intern);
+    intern(y, CONTEXT_PTR->Intern);
     //val(y) = Nil;
     return y;
 }
 
 any read1(int end)
 {
-   if (!CONTEXT.Chr)
-      CONTEXT.Env.get();
-   if (CONTEXT.Chr == end)
+   if (!CONTEXT_PTR->Chr)
+      CONTEXT_PTR->Env.get();
+   if (CONTEXT_PTR->Chr == end)
       return Nil;
    return read0(YES);
 }
@@ -391,84 +391,84 @@ any token(any x, int c)
     any y;
     cell c1, *p;
 
-    if (!CONTEXT.Chr)
-        CONTEXT.Env.get();
+    if (!CONTEXT_PTR->Chr)
+        CONTEXT_PTR->Env.get();
     if (skipc(c) < 0)
         return Nil;
-    if (CONTEXT.Chr == '"')
+    if (CONTEXT_PTR->Chr == '"')
     {
-        CONTEXT.Env.get();
-        if (CONTEXT.Chr == '"')
+        CONTEXT_PTR->Env.get();
+        if (CONTEXT_PTR->Chr == '"')
         {
-            CONTEXT.Env.get();
+            CONTEXT_PTR->Env.get();
             return Nil;
         }
         if (!testEsc())
             return Nil;
-        Push(c1, y =  cons(mkChar(CONTEXT.Chr), Nil));
-        while (CONTEXT.Env.get(), CONTEXT.Chr != '"' && testEsc())
-            y = cdr(y) = cons(mkChar(CONTEXT.Chr), Nil);
-        CONTEXT.Env.get();
+        Push(c1, y =  cons(mkChar(CONTEXT_PTR->Chr), Nil));
+        while (CONTEXT_PTR->Env.get(), CONTEXT_PTR->Chr != '"' && testEsc())
+            y = cdr(y) = cons(mkChar(CONTEXT_PTR->Chr), Nil);
+        CONTEXT_PTR->Env.get();
         return Pop(c1);
     }
-    if (CONTEXT.Chr >= '0' && CONTEXT.Chr <= '9')
+    if (CONTEXT_PTR->Chr >= '0' && CONTEXT_PTR->Chr <= '9')
     {
-        putByte1(CONTEXT.Chr, &i, &w, &p);
-        while (CONTEXT.Env.get(), CONTEXT.Chr >= '0' && CONTEXT.Chr <= '9' || CONTEXT.Chr == '.')
-            putByte(CONTEXT.Chr, &i, &w, &p, &c1);
+        putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
+        while (CONTEXT_PTR->Env.get(), CONTEXT_PTR->Chr >= '0' && CONTEXT_PTR->Chr <= '9' || CONTEXT_PTR->Chr == '.')
+            putByte(CONTEXT_PTR->Chr, &i, &w, &p, &c1);
         return symToNum(tail(popSym(i, w, p, &c1)), 0, '.', 0);
     }
-    if (CONTEXT.Chr != '+' && CONTEXT.Chr != '-')
+    if (CONTEXT_PTR->Chr != '+' && CONTEXT_PTR->Chr != '-')
     {
         // TODO check what needs to be done about stack - FREE MUST BE ADDED
         // char nm[bufSize(x)];
         char *nm = (char *)malloc(bufSize(x));
 
         bufString(x, nm);
-        if (CONTEXT.Chr >= 'A' && CONTEXT.Chr <= 'Z' || CONTEXT.Chr == '\\' || CONTEXT.Chr >= 'a' && CONTEXT.Chr <= 'z' || strchr(nm,CONTEXT.Chr))
+        if (CONTEXT_PTR->Chr >= 'A' && CONTEXT_PTR->Chr <= 'Z' || CONTEXT_PTR->Chr == '\\' || CONTEXT_PTR->Chr >= 'a' && CONTEXT_PTR->Chr <= 'z' || strchr(nm,CONTEXT_PTR->Chr))
         {
-            if (CONTEXT.Chr == '\\')
-                CONTEXT.Env.get();
-            putByte1(CONTEXT.Chr, &i, &w, &p);
-            while (CONTEXT.Env.get(),
-                    CONTEXT.Chr >= '0' && CONTEXT.Chr <= '9' || CONTEXT.Chr >= 'A' && CONTEXT.Chr <= 'Z' ||
-                    CONTEXT.Chr == '\\' || CONTEXT.Chr >= 'a' && CONTEXT.Chr <= 'z' || strchr(nm,CONTEXT.Chr) )
+            if (CONTEXT_PTR->Chr == '\\')
+                CONTEXT_PTR->Env.get();
+            putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
+            while (CONTEXT_PTR->Env.get(),
+                    CONTEXT_PTR->Chr >= '0' && CONTEXT_PTR->Chr <= '9' || CONTEXT_PTR->Chr >= 'A' && CONTEXT_PTR->Chr <= 'Z' ||
+                    CONTEXT_PTR->Chr == '\\' || CONTEXT_PTR->Chr >= 'a' && CONTEXT_PTR->Chr <= 'z' || strchr(nm,CONTEXT_PTR->Chr) )
             {
-                if (CONTEXT.Chr == '\\')
-                    CONTEXT.Env.get();
-                putByte(CONTEXT.Chr, &i, &w, &p, &c1);
+                if (CONTEXT_PTR->Chr == '\\')
+                    CONTEXT_PTR->Env.get();
+                putByte(CONTEXT_PTR->Chr, &i, &w, &p, &c1);
             }
             y = popSym(i, w, p, &c1);
-            if (x = isIntern(tail(y), CONTEXT.Intern))
+            if (x = isIntern(tail(y), CONTEXT_PTR->Intern))
             {
                 free(nm);
                 return x;
             }
-            intern(y, CONTEXT.Intern);
+            intern(y, CONTEXT_PTR->Intern);
             val(y) = Nil;
             free(nm);
             return y;
         }
     }
-    y = mkTxt(c = CONTEXT.Chr);
-    CONTEXT.Env.get();
+    y = mkTxt(c = CONTEXT_PTR->Chr);
+    CONTEXT_PTR->Env.get();
     return mkChar(c);
 }
 
 bool eol(void)
 {
-   if (CONTEXT.Chr < 0)
+   if (CONTEXT_PTR->Chr < 0)
       return YES;
-   if (CONTEXT.Chr == '\n')
+   if (CONTEXT_PTR->Chr == '\n')
    {
-      CONTEXT.Chr = 0;
+      CONTEXT_PTR->Chr = 0;
       return YES;
    }
-   if (CONTEXT.Chr == '\r')
+   if (CONTEXT_PTR->Chr == '\r')
    {
-      CONTEXT.Env.get();
-      if (CONTEXT.Chr == '\n')
-         CONTEXT.Chr = 0;
+      CONTEXT_PTR->Env.get();
+      if (CONTEXT_PTR->Chr == '\n')
+         CONTEXT_PTR->Chr = 0;
       return YES;
    }
    return NO;
