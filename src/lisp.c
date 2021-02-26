@@ -541,10 +541,10 @@ void printNUM(any cell)
 }
 
 /*** Main ***/
-int main_thread()
+int main_thread(Context *CONTEXT_PTR, int ac, char *av[])
 {
    heapAlloc();
-   _CONTEXT_PTR->Intern[0] = _CONTEXT_PTR->Intern[1] = _CONTEXT_PTR->Transient[0] = _CONTEXT_PTR->Transient[1] = Nil;
+   CONTEXT_PTR->Intern[0] = CONTEXT_PTR->Intern[1] = CONTEXT_PTR->Transient[0] = CONTEXT_PTR->Transient[1] = Nil;
 
    Mem[4] = (any)Mem; // TODO - SETTING THE VALUE OF NIL
    Mem[7] = (any)(Mem+6); // TODO - SETTING THE VALUE OF NIL
@@ -557,15 +557,15 @@ int main_thread()
 
       if ((BIN_START == carType || TXT == carType) && cdrType != FUNC && cell->cdr)
       {
-         intern(cell, _CONTEXT_PTR->Intern);
+         intern(cell, CONTEXT_PTR->Intern);
       }
       else if ((BIN_START == carType || TXT == carType) && cdrType == FUNC && cell->cdr)
       {
-         intern(cell, _CONTEXT_PTR->Intern);
+         intern(cell, CONTEXT_PTR->Intern);
       }
       else if ((BIN_START == carType || TXT == carType))
       {
-         intern(cell, _CONTEXT_PTR->Intern);
+         intern(cell, CONTEXT_PTR->Intern);
       }
    }
 
@@ -573,7 +573,7 @@ int main_thread()
 
 int main(int ac, char *av[])
 {
-    main_thread(ac, NULL);
+    main_thread(_CONTEXT_PTR, ac, NULL);
     av++;
     _CONTEXT_PTR->AV = av;
 
