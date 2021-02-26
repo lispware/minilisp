@@ -375,7 +375,7 @@ any doDo(any x);
 bool eol(void);
 
 extern Context CONTEXT;
-extern Context *CONTEXT_PTR;
+extern Context *_CONTEXT_PTR;
 
 
 #endif

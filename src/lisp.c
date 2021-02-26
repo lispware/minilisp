@@ -54,7 +54,7 @@ static void gc(word c);
 
 
 Context CONTEXT;
-Context *CONTEXT_PTR = &CONTEXT;
+Context *_CONTEXT_PTR = &CONTEXT;
 
 
 ///////////////////////////////////////////////
@@ -86,29 +86,29 @@ any load(any ex, int pr, any x)
     x = Nil;
     for (;;)
     {
-        if (CONTEXT_PTR->InFile != stdin)
+        if (_CONTEXT_PTR->InFile != stdin)
         {
             data(c1) = read1(0);
         }
         else
         {
-            if (pr && !CONTEXT_PTR->Chr)
-                CONTEXT_PTR->Env.put(pr), space(), fflush(CONTEXT_PTR->OutFile);
+            if (pr && !_CONTEXT_PTR->Chr)
+                _CONTEXT_PTR->Env.put(pr), space(), fflush(_CONTEXT_PTR->OutFile);
             data(c1) = read1('\n');
-            while (CONTEXT_PTR->Chr > 0)
+            while (_CONTEXT_PTR->Chr > 0)
             {
-                if (CONTEXT_PTR->Chr == '\n')
+                if (_CONTEXT_PTR->Chr == '\n')
                 {
-                    CONTEXT_PTR->Chr = 0;
+                    _CONTEXT_PTR->Chr = 0;
                     break;
                 }
-                if (CONTEXT_PTR->Chr == '#')
+                if (_CONTEXT_PTR->Chr == '#')
                     comment();
                 else
                 {
-                    if (CONTEXT_PTR->Chr > ' ')
+                    if (_CONTEXT_PTR->Chr > ' ')
                         break;
-                    CONTEXT_PTR->Env.get();
+                    _CONTEXT_PTR->Env.get();
                 }
             }
         }
@@ -119,7 +119,7 @@ any load(any ex, int pr, any x)
             return x;
         }
         Save(c1);
-        if (CONTEXT_PTR->InFile != stdin || CONTEXT_PTR->Chr || !pr)
+        if (_CONTEXT_PTR->InFile != stdin || _CONTEXT_PTR->Chr || !pr)
             // TODO - WHY @ does not work in files
             x = EVAL(data(c1));
         else
@@ -137,7 +137,7 @@ any load(any ex, int pr, any x)
             setCDRType(At3, getCDRType(At2));
 
             //val(At3) = val(At2),  val(At2) = data(c2);
-            outString("-> "),  fflush(CONTEXT_PTR->OutFile),  print(x),  newline();
+            outString("-> "),  fflush(_CONTEXT_PTR->OutFile),  print(x),  newline();
         }
         drop(c1);
     }
@@ -146,23 +146,23 @@ any load(any ex, int pr, any x)
 /*** Prining ***/
 void putStdout(int c)
 {
-    putc(c, CONTEXT_PTR->OutFile);
+    putc(c, _CONTEXT_PTR->OutFile);
 }
 
 void newline(void)
 {
-    CONTEXT_PTR->Env.put('\n');
+    _CONTEXT_PTR->Env.put('\n');
 }
 
 void space(void)
 {
-    CONTEXT_PTR->Env.put(' ');
+    _CONTEXT_PTR->Env.put(' ');
 }
 
 void outString(char *s)
 {
     while (*s)
-        CONTEXT_PTR->Env.put(*s++);
+        _CONTEXT_PTR->Env.put(*s++);
 }
 
 int bufNum(char buf[BITS/2], word n)
@@ -261,13 +261,13 @@ void prin(any x)
             for (x = name(x), c = getByte1(&i, &w, &x); c; c = getByte(&i, &w, &x))
             {
                 if (c != '^')
-                    CONTEXT_PTR->Env.put(c);
+                    _CONTEXT_PTR->Env.put(c);
                 else if (!(c = getByte(&i, &w, &x)))
-                    CONTEXT_PTR->Env.put('^');
+                    _CONTEXT_PTR->Env.put('^');
                 else if (c == '?')
-                    CONTEXT_PTR->Env.put(127);
+                    _CONTEXT_PTR->Env.put(127);
                 else
-                    CONTEXT_PTR->Env.put(c &= 0x1F);
+                    _CONTEXT_PTR->Env.put(c &= 0x1F);
             }
         }
         else
@@ -369,7 +369,7 @@ any evExpr(any expr, any x)
 
    bindFrame *f = allocFrame(length(y)+2);
 
-   f->link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = f;
+   f->link = _CONTEXT_PTR->Env.bind,  _CONTEXT_PTR->Env.bind = f;
    f->i = (bindSize * (length(y)+2)) / (2*sizeof(any)) - 1;
    f->cnt = 1,  f->bnd[0].sym = At,  f->bnd[0].val = val(At);
 
@@ -424,15 +424,15 @@ any evExpr(any expr, any x)
       }
       while (f->i);
 
-      n = CONTEXT_PTR->Env.next,  CONTEXT_PTR->Env.next = cnt;
-      arg = CONTEXT_PTR->Env.arg,  CONTEXT_PTR->Env.arg = c;
+      n = _CONTEXT_PTR->Env.next,  _CONTEXT_PTR->Env.next = cnt;
+      arg = _CONTEXT_PTR->Env.arg,  _CONTEXT_PTR->Env.arg = c;
       x = prog(cdr(expr));
       if (cnt)
       {
          drop(c[cnt-1]);
       }
 
-      CONTEXT_PTR->Env.arg = arg,  CONTEXT_PTR->Env.next = n;
+      _CONTEXT_PTR->Env.arg = arg,  _CONTEXT_PTR->Env.next = n;
       free(c);
    }
 
@@ -441,7 +441,7 @@ any evExpr(any expr, any x)
       val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
    }
 
-   CONTEXT_PTR->Env.bind = f->link;
+   _CONTEXT_PTR->Env.bind = f->link;
    free(f);
    return x;
 }
@@ -513,8 +513,8 @@ any loadAll(any ex)
 {
    any x = Nil;
 
-   while (*CONTEXT_PTR->AV  &&  strcmp(*CONTEXT_PTR->AV,"-") != 0)
-      x = load(ex, 0, mkStr(*CONTEXT_PTR->AV++));
+   while (*_CONTEXT_PTR->AV  &&  strcmp(*_CONTEXT_PTR->AV,"-") != 0)
+      x = load(ex, 0, mkStr(*_CONTEXT_PTR->AV++));
    return x;
 }
 
@@ -528,9 +528,9 @@ void printLongTXT(any nm)
     {
         if (c == '"'  ||  c == '\\')
         {
-            CONTEXT_PTR->Env.put('\\');
+            _CONTEXT_PTR->Env.put('\\');
         }
-        CONTEXT_PTR->Env.put(c);
+        _CONTEXT_PTR->Env.put(c);
     }
    while (c = getByte(&i, &w, &nm));
 }
@@ -544,7 +544,7 @@ void printNUM(any cell)
 int main_thread()
 {
    heapAlloc();
-   CONTEXT_PTR->Intern[0] = CONTEXT_PTR->Intern[1] = CONTEXT_PTR->Transient[0] = CONTEXT_PTR->Transient[1] = Nil;
+   _CONTEXT_PTR->Intern[0] = _CONTEXT_PTR->Intern[1] = _CONTEXT_PTR->Transient[0] = _CONTEXT_PTR->Transient[1] = Nil;
 
    Mem[4] = (any)Mem; // TODO - SETTING THE VALUE OF NIL
    Mem[7] = (any)(Mem+6); // TODO - SETTING THE VALUE OF NIL
@@ -557,15 +557,15 @@ int main_thread()
 
       if ((BIN_START == carType || TXT == carType) && cdrType != FUNC && cell->cdr)
       {
-         intern(cell, CONTEXT_PTR->Intern);
+         intern(cell, _CONTEXT_PTR->Intern);
       }
       else if ((BIN_START == carType || TXT == carType) && cdrType == FUNC && cell->cdr)
       {
-         intern(cell, CONTEXT_PTR->Intern);
+         intern(cell, _CONTEXT_PTR->Intern);
       }
       else if ((BIN_START == carType || TXT == carType))
       {
-         intern(cell, CONTEXT_PTR->Intern);
+         intern(cell, _CONTEXT_PTR->Intern);
       }
    }
 
@@ -575,12 +575,12 @@ int main(int ac, char *av[])
 {
     main_thread(ac, NULL);
     av++;
-    CONTEXT_PTR->AV = av;
+    _CONTEXT_PTR->AV = av;
 
-    CONTEXT_PTR->InFile = stdin, CONTEXT_PTR->Env.get = getStdin;
-    CONTEXT_PTR->OutFile = stdout, CONTEXT_PTR->Env.put = putStdout;
-    CONTEXT_PTR->ApplyArgs = cons(cons(consSym(Nil, 0), Nil), Nil);
-    CONTEXT_PTR->ApplyBody = cons(Nil, Nil);
+    _CONTEXT_PTR->InFile = stdin, _CONTEXT_PTR->Env.get = getStdin;
+    _CONTEXT_PTR->OutFile = stdout, _CONTEXT_PTR->Env.put = putStdout;
+    _CONTEXT_PTR->ApplyArgs = cons(cons(consSym(Nil, 0), Nil), Nil);
+    _CONTEXT_PTR->ApplyBody = cons(Nil, Nil);
 
     doDump(Nil);
     //getHeapSize();
