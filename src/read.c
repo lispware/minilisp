@@ -64,9 +64,9 @@ void bufString(any x, char *p)
 
 
 /*** Reading ***/
-void getStdin(void)
+void getStdin(Context *CONTEXT_PTR)
 {
-    _CONTEXT_PTR->Chr = getc(_CONTEXT_PTR->InFile);
+    CONTEXT_PTR->Chr = getc(CONTEXT_PTR->InFile);
 }
 
 
@@ -81,7 +81,7 @@ static int skipc(int c)
     {
         while (_CONTEXT_PTR->Chr <= ' ')
         {
-            _CONTEXT_PTR->Env.get();
+            _CONTEXT_PTR->Env.get(_CONTEXT_PTR);
             if (_CONTEXT_PTR->Chr < 0)
             {
                 return _CONTEXT_PTR->Chr;
@@ -91,21 +91,21 @@ static int skipc(int c)
         {
             return _CONTEXT_PTR->Chr;
         }
-        _CONTEXT_PTR->Env.get();
+        _CONTEXT_PTR->Env.get(_CONTEXT_PTR);
         while (_CONTEXT_PTR->Chr != '\n')
         {
             if (_CONTEXT_PTR->Chr < 0)
             {
                 return _CONTEXT_PTR->Chr;
             }
-            _CONTEXT_PTR->Env.get();
+            _CONTEXT_PTR->Env.get(_CONTEXT_PTR);
         }
     }
 }
 
 void comment(void)
 {
-    _CONTEXT_PTR->Env.get();
+    _CONTEXT_PTR->Env.get(_CONTEXT_PTR);
     if (_CONTEXT_PTR->Chr != '{')
     {
         while (_CONTEXT_PTR->Chr != '\n')
@@ -114,7 +114,7 @@ void comment(void)
             {
                 return;
             }
-            _CONTEXT_PTR->Env.get();
+            _CONTEXT_PTR->Env.get(_CONTEXT_PTR);
         }
     }
     else
@@ -122,21 +122,21 @@ void comment(void)
         int n = 0;
 
         for (;;) {  // #{block-comment}# from Kriangkrai Soatthiyanont
-            _CONTEXT_PTR->Env.get();
+            _CONTEXT_PTR->Env.get(_CONTEXT_PTR);
             if (_CONTEXT_PTR->Chr < 0)
             {
                 return;
             }
-            if (_CONTEXT_PTR->Chr == '#'  &&  (_CONTEXT_PTR->Env.get(), _CONTEXT_PTR->Chr == '{'))
+            if (_CONTEXT_PTR->Chr == '#'  &&  (_CONTEXT_PTR->Env.get(_CONTEXT_PTR), _CONTEXT_PTR->Chr == '{'))
             {
                 ++n;
             }
-            else if (_CONTEXT_PTR->Chr == '}'  &&  (_CONTEXT_PTR->Env.get(), _CONTEXT_PTR->Chr == '#')  &&  --n < 0)
+            else if (_CONTEXT_PTR->Chr == '}'  &&  (_CONTEXT_PTR->Env.get(_CONTEXT_PTR), _CONTEXT_PTR->Chr == '#')  &&  --n < 0)
             {
                 break;
             }
         }
-        _CONTEXT_PTR->Env.get();
+        _CONTEXT_PTR->Env.get(_CONTEXT_PTR);
     }
 }
 
@@ -150,7 +150,7 @@ static int skip(void)
         }
         while (_CONTEXT_PTR->Chr <= ' ')
         {
-            _CONTEXT_PTR->Env.get();
+            _CONTEXT_PTR->Env.get(_CONTEXT_PTR);
             if (_CONTEXT_PTR->Chr < 0)
             {
                 return _CONTEXT_PTR->Chr;
@@ -174,11 +174,11 @@ static bool testEsc(void)
             return NO;
         if (_CONTEXT_PTR->Chr != '\\')
             return YES;
-        if (_CONTEXT_PTR->Env.get(), _CONTEXT_PTR->Chr != '\n')
+        if (_CONTEXT_PTR->Env.get(_CONTEXT_PTR), _CONTEXT_PTR->Chr != '\n')
             return YES;
         do
         {
-            _CONTEXT_PTR->Env.get();
+            _CONTEXT_PTR->Env.get(_CONTEXT_PTR);
         }
         while (_CONTEXT_PTR->Chr == ' '  ||  _CONTEXT_PTR->Chr == '\t');
     }
@@ -194,7 +194,7 @@ static any rdList(Context *CONTEXT_PTR)
     {
         if (skip() == ')')
         {
-            CONTEXT_PTR->Env.get();
+            CONTEXT_PTR->Env.get(_CONTEXT_PTR);
             return Nil;
         }
         if (CONTEXT_PTR->Chr == ']')
@@ -207,7 +207,7 @@ static any rdList(Context *CONTEXT_PTR)
             Push(c1, x);
             break;
         }
-        CONTEXT_PTR->Env.get();
+        CONTEXT_PTR->Env.get(_CONTEXT_PTR);
 
         x = read0(CONTEXT_PTR, NO);
         Push(c1, x);
@@ -226,17 +226,17 @@ static any rdList(Context *CONTEXT_PTR)
     {
         if (skip() == ')')
         {
-            CONTEXT_PTR->Env.get();
+            CONTEXT_PTR->Env.get(_CONTEXT_PTR);
             break;
         }
         if (CONTEXT_PTR->Chr == ']')
             break;
         if (CONTEXT_PTR->Chr == '.')
         {
-            CONTEXT_PTR->Env.get();
+            CONTEXT_PTR->Env.get(_CONTEXT_PTR);
             cdr(x) = skip()==')' || CONTEXT_PTR->Chr==']'? data(c1) : read0(CONTEXT_PTR, NO);
             if (skip() == ')')
-                CONTEXT_PTR->Env.get();
+                CONTEXT_PTR->Env.get(_CONTEXT_PTR);
             else if (CONTEXT_PTR->Chr != ']')
                 err(NULL, x, "Bad dotted pair");
             break;
@@ -247,7 +247,7 @@ static any rdList(Context *CONTEXT_PTR)
         }
         else
         {
-            CONTEXT_PTR->Env.get();
+            CONTEXT_PTR->Env.get(_CONTEXT_PTR);
             cdr(x) = read0(CONTEXT_PTR, NO);
             cdr(x) = EVAL(cdr(x));
             while (isCell(cdr(x)))
@@ -275,34 +275,34 @@ static any read0(Context *CONTEXT_PTR, bool top)
     }
     if (CONTEXT_PTR->Chr == '(')
     {
-        CONTEXT_PTR->Env.get();
+        CONTEXT_PTR->Env.get(_CONTEXT_PTR);
         x = rdList(CONTEXT_PTR);
         if (top  &&  CONTEXT_PTR->Chr == ']')
-            CONTEXT_PTR->Env.get();
+            CONTEXT_PTR->Env.get(_CONTEXT_PTR);
         return x;
     }
     if (CONTEXT_PTR->Chr == '[')
     {
-        CONTEXT_PTR->Env.get();
+        CONTEXT_PTR->Env.get(_CONTEXT_PTR);
         x = rdList(CONTEXT_PTR);
         if (CONTEXT_PTR->Chr != ']')
             err(NULL, x, "Super parentheses mismatch");
-        CONTEXT_PTR->Env.get();
+        CONTEXT_PTR->Env.get(_CONTEXT_PTR);
         return x;
     }
     if (CONTEXT_PTR->Chr == '\'')
     {
-        CONTEXT_PTR->Env.get();
+        CONTEXT_PTR->Env.get(_CONTEXT_PTR);
         return cons(CONTEXT_PTR, doQuote_D, read0(CONTEXT_PTR, top));
     }
     if (CONTEXT_PTR->Chr == ',')
     {
-        CONTEXT_PTR->Env.get();
+        CONTEXT_PTR->Env.get(_CONTEXT_PTR);
         return read0(CONTEXT_PTR, top);
     }
     if (CONTEXT_PTR->Chr == '`')
     {
-        CONTEXT_PTR->Env.get();
+        CONTEXT_PTR->Env.get(_CONTEXT_PTR);
         Push(c1, read0(CONTEXT_PTR, top));
         x = EVAL(data(c1));
         drop(c1);
@@ -310,22 +310,22 @@ static any read0(Context *CONTEXT_PTR, bool top)
     }
     if (CONTEXT_PTR->Chr == '"')
     {
-        CONTEXT_PTR->Env.get();
+        CONTEXT_PTR->Env.get(_CONTEXT_PTR);
         if (CONTEXT_PTR->Chr == '"')
         {
-            CONTEXT_PTR->Env.get();
+            CONTEXT_PTR->Env.get(_CONTEXT_PTR);
             return Nil;
         }
         if (!testEsc())
             eofErr();
         putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
-        while (CONTEXT_PTR->Env.get(), CONTEXT_PTR->Chr != '"')
+        while (CONTEXT_PTR->Env.get(_CONTEXT_PTR), CONTEXT_PTR->Chr != '"')
         {
             if (!testEsc())
                 eofErr();
             putByte(CONTEXT_PTR->Chr, &i, &w, &p, &c1);
         }
-        y = popSym(i, w, p, &c1),  CONTEXT_PTR->Env.get();
+        y = popSym(i, w, p, &c1),  CONTEXT_PTR->Env.get(_CONTEXT_PTR);
         if (x = isIntern(tail(y), CONTEXT_PTR->Transient))
             return x;
         intern(y, CONTEXT_PTR->Transient);
@@ -334,7 +334,7 @@ static any read0(Context *CONTEXT_PTR, bool top)
     if (strchr(Delim, CONTEXT_PTR->Chr))
         err(NULL, NULL, "Bad input '%c' (%d)", isprint(CONTEXT_PTR->Chr)? CONTEXT_PTR->Chr:'?', CONTEXT_PTR->Chr);
     if (CONTEXT_PTR->Chr == '\\')
-        CONTEXT_PTR->Env.get();
+        CONTEXT_PTR->Env.get(_CONTEXT_PTR);
     putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
 
     int count=0;
@@ -346,14 +346,14 @@ static any read0(Context *CONTEXT_PTR, bool top)
         //     printf("%s too long\n", (char*)&w);
         //     bye(0);
         // }
-        CONTEXT_PTR->Env.get();
+        CONTEXT_PTR->Env.get(_CONTEXT_PTR);
         if (strchr(Delim, CONTEXT_PTR->Chr))
         {
             break;
         }
         if (CONTEXT_PTR->Chr == '\\')
         {
-            CONTEXT_PTR->Env.get();
+            CONTEXT_PTR->Env.get(_CONTEXT_PTR);
         }
         putByte(CONTEXT_PTR->Chr, &i, &w, &p, &c1);
     }
@@ -377,7 +377,7 @@ static any read0(Context *CONTEXT_PTR, bool top)
 any read1(Context *CONTEXT_PTR, int end)
 {
    if (!CONTEXT_PTR->Chr)
-      CONTEXT_PTR->Env.get();
+      CONTEXT_PTR->Env.get(_CONTEXT_PTR);
    if (CONTEXT_PTR->Chr == end)
       return Nil;
    return read0(CONTEXT_PTR, YES);
@@ -395,7 +395,7 @@ bool eol(Context *CONTEXT_PTR)
    }
    if (CONTEXT_PTR->Chr == '\r')
    {
-      CONTEXT_PTR->Env.get();
+      CONTEXT_PTR->Env.get(_CONTEXT_PTR);
       if (CONTEXT_PTR->Chr == '\n')
          CONTEXT_PTR->Chr = 0;
       return YES;

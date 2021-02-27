@@ -120,7 +120,7 @@ typedef struct stkEnv
    inFrame *inFrames;
    outFrame *outFrames;
    parseFrame *parser;
-   void (*get)(void);
+   void (*get)(struct _Context*);
    void (*put)(int);
    bool brk;
 }
@@ -294,7 +294,6 @@ int firstByte(any);
 any get(any,any);
 int getByte(int*,uword*,any*);
 int getByte1(int*,uword*,any*);
-void getStdin(void);
 void giveup(char*) ;
 void heapAlloc(void);
 any intern(any,any[2]);
@@ -382,5 +381,7 @@ void popOutFiles(Context*);
 
 void redefine(Context*, any ex, any s, any x);
 void redefMsg(Context *, any x, any y);
+
+void getStdin(Context *);
 
 #endif

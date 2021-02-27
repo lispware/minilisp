@@ -108,7 +108,7 @@ any load(Context *CONTEXT_PTR, any ex, int pr, any x)
                 {
                     if (CONTEXT_PTR->Chr > ' ')
                         break;
-                    CONTEXT_PTR->Env.get();
+                    CONTEXT_PTR->Env.get(CONTEXT_PTR);
                 }
             }
         }
