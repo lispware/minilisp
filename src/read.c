@@ -11,7 +11,7 @@
 #endif
 
 
-static any read0(bool);
+static any read0(Context *, bool);
 
 static char Delim[] = " \t\n\r\"'(),[]`~{}";
 
@@ -185,7 +185,7 @@ static bool testEsc(void)
 }
 
 /* Read a list */
-static any rdList(void)
+static any rdList(Context *CONTEXT_PTR)
 {
     any x;
     cell c1;
@@ -194,22 +194,22 @@ static any rdList(void)
     {
         if (skip() == ')')
         {
-            _CONTEXT_PTR->Env.get();
+            CONTEXT_PTR->Env.get();
             return Nil;
         }
-        if (_CONTEXT_PTR->Chr == ']')
+        if (CONTEXT_PTR->Chr == ']')
         {
             return Nil;
         }
-        if (_CONTEXT_PTR->Chr != '~')
+        if (CONTEXT_PTR->Chr != '~')
         {
-            x = cons(_CONTEXT_PTR, read0(NO),Nil);
+            x = cons(CONTEXT_PTR, read0(CONTEXT_PTR, NO),Nil);
             Push(c1, x);
             break;
         }
-        _CONTEXT_PTR->Env.get();
+        CONTEXT_PTR->Env.get();
 
-        x = read0(NO);
+        x = read0(CONTEXT_PTR, NO);
         Push(c1, x);
         if (isCell(x = data(c1) = EVAL(data(c1))))
         {
@@ -226,29 +226,29 @@ static any rdList(void)
     {
         if (skip() == ')')
         {
-            _CONTEXT_PTR->Env.get();
+            CONTEXT_PTR->Env.get();
             break;
         }
-        if (_CONTEXT_PTR->Chr == ']')
+        if (CONTEXT_PTR->Chr == ']')
             break;
-        if (_CONTEXT_PTR->Chr == '.')
+        if (CONTEXT_PTR->Chr == '.')
         {
-            _CONTEXT_PTR->Env.get();
-            cdr(x) = skip()==')' || _CONTEXT_PTR->Chr==']'? data(c1) : read0(NO);
+            CONTEXT_PTR->Env.get();
+            cdr(x) = skip()==')' || CONTEXT_PTR->Chr==']'? data(c1) : read0(CONTEXT_PTR, NO);
             if (skip() == ')')
-                _CONTEXT_PTR->Env.get();
-            else if (_CONTEXT_PTR->Chr != ']')
+                CONTEXT_PTR->Env.get();
+            else if (CONTEXT_PTR->Chr != ']')
                 err(NULL, x, "Bad dotted pair");
             break;
         }
-        if (_CONTEXT_PTR->Chr != '~')
+        if (CONTEXT_PTR->Chr != '~')
         {
-            x = cdr(x) = cons(_CONTEXT_PTR, read0(NO),Nil);
+            x = cdr(x) = cons(CONTEXT_PTR, read0(CONTEXT_PTR, NO),Nil);
         }
         else
         {
-            _CONTEXT_PTR->Env.get();
-            cdr(x) = read0(NO);
+            CONTEXT_PTR->Env.get();
+            cdr(x) = read0(CONTEXT_PTR, NO);
             cdr(x) = EVAL(cdr(x));
             while (isCell(cdr(x)))
             {
@@ -260,7 +260,7 @@ static any rdList(void)
 }
 
 /* Read one expression */
-static any read0(bool top)
+static any read0(Context *CONTEXT_PTR, bool top)
 {
     int i;
     uword w;
@@ -273,69 +273,69 @@ static any read0(bool top)
             return Nil;
         eofErr();
     }
-    if (_CONTEXT_PTR->Chr == '(')
+    if (CONTEXT_PTR->Chr == '(')
     {
-        _CONTEXT_PTR->Env.get();
-        x = rdList();
-        if (top  &&  _CONTEXT_PTR->Chr == ']')
-            _CONTEXT_PTR->Env.get();
+        CONTEXT_PTR->Env.get();
+        x = rdList(CONTEXT_PTR);
+        if (top  &&  CONTEXT_PTR->Chr == ']')
+            CONTEXT_PTR->Env.get();
         return x;
     }
-    if (_CONTEXT_PTR->Chr == '[')
+    if (CONTEXT_PTR->Chr == '[')
     {
-        _CONTEXT_PTR->Env.get();
-        x = rdList();
-        if (_CONTEXT_PTR->Chr != ']')
+        CONTEXT_PTR->Env.get();
+        x = rdList(CONTEXT_PTR);
+        if (CONTEXT_PTR->Chr != ']')
             err(NULL, x, "Super parentheses mismatch");
-        _CONTEXT_PTR->Env.get();
+        CONTEXT_PTR->Env.get();
         return x;
     }
-    if (_CONTEXT_PTR->Chr == '\'')
+    if (CONTEXT_PTR->Chr == '\'')
     {
-        _CONTEXT_PTR->Env.get();
-        return cons(_CONTEXT_PTR, doQuote_D, read0(top));
+        CONTEXT_PTR->Env.get();
+        return cons(CONTEXT_PTR, doQuote_D, read0(CONTEXT_PTR, top));
     }
-    if (_CONTEXT_PTR->Chr == ',')
+    if (CONTEXT_PTR->Chr == ',')
     {
-        _CONTEXT_PTR->Env.get();
-        return read0(top);
+        CONTEXT_PTR->Env.get();
+        return read0(CONTEXT_PTR, top);
     }
-    if (_CONTEXT_PTR->Chr == '`')
+    if (CONTEXT_PTR->Chr == '`')
     {
-        _CONTEXT_PTR->Env.get();
-        Push(c1, read0(top));
+        CONTEXT_PTR->Env.get();
+        Push(c1, read0(CONTEXT_PTR, top));
         x = EVAL(data(c1));
         drop(c1);
         return x;
     }
-    if (_CONTEXT_PTR->Chr == '"')
+    if (CONTEXT_PTR->Chr == '"')
     {
-        _CONTEXT_PTR->Env.get();
-        if (_CONTEXT_PTR->Chr == '"')
+        CONTEXT_PTR->Env.get();
+        if (CONTEXT_PTR->Chr == '"')
         {
-            _CONTEXT_PTR->Env.get();
+            CONTEXT_PTR->Env.get();
             return Nil;
         }
         if (!testEsc())
             eofErr();
-        putByte1(_CONTEXT_PTR->Chr, &i, &w, &p);
-        while (_CONTEXT_PTR->Env.get(), _CONTEXT_PTR->Chr != '"')
+        putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
+        while (CONTEXT_PTR->Env.get(), CONTEXT_PTR->Chr != '"')
         {
             if (!testEsc())
                 eofErr();
-            putByte(_CONTEXT_PTR->Chr, &i, &w, &p, &c1);
+            putByte(CONTEXT_PTR->Chr, &i, &w, &p, &c1);
         }
-        y = popSym(i, w, p, &c1),  _CONTEXT_PTR->Env.get();
-        if (x = isIntern(tail(y), _CONTEXT_PTR->Transient))
+        y = popSym(i, w, p, &c1),  CONTEXT_PTR->Env.get();
+        if (x = isIntern(tail(y), CONTEXT_PTR->Transient))
             return x;
-        intern(y, _CONTEXT_PTR->Transient);
+        intern(y, CONTEXT_PTR->Transient);
         return y;
     }
-    if (strchr(Delim, _CONTEXT_PTR->Chr))
-        err(NULL, NULL, "Bad input '%c' (%d)", isprint(_CONTEXT_PTR->Chr)? _CONTEXT_PTR->Chr:'?', _CONTEXT_PTR->Chr);
-    if (_CONTEXT_PTR->Chr == '\\')
-        _CONTEXT_PTR->Env.get();
-    putByte1(_CONTEXT_PTR->Chr, &i, &w, &p);
+    if (strchr(Delim, CONTEXT_PTR->Chr))
+        err(NULL, NULL, "Bad input '%c' (%d)", isprint(CONTEXT_PTR->Chr)? CONTEXT_PTR->Chr:'?', CONTEXT_PTR->Chr);
+    if (CONTEXT_PTR->Chr == '\\')
+        CONTEXT_PTR->Env.get();
+    putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
 
     int count=0;
     for (;;)
@@ -346,30 +346,30 @@ static any read0(bool top)
         //     printf("%s too long\n", (char*)&w);
         //     bye(0);
         // }
-        _CONTEXT_PTR->Env.get();
-        if (strchr(Delim, _CONTEXT_PTR->Chr))
+        CONTEXT_PTR->Env.get();
+        if (strchr(Delim, CONTEXT_PTR->Chr))
         {
             break;
         }
-        if (_CONTEXT_PTR->Chr == '\\')
+        if (CONTEXT_PTR->Chr == '\\')
         {
-            _CONTEXT_PTR->Env.get();
+            CONTEXT_PTR->Env.get();
         }
-        putByte(_CONTEXT_PTR->Chr, &i, &w, &p, &c1);
+        putByte(CONTEXT_PTR->Chr, &i, &w, &p, &c1);
     }
 
     y = popSym(i, w, p, &c1);
     //printf("%p --> CAR = %p CDR = %p \n", y, y->car, y->cdr);
-    if (x = symToNum(_CONTEXT_PTR, tail(y), 0, '.', 0))
+    if (x = symToNum(CONTEXT_PTR, tail(y), 0, '.', 0))
     {
         return x;
     }
-    if (x = isIntern(tail(y), _CONTEXT_PTR->Intern))
+    if (x = isIntern(tail(y), CONTEXT_PTR->Intern))
     {
         return x;
     }
 
-    intern(y, _CONTEXT_PTR->Intern);
+    intern(y, CONTEXT_PTR->Intern);
     //val(y) = Nil;
     return y;
 }
@@ -380,7 +380,7 @@ any read1(int end)
       _CONTEXT_PTR->Env.get();
    if (_CONTEXT_PTR->Chr == end)
       return Nil;
-   return read0(YES);
+   return read0(_CONTEXT_PTR, YES);
 }
 
 /* Read one token */
