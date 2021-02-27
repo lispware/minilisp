@@ -208,7 +208,7 @@ any isIntern(any nm, any tree[2])
     return NULL;
 }
 
-any internBin(any sym, any tree[2])
+any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
 {
     any nm, x, y, z;
     word n;
@@ -217,7 +217,7 @@ any internBin(any sym, any tree[2])
 
     if (x == Nil)
     {
-        tree[1] = consIntern(_CONTEXT_PTR, sym, Nil);
+        tree[1] = consIntern(CONTEXT_PTR, sym, Nil);
         return tree[1];
     }
 
@@ -235,7 +235,7 @@ any internBin(any sym, any tree[2])
 
         if (Nil == cdr(x))
         {
-            cdr(x) = n < 0 ? consIntern(_CONTEXT_PTR, consIntern(_CONTEXT_PTR, sym, Nil), Nil) : consIntern(_CONTEXT_PTR, Nil, consIntern(_CONTEXT_PTR, sym, Nil));
+            cdr(x) = n < 0 ? consIntern(CONTEXT_PTR, consIntern(CONTEXT_PTR, sym, Nil), Nil) : consIntern(CONTEXT_PTR, Nil, consIntern(CONTEXT_PTR, sym, Nil));
             return sym;
         }
         if (n < 0)
@@ -246,7 +246,7 @@ any internBin(any sym, any tree[2])
             }
             else
             {
-                cadr(x) = consIntern(_CONTEXT_PTR, sym, Nil);
+                cadr(x) = consIntern(CONTEXT_PTR, sym, Nil);
                 return sym;
             }
         }
@@ -258,7 +258,7 @@ any internBin(any sym, any tree[2])
             }
             else
             {
-                cddr(x) = consIntern(_CONTEXT_PTR, sym, Nil);
+                cddr(x) = consIntern(CONTEXT_PTR, sym, Nil);
                 return sym;
             }
         }
@@ -271,14 +271,14 @@ any intern(Context *CONTEXT_PTR, any sym, any tree[2])
    word n;
 
 
-   if (getCARType(sym) == BIN_START) return internBin(sym, tree);
+   if (getCARType(sym) == BIN_START) return internBin(CONTEXT_PTR, sym, tree);
 
    nm = sym;
 
    x = tree[0];
    if (Nil == x)
    {
-      tree[0] = consIntern(_CONTEXT_PTR, sym, Nil);
+      tree[0] = consIntern(CONTEXT_PTR, sym, Nil);
       return tree[0];
    }
    for (;;)
@@ -290,7 +290,7 @@ any intern(Context *CONTEXT_PTR, any sym, any tree[2])
 
       if (Nil == cdr(x))
       {
-         cdr(x) = n < 0 ? consIntern(_CONTEXT_PTR, consIntern(_CONTEXT_PTR, sym, Nil), Nil) : consIntern(_CONTEXT_PTR, Nil, consIntern(_CONTEXT_PTR, sym, Nil));
+         cdr(x) = n < 0 ? consIntern(CONTEXT_PTR, consIntern(CONTEXT_PTR, sym, Nil), Nil) : consIntern(CONTEXT_PTR, Nil, consIntern(CONTEXT_PTR, sym, Nil));
          return sym;
       }
       if (n < 0)
@@ -301,7 +301,7 @@ any intern(Context *CONTEXT_PTR, any sym, any tree[2])
          }
          else
          {
-            cadr(x) = consIntern(_CONTEXT_PTR, sym, Nil);
+            cadr(x) = consIntern(CONTEXT_PTR, sym, Nil);
             return sym;
          }
       }
@@ -313,7 +313,7 @@ any intern(Context *CONTEXT_PTR, any sym, any tree[2])
          }
          else
          {
-            cddr(x) = consIntern(_CONTEXT_PTR, sym, Nil);
+            cddr(x) = consIntern(CONTEXT_PTR, sym, Nil);
             return sym;
          }
       }
