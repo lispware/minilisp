@@ -798,7 +798,7 @@ void wrOpen(any ex, any x, outFrame *f) {
    if (isNil(x))
       f->fp = stdout;
    else {
-      char *nm = (char *)malloc(pathSize(x));
+      char *nm = (char *)malloc(pathSize(_CONTEXT_PTR, x));
 
       pathString(x,nm);
       if (nm[0] == '+') {
@@ -821,7 +821,7 @@ void rdOpen(any ex, any x, inFrame *f)
     }
     else
     {
-        int ps = pathSize(x);
+        int ps = pathSize(_CONTEXT_PTR, x);
         char *nm = (char*)malloc(ps);
 
         pathString(x,nm);

@@ -310,7 +310,6 @@ void outName(any);
 void outNum(word);
 void outString(char*);
 void pack(any,int*,uword*,any*,cell*);
-int pathSize(any);
 void pathString(any,char*);
 void popInFiles(void);
 void popOutFiles(void);
@@ -379,5 +378,6 @@ any load(Context *, any,int,any);
 any loadAll(Context *, any);
 
 bool eol(Context *);
+int pathSize(Context *, any);
 
 #endif

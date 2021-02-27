@@ -21,7 +21,7 @@ int bufSize(any x)
     return symBytes(x) + 1;
 }
 
-int pathSize(any x)
+int pathSize(Context *CONTEXT_PTR, any x)
 {
     int c = firstByte(x);
 
@@ -29,11 +29,11 @@ int pathSize(any x)
     {
         return bufSize(x);
     }
-    if (!_CONTEXT_PTR->Home)
+    if (!CONTEXT_PTR->Home)
     {
         return symBytes(x);
     }
-    return strlen(_CONTEXT_PTR->Home) + symBytes(x);
+    return strlen(CONTEXT_PTR->Home) + symBytes(x);
 }
 
 void bufString(any x, char *p)
