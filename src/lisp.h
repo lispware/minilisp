@@ -374,7 +374,7 @@ extern Context *_CONTEXT_PTR;
 //gc.c
 any cons(any x, any y);
 /* Construct a symbol */
-any consSym(any val, uword w);
+any consSym(Context *, any val, uword w);
 /* Construct a name cell */
 any consName(Context*, uword w, any n);
 
