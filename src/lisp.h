@@ -310,7 +310,6 @@ void outName(any);
 void outNum(word);
 void outString(char*);
 void pack(any,int*,uword*,any*,cell*);
-void pathString(any,char*);
 any popSym(int,uword,any,cell*);
 void prin(any);
 void print(any);
@@ -373,6 +372,7 @@ any loadAll(Context *, any);
 
 bool eol(Context *);
 int pathSize(Context *, any);
+void pathString(Context*, any,char*);
 
 void wrOpen(Context*, any,any,outFrame*);
 void rdOpen(Context*, any,any,inFrame*);

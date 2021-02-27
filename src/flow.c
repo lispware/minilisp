@@ -800,7 +800,7 @@ void wrOpen(Context *CONTEXT_PTR, any ex, any x, outFrame *f) {
    else {
       char *nm = (char *)malloc(pathSize(CONTEXT_PTR, x));
 
-      pathString(x,nm);
+      pathString(CONTEXT_PTR, x,nm);
       if (nm[0] == '+') {
          if (!(f->fp = fopen(nm+1, "a")))
             openErr(ex, nm);
@@ -824,7 +824,7 @@ void rdOpen(Context *CONTEXT_PTR, any ex, any x, inFrame *f)
         int ps = pathSize(CONTEXT_PTR, x);
         char *nm = (char*)malloc(ps);
 
-        pathString(x,nm);
+        pathString(CONTEXT_PTR, x,nm);
         if (nm[0] == '+')
         {
             if (!(f->fp = fopen(nm+1, "a+")))
@@ -888,7 +888,7 @@ void popOutFiles(Context *CONTEXT_PTR)
     CONTEXT_PTR->OutFile = (CONTEXT_PTR->Env.outFrames = CONTEXT_PTR->Env.outFrames->link)? CONTEXT_PTR->Env.outFrames->fp : stdout;
 }
 
-void pathString(any x, char *p)
+void pathString(Context *CONTEXT_PTR, any x, char *p)
 {
     int c, i;
     uword w;
@@ -907,7 +907,7 @@ void pathString(any x, char *p)
     }
     else
     {
-        if (h = _CONTEXT_PTR->Home)
+        if (h = CONTEXT_PTR->Home)
         {
             do
             {
