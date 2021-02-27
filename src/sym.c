@@ -116,7 +116,7 @@ void putByte(int c, int *i, uword *p, any *q, cell *cp)
     {
         if (*q)
         {
-            any x = consName(*p, Zero);
+            any x = consName(_CONTEXT_PTR, *p, Zero);
             setCARType(x, BIN);
             (*q)->cdr = x;
             *q = x;
@@ -126,7 +126,7 @@ void putByte(int c, int *i, uword *p, any *q, cell *cp)
             any x = consSym(NULL, 0);
             setCARType(x, BIN_START);
             Push(*cp, x);
-            any y = consName(*p, Zero);
+            any y = consName(_CONTEXT_PTR, *p, Zero);
             setCARType(y, BIN);
             (*cp).car->car = *q = y;
 
@@ -142,8 +142,8 @@ any popSym(int i, uword n, any q, cell *cp)
 {
     if (q)
     {
-        //val(q) = i <= (BITS-2)? box(n) : consName(n, Zero);
-        q->cdr = consName(n, Nil);
+        //val(q) = i <= (BITS-2)? box(n) : consName(_CONTEXT_PTR, n, Zero);
+        q->cdr = consName(_CONTEXT_PTR, n, Nil);
         return Pop(*cp);
     }
     return consSym(NULL,n);

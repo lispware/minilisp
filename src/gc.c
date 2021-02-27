@@ -2,7 +2,7 @@
 #include "cell.h"
 
 /*** Macros ***/
-#define Free(p)         ((p)->car=CONTEXT.Avail, (p)->cdr=0, (p)->type._t=0,  CONTEXT.Avail=(p))
+#define Free(p)         ((p)->car=_CONTEXT_PTR->Avail, (p)->cdr=0, (p)->type._t=0,  _CONTEXT_PTR->Avail=(p))
 
 
 #if INTPTR_MAX == INT32_MAX
@@ -78,8 +78,8 @@ void sweep(int free)
    heap *h;
    int c =100;
    /* Sweep */
-   if(free)CONTEXT.Avail = NULL;
-   h = CONTEXT.Heaps;
+   if(free)_CONTEXT_PTR->Avail = NULL;
+   h = _CONTEXT_PTR->Heaps;
    if (c) {
       do {
          p = h->cells + CELLS-1;
@@ -102,7 +102,7 @@ void sweep(int free)
       //}
    }
 
-   printf("AVAIL = %p\n", CONTEXT.Avail);
+   printf("AVAIL = %p\n", _CONTEXT_PTR->Avail);
 }
 
 
@@ -135,17 +135,17 @@ void markAll()
    }
 
    /* Mark */
-   setMark(CONTEXT.Intern[0], 0);mark(CONTEXT.Intern[0]);
-   setMark(CONTEXT.Intern[1], 0);mark(CONTEXT.Intern[1]);
-   setMark(CONTEXT.Transient[0], 0);mark(CONTEXT.Transient[0]);
-   setMark(CONTEXT.Transient[1], 0);mark(CONTEXT.Transient[1]);
-   if (CONTEXT.ApplyArgs) setMark(CONTEXT.ApplyArgs, 0);mark(CONTEXT.ApplyArgs);
-   if (CONTEXT.ApplyBody) setMark(CONTEXT.ApplyBody, 0);mark(CONTEXT.ApplyBody);
-   for (p = CONTEXT.Env.stack; p; p = cdr(p))
+   setMark(_CONTEXT_PTR->Intern[0], 0);mark(_CONTEXT_PTR->Intern[0]);
+   setMark(_CONTEXT_PTR->Intern[1], 0);mark(_CONTEXT_PTR->Intern[1]);
+   setMark(_CONTEXT_PTR->Transient[0], 0);mark(_CONTEXT_PTR->Transient[0]);
+   setMark(_CONTEXT_PTR->Transient[1], 0);mark(_CONTEXT_PTR->Transient[1]);
+   if (_CONTEXT_PTR->ApplyArgs) setMark(_CONTEXT_PTR->ApplyArgs, 0);mark(_CONTEXT_PTR->ApplyArgs);
+   if (_CONTEXT_PTR->ApplyBody) setMark(_CONTEXT_PTR->ApplyBody, 0);mark(_CONTEXT_PTR->ApplyBody);
+   for (p = _CONTEXT_PTR->Env.stack; p; p = cdr(p))
    {
       mark(car(p));
    }
-   for (p = (any)CONTEXT.Env.bind;  p;  p = (any)((bindFrame*)p)->link)
+   for (p = (any)_CONTEXT_PTR->Env.bind;  p;  p = (any)((bindFrame*)p)->link)
    {
       for (i = ((bindFrame*)p)->cnt;  --i >= 0;)
       {
@@ -153,7 +153,7 @@ void markAll()
          mark(((bindFrame*)p)->bnd[i].val);
       }
    }
-   for (p = (any)CONTEXT.CatchPtr; p; p = (any)((catchFrame*)p)->link)
+   for (p = (any)_CONTEXT_PTR->CatchPtr; p; p = (any)((catchFrame*)p)->link)
    {
       if (((catchFrame*)p)->tag)
          mark(((catchFrame*)p)->tag);
@@ -203,7 +203,7 @@ any doDump(Context *CONTEXT_PTR, any ignore)
         dump(mem, (any)(&Mem[i]));
     }
 
-    heap *h = CONTEXT.Heaps;
+    heap *h = _CONTEXT_PTR->Heaps;
 
     dumpHeaps(mem, h);
 
@@ -217,7 +217,7 @@ uword getHeapSize(void)
 {
     uword size = 0;
     uword sizeFree = 0;
-    heap *h = CONTEXT.Heaps;
+    heap *h = _CONTEXT_PTR->Heaps;
     do
     {
         any p = h->cells + CELLS-1;
@@ -228,7 +228,7 @@ uword getHeapSize(void)
         while (--p >= h->cells);
     } while (h = h->next);
 
-    any p = CONTEXT.Avail;
+    any p = _CONTEXT_PTR->Avail;
     while (p)
     {
         sizeFree++;
@@ -251,8 +251,8 @@ static void gc(Context *CONTEXT_PTR, word c)
     doDump(CONTEXT_PTR, Nil);
 
     /* Sweep */
-    CONTEXT.Avail = NULL;
-    h = CONTEXT.Heaps;
+    _CONTEXT_PTR->Avail = NULL;
+    h = _CONTEXT_PTR->Heaps;
     if (c)
     {
         do
@@ -296,7 +296,7 @@ any cons(any x, any y)
 {
     cell *p;
 
-    if (!(p = CONTEXT.Avail))
+    if (!(p = _CONTEXT_PTR->Avail))
     {
         cell c1, c2;
 
@@ -304,9 +304,9 @@ any cons(any x, any y)
         Push(c2,y);
         gc(_CONTEXT_PTR, CELLS);
         drop(c1);
-        p = CONTEXT.Avail;
+        p = _CONTEXT_PTR->Avail;
     }
-    CONTEXT.Avail = p->car;
+    _CONTEXT_PTR->Avail = p->car;
     p->car = x;
     p->cdr = y;
     setCARType(p, PTR_CELL);
@@ -319,7 +319,7 @@ any consSym(any val, uword w)
 {
     cell *p;
 
-    if (!(p = CONTEXT.Avail)) {
+    if (!(p = _CONTEXT_PTR->Avail)) {
         cell c1;
 
         if (!val)
@@ -329,9 +329,9 @@ any consSym(any val, uword w)
             gc(_CONTEXT_PTR, CELLS);
             drop(c1);
         }
-        p = CONTEXT.Avail;
+        p = _CONTEXT_PTR->Avail;
     }
-    CONTEXT.Avail = p->car;
+    _CONTEXT_PTR->Avail = p->car;
     p->cdr = val ? val : p;
     p->car = (any)w;
     setCARType(p, TXT);
@@ -340,16 +340,16 @@ any consSym(any val, uword w)
 }
 
 /* Construct a name cell */
-any consName(uword w, any n)
+any consName(Context *CONTEXT_PTR, uword w, any n)
 {
    cell *p;
 
-   if (!(p = CONTEXT.Avail))
+   if (!(p = CONTEXT_PTR->Avail))
    {
-      gc(_CONTEXT_PTR, CELLS);
-      p = CONTEXT.Avail;
+      gc(CONTEXT_PTR, CELLS);
+      p = CONTEXT_PTR->Avail;
    }
-   CONTEXT.Avail = p->car;
+   CONTEXT_PTR->Avail = p->car;
    p = symPtr(p);
    p->car = (any)w;
    p->cdr = n;
@@ -365,7 +365,7 @@ void heapAlloc(void)
    cell *p;
 
    h = (heap*)((word)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
-   h->next = CONTEXT.Heaps,  CONTEXT.Heaps = h;
+   h->next = _CONTEXT_PTR->Heaps,  _CONTEXT_PTR->Heaps = h;
    p = h->cells + CELLS-1;
    do
    {

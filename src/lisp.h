@@ -211,14 +211,6 @@ any EVAL(any x);
 void lstError(any,any) ;
 any consIntern(any x, any y);
 /* Construct a cell */
-any cons(any x, any y);
-
-/* Construct a symbol */
-any consSym(any val, uword w);
-
-/* Construct a name cell */
-any consName(uword w, any n);
-
 #define evSubr(f,x)     (*(FunPtr)(num(f)))(_CONTEXT_PTR, x)
 
 /* Globals */
@@ -292,9 +284,6 @@ void pairError(any,any) ;
 any circ(any);
 word compare(any,any);
 any consIntern(any,any);
-any cons(any,any);
-any consName(uword,any);
-any consSym(any,uword);
 void newline(void);
 any endString(void);
 bool equal(any,any);
@@ -379,6 +368,15 @@ bool eol(void);
 
 extern Context CONTEXT;
 extern Context *_CONTEXT_PTR;
+
+
+
+//gc.c
+any cons(any x, any y);
+/* Construct a symbol */
+any consSym(any val, uword w);
+/* Construct a name cell */
+any consName(Context*, uword w, any n);
 
 
 #endif
