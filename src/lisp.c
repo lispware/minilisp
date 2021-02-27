@@ -557,15 +557,15 @@ int main_thread(Context *CONTEXT_PTR, int ac, char *av[])
 
       if ((BIN_START == carType || TXT == carType) && cdrType != FUNC && cell->cdr)
       {
-         intern(cell, CONTEXT_PTR->Intern);
+         intern(CONTEXT_PTR, cell, CONTEXT_PTR->Intern);
       }
       else if ((BIN_START == carType || TXT == carType) && cdrType == FUNC && cell->cdr)
       {
-         intern(cell, CONTEXT_PTR->Intern);
+         intern(CONTEXT_PTR, cell, CONTEXT_PTR->Intern);
       }
       else if ((BIN_START == carType || TXT == carType))
       {
-         intern(cell, CONTEXT_PTR->Intern);
+         intern(CONTEXT_PTR, cell, CONTEXT_PTR->Intern);
       }
    }
 

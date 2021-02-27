@@ -293,7 +293,6 @@ any get(any,any);
 int getByte(int*,uword*,any*);
 int getByte1(int*,uword*,any*);
 void giveup(char*) ;
-any intern(any,any[2]);
 any isIntern(any,any[2]);
 any method(any);
 any mkChar(int);
@@ -383,5 +382,7 @@ void getStdin(Context *);
 void comment(Context*);
 
 void heapAlloc(Context *);
+
+any intern(Context*, any,any[2]);
 
 #endif

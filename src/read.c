@@ -295,7 +295,7 @@ static any read0(Context *CONTEXT_PTR, bool top)
         y = popSym(i, w, p, &c1),  CONTEXT_PTR->Env.get(CONTEXT_PTR);
         if (x = isIntern(tail(y), CONTEXT_PTR->Transient))
             return x;
-        intern(y, CONTEXT_PTR->Transient);
+        intern(CONTEXT_PTR, y, CONTEXT_PTR->Transient);
         return y;
     }
     if (strchr(Delim, CONTEXT_PTR->Chr))
@@ -336,7 +336,7 @@ static any read0(Context *CONTEXT_PTR, bool top)
         return x;
     }
 
-    intern(y, CONTEXT_PTR->Intern);
+    intern(CONTEXT_PTR, y, CONTEXT_PTR->Intern);
     //val(y) = Nil;
     return y;
 }

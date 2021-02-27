@@ -265,7 +265,7 @@ any internBin(any sym, any tree[2])
     }
 }
 
-any intern(any sym, any tree[2])
+any intern(Context *CONTEXT_PTR, any sym, any tree[2])
 {
    any nm, x;
    word n;
