@@ -209,7 +209,6 @@ static inline bindFrame *allocFrame(int l)
 any evList(any);
 any EVAL(any x);
 void lstError(any,any) ;
-any consIntern(any x, any y);
 /* Construct a cell */
 #define evSubr(f,x)     (*(FunPtr)(num(f)))(_CONTEXT_PTR, x)
 
@@ -280,7 +279,6 @@ void bye(int) ;
 void pairError(any,any) ;
 any circ(any);
 word compare(any,any);
-any consIntern(any,any);
 void newline(void);
 any endString(void);
 bool equal(any,any);
@@ -295,7 +293,6 @@ any get(any,any);
 int getByte(int*,uword*,any*);
 int getByte1(int*,uword*,any*);
 void giveup(char*) ;
-void heapAlloc(void);
 any intern(any,any[2]);
 any isIntern(any,any[2]);
 any method(any);
@@ -357,6 +354,7 @@ any cons(Context *, any x, any y);
 any consSym(Context *, any val, uword w);
 /* Construct a name cell */
 any consName(Context*, uword w, any n);
+any consIntern(Context*, any x, any y);
 
 any mkNum(Context *, word n);
 any symToNum(Context*, any sym, int scl, int sep, int ign);
@@ -383,5 +381,7 @@ void redefMsg(Context *, any x, any y);
 
 void getStdin(Context *);
 void comment(Context*);
+
+void heapAlloc(Context *);
 
 #endif

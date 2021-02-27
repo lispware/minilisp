@@ -133,21 +133,21 @@ static int skip(Context *CONTEXT_PTR)
 }
 
 /* Test for escaped characters */
-static bool testEsc(void)
+static bool testEsc(Context *CONTEXT_PTR)
 {
     for (;;)
     {
-        if (_CONTEXT_PTR->Chr < 0)
+        if (CONTEXT_PTR->Chr < 0)
             return NO;
-        if (_CONTEXT_PTR->Chr != '\\')
+        if (CONTEXT_PTR->Chr != '\\')
             return YES;
-        if (_CONTEXT_PTR->Env.get(_CONTEXT_PTR), _CONTEXT_PTR->Chr != '\n')
+        if (CONTEXT_PTR->Env.get(CONTEXT_PTR), CONTEXT_PTR->Chr != '\n')
             return YES;
         do
         {
-            _CONTEXT_PTR->Env.get(_CONTEXT_PTR);
+            CONTEXT_PTR->Env.get(CONTEXT_PTR);
         }
-        while (_CONTEXT_PTR->Chr == ' '  ||  _CONTEXT_PTR->Chr == '\t');
+        while (CONTEXT_PTR->Chr == ' '  ||  CONTEXT_PTR->Chr == '\t');
     }
 }
 
@@ -283,12 +283,12 @@ static any read0(Context *CONTEXT_PTR, bool top)
             CONTEXT_PTR->Env.get(CONTEXT_PTR);
             return Nil;
         }
-        if (!testEsc())
+        if (!testEsc(CONTEXT_PTR))
             eofErr();
         putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
         while (CONTEXT_PTR->Env.get(CONTEXT_PTR), CONTEXT_PTR->Chr != '"')
         {
-            if (!testEsc())
+            if (!testEsc(CONTEXT_PTR))
                 eofErr();
             putByte(CONTEXT_PTR->Chr, &i, &w, &p, &c1);
         }

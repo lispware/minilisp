@@ -543,7 +543,7 @@ void printNUM(any cell)
 /*** Main ***/
 int main_thread(Context *CONTEXT_PTR, int ac, char *av[])
 {
-   heapAlloc();
+   heapAlloc(CONTEXT_PTR);
    CONTEXT_PTR->Intern[0] = CONTEXT_PTR->Intern[1] = CONTEXT_PTR->Transient[0] = CONTEXT_PTR->Transient[1] = Nil;
 
    Mem[4] = (any)Mem; // TODO - SETTING THE VALUE OF NIL

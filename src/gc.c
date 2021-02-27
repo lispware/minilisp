@@ -251,8 +251,8 @@ static void gc(Context *CONTEXT_PTR, word c)
     doDump(CONTEXT_PTR, Nil);
 
     /* Sweep */
-    _CONTEXT_PTR->Avail = NULL;
-    h = _CONTEXT_PTR->Heaps;
+    CONTEXT_PTR->Avail = NULL;
+    h = CONTEXT_PTR->Heaps;
     if (c)
     {
         do
@@ -273,7 +273,7 @@ static void gc(Context *CONTEXT_PTR, word c)
 
         while (c >= 0)
         {
-            heapAlloc(),  c -= CELLS;
+            heapAlloc(CONTEXT_PTR),  c -= CELLS;
         }
     }
 
@@ -281,9 +281,9 @@ static void gc(Context *CONTEXT_PTR, word c)
     return;
 }
 
-any consIntern(any x, any y)
+any consIntern(Context *CONTEXT_PTR, any x, any y)
 {
-    any r = cons(_CONTEXT_PTR, x, y);
+    any r = cons(CONTEXT_PTR, x, y);
 
     setCARType(r, INTERN);
     setCDRType(r, INTERN);
@@ -359,13 +359,13 @@ any consName(Context *CONTEXT_PTR, uword w, any n)
 }
 
 /* Allocate cell heap */
-void heapAlloc(void)
+void heapAlloc(Context *CONTEXT_PTR)
 {
    heap *h;
    cell *p;
 
    h = (heap*)((word)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
-   h->next = _CONTEXT_PTR->Heaps,  _CONTEXT_PTR->Heaps = h;
+   h->next = CONTEXT_PTR->Heaps,  CONTEXT_PTR->Heaps = h;
    p = h->cells + CELLS-1;
    do
    {
