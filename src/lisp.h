@@ -299,8 +299,6 @@ void giveup(char*) ;
 void heapAlloc(void);
 any intern(any,any[2]);
 any isIntern(any,any[2]);
-any load(any,int,any);
-any loadAll(any);
 any method(any);
 any mkChar(int);
 any mkSym(byte*);
@@ -328,7 +326,6 @@ void putByte(int,int*,uword*,any*,cell*);
 void putByte1(int,int*,uword*,any*);
 void putStdout(int);
 void rdOpen(any,any,inFrame*);
-any read1(int);
 void space(void);
 int symBytes(any);
 void symError(any,any) ;
@@ -360,7 +357,6 @@ any doIn(Context*, any ex) ;
 any doOut(Context*, any ex) ;
 any doWhile(Context*, any x) ;
 any doDo(Context*, any x);
-bool eol(void);
 
 extern Context CONTEXT;
 extern Context *_CONTEXT_PTR;
@@ -377,5 +373,11 @@ any consName(Context*, uword w, any n);
 any mkNum(Context *, word n);
 any symToNum(Context*, any sym, int scl, int sep, int ign);
 
+any read1(Context *, int);
+
+any load(Context *, any,int,any);
+any loadAll(Context *, any);
+
+bool eol(Context *);
 
 #endif

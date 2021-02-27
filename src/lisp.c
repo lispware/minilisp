@@ -73,7 +73,7 @@ Context *_CONTEXT_PTR = &CONTEXT;
 
 
 
-any load(any ex, int pr, any x)
+any load(Context *CONTEXT_PTR, any ex, int pr, any x)
 {
     cell c1, c2;
     inFrame f;
@@ -86,40 +86,40 @@ any load(any ex, int pr, any x)
     x = Nil;
     for (;;)
     {
-        if (_CONTEXT_PTR->InFile != stdin)
+        if (CONTEXT_PTR->InFile != stdin)
         {
-            data(c1) = read1(0);
+            data(c1) = read1(CONTEXT_PTR, 0);
         }
         else
         {
-            if (pr && !_CONTEXT_PTR->Chr)
-                _CONTEXT_PTR->Env.put(pr), space(), fflush(_CONTEXT_PTR->OutFile);
-            data(c1) = read1('\n');
-            while (_CONTEXT_PTR->Chr > 0)
+            if (pr && !CONTEXT_PTR->Chr)
+                CONTEXT_PTR->Env.put(pr), space(), fflush(CONTEXT_PTR->OutFile);
+            data(c1) = read1(CONTEXT_PTR, '\n');
+            while (CONTEXT_PTR->Chr > 0)
             {
-                if (_CONTEXT_PTR->Chr == '\n')
+                if (CONTEXT_PTR->Chr == '\n')
                 {
-                    _CONTEXT_PTR->Chr = 0;
+                    CONTEXT_PTR->Chr = 0;
                     break;
                 }
-                if (_CONTEXT_PTR->Chr == '#')
+                if (CONTEXT_PTR->Chr == '#')
                     comment();
                 else
                 {
-                    if (_CONTEXT_PTR->Chr > ' ')
+                    if (CONTEXT_PTR->Chr > ' ')
                         break;
-                    _CONTEXT_PTR->Env.get();
+                    CONTEXT_PTR->Env.get();
                 }
             }
         }
         if (isNil(data(c1)))
         {
             popInFiles();
-            doHide(_CONTEXT_PTR, Nil);
+            doHide(CONTEXT_PTR, Nil);
             return x;
         }
         Save(c1);
-        if (_CONTEXT_PTR->InFile != stdin || _CONTEXT_PTR->Chr || !pr)
+        if (CONTEXT_PTR->InFile != stdin || CONTEXT_PTR->Chr || !pr)
             // TODO - WHY @ does not work in files
             x = EVAL(data(c1));
         else
@@ -137,7 +137,7 @@ any load(any ex, int pr, any x)
             setCDRType(At3, getCDRType(At2));
 
             //val(At3) = val(At2),  val(At2) = data(c2);
-            outString("-> "),  fflush(_CONTEXT_PTR->OutFile),  print(x),  newline();
+            outString("-> "),  fflush(CONTEXT_PTR->OutFile),  print(x),  newline();
         }
         drop(c1);
     }
@@ -509,12 +509,12 @@ any evList(any ex)
     }
 }
 
-any loadAll(any ex)
+any loadAll(Context *CONTEXT_PTR, any ex)
 {
    any x = Nil;
 
-   while (*_CONTEXT_PTR->AV  &&  strcmp(*_CONTEXT_PTR->AV,"-") != 0)
-      x = load(ex, 0, mkStr(*_CONTEXT_PTR->AV++));
+   while (*CONTEXT_PTR->AV  &&  strcmp(*CONTEXT_PTR->AV,"-") != 0)
+      x = load(CONTEXT_PTR, ex, 0, mkStr(*CONTEXT_PTR->AV++));
    return x;
 }
 
@@ -584,8 +584,8 @@ int main(int ac, char *av[])
 
     doDump(_CONTEXT_PTR, Nil);
     //getHeapSize();
-    loadAll(NULL);
+    loadAll(_CONTEXT_PTR, NULL);
     while (!feof(stdin))
-        load(NULL, ':', Nil);
+        load(_CONTEXT_PTR, NULL, ':', Nil);
     bye(0);
 }

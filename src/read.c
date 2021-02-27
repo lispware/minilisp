@@ -374,101 +374,30 @@ static any read0(Context *CONTEXT_PTR, bool top)
     return y;
 }
 
-any read1(int end)
+any read1(Context *CONTEXT_PTR, int end)
 {
-   if (!_CONTEXT_PTR->Chr)
-      _CONTEXT_PTR->Env.get();
-   if (_CONTEXT_PTR->Chr == end)
+   if (!CONTEXT_PTR->Chr)
+      CONTEXT_PTR->Env.get();
+   if (CONTEXT_PTR->Chr == end)
       return Nil;
-   return read0(_CONTEXT_PTR, YES);
+   return read0(CONTEXT_PTR, YES);
 }
 
-/* Read one token */
-any token(any x, int c)
+
+bool eol(Context *CONTEXT_PTR)
 {
-    int i;
-    uword w;
-    any y;
-    cell c1, *p;
-
-    if (!_CONTEXT_PTR->Chr)
-        _CONTEXT_PTR->Env.get();
-    if (skipc(c) < 0)
-        return Nil;
-    if (_CONTEXT_PTR->Chr == '"')
-    {
-        _CONTEXT_PTR->Env.get();
-        if (_CONTEXT_PTR->Chr == '"')
-        {
-            _CONTEXT_PTR->Env.get();
-            return Nil;
-        }
-        if (!testEsc())
-            return Nil;
-        Push(c1, y =  cons(_CONTEXT_PTR, mkChar(_CONTEXT_PTR->Chr), Nil));
-        while (_CONTEXT_PTR->Env.get(), _CONTEXT_PTR->Chr != '"' && testEsc())
-            y = cdr(y) = cons(_CONTEXT_PTR, mkChar(_CONTEXT_PTR->Chr), Nil);
-        _CONTEXT_PTR->Env.get();
-        return Pop(c1);
-    }
-    if (_CONTEXT_PTR->Chr >= '0' && _CONTEXT_PTR->Chr <= '9')
-    {
-        putByte1(_CONTEXT_PTR->Chr, &i, &w, &p);
-        while (_CONTEXT_PTR->Env.get(), _CONTEXT_PTR->Chr >= '0' && _CONTEXT_PTR->Chr <= '9' || _CONTEXT_PTR->Chr == '.')
-            putByte(_CONTEXT_PTR->Chr, &i, &w, &p, &c1);
-        return symToNum(_CONTEXT_PTR, tail(popSym(i, w, p, &c1)), 0, '.', 0);
-    }
-    if (_CONTEXT_PTR->Chr != '+' && _CONTEXT_PTR->Chr != '-')
-    {
-        // TODO check what needs to be done about stack - FREE MUST BE ADDED
-        // char nm[bufSize(x)];
-        char *nm = (char *)malloc(bufSize(x));
-
-        bufString(x, nm);
-        if (_CONTEXT_PTR->Chr >= 'A' && _CONTEXT_PTR->Chr <= 'Z' || _CONTEXT_PTR->Chr == '\\' || _CONTEXT_PTR->Chr >= 'a' && _CONTEXT_PTR->Chr <= 'z' || strchr(nm,_CONTEXT_PTR->Chr))
-        {
-            if (_CONTEXT_PTR->Chr == '\\')
-                _CONTEXT_PTR->Env.get();
-            putByte1(_CONTEXT_PTR->Chr, &i, &w, &p);
-            while (_CONTEXT_PTR->Env.get(),
-                    _CONTEXT_PTR->Chr >= '0' && _CONTEXT_PTR->Chr <= '9' || _CONTEXT_PTR->Chr >= 'A' && _CONTEXT_PTR->Chr <= 'Z' ||
-                    _CONTEXT_PTR->Chr == '\\' || _CONTEXT_PTR->Chr >= 'a' && _CONTEXT_PTR->Chr <= 'z' || strchr(nm,_CONTEXT_PTR->Chr) )
-            {
-                if (_CONTEXT_PTR->Chr == '\\')
-                    _CONTEXT_PTR->Env.get();
-                putByte(_CONTEXT_PTR->Chr, &i, &w, &p, &c1);
-            }
-            y = popSym(i, w, p, &c1);
-            if (x = isIntern(tail(y), _CONTEXT_PTR->Intern))
-            {
-                free(nm);
-                return x;
-            }
-            intern(y, _CONTEXT_PTR->Intern);
-            val(y) = Nil;
-            free(nm);
-            return y;
-        }
-    }
-    y = mkTxt(c = _CONTEXT_PTR->Chr);
-    _CONTEXT_PTR->Env.get();
-    return mkChar(c);
-}
-
-bool eol(void)
-{
-   if (_CONTEXT_PTR->Chr < 0)
+   if (CONTEXT_PTR->Chr < 0)
       return YES;
-   if (_CONTEXT_PTR->Chr == '\n')
+   if (CONTEXT_PTR->Chr == '\n')
    {
-      _CONTEXT_PTR->Chr = 0;
+      CONTEXT_PTR->Chr = 0;
       return YES;
    }
-   if (_CONTEXT_PTR->Chr == '\r')
+   if (CONTEXT_PTR->Chr == '\r')
    {
-      _CONTEXT_PTR->Env.get();
-      if (_CONTEXT_PTR->Chr == '\n')
-         _CONTEXT_PTR->Chr = 0;
+      CONTEXT_PTR->Env.get();
+      if (CONTEXT_PTR->Chr == '\n')
+         CONTEXT_PTR->Chr = 0;
       return YES;
    }
    return NO;

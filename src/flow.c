@@ -629,14 +629,14 @@ any doLine(Context *CONTEXT_PTR, any x) {
 
    if (!CONTEXT_PTR->Chr)
       CONTEXT_PTR->Env.get();
-   if (eol())
+   if (eol(CONTEXT_PTR))
       return Nil;
    x = cdr(x);
    if (isNil(EVAL(car(x)))) {
       Push(c1, cons(CONTEXT_PTR, mkChar(CONTEXT_PTR->Chr), Nil));
       y = data(c1);
       for (;;) {
-         if (CONTEXT_PTR->Env.get(), eol())
+         if (CONTEXT_PTR->Env.get(), eol(CONTEXT_PTR))
             return Pop(c1);
          y = cdr(y) = cons(CONTEXT_PTR, mkChar(CONTEXT_PTR->Chr), Nil);
       }
@@ -644,7 +644,7 @@ any doLine(Context *CONTEXT_PTR, any x) {
    else {
       putByte1(CONTEXT_PTR->Chr, &i, &w, &y);
       for (;;) {
-         if (CONTEXT_PTR->Env.get(), eol())
+         if (CONTEXT_PTR->Env.get(), eol(CONTEXT_PTR))
             return popSym(i, w, y, &c1);
          putByte(CONTEXT_PTR->Chr, &i, &w, &y, &c1);
       }
