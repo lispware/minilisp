@@ -72,40 +72,6 @@ void dump(FILE *fp, any p)
     }
 }
 
-void sweep(int free)
-{
-   any p;
-   heap *h;
-   int c =100;
-   /* Sweep */
-   if(free)_CONTEXT_PTR->Avail = NULL;
-   h = _CONTEXT_PTR->Heaps;
-   if (c) {
-      do {
-         p = h->cells + CELLS-1;
-         do
-         {
-            if (!getMark(p))
-            {
-                printf("FREEING %p  .... \n", p);
-                if (free) Free(p);
-               --c;
-            }
-            if(free)setMark(p, 0);
-         }
-         while (--p >= h->cells);
-      } while (h = h->next);
-
-      //while (c >= 0)
-      //{
-      //   heapAlloc(),  c -= CELLS;
-      //}
-   }
-
-   printf("AVAIL = %p\n", _CONTEXT_PTR->Avail);
-}
-
-
 void dumpHeaps(FILE *mem, heap *h)
 {
     any p;
@@ -122,8 +88,7 @@ void dumpHeaps(FILE *mem, heap *h)
     while (--p >= h->cells);
 }
 
-void markAll(void);
-void markAll()
+void markAll(Context *CONTEXT_PTR)
 {
    any p;
    int i;
@@ -135,17 +100,17 @@ void markAll()
    }
 
    /* Mark */
-   setMark(_CONTEXT_PTR->Intern[0], 0);mark(_CONTEXT_PTR->Intern[0]);
-   setMark(_CONTEXT_PTR->Intern[1], 0);mark(_CONTEXT_PTR->Intern[1]);
-   setMark(_CONTEXT_PTR->Transient[0], 0);mark(_CONTEXT_PTR->Transient[0]);
-   setMark(_CONTEXT_PTR->Transient[1], 0);mark(_CONTEXT_PTR->Transient[1]);
-   if (_CONTEXT_PTR->ApplyArgs) setMark(_CONTEXT_PTR->ApplyArgs, 0);mark(_CONTEXT_PTR->ApplyArgs);
-   if (_CONTEXT_PTR->ApplyBody) setMark(_CONTEXT_PTR->ApplyBody, 0);mark(_CONTEXT_PTR->ApplyBody);
-   for (p = _CONTEXT_PTR->Env.stack; p; p = cdr(p))
+   setMark(CONTEXT_PTR->Intern[0], 0);mark(CONTEXT_PTR->Intern[0]);
+   setMark(CONTEXT_PTR->Intern[1], 0);mark(CONTEXT_PTR->Intern[1]);
+   setMark(CONTEXT_PTR->Transient[0], 0);mark(CONTEXT_PTR->Transient[0]);
+   setMark(CONTEXT_PTR->Transient[1], 0);mark(CONTEXT_PTR->Transient[1]);
+   if (CONTEXT_PTR->ApplyArgs) setMark(CONTEXT_PTR->ApplyArgs, 0);mark(CONTEXT_PTR->ApplyArgs);
+   if (CONTEXT_PTR->ApplyBody) setMark(CONTEXT_PTR->ApplyBody, 0);mark(CONTEXT_PTR->ApplyBody);
+   for (p = CONTEXT_PTR->Env.stack; p; p = cdr(p))
    {
       mark(car(p));
    }
-   for (p = (any)_CONTEXT_PTR->Env.bind;  p;  p = (any)((bindFrame*)p)->link)
+   for (p = (any)CONTEXT_PTR->Env.bind;  p;  p = (any)((bindFrame*)p)->link)
    {
       for (i = ((bindFrame*)p)->cnt;  --i >= 0;)
       {
@@ -153,7 +118,7 @@ void markAll()
          mark(((bindFrame*)p)->bnd[i].val);
       }
    }
-   for (p = (any)_CONTEXT_PTR->CatchPtr; p; p = (any)((catchFrame*)p)->link)
+   for (p = (any)CONTEXT_PTR->CatchPtr; p; p = (any)((catchFrame*)p)->link)
    {
       if (((catchFrame*)p)->tag)
          mark(((catchFrame*)p)->tag);
@@ -247,7 +212,7 @@ static void gc(Context *CONTEXT_PTR, word c)
     heap *h;
 
     doDump(CONTEXT_PTR, Nil);
-    markAll();
+    markAll(CONTEXT_PTR);
     doDump(CONTEXT_PTR, Nil);
 
     /* Sweep */
