@@ -706,7 +706,7 @@ any doIn(Context *CONTEXT_PTR, any ex) {
    rdOpen(CONTEXT_PTR, ex,x,&f);
    pushInFiles(CONTEXT_PTR, &f);
    x = prog(cddr(ex));
-   popInFiles();
+   popInFiles(CONTEXT_PTR);
    return x;
 }
 
@@ -717,9 +717,9 @@ any doOut(Context *CONTEXT_PTR, any ex) {
 
    x = cdr(ex),  x = EVAL(car(x));
    wrOpen(CONTEXT_PTR, ex,x,&f);
-   pushOutFiles(&f);
+   pushOutFiles(CONTEXT_PTR, &f);
    x = prog(cddr(ex));
-   popOutFiles();
+   popOutFiles(CONTEXT_PTR);
    return x;
 }
 
@@ -860,32 +860,32 @@ void pushInFiles(Context *CONTEXT_PTR, inFrame *f)
     f->link = CONTEXT_PTR->Env.inFrames,  CONTEXT_PTR->Env.inFrames = f;
 }
 
-void pushOutFiles(outFrame *f)
+void pushOutFiles(Context *CONTEXT_PTR, outFrame *f)
 {
-    _CONTEXT_PTR->OutFile = f->fp;
-    f->put = _CONTEXT_PTR->Env.put,  _CONTEXT_PTR->Env.put = putStdout;
-    f->link = _CONTEXT_PTR->Env.outFrames,  _CONTEXT_PTR->Env.outFrames = f;
+    CONTEXT_PTR->OutFile = f->fp;
+    f->put = CONTEXT_PTR->Env.put,  CONTEXT_PTR->Env.put = putStdout;
+    f->link = CONTEXT_PTR->Env.outFrames,  CONTEXT_PTR->Env.outFrames = f;
 }
 
-void popInFiles(void)
+void popInFiles(Context *CONTEXT_PTR)
 {
-    if (_CONTEXT_PTR->InFile != stdin)
+    if (CONTEXT_PTR->InFile != stdin)
     {
-        fclose(_CONTEXT_PTR->InFile);
+        fclose(CONTEXT_PTR->InFile);
     }
-    _CONTEXT_PTR->Chr = _CONTEXT_PTR->Env.inFrames->next;
-    _CONTEXT_PTR->Env.get = _CONTEXT_PTR->Env.inFrames->get;
-    _CONTEXT_PTR->InFile = (_CONTEXT_PTR->Env.inFrames = _CONTEXT_PTR->Env.inFrames->link)?  _CONTEXT_PTR->Env.inFrames->fp : stdin;
+    CONTEXT_PTR->Chr = CONTEXT_PTR->Env.inFrames->next;
+    CONTEXT_PTR->Env.get = CONTEXT_PTR->Env.inFrames->get;
+    CONTEXT_PTR->InFile = (CONTEXT_PTR->Env.inFrames = CONTEXT_PTR->Env.inFrames->link)?  CONTEXT_PTR->Env.inFrames->fp : stdin;
 }
 
-void popOutFiles(void)
+void popOutFiles(Context *CONTEXT_PTR)
 {
-    if (_CONTEXT_PTR->OutFile != stdout && _CONTEXT_PTR->OutFile != stderr)
+    if (CONTEXT_PTR->OutFile != stdout && CONTEXT_PTR->OutFile != stderr)
     {
-        fclose(_CONTEXT_PTR->OutFile);
+        fclose(CONTEXT_PTR->OutFile);
     }
-    _CONTEXT_PTR->Env.put = _CONTEXT_PTR->Env.outFrames->put;
-    _CONTEXT_PTR->OutFile = (_CONTEXT_PTR->Env.outFrames = _CONTEXT_PTR->Env.outFrames->link)? _CONTEXT_PTR->Env.outFrames->fp : stdout;
+    CONTEXT_PTR->Env.put = CONTEXT_PTR->Env.outFrames->put;
+    CONTEXT_PTR->OutFile = (CONTEXT_PTR->Env.outFrames = CONTEXT_PTR->Env.outFrames->link)? CONTEXT_PTR->Env.outFrames->fp : stdout;
 }
 
 void pathString(any x, char *p)

@@ -311,13 +311,10 @@ void outNum(word);
 void outString(char*);
 void pack(any,int*,uword*,any*,cell*);
 void pathString(any,char*);
-void popInFiles(void);
-void popOutFiles(void);
 any popSym(int,uword,any,cell*);
 void prin(any);
 void print(any);
 void protError(any,any) ;
-void pushOutFiles(outFrame*);
 void put(any,any,any);
 void putByte0(int *i, uword *p, any *q);
 void putByte(int,int*,uword*,any*,cell*);
@@ -381,5 +378,8 @@ void wrOpen(Context*, any,any,outFrame*);
 void rdOpen(Context*, any,any,inFrame*);
 
 void pushInFiles(Context*, inFrame*);
+void pushOutFiles(Context*, outFrame*);
+void popInFiles(Context*);
+void popOutFiles(Context*);
 
 #endif

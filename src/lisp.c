@@ -114,7 +114,7 @@ any load(Context *CONTEXT_PTR, any ex, int pr, any x)
         }
         if (isNil(data(c1)))
         {
-            popInFiles();
+            popInFiles(CONTEXT_PTR);
             doHide(CONTEXT_PTR, Nil);
             return x;
         }
