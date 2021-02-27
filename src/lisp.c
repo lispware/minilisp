@@ -103,7 +103,7 @@ any load(Context *CONTEXT_PTR, any ex, int pr, any x)
                     break;
                 }
                 if (CONTEXT_PTR->Chr == '#')
-                    comment();
+                    comment(CONTEXT_PTR);
                 else
                 {
                     if (CONTEXT_PTR->Chr > ' ')

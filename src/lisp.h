@@ -89,7 +89,7 @@ bindFrame;
 typedef struct inFrame
 {
    struct inFrame *link;
-   void (*get)(void);
+   void (*get)(struct _Context *);
    FILE *fp;
    int next;
 }
@@ -328,7 +328,6 @@ any xSym(any);
 any doPrin(Context*, any x);
 void openErr(any ex, char *s);
 void eofErr(void);
-void comment(void);
 
 any doHide(Context*, any);
 
@@ -383,5 +382,6 @@ void redefine(Context*, any ex, any s, any x);
 void redefMsg(Context *, any x, any y);
 
 void getStdin(Context *);
+void comment(Context*);
 
 #endif
