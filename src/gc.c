@@ -185,7 +185,7 @@ any doDump(Context *CONTEXT_PTR, any ignore)
 
     // if ( 0 == car(cadr(ignore)))
     // {
-    //     gc(CELLS);
+    //     gc(_CONTEXT_PTR, CELLS);
     // }
 
     if (Nil == ignore)
@@ -241,14 +241,14 @@ uword getHeapSize(void)
 }
 
 /* Garbage collector */
-static void gc(word c)
+static void gc(Context *CONTEXT_PTR, word c)
 {
     any p;
     heap *h;
 
-    doDump(_CONTEXT_PTR, Nil);
+    doDump(CONTEXT_PTR, Nil);
     markAll();
-    doDump(_CONTEXT_PTR, Nil);
+    doDump(CONTEXT_PTR, Nil);
 
     /* Sweep */
     CONTEXT.Avail = NULL;
@@ -277,7 +277,7 @@ static void gc(word c)
         }
     }
 
-    doDump(_CONTEXT_PTR, Nil);
+    doDump(CONTEXT_PTR, Nil);
     return;
 }
 
@@ -302,7 +302,7 @@ any cons(any x, any y)
 
         Push(c1,x);
         Push(c2,y);
-        gc(CELLS);
+        gc(_CONTEXT_PTR, CELLS);
         drop(c1);
         p = CONTEXT.Avail;
     }
@@ -323,10 +323,10 @@ any consSym(any val, uword w)
         cell c1;
 
         if (!val)
-            gc(CELLS);
+            gc(_CONTEXT_PTR, CELLS);
         else {
             Push(c1,val);
-            gc(CELLS);
+            gc(_CONTEXT_PTR, CELLS);
             drop(c1);
         }
         p = CONTEXT.Avail;
@@ -346,7 +346,7 @@ any consName(uword w, any n)
 
    if (!(p = CONTEXT.Avail))
    {
-      gc(CELLS);
+      gc(_CONTEXT_PTR, CELLS);
       p = CONTEXT.Avail;
    }
    CONTEXT.Avail = p->car;
