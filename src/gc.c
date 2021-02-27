@@ -283,7 +283,7 @@ static void gc(Context *CONTEXT_PTR, word c)
 
 any consIntern(any x, any y)
 {
-    any r = cons(x, y);
+    any r = cons(_CONTEXT_PTR, x, y);
 
     setCARType(r, INTERN);
     setCDRType(r, INTERN);
@@ -292,21 +292,21 @@ any consIntern(any x, any y)
 }
 
 /* Construct a cell */
-any cons(any x, any y)
+any cons(Context *CONTEXT_PTR, any x, any y)
 {
     cell *p;
 
-    if (!(p = _CONTEXT_PTR->Avail))
+    if (!(p = CONTEXT_PTR->Avail))
     {
         cell c1, c2;
 
         Push(c1,x);
         Push(c2,y);
-        gc(_CONTEXT_PTR, CELLS);
+        gc(CONTEXT_PTR, CELLS);
         drop(c1);
-        p = _CONTEXT_PTR->Avail;
+        p = CONTEXT_PTR->Avail;
     }
-    _CONTEXT_PTR->Avail = p->car;
+    CONTEXT_PTR->Avail = p->car;
     p->car = x;
     p->cdr = y;
     setCARType(p, PTR_CELL);

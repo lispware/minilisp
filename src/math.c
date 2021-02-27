@@ -11,7 +11,7 @@
 
 
 /* Make number from symbol */
-any symToNum(any sym, int scl, int sep, int ign)
+any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
 {
     unsigned c;
     int i;
@@ -76,16 +76,16 @@ any symToNum(any sym, int scl, int sep, int ign)
             n *= 10;
 
 
-    any r = cons(Nil, Nil);
+    any r = cons(CONTEXT_PTR, Nil, Nil);
     r->car = (any)n;
     r->type.parts[0] = NUM;
 
     return r;
 }
 
-any mkNum(word n)
+any mkNum(Context *CONTEXT_PTR, word n)
 {
-    any r = cons(Nil, Nil);
+    any r = cons(CONTEXT_PTR, Nil, Nil);
     r->car = (any)n;
     r->type.parts[0] = NUM;
     return r;
@@ -110,7 +110,7 @@ any doAdd(Context *CONTEXT_PTR, any ex)
         n += unBox(y);
     }
 
-    any r = cons(Nil, Nil);
+    any r = cons(CONTEXT_PTR, Nil, Nil);
     r->car = (any)n;
     r->type.parts[0] = NUM;
     return r;
@@ -134,7 +134,7 @@ any doSub(Context *CONTEXT_PTR, any ex)
         n -= unBox(y);
     }
 
-    any r = cons(Nil, Nil);
+    any r = cons(CONTEXT_PTR, Nil, Nil);
     r->car = (any)n;
     r->type.parts[0] = NUM;
     return r;
@@ -158,7 +158,7 @@ any doMul(Context *CONTEXT_PTR, any ex)
         n *= unBox(y);
     }
 
-    any r = cons(Nil, Nil);
+    any r = cons(CONTEXT_PTR, Nil, Nil);
     r->car = (any)n;
     r->type.parts[0] = NUM;
     return r;

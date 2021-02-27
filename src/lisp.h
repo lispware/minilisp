@@ -250,15 +250,12 @@ int getByte(int *i, uword *p, any *q);
 any doFor(Context*, any x);
 any doSetq(Context*, any x);
 
-any mkNum(word n);
 void printTXT(any);
 void printLongTXT(any);
 
 bool isSym(any x);
 
 
-any symToNum(any sym, int scl, int sep, int ign);
-any mkNum(word n);
 any doAdd(Context*, any ex);
 any doSub(Context*, any ex);
 any doMul(Context*, any ex);
@@ -335,7 +332,6 @@ any read1(int);
 void space(void);
 int symBytes(any);
 void symError(any,any) ;
-any symToNum(any,int,int,int);
 void undefined(any,any);
 void unwind (catchFrame*);
 void wrOpen(any,any,outFrame*);
@@ -372,11 +368,14 @@ extern Context *_CONTEXT_PTR;
 
 
 //gc.c
-any cons(any x, any y);
+any cons(Context *, any x, any y);
 /* Construct a symbol */
 any consSym(Context *, any val, uword w);
 /* Construct a name cell */
 any consName(Context*, uword w, any n);
+
+any mkNum(Context *, word n);
+any symToNum(Context*, any sym, int scl, int sep, int ign);
 
 
 #endif

@@ -203,7 +203,7 @@ static any rdList(void)
         }
         if (_CONTEXT_PTR->Chr != '~')
         {
-            x = cons(read0(NO),Nil);
+            x = cons(_CONTEXT_PTR, read0(NO),Nil);
             Push(c1, x);
             break;
         }
@@ -243,7 +243,7 @@ static any rdList(void)
         }
         if (_CONTEXT_PTR->Chr != '~')
         {
-            x = cdr(x) = cons(read0(NO),Nil);
+            x = cdr(x) = cons(_CONTEXT_PTR, read0(NO),Nil);
         }
         else
         {
@@ -293,7 +293,7 @@ static any read0(bool top)
     if (_CONTEXT_PTR->Chr == '\'')
     {
         _CONTEXT_PTR->Env.get();
-        return cons(doQuote_D, read0(top));
+        return cons(_CONTEXT_PTR, doQuote_D, read0(top));
     }
     if (_CONTEXT_PTR->Chr == ',')
     {
@@ -360,7 +360,7 @@ static any read0(bool top)
 
     y = popSym(i, w, p, &c1);
     //printf("%p --> CAR = %p CDR = %p \n", y, y->car, y->cdr);
-    if (x = symToNum(tail(y), 0, '.', 0))
+    if (x = symToNum(_CONTEXT_PTR, tail(y), 0, '.', 0))
     {
         return x;
     }
@@ -405,9 +405,9 @@ any token(any x, int c)
         }
         if (!testEsc())
             return Nil;
-        Push(c1, y =  cons(mkChar(_CONTEXT_PTR->Chr), Nil));
+        Push(c1, y =  cons(_CONTEXT_PTR, mkChar(_CONTEXT_PTR->Chr), Nil));
         while (_CONTEXT_PTR->Env.get(), _CONTEXT_PTR->Chr != '"' && testEsc())
-            y = cdr(y) = cons(mkChar(_CONTEXT_PTR->Chr), Nil);
+            y = cdr(y) = cons(_CONTEXT_PTR, mkChar(_CONTEXT_PTR->Chr), Nil);
         _CONTEXT_PTR->Env.get();
         return Pop(c1);
     }
@@ -416,7 +416,7 @@ any token(any x, int c)
         putByte1(_CONTEXT_PTR->Chr, &i, &w, &p);
         while (_CONTEXT_PTR->Env.get(), _CONTEXT_PTR->Chr >= '0' && _CONTEXT_PTR->Chr <= '9' || _CONTEXT_PTR->Chr == '.')
             putByte(_CONTEXT_PTR->Chr, &i, &w, &p, &c1);
-        return symToNum(tail(popSym(i, w, p, &c1)), 0, '.', 0);
+        return symToNum(_CONTEXT_PTR, tail(popSym(i, w, p, &c1)), 0, '.', 0);
     }
     if (_CONTEXT_PTR->Chr != '+' && _CONTEXT_PTR->Chr != '-')
     {

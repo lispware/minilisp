@@ -85,10 +85,10 @@ any doCons(Context *CONTEXT_PTR, any x)
    cell c1;
 
    x = cdr(x);
-   Push(c1, y = cons(EVAL(car(x)),Nil));
+   Push(c1, y = cons(CONTEXT_PTR, EVAL(car(x)),Nil));
    while (Nil != (cdr(x = cdr(x))))
    {
-      y = cdr(y) = cons(EVAL(car(x)),Nil);
+      y = cdr(y) = cons(CONTEXT_PTR, EVAL(car(x)),Nil);
    }
    cdr(y) = EVAL(car(x));
    return Pop(c1);
@@ -179,7 +179,7 @@ any doFor(Context *CONTEXT_PTR, any x) {
 
    bindFrame *f = allocFrame(2);
 
-   f->link = _CONTEXT_PTR->Env.bind,  _CONTEXT_PTR->Env.bind = f;
+   f->link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = f;
    f->i = 0;
    if (!isCell(y = car(x = cdr(x))) || !isCell(cdr(y))) {
       if (!isCell(y)) {
@@ -198,7 +198,7 @@ any doFor(Context *CONTEXT_PTR, any x) {
       y = Nil;
       x = cdr(x),  Push(c1, EVAL(car(x)));
       if (isNum(data(c1)))
-         f->bnd[0].sym->cdr  = mkNum(0);
+         f->bnd[0].sym->cdr  = mkNum(CONTEXT_PTR, 0);
       body = x = cdr(x);
       for (;;) {
          if (isNum(data(c1))) {
@@ -251,7 +251,7 @@ any doFor(Context *CONTEXT_PTR, any x) {
       if (f->cnt == 2)
          val(f->bnd[1].sym) = f->bnd[1].val;
       val(f->bnd[0].sym) = f->bnd[0].val;
-      _CONTEXT_PTR->Env.bind = f->link;
+      CONTEXT_PTR->Env.bind = f->link;
       return y;
    }
    if (!isCell(car(y))) {
@@ -312,7 +312,7 @@ for2:
    if (f->cnt == 2)
       val(f->bnd[1].sym) = f->bnd[1].val;
    val(f->bnd[0].sym) = f->bnd[0].val;
-   _CONTEXT_PTR->Env.bind = f->link;
+   CONTEXT_PTR->Env.bind = f->link;
    return Pop(c1);
 }
 
@@ -341,7 +341,7 @@ any doLink(Context *CONTEXT_PTR, any x)
 {
     any y;
 
-    if (!_CONTEXT_PTR->Env.make)
+    if (!CONTEXT_PTR->Env.make)
     {
         makeError(x);
     }
@@ -349,7 +349,7 @@ any doLink(Context *CONTEXT_PTR, any x)
     do
     {
         y = EVAL(car(x));
-        _CONTEXT_PTR->Env.make = &cdr(*_CONTEXT_PTR->Env.make = cons(y, Nil));
+        CONTEXT_PTR->Env.make = &cdr(*CONTEXT_PTR->Env.make = cons(CONTEXT_PTR, y, Nil));
     }
     while (Nil != (x = cdr(x)));
     return y;
@@ -627,26 +627,26 @@ any doLine(Context *CONTEXT_PTR, any x) {
    word w;
    cell c1;
 
-   if (!_CONTEXT_PTR->Chr)
-      _CONTEXT_PTR->Env.get();
+   if (!CONTEXT_PTR->Chr)
+      CONTEXT_PTR->Env.get();
    if (eol())
       return Nil;
    x = cdr(x);
    if (isNil(EVAL(car(x)))) {
-      Push(c1, cons(mkChar(_CONTEXT_PTR->Chr), Nil));
+      Push(c1, cons(CONTEXT_PTR, mkChar(CONTEXT_PTR->Chr), Nil));
       y = data(c1);
       for (;;) {
-         if (_CONTEXT_PTR->Env.get(), eol())
+         if (CONTEXT_PTR->Env.get(), eol())
             return Pop(c1);
-         y = cdr(y) = cons(mkChar(_CONTEXT_PTR->Chr), Nil);
+         y = cdr(y) = cons(CONTEXT_PTR, mkChar(CONTEXT_PTR->Chr), Nil);
       }
    }
    else {
-      putByte1(_CONTEXT_PTR->Chr, &i, &w, &y);
+      putByte1(CONTEXT_PTR->Chr, &i, &w, &y);
       for (;;) {
-         if (_CONTEXT_PTR->Env.get(), eol())
+         if (CONTEXT_PTR->Env.get(), eol())
             return popSym(i, w, y, &c1);
-         putByte(_CONTEXT_PTR->Chr, &i, &w, &y, &c1);
+         putByte(CONTEXT_PTR->Chr, &i, &w, &y, &c1);
       }
    }
 }

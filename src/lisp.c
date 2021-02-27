@@ -579,8 +579,8 @@ int main(int ac, char *av[])
 
     _CONTEXT_PTR->InFile = stdin, _CONTEXT_PTR->Env.get = getStdin;
     _CONTEXT_PTR->OutFile = stdout, _CONTEXT_PTR->Env.put = putStdout;
-    _CONTEXT_PTR->ApplyArgs = cons(cons(consSym(_CONTEXT_PTR, Nil, 0), Nil), Nil);
-    _CONTEXT_PTR->ApplyBody = cons(Nil, Nil);
+    _CONTEXT_PTR->ApplyArgs = cons(_CONTEXT_PTR, cons(_CONTEXT_PTR, consSym(_CONTEXT_PTR, Nil, 0), Nil), Nil);
+    _CONTEXT_PTR->ApplyBody = cons(_CONTEXT_PTR, Nil, Nil);
 
     doDump(_CONTEXT_PTR, Nil);
     //getHeapSize();
