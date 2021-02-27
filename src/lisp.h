@@ -330,7 +330,6 @@ int symBytes(any);
 void symError(any,any) ;
 void undefined(any,any);
 void unwind (catchFrame*);
-void wrOpen(any,any,outFrame*);
 word xNum(any,any);
 any xSym(any);
 any doPrin(Context*, any x);
@@ -379,5 +378,7 @@ any loadAll(Context *, any);
 
 bool eol(Context *);
 int pathSize(Context *, any);
+
+void wrOpen(Context*, any,any,outFrame*);
 
 #endif

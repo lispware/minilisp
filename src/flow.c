@@ -716,7 +716,7 @@ any doOut(Context *CONTEXT_PTR, any ex) {
    outFrame f;
 
    x = cdr(ex),  x = EVAL(car(x));
-   wrOpen(ex,x,&f);
+   wrOpen(CONTEXT_PTR, ex,x,&f);
    pushOutFiles(&f);
    x = prog(cddr(ex));
    popOutFiles();
@@ -793,12 +793,12 @@ any doDo(Context *CONTEXT_PTR, any x)
 }
 
 
-void wrOpen(any ex, any x, outFrame *f) {
+void wrOpen(Context *CONTEXT_PTR, any ex, any x, outFrame *f) {
    //NeedSymb(ex,x);
    if (isNil(x))
       f->fp = stdout;
    else {
-      char *nm = (char *)malloc(pathSize(_CONTEXT_PTR, x));
+      char *nm = (char *)malloc(pathSize(CONTEXT_PTR, x));
 
       pathString(x,nm);
       if (nm[0] == '+') {
