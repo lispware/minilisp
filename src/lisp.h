@@ -338,8 +338,6 @@ any doEq(Context*, any x);
 any doIf(Context*, any x);
 any doDe(Context*, any ex);
 
-void redefine(any ex, any s, any x);
-void redefMsg(any x, any y);
 
 any doLine(Context*, any x) ;
 any doVeryLongFunc(Context*, any x);
@@ -381,5 +379,8 @@ void pushInFiles(Context*, inFrame*);
 void pushOutFiles(Context*, outFrame*);
 void popInFiles(Context*);
 void popOutFiles(Context*);
+
+void redefine(Context*, any ex, any s, any x);
+void redefMsg(Context *, any x, any y);
 
 #endif

@@ -102,7 +102,7 @@ any doRun(Context *CONTEXT_PTR, any x) {
    x = cdr(x),  data(c1) = EVAL(car(x)),  x = cdr(x);
    if (!isNum(data(c1))) {
       Save(c1);
-      if (!isNum(y = EVAL(car(x))) || !(p = _CONTEXT_PTR->Env.bind))
+      if (!isNum(y = EVAL(car(x))) || !(p = CONTEXT_PTR->Env.bind))
          data(c1) = isSym(data(c1))? val(data(c1)) : run(data(c1));
       else {
          int cnt, n, i, j;
@@ -130,7 +130,7 @@ any doRun(Context *CONTEXT_PTR, any x) {
             }
          } while (p = p->link);
          while (isCell(x)) {
-            for (p = _CONTEXT_PTR->Env.bind, j = n; ; p = p->link) {
+            for (p = CONTEXT_PTR->Env.bind, j = n; ; p = p->link) {
                if (p->i < 0)
                   for (i = 0;  i < p->cnt;  ++i) {
                      if (p->bnd[i].sym == car(x)) {
@@ -145,13 +145,13 @@ any doRun(Context *CONTEXT_PTR, any x) {
             }
 next:       x = cdr(x);
          }
-         f->link = _CONTEXT_PTR->Env.bind,  _CONTEXT_PTR->Env.bind = (bindFrame*)&f;
+         f->link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = (bindFrame*)&f;
          data(c1) = isSym(data(c1))? val(data(c1)) : prog(data(c1));
          while (--f->cnt >= 0)
             val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
-         _CONTEXT_PTR->Env.bind = f->link;
+         CONTEXT_PTR->Env.bind = f->link;
          do {
-            for (p = _CONTEXT_PTR->Env.bind, i = n;  --i;  p = p->link);
+            for (p = CONTEXT_PTR->Env.bind, i = n;  --i;  p = p->link);
             if (p->i < 0  &&  (p->i += cnt) == 0)
                for (i = p->cnt;  --i >= 0;) {
                   y = val(p->bnd[i].sym);
@@ -362,9 +362,9 @@ any doMake(Context *CONTEXT_PTR, any x)
     cell c1;
 
     Push(c1, Nil);
-    make = _CONTEXT_PTR->Env.make;
-    yoke = _CONTEXT_PTR->Env.yoke;
-    _CONTEXT_PTR->Env.make = _CONTEXT_PTR->Env.yoke = &data(c1);
+    make = CONTEXT_PTR->Env.make;
+    yoke = CONTEXT_PTR->Env.yoke;
+    CONTEXT_PTR->Env.make = CONTEXT_PTR->Env.yoke = &data(c1);
 
     while (Nil != (x = cdr(x)))
     {
@@ -373,8 +373,8 @@ any doMake(Context *CONTEXT_PTR, any x)
             evList(car(x));
         }
     }
-    _CONTEXT_PTR->Env.yoke = yoke;
-    _CONTEXT_PTR->Env.make = make;
+    CONTEXT_PTR->Env.yoke = yoke;
+    CONTEXT_PTR->Env.make = make;
     return Pop(c1);
 }
 
@@ -524,7 +524,7 @@ any doIf(Context *CONTEXT_PTR, any x)
 // (de sym . any) -> sym
 any doDe(Context *CONTEXT_PTR, any ex)
 {
-   redefine(ex, cadr(ex), cddr(ex));
+   redefine(CONTEXT_PTR, ex, cadr(ex), cddr(ex));
    return cadr(ex);
 }
 
@@ -558,7 +558,7 @@ any doLet(Context *CONTEXT_PTR, any x)
         // TODO check out how to do stack 
         bindFrame *f = allocFrame((length(y)+1)/2);
 
-        f->link = _CONTEXT_PTR->Env.bind,  _CONTEXT_PTR->Env.bind = f;
+        f->link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = f;
         f->i = f->cnt = 0;
         do
         {
@@ -571,7 +571,7 @@ any doLet(Context *CONTEXT_PTR, any x)
         x = prog(cdr(x));
         while (--f->cnt >= 0)
             val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
-        _CONTEXT_PTR->Env.bind = f->link;
+        CONTEXT_PTR->Env.bind = f->link;
 
         free(f);
     }
@@ -586,7 +586,7 @@ any doBye(Context *CONTEXT_PTR, any ex)
    return ex;
 }
 
-void redefine(any ex, any s, any x)
+void redefine(Context *CONTEXT_PTR, any ex, any s, any x)
 {
    //NeedSymb(ex,s); TODO - GOTTA KNOW WHAT"S GOING ON HERE
    //CheckVar(ex,s);
@@ -599,24 +599,24 @@ void redefine(any ex, any s, any x)
    // TODO bring back redifine message perhaps?
    //if (!isNil(val(s))  &&  s != val(s)  &&  !equal(x,val(s)))
    if (!isNil(val(s))  &&  s != val(s))
-      redefMsg(s,NULL);
+      redefMsg(CONTEXT_PTR, s,NULL);
    val(s) = x;
 
    setCDRType(s, PTR_CELL); // TODO - DO IT MORE NEATLY
 }
 
 
-void redefMsg(any x, any y)
+void redefMsg(Context *CONTEXT_PTR, any x, any y)
 {
-   FILE *oSave = _CONTEXT_PTR->OutFile;
+   FILE *oSave = CONTEXT_PTR->OutFile;
 
-   _CONTEXT_PTR->OutFile = stderr;
+   CONTEXT_PTR->OutFile = stderr;
    outString("# ");
    print(x);
    if (y)
       space(), print(y);
    outString(" redefined\n");
-   _CONTEXT_PTR->OutFile = oSave;
+   CONTEXT_PTR->OutFile = oSave;
 }
 
 
@@ -921,7 +921,7 @@ void pathString(Context *CONTEXT_PTR, any x, char *p)
 }
 
 
-void sym2str(any nm, char *buf)
+void sym2str(Context *CONTEXT_PTR, any nm, char *buf)
 {
     int i, c, ctr=0;
     word w;
@@ -931,10 +931,10 @@ void sym2str(any nm, char *buf)
     {
         if (c == '"'  ||  c == '\\')
         {
-            _CONTEXT_PTR->Env.put('\\');
+            CONTEXT_PTR->Env.put('\\');
             buf[ctr++]=c;
         }
-        _CONTEXT_PTR->Env.put(c);
+        CONTEXT_PTR->Env.put(c);
         buf[ctr++]=c;
     }
    while (c = getByte(&i, &w, &nm));
@@ -949,7 +949,7 @@ any doCall(Context *CONTEXT_PTR, any ex)
     any x = cdr(ex);
     if (isNil(y = EVAL(car(x))))
         return Nil;
-    sym2str(y, buf);
+    sym2str(CONTEXT_PTR, y, buf);
     system(buf);
     return x;
 }
