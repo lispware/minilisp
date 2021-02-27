@@ -324,7 +324,6 @@ void putByte0(int *i, uword *p, any *q);
 void putByte(int,int*,uword*,any*,cell*);
 void putByte1(int,int*,uword*,any*);
 void putStdout(int);
-void rdOpen(any,any,inFrame*);
 void space(void);
 int symBytes(any);
 void symError(any,any) ;
@@ -380,5 +379,6 @@ bool eol(Context *);
 int pathSize(Context *, any);
 
 void wrOpen(Context*, any,any,outFrame*);
+void rdOpen(Context*, any,any,inFrame*);
 
 #endif

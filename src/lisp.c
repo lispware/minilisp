@@ -80,7 +80,7 @@ any load(Context *CONTEXT_PTR, any ex, int pr, any x)
 
     // TODO - get back function execution from command line if (isSymb(x) && firstByte(x) == '-')
 
-    rdOpen(ex, x, &f);
+    rdOpen(CONTEXT_PTR, ex, x, &f);
     pushInFiles(&f);
     //doHide(Nil);
     x = Nil;

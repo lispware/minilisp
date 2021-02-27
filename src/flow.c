@@ -703,7 +703,7 @@ any doIn(Context *CONTEXT_PTR, any ex) {
    inFrame f;
 
    x = cdr(ex),  x = EVAL(car(x));
-   rdOpen(ex,x,&f);
+   rdOpen(CONTEXT_PTR, ex,x,&f);
    pushInFiles(&f);
    x = prog(cddr(ex));
    popInFiles();
@@ -812,7 +812,7 @@ void wrOpen(Context *CONTEXT_PTR, any ex, any x, outFrame *f) {
    }
 }
 
-void rdOpen(any ex, any x, inFrame *f)
+void rdOpen(Context *CONTEXT_PTR, any ex, any x, inFrame *f)
 {
     //NeedSymb(ex,x); // TODO WHAT IS THIS ABOUT?
     if (isNil(x))
@@ -821,7 +821,7 @@ void rdOpen(any ex, any x, inFrame *f)
     }
     else
     {
-        int ps = pathSize(_CONTEXT_PTR, x);
+        int ps = pathSize(CONTEXT_PTR, x);
         char *nm = (char*)malloc(ps);
 
         pathString(x,nm);
