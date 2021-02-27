@@ -670,10 +670,10 @@ any doChar(Context *CONTEXT_PTR, any ex) {
    any x = cdr(ex);
 
    if (x == Nil) {
-      if (!_CONTEXT_PTR->Chr)
-         _CONTEXT_PTR->Env.get();
-      x = _CONTEXT_PTR->Chr<0? Nil : mkChar(_CONTEXT_PTR->Chr);
-      _CONTEXT_PTR->Env.get();
+      if (!CONTEXT_PTR->Chr)
+         CONTEXT_PTR->Env.get();
+      x = CONTEXT_PTR->Chr<0? Nil : mkChar(CONTEXT_PTR->Chr);
+      CONTEXT_PTR->Env.get();
       return x;
    }
    // TODO - fix this up
@@ -704,7 +704,7 @@ any doIn(Context *CONTEXT_PTR, any ex) {
 
    x = cdr(ex),  x = EVAL(car(x));
    rdOpen(CONTEXT_PTR, ex,x,&f);
-   pushInFiles(&f);
+   pushInFiles(CONTEXT_PTR, &f);
    x = prog(cddr(ex));
    popInFiles();
    return x;
@@ -852,12 +852,12 @@ void eofErr(void)
     err(NULL, NULL, "EOF Overrun");
 }
 
-void pushInFiles(inFrame *f)
+void pushInFiles(Context *CONTEXT_PTR, inFrame *f)
 {
-    f->next = _CONTEXT_PTR->Chr,  _CONTEXT_PTR->Chr = 0;
-    _CONTEXT_PTR->InFile = f->fp;
-    f->get = _CONTEXT_PTR->Env.get,  _CONTEXT_PTR->Env.get = getStdin;
-    f->link = _CONTEXT_PTR->Env.inFrames,  _CONTEXT_PTR->Env.inFrames = f;
+    f->next = CONTEXT_PTR->Chr,  CONTEXT_PTR->Chr = 0;
+    CONTEXT_PTR->InFile = f->fp;
+    f->get = CONTEXT_PTR->Env.get,  CONTEXT_PTR->Env.get = getStdin;
+    f->link = CONTEXT_PTR->Env.inFrames,  CONTEXT_PTR->Env.inFrames = f;
 }
 
 void pushOutFiles(outFrame *f)
