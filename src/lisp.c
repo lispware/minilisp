@@ -54,7 +54,6 @@ static void gc(word c);
 
 
 Context CONTEXT;
-Context *_CONTEXT_PTR = &CONTEXT;
 
 
 ///////////////////////////////////////////////
@@ -93,7 +92,7 @@ any load(Context *CONTEXT_PTR, any ex, int pr, any x)
         else
         {
             if (pr && !CONTEXT_PTR->Chr)
-                CONTEXT_PTR->Env.put(pr), space(), fflush(CONTEXT_PTR->OutFile);
+                CONTEXT_PTR->Env.put(CONTEXT_PTR, pr), space(CONTEXT_PTR), fflush(CONTEXT_PTR->OutFile);
             data(c1) = read1(CONTEXT_PTR, '\n');
             while (CONTEXT_PTR->Chr > 0)
             {
@@ -137,32 +136,32 @@ any load(Context *CONTEXT_PTR, any ex, int pr, any x)
             setCDRType(At3, getCDRType(At2));
 
             //val(At3) = val(At2),  val(At2) = data(c2);
-            outString("-> "),  fflush(CONTEXT_PTR->OutFile),  print(x),  newline();
+            outString(CONTEXT_PTR, "-> "),  fflush(CONTEXT_PTR->OutFile),  print(CONTEXT_PTR, x),  newline(CONTEXT_PTR);
         }
         drop(c1);
     }
 }
 
 /*** Prining ***/
-void putStdout(int c)
+void putStdout(Context *CONTEXT_PTR, int c)
 {
-    putc(c, _CONTEXT_PTR->OutFile);
+    putc(c, CONTEXT_PTR->OutFile);
 }
 
-void newline(void)
+void newline(Context *CONTEXT_PTR)
 {
-    _CONTEXT_PTR->Env.put('\n');
+    CONTEXT_PTR->Env.put(CONTEXT_PTR, '\n');
 }
 
-void space(void)
+void space(Context *CONTEXT_PTR)
 {
-    _CONTEXT_PTR->Env.put(' ');
+    CONTEXT_PTR->Env.put(CONTEXT_PTR, ' ');
 }
 
-void outString(char *s)
+void outString(Context *CONTEXT_PTR, char *s)
 {
     while (*s)
-        _CONTEXT_PTR->Env.put(*s++);
+        CONTEXT_PTR->Env.put(CONTEXT_PTR, *s++);
 }
 
 int bufNum(char buf[BITS/2], word n)
@@ -170,16 +169,16 @@ int bufNum(char buf[BITS/2], word n)
     return sprintf(buf, WORD_FORMAT_STRING_D, n); // TODO - this is not quite right for 32 bit
 }
 
-void outNum(word n)
+void outNum(Context *CONTEXT_PTR, word n)
 {
     char buf[BITS/2];
 
     bufNum(buf, n);
-    outString(buf);
+    outString(CONTEXT_PTR, buf);
 }
 
 /* Print one expression */
-void print(any x)
+void print(Context *CONTEXT_PTR, any x)
 {
     if (x == T)
     {
@@ -195,26 +194,26 @@ void print(any x)
 
     if (isNum(x))
     {
-        outNum(unBox(x));
+        outNum(CONTEXT_PTR, unBox(x));
         return;
     }
     if (getCARType(x) == TXT || getCARType(x) == BIN_START)
     {
-        printLongTXT(_CONTEXT_PTR, x);
+        printLongTXT(CONTEXT_PTR, x);
         return;
     }
 
     if (getCARType(x) == PTR_CELL && getCDRType(x) == PTR_CELL)
     {
         printf("(");
-        print(x->car);
+        print(CONTEXT_PTR, x->car);
         while (x != Nil)
         {
             x = x->cdr;
             if (x->car != Nil)
             {
                 printf(" ");
-                print(x->car);
+                print(CONTEXT_PTR, x->car);
             }
         }
         printf(")");
@@ -237,7 +236,7 @@ void prin(Context *CONTEXT_PTR, any x)
     {
         if (isNum(x))
         {
-            outNum(unBox(x));
+            outNum(CONTEXT_PTR, unBox(x));
         }
         else if (x == T)
         {
@@ -261,13 +260,13 @@ void prin(Context *CONTEXT_PTR, any x)
             for (x = name(x), c = getByte1(&i, &w, &x); c; c = getByte(&i, &w, &x))
             {
                 if (c != '^')
-                    CONTEXT_PTR->Env.put(c);
+                    CONTEXT_PTR->Env.put(CONTEXT_PTR, c);
                 else if (!(c = getByte(&i, &w, &x)))
-                    CONTEXT_PTR->Env.put('^');
+                    CONTEXT_PTR->Env.put(CONTEXT_PTR, '^');
                 else if (c == '?')
-                    CONTEXT_PTR->Env.put(127);
+                    CONTEXT_PTR->Env.put(CONTEXT_PTR, 127);
                 else
-                    CONTEXT_PTR->Env.put(c &= 0x1F);
+                    CONTEXT_PTR->Env.put(CONTEXT_PTR, c &= 0x1F);
             }
         }
         else
@@ -528,9 +527,9 @@ void printLongTXT(Context *CONTEXT_PTR, any nm)
     {
         if (c == '"'  ||  c == '\\')
         {
-            CONTEXT_PTR->Env.put('\\');
+            CONTEXT_PTR->Env.put(CONTEXT_PTR, '\\');
         }
-        CONTEXT_PTR->Env.put(c);
+        CONTEXT_PTR->Env.put(CONTEXT_PTR, c);
     }
    while (c = getByte(&i, &w, &nm));
 }
@@ -573,6 +572,7 @@ int main_thread(Context *CONTEXT_PTR, int ac, char *av[])
 
 int main(int ac, char *av[])
 {
+    Context *_CONTEXT_PTR = &CONTEXT;
     main_thread(_CONTEXT_PTR, ac, NULL);
     av++;
     _CONTEXT_PTR->AV = av;

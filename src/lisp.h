@@ -98,7 +98,7 @@ inFrame;
 typedef struct outFrame
 {
    struct outFrame *link;
-   void (*put)(int);
+   void (*put)(struct _Context*, int);
    FILE *fp;
 }
 outFrame;
@@ -121,7 +121,7 @@ typedef struct stkEnv
    outFrame *outFrames;
    parseFrame *parser;
    void (*get)(struct _Context*);
-   void (*put)(int);
+   void (*put)(struct _Context*, int);
    bool brk;
 }
 stkEnv;
@@ -272,7 +272,6 @@ void bye(int) ;
 void pairError(any,any) ;
 any circ(any);
 word compare(any,any);
-void newline(void);
 any endString(void);
 bool equal(any,any);
 void err(any,any,char*,...) ;
@@ -290,14 +289,10 @@ any mkTxt(int);
 any name(any);
 any numToSym(any,int,int,int);
 void outName(any);
-void outNum(word);
-void outString(char*);
 void protError(any,any) ;
 void put(any,any,any);
 void putByte0(int *i, uword *p, any *q);
 void putByte1(int,int*,uword*,any*);
-void putStdout(int);
-void space(void);
 int symBytes(any);
 void symError(any,any) ;
 void undefined(any,any);
@@ -370,7 +365,7 @@ uword getHeapSize(Context *);
 any intern(Context*, any,any[2]);
 
 void prin(Context *, any);
-void print(any);
+void print(Context *,any);
 
 any evExpr(Context *, any,any);
 
@@ -391,4 +386,9 @@ void pack(Context *, any,int*,uword*,any*,cell*);
 
 void printTXT(Context *, any);
 void printLongTXT(Context *, any);
+void outString(Context *, char*);
+void outNum(Context*,word);
+void space(Context*);
+void newline(Context *);
+void putStdout(Context*, int);
 #endif

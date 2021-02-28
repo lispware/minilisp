@@ -387,7 +387,7 @@ any doPrin(Context *CONTEXT_PTR, any x)
    {
       prin(CONTEXT_PTR, y = EVAL(CONTEXT_PTR, car(x)));
    }
-   newline();
+   newline(CONTEXT_PTR);
    return y;
 }
 
@@ -611,11 +611,11 @@ void redefMsg(Context *CONTEXT_PTR, any x, any y)
    FILE *oSave = CONTEXT_PTR->OutFile;
 
    CONTEXT_PTR->OutFile = stderr;
-   outString("# ");
-   print(x);
+   outString(CONTEXT_PTR, "# ");
+   print(CONTEXT_PTR, x);
    if (y)
-      space(), print(y);
-   outString(" redefined\n");
+      space(CONTEXT_PTR), print(CONTEXT_PTR, y);
+   outString(CONTEXT_PTR, " redefined\n");
    CONTEXT_PTR->OutFile = oSave;
 }
 
@@ -931,10 +931,10 @@ void sym2str(Context *CONTEXT_PTR, any nm, char *buf)
     {
         if (c == '"'  ||  c == '\\')
         {
-            CONTEXT_PTR->Env.put('\\');
+            CONTEXT_PTR->Env.put(CONTEXT_PTR, '\\');
             buf[ctr++]=c;
         }
-        CONTEXT_PTR->Env.put(c);
+        CONTEXT_PTR->Env.put(CONTEXT_PTR, c);
         buf[ctr++]=c;
     }
    while (c = getByte(&i, &w, &nm));
