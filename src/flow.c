@@ -633,12 +633,12 @@ any doLine(Context *CONTEXT_PTR, any x) {
       return Nil;
    x = cdr(x);
    if (isNil(EVAL(CONTEXT_PTR, car(x)))) {
-      Push(c1, cons(CONTEXT_PTR, mkChar(CONTEXT_PTR->Chr), Nil));
+      Push(c1, cons(CONTEXT_PTR, mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr), Nil));
       y = data(c1);
       for (;;) {
          if (CONTEXT_PTR->Env.get(CONTEXT_PTR), eol(CONTEXT_PTR))
             return Pop(c1);
-         y = cdr(y) = cons(CONTEXT_PTR, mkChar(CONTEXT_PTR->Chr), Nil);
+         y = cdr(y) = cons(CONTEXT_PTR, mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr), Nil);
       }
    }
    else {
@@ -646,7 +646,7 @@ any doLine(Context *CONTEXT_PTR, any x) {
       for (;;) {
          if (CONTEXT_PTR->Env.get(CONTEXT_PTR), eol(CONTEXT_PTR))
             return popSym(i, w, y, &c1);
-         putByte(CONTEXT_PTR->Chr, &i, &w, &y, &c1);
+         putByte(_CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &y, &c1);
       }
    }
 }
@@ -672,7 +672,7 @@ any doChar(Context *CONTEXT_PTR, any ex) {
    if (x == Nil) {
       if (!CONTEXT_PTR->Chr)
          CONTEXT_PTR->Env.get(CONTEXT_PTR);
-      x = CONTEXT_PTR->Chr<0? Nil : mkChar(CONTEXT_PTR->Chr);
+      x = CONTEXT_PTR->Chr<0? Nil : mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr);
       CONTEXT_PTR->Env.get(CONTEXT_PTR);
       return x;
    }
@@ -686,7 +686,7 @@ any doChar(Context *CONTEXT_PTR, any ex) {
    //    ////   return mkChar2('^','?');
    //    ////if (c < ' ')
    //    ////   return mkChar2('^', c + 0x40);
-   //    return mkChar(c);
+   //    return mkChar(CONTEXT_PTR, c);
    // }
    // if (isSym(x)) {
    //    int c;
@@ -972,12 +972,12 @@ void pack(any x, int *i, uword *p, any *q, cell *cp)
 
       bufNum(buf, unBox(x));
       do
-         putByte(*b++, i, p, q, cp);
+         putByte(_CONTEXT_PTR, *b++, i, p, q, cp);
       while (*b);
    }
    else if (!isNil(x))
       for (x = name(x), c = getByte1(&j, &w, &x); c; c = getByte(&j, &w, &x))
-         putByte(c, i, p, q, cp);
+         putByte(_CONTEXT_PTR, c, i, p, q, cp);
 }
 
 // (pack 'any ..) -> sym

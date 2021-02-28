@@ -288,7 +288,6 @@ int getByte1(int*,uword*,any*);
 void giveup(char*) ;
 any isIntern(any,any[2]);
 any method(any);
-any mkChar(int);
 any mkSym(byte*);
 any mkStr(char*);
 any mkTxt(int);
@@ -302,7 +301,6 @@ any popSym(int,uword,any,cell*);
 void protError(any,any) ;
 void put(any,any,any);
 void putByte0(int *i, uword *p, any *q);
-void putByte(int,int*,uword*,any*,cell*);
 void putByte1(int,int*,uword*,any*);
 void putStdout(int);
 void space(void);
@@ -388,4 +386,8 @@ any EVAL(Context *, any x);
 any prog(Context*, any x);
 any run(Context*, any x);
 
+
+any mkChar(Context *, int);
+
+void putByte(Context *,int,int*,uword*,any*,cell*);
 #endif

@@ -290,7 +290,7 @@ static any read0(Context *CONTEXT_PTR, bool top)
         {
             if (!testEsc(CONTEXT_PTR))
                 eofErr();
-            putByte(CONTEXT_PTR->Chr, &i, &w, &p, &c1);
+            putByte(CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &p, &c1);
         }
         y = popSym(i, w, p, &c1),  CONTEXT_PTR->Env.get(CONTEXT_PTR);
         if (x = isIntern(tail(y), CONTEXT_PTR->Transient))
@@ -322,7 +322,7 @@ static any read0(Context *CONTEXT_PTR, bool top)
         {
             CONTEXT_PTR->Env.get(CONTEXT_PTR);
         }
-        putByte(CONTEXT_PTR->Chr, &i, &w, &p, &c1);
+        putByte(CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &p, &c1);
     }
 
     y = popSym(i, w, p, &c1);

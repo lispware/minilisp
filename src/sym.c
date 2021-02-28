@@ -85,9 +85,9 @@ any mkTxt(int c)
     return txt(c & 127);
 }
 
-any mkChar(int c)
+any mkChar(Context *CONTEXT_PTR, int c)
 {
-   return consSym(_CONTEXT_PTR, NULL, c & 127);
+   return consSym(CONTEXT_PTR, NULL, c & 127);
 }
 
 void putByte0(int *i, uword *p, any *q)
@@ -104,7 +104,7 @@ void putByte1(int c, int *i, uword *p, any *q)
     *q = NULL;
 }
 
-void putByte(int c, int *i, uword *p, any *q, cell *cp)
+void putByte(Context *CONTEXT_PTR, int c, int *i, uword *p, any *q, cell *cp)
 {
     c = c & 127;
     int d = 8;
@@ -116,7 +116,7 @@ void putByte(int c, int *i, uword *p, any *q, cell *cp)
     {
         if (*q)
         {
-            any x = consName(_CONTEXT_PTR, *p, Zero);
+            any x = consName(CONTEXT_PTR, *p, Zero);
             setCARType(x, BIN);
             (*q)->cdr = x;
             *q = x;
@@ -336,7 +336,7 @@ any mkSym(byte *s)
     putByte1(*s++, &i, &w, &p);
     while (*s)
     {
-        putByte(*s++, &i, &w, &p, &c1);
+        putByte(_CONTEXT_PTR, *s++, &i, &w, &p, &c1);
     }
     return popSym(i, w, p, &c1);
 }
