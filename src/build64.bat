@@ -5,4 +5,4 @@ goto buildlisp
 cl /Zi gen.c
 gen mem.s
 :buildlisp
-cl /Zi sym.c read.c gc.c flow.c lisp.c cell.c mem64.c math.c /Felisp64.exe
+cl /Zi sym.c read.c gc.c flow.c lisp.c cell.c mem64.c math.c platform/windows/thread.c /Felisp64.exe

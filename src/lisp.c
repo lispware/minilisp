@@ -1,5 +1,6 @@
 
 #include "lisp.h"
+#include "platform/platform.h"
 
 #include "cell.h"
 
@@ -567,8 +568,18 @@ int main_thread(Context *CONTEXT_PTR, int ac, char *av[])
          intern(CONTEXT_PTR, cell, CONTEXT_PTR->Intern);
       }
    }
-
 }
+
+void *thread_func(void *arg)
+{
+    Context *CONTEXT_PTR = arg;
+
+    //printf("HELLO THREAD\n");
+
+    return NULL;
+}
+
+
 
 int main(int ac, char *av[])
 {
@@ -581,6 +592,8 @@ int main(int ac, char *av[])
     CONTEXT_PTR->OutFile = stdout, CONTEXT_PTR->Env.put = putStdout;
     CONTEXT_PTR->ApplyArgs = cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, 0), Nil), Nil);
     CONTEXT_PTR->ApplyBody = cons(CONTEXT_PTR, Nil, Nil);
+
+    thread_start(CONTEXT_PTR, thread_func, 0);
 
     doDump(CONTEXT_PTR, Nil);
     //getHeapSize();
