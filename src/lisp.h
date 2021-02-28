@@ -292,7 +292,6 @@ any numToSym(any,int,int,int);
 void outName(any);
 void outNum(word);
 void outString(char*);
-void pack(any,int*,uword*,any*,cell*);
 void protError(any,any) ;
 void put(any,any,any);
 void putByte0(int *i, uword *p, any *q);
@@ -388,6 +387,7 @@ void putByte(Context *,int,int*,uword*,any*,cell*);
 any popSym(Context *, int,uword,any,cell*);
 any mkSym(Context *, byte*);
 any mkStr(Context *, char*);
+void pack(Context *, any,int*,uword*,any*,cell*);
 
 void printTXT(Context *, any);
 void printLongTXT(Context *, any);

@@ -646,7 +646,7 @@ any doLine(Context *CONTEXT_PTR, any x) {
       for (;;) {
          if (CONTEXT_PTR->Env.get(CONTEXT_PTR), eol(CONTEXT_PTR))
             return popSym(CONTEXT_PTR, i, w, y, &c1);
-         putByte(_CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &y, &c1);
+         putByte(CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &y, &c1);
       }
    }
 }
@@ -954,7 +954,7 @@ any doCall(Context *CONTEXT_PTR, any ex)
     return x;
 }
 
-void pack(any x, int *i, uword *p, any *q, cell *cp)
+void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp)
 {
    int c, j;
    word w;
@@ -963,7 +963,7 @@ void pack(any x, int *i, uword *p, any *q, cell *cp)
    {
       do
       {
-         pack(car(x), i, p, q, cp);
+         pack(CONTEXT_PTR, car(x), i, p, q, cp);
       }
       while (Nil != (x = cdr(x)));
    }
@@ -972,12 +972,12 @@ void pack(any x, int *i, uword *p, any *q, cell *cp)
 
       bufNum(buf, unBox(x));
       do
-         putByte(_CONTEXT_PTR, *b++, i, p, q, cp);
+         putByte(CONTEXT_PTR, *b++, i, p, q, cp);
       while (*b);
    }
    else if (!isNil(x))
       for (x = name(x), c = getByte1(&j, &w, &x); c; c = getByte(&j, &w, &x))
-         putByte(_CONTEXT_PTR, c, i, p, q, cp);
+         putByte(CONTEXT_PTR, c, i, p, q, cp);
 }
 
 // (pack 'any ..) -> sym
@@ -990,10 +990,10 @@ any doPack(Context *CONTEXT_PTR, any x)
 
    x = cdr(x),  Push(c1, EVAL(CONTEXT_PTR, car(x)));
    putByte0(&i, &w, &y);
-   pack(data(c1), &i, &w, &y, &c2);
+   pack(CONTEXT_PTR, data(c1), &i, &w, &y, &c2);
    while (Nil != (x = cdr(x)))
    {
-      pack(data(c1) = EVAL(CONTEXT_PTR, car(x)), &i, &w, &y, &c2);
+      pack(CONTEXT_PTR, data(c1) = EVAL(CONTEXT_PTR, car(x)), &i, &w, &y, &c2);
    }
    y = popSym(CONTEXT_PTR, i, w, y, &c2);
    drop(c1);
