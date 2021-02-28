@@ -247,8 +247,6 @@ int getByte(int *i, uword *p, any *q);
 any doFor(Context*, any x);
 any doSetq(Context*, any x);
 
-void printTXT(any);
-void printLongTXT(any);
 
 bool isSym(any x);
 
@@ -288,8 +286,6 @@ int getByte1(int*,uword*,any*);
 void giveup(char*) ;
 any isIntern(any,any[2]);
 any method(any);
-any mkSym(byte*);
-any mkStr(char*);
 any mkTxt(int);
 any name(any);
 any numToSym(any,int,int,int);
@@ -297,7 +293,6 @@ void outName(any);
 void outNum(word);
 void outString(char*);
 void pack(any,int*,uword*,any*,cell*);
-any popSym(int,uword,any,cell*);
 void protError(any,any) ;
 void put(any,any,any);
 void putByte0(int *i, uword *p, any *q);
@@ -390,4 +385,10 @@ any run(Context*, any x);
 any mkChar(Context *, int);
 
 void putByte(Context *,int,int*,uword*,any*,cell*);
+any popSym(Context *, int,uword,any,cell*);
+any mkSym(Context *, byte*);
+any mkStr(Context *, char*);
+
+void printTXT(Context *, any);
+void printLongTXT(Context *, any);
 #endif

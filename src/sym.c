@@ -123,10 +123,10 @@ void putByte(Context *CONTEXT_PTR, int c, int *i, uword *p, any *q, cell *cp)
         }
         else
         {
-            any x = consSym(_CONTEXT_PTR, NULL, 0);
+            any x = consSym(CONTEXT_PTR, NULL, 0);
             setCARType(x, BIN_START);
             Push(*cp, x);
-            any y = consName(_CONTEXT_PTR, *p, Zero);
+            any y = consName(CONTEXT_PTR, *p, Zero);
             setCARType(y, BIN);
             (*cp).car->car = *q = y;
 
@@ -138,15 +138,15 @@ void putByte(Context *CONTEXT_PTR, int c, int *i, uword *p, any *q, cell *cp)
     *i += d;
 }
 
-any popSym(int i, uword n, any q, cell *cp)
+any popSym(Context *CONTEXT_PTR, int i, uword n, any q, cell *cp)
 {
     if (q)
     {
-        //val(q) = i <= (BITS-2)? box(n) : consName(_CONTEXT_PTR, n, Zero);
-        q->cdr = consName(_CONTEXT_PTR, n, Nil);
+        //val(q) = i <= (BITS-2)? box(n) : consName(CONTEXT_PTR, n, Zero);
+        q->cdr = consName(CONTEXT_PTR, n, Nil);
         return Pop(*cp);
     }
-    return consSym(_CONTEXT_PTR, NULL,n);
+    return consSym(CONTEXT_PTR, NULL,n);
 }
 
 int symBytes(any x)
@@ -327,7 +327,7 @@ any name(any s)
 }
 
 /* Make name */
-any mkSym(byte *s)
+any mkSym(Context *CONTEXT_PTR, byte *s)
 {
     int i;
     uword w;
@@ -336,17 +336,17 @@ any mkSym(byte *s)
     putByte1(*s++, &i, &w, &p);
     while (*s)
     {
-        putByte(_CONTEXT_PTR, *s++, &i, &w, &p, &c1);
+        putByte(CONTEXT_PTR, *s++, &i, &w, &p, &c1);
     }
-    return popSym(i, w, p, &c1);
+    return popSym(CONTEXT_PTR, i, w, p, &c1);
 }
 
 /* Make string */
-any mkStr(char *s)
+any mkStr(Context *CONTEXT_PTR, char *s)
 {
    if (s && *s)
    {
-      return mkSym((byte *)s);
+      return mkSym(CONTEXT_PTR, (byte *)s);
    }
    else
    {

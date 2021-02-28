@@ -292,7 +292,7 @@ static any read0(Context *CONTEXT_PTR, bool top)
                 eofErr();
             putByte(CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &p, &c1);
         }
-        y = popSym(i, w, p, &c1),  CONTEXT_PTR->Env.get(CONTEXT_PTR);
+        y = popSym(CONTEXT_PTR, i, w, p, &c1),  CONTEXT_PTR->Env.get(CONTEXT_PTR);
         if (x = isIntern(tail(y), CONTEXT_PTR->Transient))
             return x;
         intern(CONTEXT_PTR, y, CONTEXT_PTR->Transient);
@@ -325,7 +325,7 @@ static any read0(Context *CONTEXT_PTR, bool top)
         putByte(CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &p, &c1);
     }
 
-    y = popSym(i, w, p, &c1);
+    y = popSym(CONTEXT_PTR, i, w, p, &c1);
     //printf("%p --> CAR = %p CDR = %p \n", y, y->car, y->cdr);
     if (x = symToNum(CONTEXT_PTR, tail(y), 0, '.', 0))
     {

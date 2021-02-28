@@ -645,7 +645,7 @@ any doLine(Context *CONTEXT_PTR, any x) {
       putByte1(CONTEXT_PTR->Chr, &i, &w, &y);
       for (;;) {
          if (CONTEXT_PTR->Env.get(CONTEXT_PTR), eol(CONTEXT_PTR))
-            return popSym(i, w, y, &c1);
+            return popSym(CONTEXT_PTR, i, w, y, &c1);
          putByte(_CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &y, &c1);
       }
    }
@@ -995,7 +995,7 @@ any doPack(Context *CONTEXT_PTR, any x)
    {
       pack(data(c1) = EVAL(CONTEXT_PTR, car(x)), &i, &w, &y, &c2);
    }
-   y = popSym(i, w, y, &c2);
+   y = popSym(CONTEXT_PTR, i, w, y, &c2);
    drop(c1);
    return i? y : Nil;
 }

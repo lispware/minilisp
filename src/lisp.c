@@ -200,7 +200,7 @@ void print(any x)
     }
     if (getCARType(x) == TXT || getCARType(x) == BIN_START)
     {
-        printLongTXT(x);
+        printLongTXT(_CONTEXT_PTR, x);
         return;
     }
 
@@ -245,11 +245,11 @@ void prin(Context *CONTEXT_PTR, any x)
         }
         else if (getCARType(x) == TXT)
         {
-            printLongTXT(x);
+            printLongTXT(CONTEXT_PTR, x);
         }
         else if (getCARType(x) == BIN_START)
         {
-            printLongTXT(x);
+            printLongTXT(CONTEXT_PTR, x);
 
         }
         else if (isSym(x))
@@ -505,7 +505,7 @@ any evList(Context *CONTEXT_PTR, any ex)
         if (isNum(foo = val(foo)))
             return evSubr(foo,ex);
         if (isCell(foo))
-            return evExpr(_CONTEXT_PTR, foo, cdr(ex));
+            return evExpr(CONTEXT_PTR, foo, cdr(ex));
     }
 }
 
@@ -514,11 +514,11 @@ any loadAll(Context *CONTEXT_PTR, any ex)
    any x = Nil;
 
    while (*CONTEXT_PTR->AV  &&  strcmp(*CONTEXT_PTR->AV,"-") != 0)
-      x = load(CONTEXT_PTR, ex, 0, mkStr(*CONTEXT_PTR->AV++));
+      x = load(CONTEXT_PTR, ex, 0, mkStr(CONTEXT_PTR, *CONTEXT_PTR->AV++));
    return x;
 }
 
-void printLongTXT(any nm)
+void printLongTXT(Context *CONTEXT_PTR, any nm)
 {
     int i, c;
     word w;
@@ -528,9 +528,9 @@ void printLongTXT(any nm)
     {
         if (c == '"'  ||  c == '\\')
         {
-            _CONTEXT_PTR->Env.put('\\');
+            CONTEXT_PTR->Env.put('\\');
         }
-        _CONTEXT_PTR->Env.put(c);
+        CONTEXT_PTR->Env.put(c);
     }
    while (c = getByte(&i, &w, &nm));
 }
