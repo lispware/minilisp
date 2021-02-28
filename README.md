@@ -23,3 +23,8 @@ Assuming that you have gcc
 ```bash
 ./build64.sh
 ```
+
+## Acknowledgements
+
+1. PicoLisp community
+2. [Will Portnoy](https://github.com/willportnoy)
