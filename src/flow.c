@@ -22,20 +22,20 @@ inline uword length(any x)
 }
 
 /* List interpreter */
-inline any prog(any x)
+inline any prog(Context *CONTEXT_PTR, any x)
 {
    any y;
 
    do
    {
-      y = EVAL(_CONTEXT_PTR, car(x));
+      y = EVAL(CONTEXT_PTR, car(x));
    }
    while (Nil != (x = cdr(x)));
 
    return y;
 }
 
-inline any run(any x)
+inline any run(Context *CONTEXT_PTR, any x)
 {
    any y;
    cell at;
@@ -43,7 +43,7 @@ inline any run(any x)
    Push(at,val(At));
    do
    {
-      y = EVAL(_CONTEXT_PTR, car(x));
+      y = EVAL(CONTEXT_PTR, car(x));
    }
    while (Nil != (x = cdr(x)));
    val(At) = Pop(at);
@@ -103,7 +103,7 @@ any doRun(Context *CONTEXT_PTR, any x) {
    if (!isNum(data(c1))) {
       Save(c1);
       if (!isNum(y = EVAL(CONTEXT_PTR, car(x))) || !(p = CONTEXT_PTR->Env.bind))
-         data(c1) = isSym(data(c1))? val(data(c1)) : run(data(c1));
+         data(c1) = isSym(data(c1))? val(data(c1)) : run(CONTEXT_PTR, data(c1));
       else {
          int cnt, n, i, j;
          //struct {  // bindFrame
@@ -146,7 +146,7 @@ any doRun(Context *CONTEXT_PTR, any x) {
 next:       x = cdr(x);
          }
          f->link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = (bindFrame*)&f;
-         data(c1) = isSym(data(c1))? val(data(c1)) : prog(data(c1));
+         data(c1) = isSym(data(c1))? val(data(c1)) : prog(CONTEXT_PTR, data(c1));
          while (--f->cnt >= 0)
             val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
          CONTEXT_PTR->Env.bind = f->link;
@@ -225,7 +225,7 @@ any doFor(Context *CONTEXT_PTR, any x) {
                else if (isNil(car(y))) {
                   y = cdr(y);
                   if (isNil(a = EVAL(CONTEXT_PTR, car(y)))) {
-                     y = prog(cdr(y));
+                     y = prog(CONTEXT_PTR, cdr(y));
                      goto for1;
                   }
                   val(At) = a;
@@ -235,7 +235,7 @@ any doFor(Context *CONTEXT_PTR, any x) {
                   y = cdr(y);
                   if (!isNil(a = EVAL(CONTEXT_PTR, car(y)))) {
                      val(At) = a;
-                     y = prog(cdr(y));
+                     y = prog(CONTEXT_PTR, cdr(y));
                      goto for1;
                   }
                   y = Nil;
@@ -285,7 +285,7 @@ any doFor(Context *CONTEXT_PTR, any x) {
             else if (isNil(car(data(c1)))) {
                data(c1) = cdr(data(c1));
                if (isNil(a = EVAL(CONTEXT_PTR, car(data(c1))))) {
-                  data(c1) = prog(cdr(data(c1)));
+                  data(c1) = prog(CONTEXT_PTR, cdr(data(c1)));
                   goto for2;
                }
                val(At) = a;
@@ -295,7 +295,7 @@ any doFor(Context *CONTEXT_PTR, any x) {
                data(c1) = cdr(data(c1));
                if (!isNil(a = EVAL(CONTEXT_PTR, car(data(c1))))) {
                   val(At) = a;
-                  data(c1) = prog(cdr(data(c1)));
+                  data(c1) = prog(CONTEXT_PTR, cdr(data(c1)));
                   goto for2;
                }
                data(c1) = Nil;
@@ -305,7 +305,7 @@ any doFor(Context *CONTEXT_PTR, any x) {
          }
       } while (isCell(x = cdr(x)));
       if (isCell(y))
-         val(f->bnd[0].sym) = prog(y);
+         val(f->bnd[0].sym) = prog(CONTEXT_PTR, y);
       x = body;
    }
 for2:
@@ -515,7 +515,7 @@ any doIf(Context *CONTEXT_PTR, any x)
 
    x = cdr(x);
    if (isNil(a = EVAL(CONTEXT_PTR, car(x))))
-      return prog(cddr(x));
+      return prog(CONTEXT_PTR, cddr(x));
    val(At) = a;
    x = cdr(x);
    return EVAL(CONTEXT_PTR, car(x));
@@ -550,7 +550,7 @@ any doLet(Context *CONTEXT_PTR, any x)
         bindFrame f;
 
         x = cdr(x),  Bind(y,f),  val(y) = EVAL(CONTEXT_PTR, car(x));
-        x = prog(cdr(x));
+        x = prog(CONTEXT_PTR, cdr(x));
         Unbind(f);
     }
     else
@@ -568,7 +568,7 @@ any doLet(Context *CONTEXT_PTR, any x)
             val(car(y)) = EVAL(CONTEXT_PTR, cadr(y));
         }
         while (isCell(y = cddr(y)) && y != Nil);
-        x = prog(cdr(x));
+        x = prog(CONTEXT_PTR, cdr(x));
         while (--f->cnt >= 0)
             val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
         CONTEXT_PTR->Env.bind = f->link;
@@ -705,7 +705,7 @@ any doIn(Context *CONTEXT_PTR, any ex) {
    x = cdr(ex),  x = EVAL(CONTEXT_PTR, car(x));
    rdOpen(CONTEXT_PTR, ex,x,&f);
    pushInFiles(CONTEXT_PTR, &f);
-   x = prog(cddr(ex));
+   x = prog(CONTEXT_PTR, cddr(ex));
    popInFiles(CONTEXT_PTR);
    return x;
 }
@@ -718,7 +718,7 @@ any doOut(Context *CONTEXT_PTR, any ex) {
    x = cdr(ex),  x = EVAL(CONTEXT_PTR, car(x));
    wrOpen(CONTEXT_PTR, ex,x,&f);
    pushOutFiles(CONTEXT_PTR, &f);
-   x = prog(cddr(ex));
+   x = prog(CONTEXT_PTR, cddr(ex));
    popOutFiles(CONTEXT_PTR);
    return x;
 }
@@ -732,7 +732,7 @@ any doWhile(Context *CONTEXT_PTR, any x) {
    Push(c1, Nil);
    while (!isNil(a = EVAL(CONTEXT_PTR, cond))) {
       val(At) = a;
-      data(c1) = prog(x);
+      data(c1) = prog(CONTEXT_PTR, x);
    }
    return Pop(c1);
 }
@@ -771,7 +771,7 @@ any doDo(Context *CONTEXT_PTR, any x)
                 {
                     z = cdr(z);
                     if (isNil(a = EVAL(CONTEXT_PTR, car(z))))
-                        return prog(cdr(z));
+                        return prog(CONTEXT_PTR, cdr(z));
                     val(At) = a;
                     z = Nil;
                 }
@@ -781,7 +781,7 @@ any doDo(Context *CONTEXT_PTR, any x)
                     if (!isNil(a = EVAL(CONTEXT_PTR, car(z))))
                     {
                         val(At) = a;
-                        return prog(cdr(z));
+                        return prog(CONTEXT_PTR, cdr(z));
                     }
                     z = Nil;
                 }

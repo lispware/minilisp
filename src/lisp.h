@@ -260,8 +260,6 @@ any doMul(Context*, any ex);
 
 
 uword length(any x);
-any prog(any x);
-any run(any x);
 /* Prototypes */
 void *alloc(void*,size_t);
 any apply(any,any,bool,int,cell*);
@@ -386,5 +384,8 @@ any evExpr(Context *, any,any);
 
 any evList(Context *, any);
 any EVAL(Context *, any x);
+
+any prog(Context*, any x);
+any run(Context*, any x);
 
 #endif

@@ -391,7 +391,7 @@ any evExpr(Context *CONTEXT_PTR, any expr, any x)
       }
       while (f->i);
 
-      x = prog(cdr(expr));
+      x = prog(CONTEXT_PTR, cdr(expr));
    }
    else if (y != At)
    {
@@ -403,7 +403,7 @@ any evExpr(Context *CONTEXT_PTR, any expr, any x)
          f->bnd[f->i].val = x;
       }
       while (f->i);
-      x = prog(cdr(expr));
+      x = prog(CONTEXT_PTR, cdr(expr));
    }
    else
    {
@@ -426,7 +426,7 @@ any evExpr(Context *CONTEXT_PTR, any expr, any x)
 
       n = CONTEXT_PTR->Env.next,  CONTEXT_PTR->Env.next = cnt;
       arg = CONTEXT_PTR->Env.arg,  CONTEXT_PTR->Env.arg = c;
-      x = prog(cdr(expr));
+      x = prog(CONTEXT_PTR, cdr(expr));
       if (cnt)
       {
          drop(c[cnt-1]);
