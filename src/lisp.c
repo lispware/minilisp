@@ -20,8 +20,8 @@ bool isSym(any x)
 }
 
 
-any evList(any);
-any EVAL(any x)
+any evList(Context *, any);
+any EVAL(Context *CONTEXT_PTR, any x)
 {
    if (isNum(x))
    {
@@ -33,7 +33,7 @@ any EVAL(any x)
    }
    else
    {
-      return evList(x);
+      return evList(CONTEXT_PTR, x);
    }
 }
 
@@ -121,14 +121,14 @@ any load(Context *CONTEXT_PTR, any ex, int pr, any x)
         Save(c1);
         if (CONTEXT_PTR->InFile != stdin || CONTEXT_PTR->Chr || !pr)
             // TODO - WHY @ does not work in files
-            x = EVAL(data(c1));
+            x = EVAL(CONTEXT_PTR, data(c1));
         else
         {
             Push(c2, val(At));
-            x = EVAL(data(c1));
+            x = EVAL(CONTEXT_PTR, data(c1));
             cdr(At) = x;
             setCDRType(At, getCDRType(x));
-            //x = val(At) = EVAL(data(c1));
+            //x = val(At) = EVAL(CONTEXT_PTR, data(c1));
 
             cdr(At2) = c2.car;
             setCDRType(At2, getCARType(&c2));
@@ -225,7 +225,7 @@ void print(any x)
     return;
 }
 
-void prin(any x)
+void prin(Context *CONTEXT_PTR, any x)
 {
     if (x == Nil)
     {
@@ -261,22 +261,22 @@ void prin(any x)
             for (x = name(x), c = getByte1(&i, &w, &x); c; c = getByte(&i, &w, &x))
             {
                 if (c != '^')
-                    _CONTEXT_PTR->Env.put(c);
+                    CONTEXT_PTR->Env.put(c);
                 else if (!(c = getByte(&i, &w, &x)))
-                    _CONTEXT_PTR->Env.put('^');
+                    CONTEXT_PTR->Env.put('^');
                 else if (c == '?')
-                    _CONTEXT_PTR->Env.put(127);
+                    CONTEXT_PTR->Env.put(127);
                 else
-                    _CONTEXT_PTR->Env.put(c &= 0x1F);
+                    CONTEXT_PTR->Env.put(c &= 0x1F);
             }
         }
         else
         {
-            while (prin(car(x)), !isNil(x = cdr(x)))
+            while (prin(CONTEXT_PTR, car(x)), !isNil(x = cdr(x)))
             {
                 if (!isCell(x))
                 {
-                    prin(x);
+                    prin(CONTEXT_PTR, x);
                     break;
                 }
             }
@@ -363,20 +363,20 @@ void varError(any ex, any x) {err(ex, x, "Variable expected");}
 void protError(any ex, any x) {err(ex, x, "Protected symbol");}
 
 /*** Evaluation ***/
-any evExpr(any expr, any x)
+any evExpr(Context *CONTEXT_PTR, any expr, any x)
 {
    any y = car(expr);
 
    bindFrame *f = allocFrame(length(y)+2);
 
-   f->link = _CONTEXT_PTR->Env.bind,  _CONTEXT_PTR->Env.bind = f;
+   f->link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = f;
    f->i = (bindSize * (length(y)+2)) / (2*sizeof(any)) - 1;
    f->cnt = 1,  f->bnd[0].sym = At,  f->bnd[0].val = val(At);
 
    while (y != Nil && y != cdr(y) && 0 != cdr(y))
    {
       f->bnd[f->cnt].sym = car(y);
-      f->bnd[f->cnt].val = EVAL(car(x));
+      f->bnd[f->cnt].val = EVAL(CONTEXT_PTR, car(x));
       ++f->cnt;
       x = cdr(x);
       y = cdr(y);
@@ -413,7 +413,7 @@ any evExpr(any expr, any x)
 
       while (--n >= 0)
       {
-         Push(c[n], EVAL(car(x))),  x = cdr(x);
+         Push(c[n], EVAL(CONTEXT_PTR, car(x))),  x = cdr(x);
       }
 
       do
@@ -424,15 +424,15 @@ any evExpr(any expr, any x)
       }
       while (f->i);
 
-      n = _CONTEXT_PTR->Env.next,  _CONTEXT_PTR->Env.next = cnt;
-      arg = _CONTEXT_PTR->Env.arg,  _CONTEXT_PTR->Env.arg = c;
+      n = CONTEXT_PTR->Env.next,  CONTEXT_PTR->Env.next = cnt;
+      arg = CONTEXT_PTR->Env.arg,  CONTEXT_PTR->Env.arg = c;
       x = prog(cdr(expr));
       if (cnt)
       {
          drop(c[cnt-1]);
       }
 
-      _CONTEXT_PTR->Env.arg = arg,  _CONTEXT_PTR->Env.next = n;
+      CONTEXT_PTR->Env.arg = arg,  CONTEXT_PTR->Env.next = n;
       free(c);
    }
 
@@ -441,21 +441,21 @@ any evExpr(any expr, any x)
       val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
    }
 
-   _CONTEXT_PTR->Env.bind = f->link;
+   CONTEXT_PTR->Env.bind = f->link;
    free(f);
    return x;
 }
 
 void undefined(any x, any ex) {err(ex, x, "Undefined");}
 
-static any evList2(any foo, any ex)
+static any evList2(Context *CONTEXT_PTR, any foo, any ex)
 {
     cell c1;
 
     Push(c1, foo);
     if (isCell(foo))
     {
-        foo = evExpr(foo, cdr(ex));
+        foo = evExpr(CONTEXT_PTR, foo, cdr(ex));
         drop(c1);
         return foo;
     }
@@ -471,7 +471,7 @@ static any evList2(any foo, any ex)
         }
         if (isCell(foo))
         {
-            foo = evExpr(foo, cdr(ex));
+            foo = evExpr(CONTEXT_PTR, foo, cdr(ex));
             drop(c1);
             return foo;
         }
@@ -479,7 +479,7 @@ static any evList2(any foo, any ex)
 }
 
 /* Evaluate a list */
-any evList(any ex)
+any evList(Context *CONTEXT_PTR, any ex)
 {
     any foo;
 
@@ -492,9 +492,9 @@ any evList(any ex)
 
     if (isCell(foo))
     {
-        if (isNum(foo = evList(foo)))
+        if (isNum(foo = evList(CONTEXT_PTR, foo)))
             return evSubr(foo,ex);
-        return evList2(foo,ex);
+        return evList2(CONTEXT_PTR, foo,ex);
     }
     for (;;)
     {
@@ -505,7 +505,7 @@ any evList(any ex)
         if (isNum(foo = val(foo)))
             return evSubr(foo,ex);
         if (isCell(foo))
-            return evExpr(foo, cdr(ex));
+            return evExpr(_CONTEXT_PTR, foo, cdr(ex));
     }
 }
 

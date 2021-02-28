@@ -206,8 +206,6 @@ static inline bindFrame *allocFrame(int l)
 #define NeedLst(ex,x)   if (!isCell(x) && !isNil(x)) lstError(ex,x)
 #define NeedVar(ex,x)   if (isNum(x)) varError(ex,x)
 
-any evList(any);
-any EVAL(any x);
 void lstError(any,any) ;
 /* Construct a cell */
 #define evSubr(f,x)     (*(FunPtr)(num(f)))(_CONTEXT_PTR, x)
@@ -283,8 +281,6 @@ void newline(void);
 any endString(void);
 bool equal(any,any);
 void err(any,any,char*,...) ;
-any evExpr(any,any);
-any evList(any);
 word evNum(any,any);
 any evSym(any);
 void execError(char*) ;
@@ -306,8 +302,6 @@ void outNum(word);
 void outString(char*);
 void pack(any,int*,uword*,any*,cell*);
 any popSym(int,uword,any,cell*);
-void prin(any);
-void print(any);
 void protError(any,any) ;
 void put(any,any,any);
 void putByte0(int *i, uword *p, any *q);
@@ -384,5 +378,13 @@ void comment(Context*);
 void heapAlloc(Context *);
 
 any intern(Context*, any,any[2]);
+
+void prin(Context *, any);
+void print(any);
+
+any evExpr(Context *, any,any);
+
+any evList(Context *, any);
+any EVAL(Context *, any x);
 
 #endif

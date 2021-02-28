@@ -98,13 +98,13 @@ any doAdd(Context *CONTEXT_PTR, any ex)
     uword n=0;
 
     x = cdr(ex);
-    if (isNil(y = EVAL(car(x))))
+    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
         return Nil;
     NeedNum(ex,y);
     n = unBox(y);
     while (Nil != (x = cdr(x)))
     {
-        if (isNil(y = EVAL(car(x))))
+        if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
         n += unBox(y);
@@ -122,13 +122,13 @@ any doSub(Context *CONTEXT_PTR, any ex)
     uword n=0;
 
     x = cdr(ex);
-    if (isNil(y = EVAL(car(x))))
+    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
         return Nil;
     NeedNum(ex,y);
     n = unBox(y);
     while (Nil != (x = cdr(x)))
     {
-        if (isNil(y = EVAL(car(x))))
+        if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
         n -= unBox(y);
@@ -146,13 +146,13 @@ any doMul(Context *CONTEXT_PTR, any ex)
     uword n=0;
 
     x = cdr(ex);
-    if (isNil(y = EVAL(car(x))))
+    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
         return Nil;
     NeedNum(ex,y);
     n = unBox(y);
     while (Nil != (x = cdr(x)))
     {
-        if (isNil(y = EVAL(car(x))))
+        if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
         n *= unBox(y);

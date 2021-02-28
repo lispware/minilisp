@@ -178,7 +178,7 @@ static any rdList(Context *CONTEXT_PTR)
 
         x = read0(CONTEXT_PTR, NO);
         Push(c1, x);
-        if (isCell(x = data(c1) = EVAL(data(c1))))
+        if (isCell(x = data(c1) = EVAL(CONTEXT_PTR, data(c1))))
         {
             while (isCell(cdr(x)))
             {
@@ -216,7 +216,7 @@ static any rdList(Context *CONTEXT_PTR)
         {
             CONTEXT_PTR->Env.get(CONTEXT_PTR);
             cdr(x) = read0(CONTEXT_PTR, NO);
-            cdr(x) = EVAL(cdr(x));
+            cdr(x) = EVAL(CONTEXT_PTR, cdr(x));
             while (isCell(cdr(x)))
             {
                 x = cdr(x);
@@ -271,7 +271,7 @@ static any read0(Context *CONTEXT_PTR, bool top)
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
         Push(c1, read0(CONTEXT_PTR, top));
-        x = EVAL(data(c1));
+        x = EVAL(CONTEXT_PTR, data(c1));
         drop(c1);
         return x;
     }
