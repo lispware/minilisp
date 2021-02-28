@@ -262,7 +262,6 @@ any doMul(Context*, any ex);
 uword length(any x);
 any prog(any x);
 any run(any x);
-uword getHeapSize(void);
 /* Prototypes */
 void *alloc(void*,size_t);
 any apply(any,any,bool,int,cell*);
@@ -376,6 +375,7 @@ void getStdin(Context *);
 void comment(Context*);
 
 void heapAlloc(Context *);
+uword getHeapSize(Context *);
 
 any intern(Context*, any,any[2]);
 

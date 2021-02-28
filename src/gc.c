@@ -128,7 +128,7 @@ void markAll(Context *CONTEXT_PTR)
 
 any doHS(Context *CONTEXT_PTR, any ignore)
 {
-    getHeapSize();
+    getHeapSize(CONTEXT_PTR);
     return ignore;
 }
 
@@ -137,21 +137,6 @@ any doDump(Context *CONTEXT_PTR, any ignore)
     static int COUNT=0;
     char debugFileName[100];
     sprintf(debugFileName, "debug-%03d.mem", COUNT++);
-    // if (T == cadr(ignore))
-    // {
-    //     markAll();
-    //     sweep(0);
-    // }
-    // if ( 0 == car(cadr(ignore)))
-    // {
-    //     markAll();
-    //     sweep(1);
-    // }
-
-    // if ( 0 == car(cadr(ignore)))
-    // {
-    //     gc(_CONTEXT_PTR, CELLS);
-    // }
 
     if (Nil == ignore)
     {
@@ -168,7 +153,7 @@ any doDump(Context *CONTEXT_PTR, any ignore)
         dump(mem, (any)(&Mem[i]));
     }
 
-    heap *h = _CONTEXT_PTR->Heaps;
+    heap *h = CONTEXT_PTR->Heaps;
 
     dumpHeaps(mem, h);
 
@@ -178,11 +163,11 @@ any doDump(Context *CONTEXT_PTR, any ignore)
 }
 
 
-uword getHeapSize(void)
+uword getHeapSize(Context *CONTEXT_PTR)
 {
     uword size = 0;
     uword sizeFree = 0;
-    heap *h = _CONTEXT_PTR->Heaps;
+    heap *h = CONTEXT_PTR->Heaps;
     do
     {
         any p = h->cells + CELLS-1;
@@ -193,7 +178,7 @@ uword getHeapSize(void)
         while (--p >= h->cells);
     } while (h = h->next);
 
-    any p = _CONTEXT_PTR->Avail;
+    any p = CONTEXT_PTR->Avail;
     while (p)
     {
         sizeFree++;
