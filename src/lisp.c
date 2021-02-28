@@ -572,20 +572,20 @@ int main_thread(Context *CONTEXT_PTR, int ac, char *av[])
 
 int main(int ac, char *av[])
 {
-    Context *_CONTEXT_PTR = &CONTEXT;
-    main_thread(_CONTEXT_PTR, ac, NULL);
+    Context *CONTEXT_PTR = &CONTEXT;
+    main_thread(CONTEXT_PTR, ac, NULL);
     av++;
-    _CONTEXT_PTR->AV = av;
+    CONTEXT_PTR->AV = av;
 
-    _CONTEXT_PTR->InFile = stdin, _CONTEXT_PTR->Env.get = getStdin;
-    _CONTEXT_PTR->OutFile = stdout, _CONTEXT_PTR->Env.put = putStdout;
-    _CONTEXT_PTR->ApplyArgs = cons(_CONTEXT_PTR, cons(_CONTEXT_PTR, consSym(_CONTEXT_PTR, Nil, 0), Nil), Nil);
-    _CONTEXT_PTR->ApplyBody = cons(_CONTEXT_PTR, Nil, Nil);
+    CONTEXT_PTR->InFile = stdin, CONTEXT_PTR->Env.get = getStdin;
+    CONTEXT_PTR->OutFile = stdout, CONTEXT_PTR->Env.put = putStdout;
+    CONTEXT_PTR->ApplyArgs = cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, 0), Nil), Nil);
+    CONTEXT_PTR->ApplyBody = cons(CONTEXT_PTR, Nil, Nil);
 
-    doDump(_CONTEXT_PTR, Nil);
+    doDump(CONTEXT_PTR, Nil);
     //getHeapSize();
-    loadAll(_CONTEXT_PTR, NULL);
+    loadAll(CONTEXT_PTR, NULL);
     while (!feof(stdin))
-        load(_CONTEXT_PTR, NULL, ':', Nil);
+        load(CONTEXT_PTR, NULL, ':', Nil);
     bye(0);
 }
