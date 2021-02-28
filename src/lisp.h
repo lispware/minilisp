@@ -208,7 +208,7 @@ static inline bindFrame *allocFrame(int l)
 
 void lstError(any,any) ;
 /* Construct a cell */
-#define evSubr(f,x)     (*(FunPtr)(num(f)))(_CONTEXT_PTR, x)
+#define evSubr(f,x)     (*(FunPtr)(num(f)))(CONTEXT_PTR, x)
 
 /* Globals */
 // extern int Chr, Trace;

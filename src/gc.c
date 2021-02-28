@@ -2,7 +2,7 @@
 #include "cell.h"
 
 /*** Macros ***/
-#define Free(p)         ((p)->car=_CONTEXT_PTR->Avail, (p)->cdr=0, (p)->type._t=0,  _CONTEXT_PTR->Avail=(p))
+#define Free(p)         ((p)->car=CONTEXT_PTR->Avail, (p)->cdr=0, (p)->type._t=0,  CONTEXT_PTR->Avail=(p))
 
 
 #if INTPTR_MAX == INT32_MAX
