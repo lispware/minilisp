@@ -182,13 +182,13 @@ static inline bindFrame *allocFrame(int l)
 #define cddddr(x)       (cdr(cdr(cdr(cdr(x)))))
 
 #define data(c)         ((c).car)
-#define Save(c)         ((c).cdr=CONTEXT.Env.stack, CONTEXT.Env.stack=&(c))
-#define drop(c)         (CONTEXT.Env.stack=(c).cdr)
+#define Save(c)         ((c).cdr=CONTEXT_PTR->Env.stack, CONTEXT_PTR->Env.stack=&(c))
+#define drop(c)         (CONTEXT_PTR->Env.stack=(c).cdr)
 #define Push(c,x)       (data(c)=(x), Save(c))
 #define Pop(c)          (drop(c), data(c))
 
-#define Bind(s,f)       ((f).i=0, (f).cnt=1, (f).bnd[0].sym=(s), (f).bnd[0].val=val(s), (f).link=CONTEXT.Env.bind, CONTEXT.Env.bind=&(f))
-#define Unbind(f)       (val((f).bnd[0].sym)=(f).bnd[0].val, CONTEXT.Env.bind=(f).link)
+#define Bind(s,f)       ((f).i=0, (f).cnt=1, (f).bnd[0].sym=(s), (f).bnd[0].val=val(s), (f).link=CONTEXT_PTR->Env.bind, CONTEXT_PTR->Env.bind=&(f))
+#define Unbind(f)       (val((f).bnd[0].sym)=(f).bnd[0].val, CONTEXT_PTR->Env.bind=(f).link)
 
 /* Predicates */
 #define isNil(x)        ((x)==Nil)
@@ -326,7 +326,7 @@ any doWhile(Context*, any x) ;
 any doDo(Context*, any x);
 
 extern Context CONTEXT;
-extern Context *_CONTEXT_PTR;
+//extern Context *_CONTEXT_PTR;
 
 
 
