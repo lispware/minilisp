@@ -540,8 +540,7 @@ void printNUM(any cell)
     printf(WORD_FORMAT_STRING_D, (word)cell->car);
 }
 
-/*** Main ***/
-int main_thread(Context *CONTEXT_PTR, int ac, char *av[])
+int initialize_context(Context *CONTEXT_PTR)
 {
    heapAlloc(CONTEXT_PTR);
    CONTEXT_PTR->Intern[0] = CONTEXT_PTR->Intern[1] = CONTEXT_PTR->Transient[0] = CONTEXT_PTR->Transient[1] = Nil;
@@ -584,7 +583,7 @@ void *thread_func(void *arg)
 int main(int ac, char *av[])
 {
     Context *CONTEXT_PTR = &CONTEXT;
-    main_thread(CONTEXT_PTR, ac, NULL);
+    initialize_context(CONTEXT_PTR);
     av++;
     CONTEXT_PTR->AV = av;
 
