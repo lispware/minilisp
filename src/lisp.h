@@ -50,7 +50,11 @@ typedef struct _cell
 {
    struct _cell *car;
    struct _cell *cdr;
-   PartType type;
+   union
+   {
+       PartType type;
+       struct _cell *ptr;
+   } meta;
 }
 cell, *any;
 
@@ -192,10 +196,10 @@ static inline bindFrame *allocFrame(int l)
 
 /* Predicates */
 #define isNil(x)        ((x)==Nil)
-#define isTxt(x)        (((any)(x))->type.parts[0] == TXT)
-#define isNum(x)        (((any)(x))->type.parts[0] == NUM)
-#define isCell(x)        (((any)(x))->type.parts[0] == PTR_CELL)
-#define isFunc(x)        (((any)(x))->type.parts[1] == FUNC)
+#define isTxt(x)        (((any)(x))->meta.type.parts[0] == TXT)
+#define isNum(x)        (((any)(x))->meta.type.parts[0] == NUM)
+#define isCell(x)        (((any)(x))->meta.type.parts[0] == PTR_CELL)
+#define isFunc(x)        (((any)(x))->meta.type.parts[1] == FUNC)
 
 
 /* Error checking */
@@ -234,6 +238,8 @@ typedef struct _Context
     FILE *InFile, *OutFile;
     any Intern[2], Transient[2];
     any ApplyArgs, ApplyBody;
+    any Code;
+    int HeapCount;
 }
 Context;
 

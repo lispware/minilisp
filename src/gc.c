@@ -2,7 +2,7 @@
 #include "cell.h"
 
 /*** Macros ***/
-#define Free(p)         ((p)->car=CONTEXT_PTR->Avail, (p)->cdr=0, (p)->type._t=0,  CONTEXT_PTR->Avail=(p))
+#define Free(p)         ((p)->car=CONTEXT_PTR->Avail, (p)->cdr=0, (p)->meta.type._t=0,  CONTEXT_PTR->Avail=(p))
 
 
 #if INTPTR_MAX == INT32_MAX
@@ -61,14 +61,14 @@ void dump(FILE *fp, any p)
 
     if (getCARType(p) == TXT)
     {
-        fprintf(fp, "%p %s(TXT = %p) %p %p\n", p, (char*)&(p->car),p->car, p->cdr, (void*)p->type._t);
+        fprintf(fp, "%p %s(TXT = %p) %p %p\n", p, (char*)&(p->car),p->car, p->cdr, (void*)p->meta.type._t);
     }
     else
     {
         fprintf(fp, "%p ", p);
         if(p->car) fprintf(fp, "%p ", p->car); else fprintf(fp, "0 ");
         if(p->cdr) fprintf(fp, "%p ", p->cdr); else fprintf(fp, "0 ");
-        if(p->type._t) fprintf(fp, "%p\n", (void *)p->type._t); else fprintf(fp, "0\n");
+        if(p->meta.type._t) fprintf(fp, "%p\n", (void *)p->meta.type._t); else fprintf(fp, "0\n");
     }
 }
 
@@ -82,7 +82,7 @@ void dumpHeaps(FILE *mem, heap *h)
     p = h->cells + CELLS-1;
     do
     {
-        //fprintf(mem, "0x%016lx %p %p %p\n", p, p->car, p->cdr, p->type._t);
+        //fprintf(mem, "0x%016lx %p %p %p\n", p, p->car, p->cdr, p->meta.type._t);
         dump(mem, p);
     }
     while (--p >= h->cells);
@@ -314,6 +314,7 @@ void heapAlloc(Context *CONTEXT_PTR)
    heap *h;
    cell *p;
 
+   CONTEXT_PTR->HeapCount++;
    h = (heap*)((word)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
    h->next = CONTEXT_PTR->Heaps,  CONTEXT_PTR->Heaps = h;
    p = h->cells + CELLS-1;

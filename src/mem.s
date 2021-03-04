@@ -37,3 +37,4 @@ ABCDEFGHIJK {doLongFunc}
 ABCDEFGHIJABCDEFGHIJK {doVeryLongFunc}
 call {doCall}
 pack {doPack}
+fork {doFork}

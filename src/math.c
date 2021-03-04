@@ -78,7 +78,7 @@ any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
 
     any r = cons(CONTEXT_PTR, Nil, Nil);
     r->car = (any)n;
-    r->type.parts[0] = NUM;
+    r->meta.type.parts[0] = NUM;
 
     return r;
 }
@@ -87,7 +87,7 @@ any mkNum(Context *CONTEXT_PTR, word n)
 {
     any r = cons(CONTEXT_PTR, Nil, Nil);
     r->car = (any)n;
-    r->type.parts[0] = NUM;
+    r->meta.type.parts[0] = NUM;
     return r;
 }
 
@@ -112,7 +112,7 @@ any doAdd(Context *CONTEXT_PTR, any ex)
 
     any r = cons(CONTEXT_PTR, Nil, Nil);
     r->car = (any)n;
-    r->type.parts[0] = NUM;
+    r->meta.type.parts[0] = NUM;
     return r;
 }
 
@@ -136,7 +136,7 @@ any doSub(Context *CONTEXT_PTR, any ex)
 
     any r = cons(CONTEXT_PTR, Nil, Nil);
     r->car = (any)n;
-    r->type.parts[0] = NUM;
+    r->meta.type.parts[0] = NUM;
     return r;
 }
 
@@ -160,6 +160,6 @@ any doMul(Context *CONTEXT_PTR, any ex)
 
     any r = cons(CONTEXT_PTR, Nil, Nil);
     r->car = (any)n;
-    r->type.parts[0] = NUM;
+    r->meta.type.parts[0] = NUM;
     return r;
 }

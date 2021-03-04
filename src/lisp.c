@@ -475,6 +475,10 @@ static any evList2(Context *CONTEXT_PTR, any foo, any ex)
             drop(c1);
             return foo;
         }
+
+        // TODO - WHY THIS?
+        // I had to add it for doFork to work
+        return foo;
     }
 }
 
@@ -573,11 +577,115 @@ void *thread_func(void *arg)
 {
     Context *CONTEXT_PTR = arg;
 
-    //printf("HELLO THREAD\n");
+    EVAL(CONTEXT_PTR, CONTEXT_PTR->Code);
 
     return NULL;
 }
 
+void check(Context *CONTEXT_PTR)
+{
+    heap *from = CONTEXT_PTR->Heaps;
+    any Avail = CONTEXT_PTR->Avail;
+    while(from)
+    {
+        for(int j; j < CELLS; j++)
+        {
+            cell *fromCell = &(from->cells[j]);
+            if (fromCell == Avail)
+            {
+                printf("BOOOOM\n");
+                exit(0);
+            }
+        }
+        from=from->next;
+    }
+}
+
+void copy(Context *From, Context *To)
+{
+    int number_of_heaps = From->HeapCount;
+    for (int i = 0;i < number_of_heaps; i++)
+    {
+        heapAlloc(To);
+    }
+    To->HeapCount=number_of_heaps;
+
+    heap *from = From->Heaps;
+    heap *to = To->Heaps;
+    while(from)
+    {
+        for(int j; j < CELLS; j++)
+        {
+            cell *fromCell = &from->cells[j];
+            cell *toCell = &to->cells[j];
+            toCell->meta.type = fromCell->meta.type;
+            fromCell->meta.ptr = toCell;
+        }
+        from=from->next;
+        to=to->next;
+    }
+
+    from = From->Heaps;
+    to = To->Heaps;
+    while(from)
+    {
+        for(int j; j < CELLS; j++)
+        {
+            cell *fromCell = &from->cells[j];
+            cell *toCell = &to->cells[j];
+
+            CellPartType carType, cdrType;
+            carType = getCARType(toCell);
+            cdrType = getCDRType(toCell);
+
+            cell *p = fromCell;
+            if (p == From->Avail)
+            {
+                printf("BOOM\n");
+                exit(0);
+            }
+
+            if (carType == UNDEFINED || carType == TXT || carType == NUM || carType == FUNC || carType == BIN)
+            {
+                to->cells[j].car = from->cells[j].car;
+            }
+            else
+            {
+                to->cells[j].car = from->cells[j].car->meta.ptr;
+            }
+
+            if (cdrType == UNDEFINED || cdrType == TXT || cdrType == NUM || cdrType == FUNC || cdrType == BIN)
+            {
+                to->cells[j].cdr = from->cells[j].cdr;
+            }
+            else
+            {
+                to->cells[j].cdr = from->cells[j].cdr->meta.ptr;
+            }
+            from->cells[j].meta.type = to->cells[j].meta.type;
+        }
+        from=from->next;
+        to=to->next;
+    }
+}
+
+any doFork(Context *CONTEXT_PTR_ORIG, any x)
+{
+    Context *CONTEXT_PTR = (Context*)malloc(sizeof(Context));
+    copy(CONTEXT_PTR_ORIG, CONTEXT_PTR);
+
+    //initialize_context(CONTEXT_PTR);
+
+    CONTEXT_PTR->InFile = stdin, CONTEXT_PTR->Env.get = getStdin;
+    CONTEXT_PTR->OutFile = stdout, CONTEXT_PTR->Env.put = putStdout;
+    CONTEXT_PTR->ApplyArgs = cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, 0), Nil), Nil);
+    CONTEXT_PTR->ApplyBody = cons(CONTEXT_PTR, Nil, Nil);
+    CONTEXT_PTR->Code = cdr(x);
+
+    thread_start(CONTEXT_PTR, thread_func, 1);
+    
+    return x;
+}
 
 
 int main(int ac, char *av[])
@@ -592,8 +700,7 @@ int main(int ac, char *av[])
     CONTEXT_PTR->ApplyArgs = cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, 0), Nil), Nil);
     CONTEXT_PTR->ApplyBody = cons(CONTEXT_PTR, Nil, Nil);
 
-    thread_start(CONTEXT_PTR, thread_func, 0);
-
+    //check(CONTEXT_PTR);
     doDump(CONTEXT_PTR, Nil);
     //getHeapSize();
     loadAll(CONTEXT_PTR, NULL);

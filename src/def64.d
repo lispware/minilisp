@@ -70,7 +70,9 @@ any doVeryLongFunc(Context *, any);
 any doCall(Context *, any);
 #define doPack_D (any)(Mem+186)
 any doPack(Context *, any);
+#define doFork_D (any)(Mem+189)
+any doFork(Context *, any);
 
-#define MEMS 189
+#define MEMS 192
 
 #endif
