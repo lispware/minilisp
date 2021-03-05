@@ -584,13 +584,18 @@ void *thread_func(void *arg)
 
 void check(Context *CONTEXT_PTR)
 {
+    printf("CHECK...\n");
     heap *from = CONTEXT_PTR->Heaps;
     any Avail = CONTEXT_PTR->Avail;
+    any x = Avail;
+
     while(from)
     {
-        for(int j; j < CELLS; j++)
+        printf("checking... through the cells %d\n", CELLS);
+        for(int j=0; j < CELLS; j++)
         {
             cell *fromCell = &(from->cells[j]);
+            printf("%p %p\n", fromCell, Avail);
             if (fromCell == Avail)
             {
                 printf("BOOOOM\n");
@@ -599,6 +604,7 @@ void check(Context *CONTEXT_PTR)
         }
         from=from->next;
     }
+    printf("END CHECK...\n");
 }
 
 void copy(Context *From, Context *To)
@@ -614,7 +620,7 @@ void copy(Context *From, Context *To)
     heap *to = To->Heaps;
     while(from)
     {
-        for(int j; j < CELLS; j++)
+        for(int j=0; j < CELLS; j++)
         {
             cell *fromCell = &from->cells[j];
             cell *toCell = &to->cells[j];
@@ -629,7 +635,7 @@ void copy(Context *From, Context *To)
     to = To->Heaps;
     while(from)
     {
-        for(int j; j < CELLS; j++)
+        for(int j=0; j < CELLS; j++)
         {
             cell *fromCell = &from->cells[j];
             cell *toCell = &to->cells[j];
@@ -641,8 +647,7 @@ void copy(Context *From, Context *To)
             cell *p = fromCell;
             if (p == From->Avail)
             {
-                printf("BOOM\n");
-                exit(0);
+                To->Avail = From->Avail->meta.ptr;
             }
 
             if (carType == UNDEFINED || carType == TXT || carType == NUM || carType == FUNC || carType == BIN)
@@ -672,6 +677,7 @@ void copy(Context *From, Context *To)
 any doFork(Context *CONTEXT_PTR_ORIG, any x)
 {
     Context *CONTEXT_PTR = (Context*)malloc(sizeof(Context));
+    //check(CONTEXT_PTR_ORIG);
     copy(CONTEXT_PTR_ORIG, CONTEXT_PTR);
 
     //initialize_context(CONTEXT_PTR);
@@ -683,7 +689,7 @@ any doFork(Context *CONTEXT_PTR_ORIG, any x)
     CONTEXT_PTR->Code = cdr(x);
 
     thread_start(CONTEXT_PTR, thread_func, 1);
-    
+
     return x;
 }
 
@@ -700,7 +706,6 @@ int main(int ac, char *av[])
     CONTEXT_PTR->ApplyArgs = cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, 0), Nil), Nil);
     CONTEXT_PTR->ApplyBody = cons(CONTEXT_PTR, Nil, Nil);
 
-    //check(CONTEXT_PTR);
     doDump(CONTEXT_PTR, Nil);
     //getHeapSize();
     loadAll(CONTEXT_PTR, NULL);
