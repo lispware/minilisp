@@ -607,14 +607,12 @@ void check(Context *CONTEXT_PTR)
     printf("END CHECK...\n");
 }
 
-void copy(Context *From, Context *To)
+void copy_heap(Context *From, Context *To)
 {
-    int number_of_heaps = From->HeapCount;
-    for (int i = 0;i < number_of_heaps; i++)
+    for (int i = 0;i < From->HeapCount; i++)
     {
         heapAlloc(To);
     }
-    To->HeapCount=number_of_heaps;
 
     heap *from = From->Heaps;
     heap *to = To->Heaps;
@@ -678,7 +676,7 @@ any doFork(Context *CONTEXT_PTR_ORIG, any x)
 {
     Context *CONTEXT_PTR = (Context*)malloc(sizeof(Context));
     //check(CONTEXT_PTR_ORIG);
-    copy(CONTEXT_PTR_ORIG, CONTEXT_PTR);
+    copy_heap(CONTEXT_PTR_ORIG, CONTEXT_PTR);
 
     //initialize_context(CONTEXT_PTR);
 
