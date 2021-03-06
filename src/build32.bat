@@ -5,4 +5,6 @@ goto buildlisp
 cl /Zi gen.c
 gen mem.s
 :buildlisp
-cl /Zi sym.c read.c gc.c flow.c lisp.c cell.c mem32.c math.c platform/windows/thread.c /Felisp32.exe
+
+for /F "delims=" %x in (sources.windows.list) do (set "%x" )
+cl /Zi mem32.c %SOURCES% /Felisp32.exe

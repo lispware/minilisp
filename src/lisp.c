@@ -686,7 +686,7 @@ any doFork(Context *CONTEXT_PTR_ORIG, any x)
     CONTEXT_PTR->ApplyBody = cons(CONTEXT_PTR, Nil, Nil);
     CONTEXT_PTR->Code = cdr(x);
 
-    thread_start(CONTEXT_PTR, thread_func, 1);
+    plt_thread_start(CONTEXT_PTR, thread_func, 1);
 
     return x;
 }

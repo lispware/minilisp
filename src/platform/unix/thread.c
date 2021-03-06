@@ -42,7 +42,7 @@ static void * thread_start1(void *arg)
     return uargv;
 }
 
-void thread_start(Context *CONTEXT_PTR, thread_func_t FUNC, int wait)
+void plt_thread_start(Context *CONTEXT_PTR, thread_func_t FUNC, int wait)
 {
     int s;
     pthread_t tid;

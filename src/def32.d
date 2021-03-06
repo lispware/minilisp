@@ -72,7 +72,9 @@ any doCall(Context *, any);
 any doPack(Context *, any);
 #define doFork_D (any)(Mem+222)
 any doFork(Context *, any);
+#define doSleep_D (any)(Mem+225)
+any doSleep(Context *, any);
 
-#define MEMS 225
+#define MEMS 234
 
 #endif
