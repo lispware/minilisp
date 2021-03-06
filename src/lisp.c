@@ -622,6 +622,33 @@ void copy_heap(Context *From, Context *To)
         {
             cell *fromCell = &from->cells[j];
             cell *toCell = &to->cells[j];
+
+            if (fromCell== From->Avail)
+            {
+                To->Avail = toCell;
+            }
+            if (fromCell== From->Intern[0])
+            {
+                To->Intern[0] = toCell;
+            }
+            if (fromCell== From->Intern[1])
+            {
+                To->Intern[1] = toCell;
+            }
+            if (fromCell== From->Transient[0])
+            {
+                To->Transient[0] = toCell;
+            }
+            if (fromCell== From->Transient[1])
+            {
+                To->Transient[1] = toCell;
+            }
+
+            if (fromCell== To->Code)
+            {
+                To->Code = toCell;
+            }
+
             toCell->meta.type = fromCell->meta.type;
             fromCell->meta.ptr = toCell;
         }
@@ -635,37 +662,68 @@ void copy_heap(Context *From, Context *To)
     {
         for(int j=0; j < CELLS; j++)
         {
-            cell *fromCell = &from->cells[j];
-            cell *toCell = &to->cells[j];
+            any fromCell = &from->cells[j];
+            any toCell = &to->cells[j];
 
             CellPartType carType, cdrType;
             carType = getCARType(toCell);
             cdrType = getCDRType(toCell);
 
-            cell *p = fromCell;
-            if (p == From->Avail)
-            {
-                To->Avail = From->Avail->meta.ptr;
-            }
-
             if (carType == UNDEFINED || carType == TXT || carType == NUM || carType == FUNC || carType == BIN)
             {
-                to->cells[j].car = from->cells[j].car;
+                toCell->car = fromCell->car;
             }
             else
             {
-                to->cells[j].car = from->cells[j].car->meta.ptr;
+                uword x = (uword)(fromCell->cdr);
+                uword L = (uword)(&Mem[0]);
+                uword U = (uword)(&Mem[MEMS]);
+
+                if (x >= L && x <= U) 
+                {
+                    toCell->car = fromCell->car;
+                }
+                else
+                {
+                    toCell->car = fromCell->car->meta.ptr;
+                }
             }
 
             if (cdrType == UNDEFINED || cdrType == TXT || cdrType == NUM || cdrType == FUNC || cdrType == BIN)
             {
-                to->cells[j].cdr = from->cells[j].cdr;
+                toCell->cdr = fromCell->cdr;
             }
             else
             {
-                to->cells[j].cdr = from->cells[j].cdr->meta.ptr;
+                uword x = (uword)(fromCell->cdr);
+                uword L = (uword)(&Mem[0]);
+                uword U = (uword)(&Mem[MEMS]);
+
+                if (x >= L && x <= U) 
+                {
+                    toCell->cdr = fromCell->cdr;
+                    //printf("MEM assigning %p %p\n", fromCell->cdr, fromCell->cdr->meta.ptr);
+                }
+                else
+                {
+                    toCell->cdr = fromCell->cdr->meta.ptr;
+                    //printf("assigning %p %p L=%p U=%p Nil=%p\n", fromCell->cdr, fromCell->cdr->meta.ptr, L, U, Nil);
+                }
             }
-            from->cells[j].meta.type = to->cells[j].meta.type;
+        }
+        from=from->next;
+        to=to->next;
+    }
+
+    from = From->Heaps;
+    to = To->Heaps;
+    while(from)
+    {
+        for(int j=0; j < CELLS; j++)
+        {
+            any fromCell = &from->cells[j];
+            any toCell = &to->cells[j];
+            fromCell->meta.type = toCell->meta.type;
         }
         from=from->next;
         to=to->next;
@@ -675,18 +733,18 @@ void copy_heap(Context *From, Context *To)
 any doFork(Context *CONTEXT_PTR_ORIG, any x)
 {
     Context *CONTEXT_PTR = (Context*)malloc(sizeof(Context));
-    //check(CONTEXT_PTR_ORIG);
-    copy_heap(CONTEXT_PTR_ORIG, CONTEXT_PTR);
-
-    //initialize_context(CONTEXT_PTR);
 
     CONTEXT_PTR->InFile = stdin, CONTEXT_PTR->Env.get = getStdin;
     CONTEXT_PTR->OutFile = stdout, CONTEXT_PTR->Env.put = putStdout;
-    CONTEXT_PTR->ApplyArgs = cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, 0), Nil), Nil);
-    CONTEXT_PTR->ApplyBody = cons(CONTEXT_PTR, Nil, Nil);
     CONTEXT_PTR->Code = cdr(x);
 
-    plt_thread_start(CONTEXT_PTR, thread_func, 1);
+    //initialize_context(CONTEXT_PTR);
+    CONTEXT_PTR->ApplyArgs = Nil; //cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, 0), Nil), Nil);
+    CONTEXT_PTR->ApplyBody = Nil; //cons(CONTEXT_PTR, Nil, Nil);
+
+    copy_heap(CONTEXT_PTR_ORIG, CONTEXT_PTR);
+
+    plt_thread_start(CONTEXT_PTR, thread_func, 1); //TODO - passing nowait seems to not work
 
     return x;
 }
