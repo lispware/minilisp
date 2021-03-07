@@ -54,7 +54,7 @@ static void gc(word c);
 // any ApplyArgs, ApplyBody;
 
 
-Context CONTEXT;
+Context LISP_CONTEXT;
 
 
 ///////////////////////////////////////////////
@@ -752,7 +752,7 @@ any doFork(Context *CONTEXT_PTR_ORIG, any x)
 
 int main(int ac, char *av[])
 {
-    Context *CONTEXT_PTR = &CONTEXT;
+    Context *CONTEXT_PTR = &LISP_CONTEXT;
     initialize_context(CONTEXT_PTR);
     av++;
     CONTEXT_PTR->AV = av;

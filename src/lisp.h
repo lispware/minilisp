@@ -326,7 +326,7 @@ any doOut(Context*, any ex) ;
 any doWhile(Context*, any x) ;
 any doDo(Context*, any x);
 
-extern Context CONTEXT;
+extern Context LISP_CONTEXT;
 //extern Context *_CONTEXT_PTR;
 
 
