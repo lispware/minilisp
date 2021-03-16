@@ -94,8 +94,8 @@ void markAll(Context *CONTEXT_PTR)
 
    for (i = 0; i < MEMS; i += 3)
    {
-       setMark((any)&Mem[i], 0);
-       mark(CONTEXT_PTR, (any)&Mem[i]);
+       setMark((any)(CONTEXT_PTR->Mem + i), 0);
+       mark(CONTEXT_PTR, (any)(CONTEXT_PTR->Mem + i));
    }
 
    /* Mark */
@@ -149,7 +149,7 @@ any doDump(Context *CONTEXT_PTR, any ignore)
     for (int i = 0; i < MEMS; i += 3)
     {
         //fprintf(mem, "0x%016lx %p %p %p\n", &Mem[i], Mem[i], Mem[i + 1], Mem[i + 2]);
-        dump(mem, (any)(&Mem[i]));
+        dump(mem, (any)(CONTEXT_PTR->Mem+i));
     }
 
     heap *h = CONTEXT_PTR->Heaps;

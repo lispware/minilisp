@@ -549,12 +549,12 @@ int initialize_context(Context *CONTEXT_PTR)
    heapAlloc(CONTEXT_PTR);
    CONTEXT_PTR->Intern[0] = CONTEXT_PTR->Intern[1] = CONTEXT_PTR->Transient[0] = CONTEXT_PTR->Transient[1] = Nil;
 
-   Mem[4] = (any)Mem; // TODO - SETTING THE VALUE OF NIL
-   Mem[7] = (any)(Mem+6); // TODO - SETTING THE VALUE OF NIL
+   CONTEXT_PTR->Mem[4]=(any)CONTEXT_PTR->Mem;
+   CONTEXT_PTR->Mem[7]=(any)CONTEXT_PTR->Mem + 6;
 
    for (int i = 3; i < MEMS; i += 3) // 2 because Nil has already been interned
    {
-      any cell = (any)&Mem[i];
+      any cell = (any)(CONTEXT_PTR->Mem + i);
       CellPartType carType = getCARType(cell);
       CellPartType cdrType = getCDRType(cell);
 
@@ -606,6 +606,69 @@ void check(Context *CONTEXT_PTR)
     }
     printf("END CHECK...\n");
 }
+
+void copy_mem(Context *To)
+{
+    To->Mem=(any)malloc(sizeof(cell)*MEMS);
+    for(int i = 0; i < MEMS; i+=3)
+    {
+        cell *fromCell = Mem+i;
+        cell *toCell = To->Mem + i;
+
+        toCell->meta.type=fromCell->meta.type;
+
+        CellPartType carType, cdrType;
+        carType = getCARType(fromCell);
+        cdrType = getCDRType(fromCell);
+
+
+        if (carType == UNDEFINED || carType == TXT || carType == NUM || carType == FUNC || carType == BIN)
+        {
+            toCell->car = fromCell->car;
+            //printf("%p,", toCell->car);
+        }
+        else
+        {
+            uword x = (uword)(fromCell->car);
+            uword L = (uword)(Mem);
+            int index = 3*(x-L)/sizeof(cell);
+            if (x)
+            {
+                toCell->car = To->Mem + index;
+                //printf("MEM + %d,",index);
+            }
+            else
+            {
+                toCell->car = 0;
+                //printf("MEM + 0,");
+            }
+        }
+
+        if (cdrType == UNDEFINED || cdrType == TXT || cdrType == NUM || cdrType == FUNC || cdrType == BIN)
+        {
+            toCell->cdr = fromCell->cdr;
+            //printf("%p,", toCell->cdr);
+        }
+        else
+        {
+            uword x = (uword)(fromCell->cdr);
+            uword L = (uword)(Mem);
+            int index = 3*(x - L)/sizeof(cell);
+            if (x)
+            {
+                toCell->cdr = To->Mem + index;
+                //printf("MEM + %d,",index);
+            }
+            else 
+            {
+                toCell->cdr = 0;
+                //printf("MEM + 0,");
+            }
+        }
+        //printf("%p\n", toCell->meta.type);
+    }
+}
+
 
 void copy_heap(Context *From, Context *To)
 {
@@ -676,8 +739,8 @@ void copy_heap(Context *From, Context *To)
             else
             {
                 uword x = (uword)(fromCell->cdr);
-                uword L = (uword)(&Mem[0]);
-                uword U = (uword)(&Mem[MEMS]);
+                uword L = (uword)(From->Mem);
+                uword U = (uword)(From->Mem + MEMS);
 
                 if (x >= L && x <= U) 
                 {
@@ -696,8 +759,8 @@ void copy_heap(Context *From, Context *To)
             else
             {
                 uword x = (uword)(fromCell->cdr);
-                uword L = (uword)(&Mem[0]);
-                uword U = (uword)(&Mem[MEMS]);
+                uword L = (uword)(From->Mem);
+                uword U = (uword)(From->Mem + MEMS);
 
                 if (x >= L && x <= U) 
                 {
@@ -753,7 +816,8 @@ any doFork(Context *CONTEXT_PTR_ORIG, any x)
 int main(int ac, char *av[])
 {
     Context *CONTEXT_PTR = &LISP_CONTEXT;
-    CONTEXT_PTR->Mem = Mem;
+    //CONTEXT_PTR->Mem = Mem;
+    copy_mem(CONTEXT_PTR);
     initialize_context(CONTEXT_PTR);
     av++;
     CONTEXT_PTR->AV = av;
