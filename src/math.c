@@ -21,19 +21,19 @@ any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
     any s = sym;
 
 
-    if (!(c = getByte1(&i, &w, &s)))
+    if (!(c = getByte1(CONTEXT_PTR, &i, &w, &s)))
         return NULL;
 
     while (c <= ' ')  /* Skip white space */
     {
-        if (!(c = getByte(&i, &w, &s)))
+        if (!(c = getByte(CONTEXT_PTR, &i, &w, &s)))
             return NULL;
     }
 
     sign = NO;
     if (c == '+'  ||  c == '-' && (sign = YES))
     {
-        if (!(c = getByte(&i, &w, &s)))
+        if (!(c = getByte(CONTEXT_PTR, &i, &w, &s)))
             return NULL;
     }
 
@@ -42,7 +42,7 @@ any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
 
     frac = NO;
     n = c;
-    while ((c = getByte(&i, &w, &s))  &&  (!frac || scl))
+    while ((c = getByte(CONTEXT_PTR, &i, &w, &s))  &&  (!frac || scl))
     {
         if ((int)c == sep)
         {
@@ -65,7 +65,7 @@ any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
             return NULL;
         if (c >= 5)
             n += 1;
-        while (c = getByte(&i, &w, &s))
+        while (c = getByte(CONTEXT_PTR, &i, &w, &s))
         {
             if ((c -= '0') > 9)
                 return NULL;

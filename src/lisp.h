@@ -240,6 +240,8 @@ typedef struct _Context
     any ApplyArgs, ApplyBody;
     any Code;
     int HeapCount;
+    any *Mem;
+
 }
 Context;
 
@@ -247,8 +249,6 @@ Context;
 void makeError(any ex);
 void varError(any,any) ;
 void numError(any,any) ;
-int getByte1(int *i, uword *p, any *q);
-int getByte(int *i, uword *p, any *q);
 
 any doFor(Context*, any x);
 any doSetq(Context*, any x);
@@ -263,7 +263,6 @@ any doMul(Context*, any ex);
 
 
 
-uword length(any x);
 /* Prototypes */
 void *alloc(void*,size_t);
 any apply(any,any,bool,int,cell*);
@@ -272,8 +271,6 @@ void atomError(any,any) ;
 void begString(void);
 void brkLoad(any);
 int bufNum(char[BITS/2],word);
-int bufSize(any);
-void bufString(any,char*);
 void bye(int) ;
 void pairError(any,any) ;
 any circ(any);
@@ -284,12 +281,8 @@ void err(any,any,char*,...) ;
 word evNum(any,any);
 any evSym(any);
 void execError(char*) ;
-int firstByte(any);
 any get(any,any);
-int getByte(int*,uword*,any*);
-int getByte1(int*,uword*,any*);
 void giveup(char*) ;
-any isIntern(any,any[2]);
 any method(any);
 any mkTxt(int);
 any name(any);
@@ -299,7 +292,6 @@ void protError(any,any) ;
 void put(any,any,any);
 void putByte0(int *i, uword *p, any *q);
 void putByte1(int,int*,uword*,any*);
-int symBytes(any);
 void symError(any,any) ;
 void undefined(any,any);
 void unwind (catchFrame*);
@@ -397,4 +389,15 @@ void outNum(Context*,word);
 void space(Context*);
 void newline(Context *);
 void putStdout(Context*, int);
+
+uword length(Context *, any x);
+any isIntern(Context *, any,any[2]);
+int symBytes(Context *,any);
+int bufSize(Context *, any);
+void bufString(Context *, any,char*);
+
+int getByte1(Context*, int *i, uword *p, any *q);
+int getByte(Context*,int *i, uword *p, any *q);
+int firstByte(Context*, any);
+
 #endif

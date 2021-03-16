@@ -10,7 +10,7 @@
 #endif
 
 /* List length calculation */
-inline uword length(any x)
+inline uword length(Context *CONTEXT_PTR, any x)
 {
    uword n;
 
@@ -112,7 +112,7 @@ any doRun(Context *CONTEXT_PTR, any x) {
          //   struct {any sym; any val;} bnd[length(x)];
          //} f;
 
-         bindFrame *f = allocFrame(length(x));
+         bindFrame *f = allocFrame(length(CONTEXT_PTR, x));
 
          x = cdr(x),  x = EVAL(CONTEXT_PTR, car(x));
          j = cnt = (int)unBox(y);
@@ -398,24 +398,24 @@ any doQuote(Context *CONTEXT_PTR, any x)
 }
 
 
-int compareBIN(any x1, any x2)
-{
-    return 1;
-    do
-    {
-        CellPartType t1, t2;
-        t1 = getCARType(x1);
-        t2 = getCARType(x2);
-        if (t1 != BIN || t1 != t2) return 0;
-        if (x1->car != x2->car) return 0;
-        x1 = x1->cdr;
-        x2 = x2->cdr;
-
-    }
-    while(x1 != Nil);
-
-    return 1;
-}
+// int compareBIN(any x1, any x2)
+// {
+//     return 1;
+//     do
+//     {
+//         CellPartType t1, t2;
+//         t1 = getCARType(x1);
+//         t2 = getCARType(x2);
+//         if (t1 != BIN || t1 != t2) return 0;
+//         if (x1->car != x2->car) return 0;
+//         x1 = x1->cdr;
+//         x2 = x2->cdr;
+// 
+//     }
+//     while(x1 != Nil);
+// 
+//     return 1;
+// }
 
 
 any doEq(Context *CONTEXT_PTR, any x)
@@ -556,7 +556,7 @@ any doLet(Context *CONTEXT_PTR, any x)
     else
     {
         // TODO check out how to do stack 
-        bindFrame *f = allocFrame((length(y)+1)/2);
+        bindFrame *f = allocFrame((length(CONTEXT_PTR, y)+1)/2);
 
         f->link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = f;
         f->i = f->cnt = 0;
@@ -894,15 +894,15 @@ void pathString(Context *CONTEXT_PTR, any x, char *p)
     uword w;
     char *h;
 
-    if ((c = getByte1(&i, &w, &x)) == '+')
+    if ((c = getByte1(CONTEXT_PTR, &i, &w, &x)) == '+')
     {
-        *p++ = c,  c = getByte(&i, &w, &x);
+        *p++ = c,  c = getByte(CONTEXT_PTR, &i, &w, &x);
     }
     if (c != '@')
     {
         while (*p++ = c)
         {
-            c = getByte(&i, &w, &x);
+            c = getByte(CONTEXT_PTR,&i, &w, &x);
         }
     }
     else
@@ -916,7 +916,7 @@ void pathString(Context *CONTEXT_PTR, any x, char *p)
             while (*h);
         }
 
-        while (*p++ = getByte(&i, &w, &x));
+        while (*p++ = getByte(CONTEXT_PTR, &i, &w, &x));
     }
 }
 
@@ -926,7 +926,7 @@ void sym2str(Context *CONTEXT_PTR, any nm, char *buf)
     int i, c, ctr=0;
     word w;
 
-    c = getByte1(&i, &w, &nm);
+    c = getByte1(CONTEXT_PTR, &i, &w, &nm);
     do
     {
         if (c == '"'  ||  c == '\\')
@@ -937,7 +937,7 @@ void sym2str(Context *CONTEXT_PTR, any nm, char *buf)
         CONTEXT_PTR->Env.put(CONTEXT_PTR, c);
         buf[ctr++]=c;
     }
-   while (c = getByte(&i, &w, &nm));
+   while (c = getByte(CONTEXT_PTR, &i, &w, &nm));
     buf[ctr++]=0;
 }
 
@@ -976,7 +976,7 @@ void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp)
       while (*b);
    }
    else if (!isNil(x))
-      for (x = name(x), c = getByte1(&j, &w, &x); c; c = getByte(&j, &w, &x))
+      for (x = name(x), c = getByte1(CONTEXT_PTR, &j, &w, &x); c; c = getByte(CONTEXT_PTR,&j, &w, &x))
          putByte(CONTEXT_PTR, c, i, p, q, cp);
 }
 

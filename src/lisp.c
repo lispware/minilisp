@@ -258,11 +258,11 @@ void prin(Context *CONTEXT_PTR, any x)
             uword w;
             while(1);
 
-            for (x = name(x), c = getByte1(&i, &w, &x); c; c = getByte(&i, &w, &x))
+            for (x = name(x), c = getByte1(CONTEXT_PTR, &i, &w, &x); c; c = getByte(CONTEXT_PTR, &i, &w, &x))
             {
                 if (c != '^')
                     CONTEXT_PTR->Env.put(CONTEXT_PTR, c);
-                else if (!(c = getByte(&i, &w, &x)))
+                else if (!(c = getByte(CONTEXT_PTR, &i, &w, &x)))
                     CONTEXT_PTR->Env.put(CONTEXT_PTR, '^');
                 else if (c == '?')
                     CONTEXT_PTR->Env.put(CONTEXT_PTR, 127);
@@ -367,10 +367,10 @@ any evExpr(Context *CONTEXT_PTR, any expr, any x)
 {
    any y = car(expr);
 
-   bindFrame *f = allocFrame(length(y)+2);
+   bindFrame *f = allocFrame(length(CONTEXT_PTR, y)+2);
 
    f->link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = f;
-   f->i = (bindSize * (length(y)+2)) / (2*sizeof(any)) - 1;
+   f->i = (bindSize * (length(CONTEXT_PTR, y)+2)) / (2*sizeof(any)) - 1;
    f->cnt = 1,  f->bnd[0].sym = At,  f->bnd[0].val = val(At);
 
    while (y != Nil && y != cdr(y) && 0 != cdr(y))
@@ -409,7 +409,7 @@ any evExpr(Context *CONTEXT_PTR, any expr, any x)
    {
       int n, cnt;
       cell *arg;
-      cell *c = (cell*)malloc(sizeof(cell) * (n = cnt = length(x)));
+      cell *c = (cell*)malloc(sizeof(cell) * (n = cnt = length(CONTEXT_PTR, x)));
 
       while (--n >= 0)
       {
@@ -527,7 +527,7 @@ void printLongTXT(Context *CONTEXT_PTR, any nm)
     int i, c;
     word w;
 
-    c = getByte1(&i, &w, &nm);
+    c = getByte1(CONTEXT_PTR, &i, &w, &nm);
     do
     {
         if (c == '"'  ||  c == '\\')
@@ -536,7 +536,7 @@ void printLongTXT(Context *CONTEXT_PTR, any nm)
         }
         CONTEXT_PTR->Env.put(CONTEXT_PTR, c);
     }
-   while (c = getByte(&i, &w, &nm));
+   while (c = getByte(CONTEXT_PTR, &i, &w, &nm));
 }
 
 void printNUM(any cell)
@@ -753,6 +753,7 @@ any doFork(Context *CONTEXT_PTR_ORIG, any x)
 int main(int ac, char *av[])
 {
     Context *CONTEXT_PTR = &LISP_CONTEXT;
+    CONTEXT_PTR->Mem = Mem;
     initialize_context(CONTEXT_PTR);
     av++;
     CONTEXT_PTR->AV = av;

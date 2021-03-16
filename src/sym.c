@@ -10,7 +10,7 @@
     #error "Unsupported bit width"
 #endif
 
-int firstByte(any s)
+int firstByte(Context*CONTEXT_PTR, any s)
 {
     int c;
 
@@ -19,7 +19,7 @@ int firstByte(any s)
     return c & 127;
 }
 
-int getByte1(int *i, uword *p, any *q)
+int getByte1(Context *CONTEXT_PTR, int *i, uword *p, any *q)
 {
     int c;
 
@@ -43,7 +43,7 @@ int getByte1(int *i, uword *p, any *q)
     return c;
 }
 
-int getByte(int *i, uword *p, any *q)
+int getByte(Context *CONTEXT_PTR, int *i, uword *p, any *q)
 {
     int c;
 
@@ -149,7 +149,7 @@ any popSym(Context *CONTEXT_PTR, int i, uword n, any q, cell *cp)
     return consSym(CONTEXT_PTR, NULL,n);
 }
 
-int symBytes(any x)
+int symBytes(Context *CONTEXT_PTR, any x)
 {
     int cnt = 0;
     uword w;
@@ -170,7 +170,7 @@ int symBytes(any x)
     return cnt;
 }
 
-any isIntern(any nm, any tree[2])
+any isIntern(Context *CONTEXT_PTR, any nm, any tree[2])
 {
     any x, y, z;
     word n;

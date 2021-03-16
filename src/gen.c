@@ -538,8 +538,8 @@ int main(int ac, char *av[])
     fprintf(fpSYM, "#define __SYM_D__\n");
 
     fprintf(fpSYM, "extern any Mem[];\n");
-    fprintf(fpSYM, "#define Nil ((any)(Mem+0))\n");
-    fprintf(fpSYM, "#define T ((any)(Mem+6))\n");
+    fprintf(fpSYM, "#define Nil ((any)(CONTEXT_PTR->Mem+0))\n");
+    fprintf(fpSYM, "#define T ((any)(CONTEXT_PTR->Mem+6))\n");
 
     ac--;
 
@@ -583,8 +583,8 @@ int main(int ac, char *av[])
                 }
 
                 //print(buf, x);
-                fprintf(fpSYM, " (any)(Mem+%d)\n", x);
-                sprintf(buf, "((any)(Mem + 0))");
+                fprintf(fpSYM, " (any)(CONTEXT_PTR->Mem+%d)\n", x);
+                sprintf(buf, "((any)(CONTEXT_PTR->Mem + 0))");
                 MemGen[x+1] = strdup(buf);
                 //sprintf(buf, "0x%x", mkType(TXT, PTR_CELL));
                 //MemGen[x+2] = strdup(buf);
@@ -612,7 +612,7 @@ int main(int ac, char *av[])
                 }
 
                 *p = '\0';
-                fprintf(fpSYM, "_D (any)(Mem+%d)\n", x);
+                fprintf(fpSYM, "_D (any)(CONTEXT_PTR->Mem+%d)\n", x);
                 sprintf(buf, "((any)(%s))", Token);
                 MemGen[x+1] = strdup(buf);
                 if (!strcmp(MemGen[x+2], "0x407"))

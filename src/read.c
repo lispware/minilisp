@@ -16,51 +16,51 @@ static any read0(Context *, bool);
 static char Delim[] = " \t\n\r\"'(),[]`~{}";
 
 /* Buffer size */
-int bufSize(any x)
+int bufSize(Context *CONTEXT_PTR, any x)
 {
-    return symBytes(x) + 1;
+    return symBytes(CONTEXT_PTR, x) + 1;
 }
 
 int pathSize(Context *CONTEXT_PTR, any x)
 {
-    int c = firstByte(x);
+    int c = firstByte(CONTEXT_PTR, x);
 
     if (c != '@'  &&  (c != '+'))
     {
-        return bufSize(x);
+        return bufSize(CONTEXT_PTR, x);
     }
     if (!CONTEXT_PTR->Home)
     {
-        return symBytes(x);
+        return symBytes(CONTEXT_PTR, x);
     }
-    return strlen(CONTEXT_PTR->Home) + symBytes(x);
+    return strlen(CONTEXT_PTR->Home) + symBytes(CONTEXT_PTR, x);
 }
 
-void bufString(any x, char *p)
-{
-    int c, i;
-    uword w;
-
-    if (!isNil(x))
-    {
-        for (x = name(x), c = getByte1(&i, &w, &x); c; c = getByte(&i, &w, &x))
-        {
-            if (c == '^')
-            {
-                if ((c = getByte(&i, &w, &x)) == '?')
-                {
-                    c = 127;
-                }
-                else
-                {
-                    c &= 0x1F;
-                }
-            }
-            *p++ = c;
-        }
-    }
-    *p = '\0';
-}
+// void bufString(Context *CONTEXT_PTR, any x, char *p)
+// {
+//     int c, i;
+//     uword w;
+// 
+//     if (!isNil(x))
+//     {
+//         for (x = name(x), c = getByte1(CONTEXT_PTR, &i, &w, &x); c; c = getByte(CONTEXT_PTR, &i, &w, &x))
+//         {
+//             if (c == '^')
+//             {
+//                 if ((c = getByte(CONTEXT_PTR, &i, &w, &x)) == '?')
+//                 {
+//                     c = 127;
+//                 }
+//                 else
+//                 {
+//                     c &= 0x1F;
+//                 }
+//             }
+//             *p++ = c;
+//         }
+//     }
+//     *p = '\0';
+// }
 
 
 /*** Reading ***/
@@ -293,7 +293,7 @@ static any read0(Context *CONTEXT_PTR, bool top)
             putByte(CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &p, &c1);
         }
         y = popSym(CONTEXT_PTR, i, w, p, &c1),  CONTEXT_PTR->Env.get(CONTEXT_PTR);
-        if (x = isIntern(tail(y), CONTEXT_PTR->Transient))
+        if (x = isIntern(CONTEXT_PTR, tail(y), CONTEXT_PTR->Transient))
             return x;
         intern(CONTEXT_PTR, y, CONTEXT_PTR->Transient);
         return y;
@@ -331,7 +331,7 @@ static any read0(Context *CONTEXT_PTR, bool top)
     {
         return x;
     }
-    if (x = isIntern(tail(y), CONTEXT_PTR->Intern))
+    if (x = isIntern(CONTEXT_PTR, tail(y), CONTEXT_PTR->Intern))
     {
         return x;
     }

@@ -13,8 +13,7 @@
     #error "Unsupported bit width"
 #endif
 
-static void mark(any x);
-static void mark(any x)
+static void mark(Context *CONTEXT_PTR, any x)
 {
     if (!x) return;
 
@@ -26,18 +25,18 @@ static void mark(any x)
 
     if (getCARType(x) == BIN_START)
     {
-        if (getCDRType(x) == PTR_CELL) mark(cdr(x));
+        if (getCDRType(x) == PTR_CELL) mark(CONTEXT_PTR, cdr(x));
         x = x->car;
         while(x && x != Nil)
         {
-            mark(x);
+            mark(CONTEXT_PTR, x);
             x=x->cdr;
         }
         return;
     }
 
 
-    if (getCARType(x) == PTR_CELL || getCARType(x) == INTERN) mark(car(x));
+    if (getCARType(x) == PTR_CELL || getCARType(x) == INTERN) mark(CONTEXT_PTR, car(x));
 
     while (1)
     {
@@ -50,9 +49,9 @@ static void mark(any x)
         if (getCARType(x) == BIN_START)
         {
             setMark(x, 0);
-            mark(x);
+            mark(CONTEXT_PTR, x);
         }
-        if (getCARType(x) == PTR_CELL || getCARType(x) == INTERN) mark(car(x));
+        if (getCARType(x) == PTR_CELL || getCARType(x) == INTERN) mark(CONTEXT_PTR, car(x));
     }
 }
 
@@ -96,33 +95,33 @@ void markAll(Context *CONTEXT_PTR)
    for (i = 0; i < MEMS; i += 3)
    {
        setMark((any)&Mem[i], 0);
-       mark((any)&Mem[i]);
+       mark(CONTEXT_PTR, (any)&Mem[i]);
    }
 
    /* Mark */
-   setMark(CONTEXT_PTR->Intern[0], 0);mark(CONTEXT_PTR->Intern[0]);
-   setMark(CONTEXT_PTR->Intern[1], 0);mark(CONTEXT_PTR->Intern[1]);
-   setMark(CONTEXT_PTR->Transient[0], 0);mark(CONTEXT_PTR->Transient[0]);
-   setMark(CONTEXT_PTR->Transient[1], 0);mark(CONTEXT_PTR->Transient[1]);
-   if (CONTEXT_PTR->ApplyArgs) setMark(CONTEXT_PTR->ApplyArgs, 0);mark(CONTEXT_PTR->ApplyArgs);
-   if (CONTEXT_PTR->ApplyBody) setMark(CONTEXT_PTR->ApplyBody, 0);mark(CONTEXT_PTR->ApplyBody);
+   setMark(CONTEXT_PTR->Intern[0], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Intern[0]);
+   setMark(CONTEXT_PTR->Intern[1], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Intern[1]);
+   setMark(CONTEXT_PTR->Transient[0], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Transient[0]);
+   setMark(CONTEXT_PTR->Transient[1], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Transient[1]);
+   if (CONTEXT_PTR->ApplyArgs) setMark(CONTEXT_PTR->ApplyArgs, 0);mark(CONTEXT_PTR, CONTEXT_PTR->ApplyArgs);
+   if (CONTEXT_PTR->ApplyBody) setMark(CONTEXT_PTR->ApplyBody, 0);mark(CONTEXT_PTR, CONTEXT_PTR->ApplyBody);
    for (p = CONTEXT_PTR->Env.stack; p; p = cdr(p))
    {
-      mark(car(p));
+      mark(CONTEXT_PTR, car(p));
    }
    for (p = (any)CONTEXT_PTR->Env.bind;  p;  p = (any)((bindFrame*)p)->link)
    {
       for (i = ((bindFrame*)p)->cnt;  --i >= 0;)
       {
-         mark(((bindFrame*)p)->bnd[i].sym);
-         mark(((bindFrame*)p)->bnd[i].val);
+         mark(CONTEXT_PTR, ((bindFrame*)p)->bnd[i].sym);
+         mark(CONTEXT_PTR, ((bindFrame*)p)->bnd[i].val);
       }
    }
    for (p = (any)CONTEXT_PTR->CatchPtr; p; p = (any)((catchFrame*)p)->link)
    {
       if (((catchFrame*)p)->tag)
-         mark(((catchFrame*)p)->tag);
-      mark(((catchFrame*)p)->fin);
+         mark(CONTEXT_PTR, ((catchFrame*)p)->tag);
+      mark(CONTEXT_PTR, ((catchFrame*)p)->fin);
    }
 }
 
