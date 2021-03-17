@@ -766,7 +766,7 @@ void copy_heap(Context *From, Context *To)
     To->Mem=(any)malloc(sizeof(cell)*MEMS);
 
     /////////////////////////////////////////////////////
-    dumpMem(From, "DEBUG_HEAP0.txt");
+//    dumpMem(From, "DEBUG_HEAP0.txt");
     heap *from = From->Heaps;
     heap *to = To->Heaps;
     for(int i = 0; i < MEMS; i+=3)
@@ -789,7 +789,7 @@ void copy_heap(Context *From, Context *To)
     }
 
     /////////////////////////////////////////////////////
-    dumpMem(From, "DEBUG_HEAP1.txt");
+//    dumpMem(From, "DEBUG_HEAP1.txt");
     from = From->Heaps;
     to = To->Heaps;
     for(int i = 0; i < MEMS; i+=3)
@@ -833,7 +833,7 @@ void copy_heap(Context *From, Context *To)
         from=from->next;
         to=to->next;
     }
-    dumpMem(From, "DEBUG_HEAP2.txt");
+//    dumpMem(From, "DEBUG_HEAP2.txt");
 }
 
 any doFork(Context *CONTEXT_PTR_ORIG, any x)
@@ -855,8 +855,8 @@ any doFork(Context *CONTEXT_PTR_ORIG, any x)
     copy_heap(CONTEXT_PTR_ORIG, CONTEXT_PTR);
 
 
-    dumpMem(CONTEXT_PTR, "DEBUG_NEW.txt");
-    dumpMem(CONTEXT_PTR_ORIG, "DEBUG_OLD.txt");
+//    dumpMem(CONTEXT_PTR, "DEBUG_NEW.txt");
+//    dumpMem(CONTEXT_PTR_ORIG, "DEBUG_OLD.txt");
 
 
     plt_thread_start(CONTEXT_PTR, thread_func, 0); //TODO - passing nowait seems to not work
