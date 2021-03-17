@@ -161,6 +161,32 @@ any doDump(Context *CONTEXT_PTR, any ignore)
     return Nil;
 }
 
+void dumpHeap(heap *h, FILE *fp)
+{
+    if(!h) return;
+    dumpHeap(h->next, fp);
+    fprintf(fp, "HEAP\n");
+    for(int i=0; i < CELLS; i++)
+    {
+        any c = &(h->cells[i]);
+        fprintf(fp, "%p %p %p %p\n", &c->car, c->car, c->cdr, c->meta.type);
+    }
+}
+
+void dumpMem(Context *CTX, char *FN)
+{
+    FILE *fp = fopen(FN, "w");
+
+    fprintf(fp, "MEM\n");
+    for(int i = 0; i < MEMS; i+=3)
+    {
+        fprintf(fp, "%p %p %p %p\n", &CTX->Mem[i + 0], CTX->Mem[i + 0], CTX->Mem[i + 1], CTX->Mem[i + 2]);
+    }
+    dumpHeap(CTX->Heaps, fp);
+
+    fclose(fp);
+}
+
 
 uword getHeapSize(Context *CONTEXT_PTR)
 {

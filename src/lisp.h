@@ -400,4 +400,7 @@ int getByte1(Context*, int *i, uword *p, any *q);
 int getByte(Context*,int *i, uword *p, any *q);
 int firstByte(Context*, any);
 
+void dumpHeap(heap *h, FILE *fp);
+void dumpMem(Context *CTX, char *FN);
+
 #endif
