@@ -36,10 +36,10 @@ void eofErr(void)
     #error "Unsupported bit width"
 #endif
 
-typedef WORD_TYPE WORD;
+typedef WORD_TYPE LISP_WORD_SIZE;
 typedef SIGNED_WORD_TYPE SIGNED_WORD;
 
-#define BITS (8*((int)sizeof(WORD)))
+#define BITS (8*((int)sizeof(LISP_WORD_SIZE)))
 
 typedef enum {NO,YES} BOOL;
 
@@ -47,7 +47,7 @@ typedef enum {NO,YES} BOOL;
 typedef union
 {
     unsigned char parts[4];
-    WORD _t;
+    LISP_WORD_SIZE _t;
 } PartType;
 
 typedef struct Cell
@@ -80,8 +80,8 @@ static int read0(BOOL top);
 static void mkSym(char *, char *, CellPartType);
 static void addMem(char *);
 void addWord(WORD_TYPE);
-WORD mkType(CellPartType carType, CellPartType cdrType);
-WORD mkConsType(CellPartType carType, CellPartType cdrType);
+LISP_WORD_SIZE mkType(CellPartType carType, CellPartType cdrType);
+LISP_WORD_SIZE mkConsType(CellPartType carType, CellPartType cdrType);
 static int ramSym(char *name, char *value, CellPartType type);
 void addSym(int x);
 static int cons(int x, int y);
@@ -205,11 +205,11 @@ static void mkSym(char *name, char *value, CellPartType type)
 void addType(CellPartType type)
 {
     char buf[100];
-    sprintf(buf, WORD_FORMAT_STRING, (WORD)type);
+    sprintf(buf, WORD_FORMAT_STRING, (LISP_WORD_SIZE)type);
     addMem(buf);
 }
 
-WORD mkConsType(CellPartType carType, CellPartType cdrType)
+LISP_WORD_SIZE mkConsType(CellPartType carType, CellPartType cdrType)
 {
     PartType t = {0};
     t.parts[0] = carType;
@@ -217,7 +217,7 @@ WORD mkConsType(CellPartType carType, CellPartType cdrType)
     return t._t;
 }
 
-WORD mkType(CellPartType carType, CellPartType cdrType)
+LISP_WORD_SIZE mkType(CellPartType carType, CellPartType cdrType)
 {
     PartType t = {0};
     t.parts[0] = carType;

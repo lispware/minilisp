@@ -3,5 +3,5 @@
 
 void plt_thread_start(Context *CONTEXT_PTR, thread_func_t FUNC, int wait)
 {
-        FUNC(NULL);
+        FUNC(CONTEXT_PTR);
 }

@@ -28,8 +28,8 @@
     #error "Unsupported bit width"
 #endif
 
-#define WORD ((int)sizeof(WORD_TYPE))
-#define BITS (8*WORD)
+#define LISP_WORD_SIZE ((int)sizeof(WORD_TYPE))
+#define BITS (8*LISP_WORD_SIZE)
 
 typedef SIGNED_WORD_TYPE word;
 typedef WORD_TYPE uword;
