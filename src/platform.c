@@ -23,5 +23,5 @@ any doSleep(Context *CONTEXT_PTR, any ex)
 
     plt_sleep(n);
 
-    return x;
+    return car(x);
 }
