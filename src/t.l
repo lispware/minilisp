@@ -27,6 +27,11 @@
 (prinl (F 1 2)))
 
 
+(de M X (prinl X))
+(M 1)
+(M 1 2 3)
+
+
 (prinl 123)
 (setq L1 (cons 1 (cons 2 (cons 3 Nil))))
 (setq L2 (cdr L1))
@@ -63,6 +68,21 @@
 (setq BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB 123)
 (prinl (+ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB))
 
+(prinl "12345678")
+(prinl "1234567812345678")
+
+(prinl (pack 1 2 3 4))
+(prinl (pack 1 2 3 4 5))
+(prinl (pack 1 2 3 4 5 6 7 8))
+(prinl (pack 1 2 3 4 5 6 7 8))
+(prinl (pack "1" "2" "3" "4"))
+(prinl (pack "1" "2" "3" "4" "5"))
+(prinl (pack "1" "2" "3" "4" "5" "6" "7" "8"))
+(prinl (pack "1" "2" "3" "4" "5" "6" "7" "8"))
+(if (= "hello world" (pack "hello" " " "world"))
+    (prinl "pack passed")
+    (prinl "pack failed")
+    (bye))
 
 (setq longnumber 1234567890)
 (prinl (+ (* longnumber 10) 1))
@@ -99,6 +119,20 @@
 (in "t.l" (do 10 (prinl (char))))
 (out "ABCD" (prinl "HELLO WORLD"))
 (in "ABCD" (do 11 (prinl (char))))
+
+(out "ABCD"
+     (prinl "LINE 1")
+     (prinl "A VERY LONG LONG LINE 2"))
+
+(in "ABCD"
+    (let (L1 (pack (line))
+          L2 (pack (line)))
+          (if (= L1 "LINE 1") 
+              (if (= L2 "A VERY LONG LONG LINE 2") (prinl "LINE TEST PASSED") (prinl "LINE TEST FAILED IN THE SECOND STRING"))
+              (prinl "LINE TEST FAILED IN THE FIRST STRING"))
+     ))
+         
+    
 
 
 (prinl ABCDEFGHIJ)

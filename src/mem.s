@@ -35,3 +35,7 @@ Z 10
 ABCDEFGHIJ 10
 ABCDEFGHIJK {doLongFunc}
 ABCDEFGHIJABCDEFGHIJK {doVeryLongFunc}
+call {doCall}
+pack {doPack}
+fork {doFork}
+sleep {doSleep}

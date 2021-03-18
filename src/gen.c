@@ -24,22 +24,22 @@ void eofErr(void)
     #define WORD_TYPE uint32_t
     #define SIGNED_WORD_TYPE int32_t
     #define WORD_FORMAT_STRING "0x%x"
-    #define MEMFILE "mem32.d"
+    #define MEMFILE "mem32.c"
     #define DEFFILE "def32.d"
 #elif INTPTR_MAX == INT64_MAX
     #define WORD_TYPE uint64_t
     #define SIGNED_WORD_TYPE int64_t
     #define WORD_FORMAT_STRING "0x%llx"
-    #define MEMFILE "mem64.d"
+    #define MEMFILE "mem64.c"
     #define DEFFILE "def64.d"
 #else
     #error "Unsupported bit width"
 #endif
 
-typedef WORD_TYPE WORD;
+typedef WORD_TYPE LISP_WORD_SIZE;
 typedef SIGNED_WORD_TYPE SIGNED_WORD;
 
-#define BITS (8*((int)sizeof(WORD)))
+#define BITS (8*((int)sizeof(LISP_WORD_SIZE)))
 
 typedef enum {NO,YES} BOOL;
 
@@ -47,7 +47,7 @@ typedef enum {NO,YES} BOOL;
 typedef union
 {
     unsigned char parts[4];
-    WORD _t;
+    LISP_WORD_SIZE _t;
 } PartType;
 
 typedef struct Cell
@@ -80,8 +80,8 @@ static int read0(BOOL top);
 static void mkSym(char *, char *, CellPartType);
 static void addMem(char *);
 void addWord(WORD_TYPE);
-WORD mkType(CellPartType carType, CellPartType cdrType);
-WORD mkConsType(CellPartType carType, CellPartType cdrType);
+LISP_WORD_SIZE mkType(CellPartType carType, CellPartType cdrType);
+LISP_WORD_SIZE mkConsType(CellPartType carType, CellPartType cdrType);
 static int ramSym(char *name, char *value, CellPartType type);
 void addSym(int x);
 static int cons(int x, int y);
@@ -205,20 +205,19 @@ static void mkSym(char *name, char *value, CellPartType type)
 void addType(CellPartType type)
 {
     char buf[100];
-    sprintf(buf, WORD_FORMAT_STRING, (WORD)type);
+    sprintf(buf, WORD_FORMAT_STRING, (LISP_WORD_SIZE)type);
     addMem(buf);
 }
 
-WORD mkConsType(CellPartType carType, CellPartType cdrType)
+LISP_WORD_SIZE mkConsType(CellPartType carType, CellPartType cdrType)
 {
     PartType t = {0};
     t.parts[0] = carType;
     t.parts[1] = cdrType;
-    t.parts[2] = 1;
     return t._t;
 }
 
-WORD mkType(CellPartType carType, CellPartType cdrType)
+LISP_WORD_SIZE mkType(CellPartType carType, CellPartType cdrType)
 {
     PartType t = {0};
     t.parts[0] = carType;
@@ -537,8 +536,10 @@ int main(int ac, char *av[])
 
     fprintf(fpSYM, "#ifndef __SYM_D__\n");
     fprintf(fpSYM, "#define __SYM_D__\n");
-    fprintf(fpSYM, "#define Nil ((any)(Mem+0))\n");
-    fprintf(fpSYM, "#define T ((any)(Mem+6))\n");
+
+    fprintf(fpSYM, "extern any Mem[];\n");
+    fprintf(fpSYM, "#define Nil ((any)(CONTEXT_PTR->Mem+0))\n");
+    fprintf(fpSYM, "#define T ((any)(CONTEXT_PTR->Mem+6))\n");
 
     ac--;
 
@@ -582,8 +583,8 @@ int main(int ac, char *av[])
                 }
 
                 //print(buf, x);
-                fprintf(fpSYM, " (any)(Mem+%d)\n", x);
-                sprintf(buf, "((any)(Mem + 0))");
+                fprintf(fpSYM, " (any)(CONTEXT_PTR->Mem+%d)\n", x);
+                sprintf(buf, "((any)(CONTEXT_PTR->Mem + 0))");
                 MemGen[x+1] = strdup(buf);
                 //sprintf(buf, "0x%x", mkType(TXT, PTR_CELL));
                 //MemGen[x+2] = strdup(buf);
@@ -611,7 +612,7 @@ int main(int ac, char *av[])
                 }
 
                 *p = '\0';
-                fprintf(fpSYM, "_D (any)(Mem+%d)\n", x);
+                fprintf(fpSYM, "_D (any)(CONTEXT_PTR->Mem+%d)\n", x);
                 sprintf(buf, "((any)(%s))", Token);
                 MemGen[x+1] = strdup(buf);
                 if (!strcmp(MemGen[x+2], "0x407"))
@@ -623,7 +624,7 @@ int main(int ac, char *av[])
                     sprintf(buf, WORD_FORMAT_STRING, (WORD_TYPE) mkType(TXT, FUNC));
                 }
                 MemGen[x+2] = strdup(buf);
-                fprintf(fpSYM, "any %s(any);\n", Token);
+                fprintf(fpSYM, "any %s(Context *, any);\n", Token);
             }
             else
             {                                 // Value
@@ -663,7 +664,13 @@ int main(int ac, char *av[])
     // x = ramSym("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl", "20", Type_Num);
     // printf("%d\n", x);
 
-    fprintf(fpMem, "#define MEMS %d\n", MemIdx);
+    fprintf(fpMem, "#ifndef __MEM_D__\n");
+    fprintf(fpMem, "#define __MEM_D__\n");
+
+    fprintf(fpMem, "#include \"lisp.h\"\n");
+    fprintf(fpMem, "#include \"cell.h\"\n");
+    fprintf(fpMem, "#include \"%s\"\n", DEFFILE);
+
     fprintf(fpMem, "any Mem[] = {\n");
 
     fprintf(fpMem, "    (any)(Mem + 0), (any)(Mem + 0), (any)(0x404),\n");
@@ -672,11 +679,13 @@ int main(int ac, char *av[])
         fprintf(fpMem, "    (any)%s, (any)%s, (any)%s,\n", MemGen[i], MemGen[i + 1], MemGen[i + 2]);
     }
     fprintf(fpMem, "};\n");
+    fprintf(fpMem, "#endif\n");
     fclose(fpMem);
 
 
-fprintf(fpSYM, "#endif\n");
-fclose(fpSYM);
+    fprintf(fpSYM, "\n#define MEMS %d\n", MemIdx);
+    fprintf(fpSYM, "\n#endif\n");
+    fclose(fpSYM);
 
     return 0;
 }

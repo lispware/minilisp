@@ -8,5 +8,7 @@ echo ./gen mem.s
 ./gen mem.s
 fi
 
-echo gcc -g3 lisp.c -o lisp
-gcc -g3 lisp.c -o lisp
+SOURCES=$(cat sources.unix.list)
+
+echo gcc -g3 mem64.c $SOURCES -o lisp64 -lpthread
+gcc -g3 mem64.c $SOURCES -o lisp64 -lpthread
