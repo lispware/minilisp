@@ -2,7 +2,7 @@
 #include "cell.h"
 
 /*** Macros ***/
-#define Free(p)         ((p)->car=CONTEXT_PTR->Avail, (p)->cdr=0, (p)->meta.type._t=0,  CONTEXT_PTR->Avail=(p))
+#define Free(p)         ((p)->car=CONTEXT_PTR->Avail, (p)->cdr=0, (p)->meta.type._t=UNDEFINED,  CONTEXT_PTR->Avail=(p))
 
 
 #if INTPTR_MAX == INT32_MAX
@@ -135,28 +135,9 @@ any doDump(Context *CONTEXT_PTR, any ignore)
 {
     static int COUNT=0;
     char debugFileName[100];
-    sprintf(debugFileName, "debug-%03d.mem", COUNT++);
+    sprintf(debugFileName, "Debug-%03d.txt", COUNT++);
+    dumpMem(CONTEXT_PTR, debugFileName);
 
-    if (Nil == ignore)
-    {
-        return ignore;
-    }
-
-    FILE *mem;
-    mem = fopen(debugFileName, "w");
-
-    fprintf(mem, "# START MEM\n");
-    for (int i = 0; i < MEMS; i += 3)
-    {
-        //fprintf(mem, "0x%016lx %p %p %p\n", &Mem[i], Mem[i], Mem[i + 1], Mem[i + 2]);
-        dump(mem, (any)(CONTEXT_PTR->Mem+i));
-    }
-
-    heap *h = CONTEXT_PTR->Heaps;
-
-    dumpHeaps(mem, h);
-
-    fclose(mem);
 
     return Nil;
 }
@@ -221,9 +202,9 @@ static void gc(Context *CONTEXT_PTR, word c)
     any p;
     heap *h;
 
-    doDump(CONTEXT_PTR, Nil);
+    //doDump(CONTEXT_PTR, Nil);
     markAll(CONTEXT_PTR);
-    doDump(CONTEXT_PTR, Nil);
+    //doDump(CONTEXT_PTR, Nil);
 
     /* Sweep */
     CONTEXT_PTR->Avail = NULL;
@@ -252,7 +233,7 @@ static void gc(Context *CONTEXT_PTR, word c)
         }
     }
 
-    doDump(CONTEXT_PTR, Nil);
+    //doDump(CONTEXT_PTR, Nil);
     return;
 }
 
@@ -340,7 +321,8 @@ void heapAlloc(Context *CONTEXT_PTR)
    cell *p;
 
    CONTEXT_PTR->HeapCount++;
-   h = (heap*)((word)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
+   //h = (heap*)((word)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
+   h = (heap*)((word)alloc(NULL, sizeof(heap) + sizeof(cell)));
    h->next = CONTEXT_PTR->Heaps,  CONTEXT_PTR->Heaps = h;
    p = h->cells + CELLS-1;
    do

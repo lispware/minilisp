@@ -496,8 +496,15 @@ any evList(Context *CONTEXT_PTR, any ex)
 
     if (isCell(foo))
     {
-        if (isNum(foo = evList(CONTEXT_PTR, foo)))
+        if (isFunc(foo = evList(CONTEXT_PTR, foo)))
+        {
             return evSubr(foo,ex);
+        }
+        // TODO - this does not seem quite right - why only NUM?
+        else if (isNum(foo))
+        {
+            return foo;
+        }
         return evList2(CONTEXT_PTR, foo,ex);
     }
     for (;;)
@@ -578,6 +585,17 @@ void *thread_func(void *arg)
     Context *CONTEXT_PTR = arg;
 
     EVAL(CONTEXT_PTR, CONTEXT_PTR->Code);
+    heap *h = CONTEXT_PTR->Heaps;
+
+    while (h)
+    {
+        heap *x = h;
+        h = h->next;
+        free(x);
+    }
+
+    free(CONTEXT_PTR->Mem);
+    free(CONTEXT_PTR);
 
     return NULL;
 }
@@ -667,29 +685,20 @@ void copy_backup_cell(cell *fromCell, cell * toCell)
     toCell->meta.type = fromCell->meta.type;
     fromCell->meta.ptr = toCell;
 }
+
 void copy_fixup_cell(Context *From, Context *To, cell *fromCell, cell * toCell)
 {
     CellPartType carType, cdrType;
     carType = getCARType(toCell);
     cdrType = getCDRType(toCell);
 
-    if (carType == UNDEFINED || carType == TXT || carType == NUM || carType == FUNC || carType == BIN)
+    if (carType == TXT || carType == NUM || carType == FUNC || carType == BIN)
     {
         toCell->car = fromCell->car;
     }
     else
     {
-        uword x = (uword)(fromCell->car);
-        uword L = (uword)(From->Mem);
-        uword U = (uword)(From->Mem + MEMS);
-        int index = 3*(x-L)/sizeof(cell);
-
-        if (x >= L && x <= U && (carType == PTR_CELL || carType == INTERN || carType == BIN_START)) 
-        {
-            //toCell->car = fromCell->car;
-            toCell->car = To->Mem + index;
-        }
-        else if ((carType == PTR_CELL || carType == INTERN || carType == BIN_START) && fromCell->car != 0)
+        if (fromCell->car != 0)
         {
             toCell->car = fromCell->car->meta.ptr;
         }
@@ -699,34 +708,23 @@ void copy_fixup_cell(Context *From, Context *To, cell *fromCell, cell * toCell)
         }
     }
 
-    if (cdrType == UNDEFINED || cdrType == TXT || cdrType == NUM || cdrType == FUNC || cdrType == BIN)
+    if (cdrType == TXT || cdrType == NUM || cdrType == FUNC || cdrType == BIN)
     {
         toCell->cdr = fromCell->cdr;
     }
     else
     {
-        uword x = (uword)(fromCell->cdr);
-        uword L = (uword)(From->Mem);
-        uword U = (uword)(From->Mem + MEMS);
-        int index = 3*(x-L)/sizeof(cell);
-
-        if (x >= L && x <= U && (cdrType == PTR_CELL || cdrType == PTR_CELL || cdrType == BIN_START)) 
-        {
-            //toCell->cdr = fromCell->cdr;
-            toCell->cdr = To->Mem + index;;
-            //printf("MEM assigning %p %p\n", fromCell->cdr, fromCell->cdr->meta.ptr);
-        }
-        else if ((cdrType == PTR_CELL || cdrType == PTR_CELL || cdrType == BIN_START) && fromCell->cdr != 0)
+        if (fromCell->cdr != 0)
         {
             toCell->cdr = fromCell->cdr->meta.ptr;
         }
         else
         {
             toCell->cdr = fromCell->cdr;
-            //printf("assigning %p %p L=%p U=%p Nil=%p\n", fromCell->cdr, fromCell->cdr->meta.ptr, L, U, Nil);
         }
     }
 }
+
 void copy_restore_cell(Context *From, Context *To, cell *fromCell, cell *toCell)
 {
     if (fromCell== From->Avail)
@@ -763,10 +761,11 @@ void copy_heap(Context *From, Context *To)
     {
         heapAlloc(To);
     }
-    To->Mem=(any)malloc(sizeof(cell)*MEMS);
+    To->Mem=(any)calloc(1, sizeof(cell)*MEMS);
 
     /////////////////////////////////////////////////////
-//    dumpMem(From, "DEBUG_HEAP0.txt");
+    //dumpMem(From, "DEBUG_HEAP0.txt");
+    //dumpMem(To, "DEBUG_COPY0.txt");
     heap *from = From->Heaps;
     heap *to = To->Heaps;
     for(int i = 0; i < MEMS; i+=3)
@@ -787,9 +786,10 @@ void copy_heap(Context *From, Context *To)
         from=from->next;
         to=to->next;
     }
+    //dumpMem(To, "DEBUG_COPY1.txt");
 
     /////////////////////////////////////////////////////
-//    dumpMem(From, "DEBUG_HEAP1.txt");
+    //dumpMem(From, "DEBUG_HEAP1.txt");
     from = From->Heaps;
     to = To->Heaps;
     for(int i = 0; i < MEMS; i+=3)
@@ -833,12 +833,14 @@ void copy_heap(Context *From, Context *To)
         from=from->next;
         to=to->next;
     }
-//    dumpMem(From, "DEBUG_HEAP2.txt");
+    //dumpMem(From, "DEBUG_HEAP2.txt");
+    //dumpMem(To, "DEBUG_COPY2.txt");
 }
 
 any doFork(Context *CONTEXT_PTR_ORIG, any x)
 {
-    Context *CONTEXT_PTR = (Context*)malloc(sizeof(Context));
+    //dumpMem(CONTEXT_PTR_ORIG, "DEBUG_ORIGINAL.txt");
+    Context *CONTEXT_PTR = (Context*)calloc(1, sizeof(Context));
 
 
     CONTEXT_PTR->InFile = stdin, CONTEXT_PTR->Env.get = getStdin;
@@ -849,15 +851,10 @@ any doFork(Context *CONTEXT_PTR_ORIG, any x)
     CONTEXT_PTR->ApplyArgs = Nil; //cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, 0), Nil), Nil);
     CONTEXT_PTR->ApplyBody = Nil; //cons(CONTEXT_PTR, Nil, Nil);
 
-    //initialize_context(CONTEXT_PTR);
-    //copy_mem(CONTEXT_PTR_ORIG->Mem, CONTEXT_PTR);
-    //copy_mem(CONTEXT_PTR->Mem, CONTEXT_PTR);
     copy_heap(CONTEXT_PTR_ORIG, CONTEXT_PTR);
 
 
-//    dumpMem(CONTEXT_PTR, "DEBUG_NEW.txt");
-//    dumpMem(CONTEXT_PTR_ORIG, "DEBUG_OLD.txt");
-
+    //dumpMem(CONTEXT_PTR, "DEBUG_NEW.txt");
 
     plt_thread_start(CONTEXT_PTR, thread_func, 0); //TODO - passing nowait seems to not work
     //EVAL(CONTEXT_PTR, CONTEXT_PTR->Code);
@@ -881,7 +878,7 @@ int main(int ac, char *av[])
     CONTEXT_PTR->ApplyArgs = cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, 0), Nil), Nil);
     CONTEXT_PTR->ApplyBody = cons(CONTEXT_PTR, Nil, Nil);
 
-    doDump(CONTEXT_PTR, Nil);
+    //dumpMem(CONTEXT_PTR, "DEBUG_0.txt");
     //getHeapSize();
     loadAll(CONTEXT_PTR, NULL);
     while (!feof(stdin))
