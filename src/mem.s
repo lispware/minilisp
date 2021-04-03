@@ -39,3 +39,4 @@ call {doCall}
 pack {doPack}
 fork {doFork}
 sleep {doSleep}
+io {doIO}

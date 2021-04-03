@@ -79,6 +79,7 @@ static BOOL testEsc(void);
 static int read0(BOOL top);
 static void mkSym(char *, char *, CellPartType);
 static void addMem(char *);
+void addNil();
 void addWord(WORD_TYPE);
 LISP_WORD_SIZE mkType(CellPartType carType, CellPartType cdrType);
 LISP_WORD_SIZE mkConsType(CellPartType carType, CellPartType cdrType);
@@ -150,15 +151,15 @@ static void mkSym(char *name, char *value, CellPartType type)
         {
             // deal with BIN
 
-            addWord(0);
+            addNil();
             char buf[100];
             sprintf(buf, "((any)(Mem + %d))", MemIdx+2);
             MemGen[MemIdx-1] = strdup(buf);
-            addWord(0);
+            addNil();
             addType(mkType(BIN_START, PTR_CELL));
 
             addWord(w);
-            addWord(0);
+            addNil();
             addType(mkType(BIN, PTR_CELL));
 
             bin = 1;
@@ -172,7 +173,7 @@ static void mkSym(char *name, char *value, CellPartType type)
             MemGen[MemIdx-2] = strdup(buf);
 
             addWord(w);
-            addWord(0);
+            addNil();
             addType(mkType(BIN, PTR_CELL));
 
             i = 0;
@@ -191,13 +192,13 @@ static void mkSym(char *name, char *value, CellPartType type)
             MemGen[MemIdx-2] = strdup(buf);
 
             addWord(w);
-            addWord(0);
+            addNil();
             addType(mkType(BIN, PTR_CELL));
     }
     else
     {
         addWord(w);
-        addWord(0);
+        addNil();
         addType(mkType(TXT, type));
     }
 }
@@ -237,6 +238,17 @@ void addWord(WORD_TYPE w)
     char buf[100];
     sprintf(buf, "(" WORD_FORMAT_STRING ")", w);
     addMem(buf);
+}
+
+void addNil()
+{
+#if 0
+    addWord(w);
+#else
+    char buf[100];
+    sprintf(buf, "((any)(Mem+0))");
+    addMem(buf);
+#endif
 }
 
 /* Test for escaped characters */
@@ -507,7 +519,7 @@ static int read0(BOOL top)
     {
         x = MemIdx;
         addWord(w);
-        addWord(0);
+        addNil();
         addType(mkType(NUM, PTR_CELL));
         return x;
     }
@@ -673,10 +685,10 @@ int main(int ac, char *av[])
 
     fprintf(fpMem, "any Mem[] = {\n");
 
-    fprintf(fpMem, "    (any)(Mem + 0), (any)(Mem + 0), (any)(0x404),\n");
+    fprintf(fpMem, "/* Mem + % 4d */    (any)(Mem + 0), (any)(Mem + 0), (any)(0x404),\n", 0);
     for (int i = 3; i < MemIdx; i += 3)
     {
-        fprintf(fpMem, "    (any)%s, (any)%s, (any)%s,\n", MemGen[i], MemGen[i + 1], MemGen[i + 2]);
+        fprintf(fpMem, "/* Mem + % 4d */    (any)%s, (any)%s, (any)%s,\n", i, MemGen[i], MemGen[i + 1], MemGen[i + 2]);
     }
     fprintf(fpMem, "};\n");
     fprintf(fpMem, "#endif\n");

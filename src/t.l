@@ -5,7 +5,6 @@
          (let (AA 20 BB 30)
         (+ A AA BB X Y))))
 
-
 (setq G (quote (X)
  (+ 1 X)))
 
@@ -14,6 +13,15 @@
 (setq H '( (X) (+ 1 X)))
 (prinl (H 1))
 
+
+(prinl "TESTING VARIABLE ARGS")
+
+(de V A
+    (for i A
+        (prinl "ELEMENT " i)
+     )
+)
+(V 1 2 3 A B C)
 
 (prinl (F 1 2))
 
@@ -132,6 +140,8 @@
               (prinl "LINE TEST FAILED IN THE FIRST STRING"))
      ))
          
+
+ 
     
 
 

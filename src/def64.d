@@ -74,7 +74,9 @@ any doPack(Context *, any);
 any doFork(Context *, any);
 #define doSleep_D (any)(CONTEXT_PTR->Mem+192)
 any doSleep(Context *, any);
+#define doIO_D (any)(CONTEXT_PTR->Mem+195)
+any doIO(Context *, any);
 
-#define MEMS 195
+#define MEMS 198
 
 #endif
