@@ -137,10 +137,16 @@ any load(Context *CONTEXT_PTR, any ex, int pr, any x)
             setCDRType(At3, getCDRType(At2));
 
             //val(At3) = val(At2),  val(At2) = data(c2);
-            outString(CONTEXT_PTR, "-> "),  fflush(CONTEXT_PTR->OutFile),  print(CONTEXT_PTR, x),  newline(CONTEXT_PTR);
+            outString(CONTEXT_PTR, "-> ");
+            fflush(CONTEXT_PTR->OutFile);
+            print(CONTEXT_PTR, x);
+            newline(CONTEXT_PTR);
+
         }
         drop(c1);
     }
+
+    return ex;
 }
 
 /*** Prining ***/

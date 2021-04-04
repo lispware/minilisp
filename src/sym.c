@@ -357,8 +357,8 @@ any mkStr(Context *CONTEXT_PTR, char *s)
 // (==== ['sym ..]) -> NIL
 any doHide(Context* CONTEXT_PTR, any ex)
 {
-    // TODO - is this needed?
-   printf("%p\n", ex);
+   // TODO - is this needed?
+   // printf("%p\n", ex);
 
    return Nil;
 }
