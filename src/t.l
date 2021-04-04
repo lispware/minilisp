@@ -1,5 +1,10 @@
 # The test file
 
+(setq L1 (load 1.l))
+(prinl "load returned " L1)
+(setq L2 (load 2.l))
+(prinl "load returned " L2)
+
 (de F (X Y) 
     (let A 10 
          (let (AA 20 BB 30)
