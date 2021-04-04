@@ -317,6 +317,7 @@ any doIn(Context*, any ex) ;
 any doOut(Context*, any ex) ;
 any doWhile(Context*, any x) ;
 any doDo(Context*, any x);
+any doIO(Context*, any ex) ;
 
 extern Context LISP_CONTEXT;
 //extern Context *_CONTEXT_PTR;
@@ -345,7 +346,10 @@ void pathString(Context*, any,char*);
 
 void wrOpen(Context*, any,any,outFrame*);
 void rdOpen(Context*, any,any,inFrame*);
+void rwOpen(Context*, any,any,inFrame*,outFrame*);
 
+void pushIOFiles(Context*, inFrame*, outFrame*);
+void popIOFiles(Context*);
 void pushInFiles(Context*, inFrame*);
 void pushOutFiles(Context*, outFrame*);
 void popInFiles(Context*);

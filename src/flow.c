@@ -15,7 +15,8 @@ inline uword length(Context *CONTEXT_PTR, any x)
    uword n;
 
    if (getCDRType(x) != PTR_CELL) return 0;
-   if (cdr(x) == x || cdr(x) == 0) return 0;
+   if (getCARType(x) != PTR_CELL) return 0;
+   if (cdr(x) == x) return 0;
 
    for (n = 0; x != Nil; x = cdr(x)) ++n;
    return n;
@@ -383,7 +384,7 @@ any doPrin(Context *CONTEXT_PTR, any x)
 {
    any y = Nil;
 
-   while (Nil != (x = cdr(x)))
+   while (Nil != (x = cdr(x))  )
    {
       prin(CONTEXT_PTR, y = EVAL(CONTEXT_PTR, car(x)));
    }
@@ -698,6 +699,19 @@ any doChar(Context *CONTEXT_PTR, any ex) {
    atomError(ex,x);
 }
 
+any doIO(Context *CONTEXT_PTR, any ex) {
+   any x;
+   inFrame f;
+   outFrame fo;
+
+   x = cdr(ex),  x = EVAL(CONTEXT_PTR, car(x));
+   rwOpen(CONTEXT_PTR, ex,x,&f, &fo);
+   pushIOFiles(CONTEXT_PTR, &f, &fo);
+   x = prog(CONTEXT_PTR, cddr(ex));
+   popIOFiles(CONTEXT_PTR);
+   return x;
+}
+
 any doIn(Context *CONTEXT_PTR, any ex) {
    any x;
    inFrame f;
@@ -812,6 +826,37 @@ void wrOpen(Context *CONTEXT_PTR, any ex, any x, outFrame *f) {
    }
 }
 
+void rwOpen(Context *CONTEXT_PTR, any ex, any x, inFrame *f, outFrame *fo)
+{
+    //NeedSymb(ex,x); // TODO WHAT IS THIS ABOUT?
+    if (isNil(x))
+    {
+        f->fp = stdin;
+    }
+    else
+    {
+        int ps = pathSize(CONTEXT_PTR, x);
+        char *nm = (char*)malloc(ps);
+
+        pathString(CONTEXT_PTR, x,nm);
+        if (nm[0] == '+')
+        {
+            if (!(f->fp = fo->fp = fopen(nm+1, "rw")))
+            {
+                openErr(ex, nm);
+            }
+            fseek(f->fp, 0L, SEEK_SET);
+        }
+        else if (!(f->fp = fo->fp = fopen(nm, "rw+")))
+        {
+
+            openErr(ex, nm);
+        }
+
+        free(nm);
+    }
+}
+
 void rdOpen(Context *CONTEXT_PTR, any ex, any x, inFrame *f)
 {
     //NeedSymb(ex,x); // TODO WHAT IS THIS ABOUT?
@@ -852,6 +897,18 @@ void eofErr(void)
     err(NULL, NULL, "EOF Overrun");
 }
 
+void pushIOFiles(Context *CONTEXT_PTR, inFrame *f, outFrame *fo)
+{
+    f->next = CONTEXT_PTR->Chr,  CONTEXT_PTR->Chr = 0;
+    CONTEXT_PTR->InFile = f->fp;
+    f->get = CONTEXT_PTR->Env.get,  CONTEXT_PTR->Env.get = getStdin;
+    f->link = CONTEXT_PTR->Env.inFrames,  CONTEXT_PTR->Env.inFrames = f;
+
+    CONTEXT_PTR->OutFile = fo->fp;
+    fo->put = CONTEXT_PTR->Env.put,  CONTEXT_PTR->Env.put = putStdout;
+    fo->link = CONTEXT_PTR->Env.outFrames,  CONTEXT_PTR->Env.outFrames = fo;
+}
+
 void pushInFiles(Context *CONTEXT_PTR, inFrame *f)
 {
     f->next = CONTEXT_PTR->Chr,  CONTEXT_PTR->Chr = 0;
@@ -865,6 +922,21 @@ void pushOutFiles(Context *CONTEXT_PTR, outFrame *f)
     CONTEXT_PTR->OutFile = f->fp;
     f->put = CONTEXT_PTR->Env.put,  CONTEXT_PTR->Env.put = putStdout;
     f->link = CONTEXT_PTR->Env.outFrames,  CONTEXT_PTR->Env.outFrames = f;
+}
+
+void popIOFiles(Context *CONTEXT_PTR)
+{
+    if (CONTEXT_PTR->InFile != stdin)
+    {
+        fclose(CONTEXT_PTR->InFile);
+    }
+
+    CONTEXT_PTR->Chr = CONTEXT_PTR->Env.inFrames->next;
+    CONTEXT_PTR->Env.get = CONTEXT_PTR->Env.inFrames->get;
+    CONTEXT_PTR->InFile = (CONTEXT_PTR->Env.inFrames = CONTEXT_PTR->Env.inFrames->link)?  CONTEXT_PTR->Env.inFrames->fp : stdin;
+
+    CONTEXT_PTR->Env.put = CONTEXT_PTR->Env.outFrames->put;
+    CONTEXT_PTR->OutFile = (CONTEXT_PTR->Env.outFrames = CONTEXT_PTR->Env.outFrames->link)? CONTEXT_PTR->Env.outFrames->fp : stdout;
 }
 
 void popInFiles(Context *CONTEXT_PTR)
@@ -959,7 +1031,7 @@ void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp)
    int c, j;
    word w;
 
-   if (isCell(x))
+   if (x != Nil && getCARType(x) == PTR_CELL && getCDRType(x) == PTR_CELL)
    {
       do
       {
