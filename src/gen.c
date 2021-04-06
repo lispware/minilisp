@@ -625,18 +625,25 @@ int main(int ac, char *av[])
 
                 *p = '\0';
                 fprintf(fpSYM, "_D (any)(CONTEXT_PTR->Mem+%d)\n", x);
-                sprintf(buf, "((any)(%s))", Token);
+                sprintf(buf, "((any)(Mem + %d))", x + 3);
                 MemGen[x+1] = strdup(buf);
                 if (!strcmp(MemGen[x+2], "0x407"))
                 {
-                    sprintf(buf, WORD_FORMAT_STRING, (WORD_TYPE) mkType(BIN_START, FUNC));
+                    sprintf(buf, WORD_FORMAT_STRING, (WORD_TYPE) mkType(BIN_START, PTR_CELL));
                 }
                 else
                 {
-                    sprintf(buf, WORD_FORMAT_STRING, (WORD_TYPE) mkType(TXT, FUNC));
+                    sprintf(buf, WORD_FORMAT_STRING, (WORD_TYPE) mkType(TXT, PTR_CELL));
                 }
                 MemGen[x+2] = strdup(buf);
                 fprintf(fpSYM, "any %s(Context *, any);\n", Token);
+                addWord(0);
+                sprintf(buf, "((any)(%s))", Token);
+                MemGen[x+3] = strdup(buf);
+                addNil();
+                addWord(0);
+                sprintf(buf, WORD_FORMAT_STRING, (WORD_TYPE) mkType(FUNC, PTR_CELL));
+                MemGen[x+5] = strdup(buf);
             }
             else
             {                                 // Value
