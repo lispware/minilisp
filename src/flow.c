@@ -1161,27 +1161,29 @@ any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p) {
       if (isCell(foo)) {
          int i;
          any x = car(foo);
-         struct {  // bindFrame
-            struct bindFrame *link;
-            int i, cnt;
-            struct {any sym; any val;} bnd[length(CONTEXT_PTR, x)+2];
-         } f;
+         // struct {  // bindFrame
+         //    struct bindFrame *link;
+         //    int i, cnt;
+         //    struct {any sym; any val;} bnd[length(CONTEXT_PTR, x)+2];
+         // } f;
 
-         f.link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = (bindFrame*)&f;
-         f.i = 0;
-         f.cnt = 1,  f.bnd[0].sym = At,  f.bnd[0].val = val(At);
+         bindFrame *f = allocFrame(length(CONTEXT_PTR, x) + 2);
+
+         f->link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = (bindFrame*)&f;
+         f->i = 0;
+         f->cnt = 1,  f->bnd[0].sym = At,  f->bnd[0].val = val(At);
          while (Nil != x) {
-            f.bnd[f.cnt].val = val(f.bnd[f.cnt].sym = car(x));
-            val(f.bnd[f.cnt].sym) = --n<0? Nil : cf? car(data(p[f.cnt-1])) : data(p[f.cnt-1]);
-            ++f.cnt, x = cdr(x);
+            f->bnd[f->cnt].val = val(f->bnd[f->cnt].sym = car(x));
+            val(f->bnd[f->cnt].sym) = --n<0? Nil : cf? car(data(p[f->cnt-1])) : data(p[f->cnt-1]);
+            ++f->cnt, x = cdr(x);
          }
          if (isNil(x))
             x = prog(CONTEXT_PTR, cdr(foo));
          else if (x != At) {
-            f.bnd[f.cnt].sym = x,  f.bnd[f.cnt].val = val(x),  val(x) = Nil;
+            f->bnd[f->cnt].sym = x,  f->bnd[f->cnt].val = val(x),  val(x) = Nil;
             while (--n >= 0)
-               val(x) = cons(CONTEXT_PTR, consSym(CONTEXT_PTR, cf? car(data(p[n+f.cnt-1])) : data(p[n+f.cnt-1]), 0), val(x));
-            ++f.cnt;
+               val(x) = cons(CONTEXT_PTR, consSym(CONTEXT_PTR, cf? car(data(p[n+f->cnt-1])) : data(p[n+f->cnt-1]), 0), val(x));
+            ++f->cnt;
             x = prog(CONTEXT_PTR, cdr(foo));
          }
          else {
@@ -1191,16 +1193,16 @@ any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p) {
             cell c[CONTEXT_PTR->Env.next = n];
 
             CONTEXT_PTR->Env.arg = c;
-            for (i = f.cnt-1;  --n >= 0;  ++i)
+            for (i = f->cnt-1;  --n >= 0;  ++i)
                Push(c[n], cf? car(data(p[i])) : data(p[i]));
             x = prog(CONTEXT_PTR, cdr(foo));
             if (cnt)
                drop(c[cnt-1]);
             CONTEXT_PTR->Env.arg = arg,  CONTEXT_PTR->Env.next = next;
          }
-         while (--f.cnt >= 0)
-            val(f.bnd[f.cnt].sym) = f.bnd[f.cnt].val;
-         CONTEXT_PTR->Env.bind = f.link;
+         while (--f->cnt >= 0)
+            val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
+         CONTEXT_PTR->Env.bind = f->link;
          return x;
       }
 //      if (val(foo) == val(Meth)) {
@@ -1219,28 +1221,28 @@ any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p) {
 //            } f;
 //
 //            Env.cls = TheCls,  Env.key = TheKey;
-//            f.link = Env.bind,  Env.bind = (bindFrame*)&f;
-//            f.i = 0;
-//            f.cnt = 1,  f.bnd[0].sym = At,  f.bnd[0].val = val(At);
+//            f->link = Env.bind,  Env.bind = (bindFrame*)&f;
+//            f->i = 0;
+//            f->cnt = 1,  f->bnd[0].sym = At,  f->bnd[0].val = val(At);
 //            --n, ++p;
 //            while (isCell(x)) {
-//               f.bnd[f.cnt].val = val(f.bnd[f.cnt].sym = car(x));
-//               val(f.bnd[f.cnt].sym) = --n<0? Nil : cf? car(data(p[f.cnt-1])) : data(p[f.cnt-1]);
-//               ++f.cnt, x = cdr(x);
+//               f->bnd[f->cnt].val = val(f->bnd[f->cnt].sym = car(x));
+//               val(f->bnd[f->cnt].sym) = --n<0? Nil : cf? car(data(p[f->cnt-1])) : data(p[f->cnt-1]);
+//               ++f->cnt, x = cdr(x);
 //            }
 //            if (isNil(x)) {
-//               f.bnd[f.cnt].sym = This;
-//               f.bnd[f.cnt++].val = val(This);
+//               f->bnd[f->cnt].sym = This;
+//               f->bnd[f->cnt++].val = val(This);
 //               val(This) = o;
 //               x = prog(cdr(expr));
 //            }
 //            else if (x != At) {
-//               f.bnd[f.cnt].sym = x,  f.bnd[f.cnt].val = val(x),  val(x) = Nil;
+//               f->bnd[f->cnt].sym = x,  f->bnd[f->cnt].val = val(x),  val(x) = Nil;
 //               while (--n >= 0)
-//                  val(x) = cons(CONTEXT_PTR, consSym(CONTEXT_PTR, cf? car(data(p[n+f.cnt-1])) : data(p[n+f.cnt-1]), 0), val(x));
-//               ++f.cnt;
-//               f.bnd[f.cnt].sym = This;
-//               f.bnd[f.cnt++].val = val(This);
+//                  val(x) = cons(CONTEXT_PTR, consSym(CONTEXT_PTR, cf? car(data(p[n+f->cnt-1])) : data(p[n+f->cnt-1]), 0), val(x));
+//               ++f->cnt;
+//               f->bnd[f->cnt].sym = This;
+//               f->bnd[f->cnt++].val = val(This);
 //               val(This) = o;
 //               x = prog(cdr(expr));
 //            }
@@ -1251,19 +1253,19 @@ any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p) {
 //               cell c[Env.next = n];
 //
 //               Env.arg = c;
-//               for (i = f.cnt-1;  --n >= 0;  ++i)
+//               for (i = f->cnt-1;  --n >= 0;  ++i)
 //                  Push(c[n], cf? car(data(p[i])) : data(p[i]));
-//               f.bnd[f.cnt].sym = This;
-//               f.bnd[f.cnt++].val = val(This);
+//               f->bnd[f->cnt].sym = This;
+//               f->bnd[f->cnt++].val = val(This);
 //               val(This) = o;
 //               x = prog(cdr(expr));
 //               if (cnt)
 //                  drop(c[cnt-1]);
 //               Env.arg = arg,  Env.next = next;
 //            }
-//            while (--f.cnt >= 0)
-//               val(f.bnd[f.cnt].sym) = f.bnd[f.cnt].val;
-//            Env.bind = f.link;
+//            while (--f->cnt >= 0)
+//               val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
+//            Env.bind = f->link;
 //            Env.cls = cls,  Env.key = key;
 //            return x;
 //         }
