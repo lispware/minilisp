@@ -509,8 +509,6 @@ any evList(Context *CONTEXT_PTR, any ex)
     {
         if (isNil(val(foo)))
             undefined(foo,ex);
-        //if (isFunc(foo))
-        //    return evSubr(foo->cdr,ex);
         if (isNum(foo = val(foo)))
             return evSubr(foo,ex);
         if (isFunc(foo))
