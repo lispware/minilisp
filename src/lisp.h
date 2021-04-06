@@ -374,6 +374,8 @@ any evExpr(Context *, any,any);
 any evList(Context *, any);
 any EVAL(Context *, any x);
 
+any doLoad(Context *CONTEXT_PTR, any ex);
+
 any prog(Context*, any x);
 any run(Context*, any x);
 

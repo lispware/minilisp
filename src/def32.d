@@ -76,7 +76,9 @@ any doFork(Context *, any);
 any doSleep(Context *, any);
 #define doIO_D (any)(CONTEXT_PTR->Mem+234)
 any doIO(Context *, any);
+#define doLoad_D (any)(CONTEXT_PTR->Mem+237)
+any doLoad(Context *, any);
 
-#define MEMS 237
+#define MEMS 240
 
 #endif
