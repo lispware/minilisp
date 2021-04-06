@@ -1154,3 +1154,167 @@ next:    x = cdr(x);
    }
    return Pop(c1);
 }
+
+
+any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p) {
+   while (!isFunc(foo)) {
+      if (isCell(foo)) {
+         int i;
+         any x = car(foo);
+         struct {  // bindFrame
+            struct bindFrame *link;
+            int i, cnt;
+            struct {any sym; any val;} bnd[length(CONTEXT_PTR, x)+2];
+         } f;
+
+         f.link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = (bindFrame*)&f;
+         f.i = 0;
+         f.cnt = 1,  f.bnd[0].sym = At,  f.bnd[0].val = val(At);
+         while (Nil != x) {
+            f.bnd[f.cnt].val = val(f.bnd[f.cnt].sym = car(x));
+            val(f.bnd[f.cnt].sym) = --n<0? Nil : cf? car(data(p[f.cnt-1])) : data(p[f.cnt-1]);
+            ++f.cnt, x = cdr(x);
+         }
+         if (isNil(x))
+            x = prog(CONTEXT_PTR, cdr(foo));
+         else if (x != At) {
+            f.bnd[f.cnt].sym = x,  f.bnd[f.cnt].val = val(x),  val(x) = Nil;
+            while (--n >= 0)
+               val(x) = cons(CONTEXT_PTR, consSym(CONTEXT_PTR, cf? car(data(p[n+f.cnt-1])) : data(p[n+f.cnt-1]), 0), val(x));
+            ++f.cnt;
+            x = prog(CONTEXT_PTR, cdr(foo));
+         }
+         else {
+            int cnt = n;
+            int next = CONTEXT_PTR->Env.next;
+            cell *arg = CONTEXT_PTR->Env.arg;
+            cell c[CONTEXT_PTR->Env.next = n];
+
+            CONTEXT_PTR->Env.arg = c;
+            for (i = f.cnt-1;  --n >= 0;  ++i)
+               Push(c[n], cf? car(data(p[i])) : data(p[i]));
+            x = prog(CONTEXT_PTR, cdr(foo));
+            if (cnt)
+               drop(c[cnt-1]);
+            CONTEXT_PTR->Env.arg = arg,  CONTEXT_PTR->Env.next = next;
+         }
+         while (--f.cnt >= 0)
+            val(f.bnd[f.cnt].sym) = f.bnd[f.cnt].val;
+         CONTEXT_PTR->Env.bind = f.link;
+         return x;
+      }
+//      if (val(foo) == val(Meth)) {
+//         any expr, o, x;
+//
+//         o = cf? car(data(p[0])) : data(p[0]);
+//         NeedSymb(ex,o);
+//         TheCls = NULL,  TheKey = foo;
+//         if (expr = method(o)) {
+//            int i;
+//            any cls = Env.cls, key = Env.key;
+//            struct {  // bindFrame
+//               struct bindFrame *link;
+//               int i, cnt;
+//               struct {any sym; any val;} bnd[length(x = car(expr))+3];
+//            } f;
+//
+//            Env.cls = TheCls,  Env.key = TheKey;
+//            f.link = Env.bind,  Env.bind = (bindFrame*)&f;
+//            f.i = 0;
+//            f.cnt = 1,  f.bnd[0].sym = At,  f.bnd[0].val = val(At);
+//            --n, ++p;
+//            while (isCell(x)) {
+//               f.bnd[f.cnt].val = val(f.bnd[f.cnt].sym = car(x));
+//               val(f.bnd[f.cnt].sym) = --n<0? Nil : cf? car(data(p[f.cnt-1])) : data(p[f.cnt-1]);
+//               ++f.cnt, x = cdr(x);
+//            }
+//            if (isNil(x)) {
+//               f.bnd[f.cnt].sym = This;
+//               f.bnd[f.cnt++].val = val(This);
+//               val(This) = o;
+//               x = prog(cdr(expr));
+//            }
+//            else if (x != At) {
+//               f.bnd[f.cnt].sym = x,  f.bnd[f.cnt].val = val(x),  val(x) = Nil;
+//               while (--n >= 0)
+//                  val(x) = cons(CONTEXT_PTR, consSym(CONTEXT_PTR, cf? car(data(p[n+f.cnt-1])) : data(p[n+f.cnt-1]), 0), val(x));
+//               ++f.cnt;
+//               f.bnd[f.cnt].sym = This;
+//               f.bnd[f.cnt++].val = val(This);
+//               val(This) = o;
+//               x = prog(cdr(expr));
+//            }
+//            else {
+//               int cnt = n;
+//               int next = Env.next;
+//               cell *arg = Env.arg;
+//               cell c[Env.next = n];
+//
+//               Env.arg = c;
+//               for (i = f.cnt-1;  --n >= 0;  ++i)
+//                  Push(c[n], cf? car(data(p[i])) : data(p[i]));
+//               f.bnd[f.cnt].sym = This;
+//               f.bnd[f.cnt++].val = val(This);
+//               val(This) = o;
+//               x = prog(cdr(expr));
+//               if (cnt)
+//                  drop(c[cnt-1]);
+//               Env.arg = arg,  Env.next = next;
+//            }
+//            while (--f.cnt >= 0)
+//               val(f.bnd[f.cnt].sym) = f.bnd[f.cnt].val;
+//            Env.bind = f.link;
+//            Env.cls = cls,  Env.key = key;
+//            return x;
+//         }
+//         err(ex, o, "Bad object");
+//      }
+      if (isNil(val(foo)) || foo == val(foo))
+         undefined(foo,ex);
+      foo = val(foo);
+   }
+   if (--n < 0)
+      cdr(CONTEXT_PTR->ApplyBody) = Nil;
+   else {
+      any x = CONTEXT_PTR->ApplyArgs;
+      val(caar(x)) = cf? car(data(p[n])) : data(p[n]);
+      while (--n >= 0) {
+         if (!isCell(cdr(x)))
+            cdr(x) = cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil,0), car(x)), Nil);
+         x = cdr(x);
+         val(caar(x)) = cf? car(data(p[n])) : data(p[n]);
+      }
+      cdr(CONTEXT_PTR->ApplyBody) = car(x);
+   }
+   return evSubr(foo, CONTEXT_PTR->ApplyBody);
+}
+
+
+// (mapcar 'fun 'lst ..) -> lst
+any doMapcar(Context *CONTEXT_PTR, any ex) {
+   any x = cdr(ex);
+   cell res, foo;
+
+   Push(res, Nil);
+   Push(foo, EVAL(CONTEXT_PTR, car(x)));
+   if (isCell(x = cdr(x))) {
+      int i, n = 0;
+      cell c[length(CONTEXT_PTR, x)];
+
+      do
+         Push(c[n], EVAL(CONTEXT_PTR, car(x))), ++n;
+      while (Nil != (x = cdr(x)));
+      if (!isCell(data(c[0])))
+         return Pop(res);
+      data(res) = x = cons(CONTEXT_PTR, apply(CONTEXT_PTR, ex, data(foo), YES, n, c), Nil);
+      while (Nil != (data(c[0]) = cdr(data(c[0])))) {
+         for (i = 1; i < n; ++i)
+            data(c[i]) = cdr(data(c[i]));
+         cdr(x) = cons(CONTEXT_PTR, apply(CONTEXT_PTR, ex, data(foo), YES, n, c), Nil);
+         x = cdr(x);
+      }
+   }
+   return Pop(res);
+}
+
+

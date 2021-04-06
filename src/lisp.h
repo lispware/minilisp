@@ -265,7 +265,7 @@ any doMul(Context*, any ex);
 
 /* Prototypes */
 void *alloc(void*,size_t);
-any apply(any,any,bool,int,cell*);
+any apply(Context *,any,any,bool,int,cell*);
 void argError(any,any) ;
 void atomError(any,any) ;
 void begString(void);

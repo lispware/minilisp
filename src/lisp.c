@@ -24,6 +24,11 @@ bool isSym(any x)
 any evList(Context *, any);
 any EVAL(Context *CONTEXT_PTR, any x)
 {
+    if (isFunc(x))
+    {
+        // TODO - we need to fix the FUNC value perhaps
+        return x;
+    }
    if (isNum(x))
    {
       return x;

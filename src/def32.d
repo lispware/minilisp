@@ -80,7 +80,9 @@ any doIO(Context *, any);
 any doLoad(Context *, any);
 #define doEval_D (any)(CONTEXT_PTR->Mem+240)
 any doEval(Context *, any);
+#define doMapcar_D (any)(CONTEXT_PTR->Mem+243)
+any doMapcar(Context *, any);
 
-#define MEMS 243
+#define MEMS 252
 
 #endif

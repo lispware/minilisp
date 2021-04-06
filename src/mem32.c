@@ -85,5 +85,8 @@ any Mem[] = {
 /* Mem +  234 */    (any)(0x6f69), (any)((any)(doIO)), (any)0x301,
 /* Mem +  237 */    (any)(0x64616f6c), (any)((any)(doLoad)), (any)0x301,
 /* Mem +  240 */    (any)(0x6c617665), (any)((any)(doEval)), (any)0x301,
+/* Mem +  243 */    (any)((any)(Mem + 246)), (any)((any)(doMapcar)), (any)0x307,
+/* Mem +  246 */    (any)(0x6370616d), (any)((any)(Mem + 249)), (any)0x406,
+/* Mem +  249 */    (any)(0x7261), (any)((any)(Mem+0)), (any)0x406,
 };
 #endif
