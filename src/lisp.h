@@ -199,7 +199,7 @@ static inline bindFrame *allocFrame(int l)
 #define isTxt(x)        (((any)(x))->meta.type.parts[0] == TXT)
 #define isNum(x)        (((any)(x))->meta.type.parts[0] == NUM)
 #define isCell(x)        (((any)(x))->meta.type.parts[0] == PTR_CELL)
-#define isFunc(x)        (((any)(x))->meta.type.parts[1] == FUNC)
+#define isFunc(x)        (((any)(x))->meta.type.parts[0] == FUNC)
 
 
 /* Error checking */
