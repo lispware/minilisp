@@ -1190,7 +1190,9 @@ any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p) {
             int cnt = n;
             int next = CONTEXT_PTR->Env.next;
             cell *arg = CONTEXT_PTR->Env.arg;
-            cell c[CONTEXT_PTR->Env.next = n];
+            //cell c[CONTEXT_PTR->Env.next = n];
+            CONTEXT_PTR->Env.next = n;
+            cell *c = (cell*)calloc(sizeof(cell), n);
 
             CONTEXT_PTR->Env.arg = c;
             for (i = f->cnt-1;  --n >= 0;  ++i)
@@ -1199,6 +1201,7 @@ any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p) {
             if (cnt)
                drop(c[cnt-1]);
             CONTEXT_PTR->Env.arg = arg,  CONTEXT_PTR->Env.next = next;
+            free(c);
          }
          while (--f->cnt >= 0)
             val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
@@ -1301,13 +1304,17 @@ any doMapcar(Context *CONTEXT_PTR, any ex) {
    Push(foo, EVAL(CONTEXT_PTR, car(x)));
    if (isCell(x = cdr(x))) {
       int i, n = 0;
-      cell c[length(CONTEXT_PTR, x)];
+      //cell c[length(CONTEXT_PTR, x)];
+      cell *c = (cell *)calloc(sizeof(cell), length(CONTEXT_PTR, x));
 
       do
          Push(c[n], EVAL(CONTEXT_PTR, car(x))), ++n;
       while (Nil != (x = cdr(x)));
       if (!isCell(data(c[0])))
+      {
+          free(c);
          return Pop(res);
+      }
       data(res) = x = cons(CONTEXT_PTR, apply(CONTEXT_PTR, ex, data(foo), YES, n, c), Nil);
       while (Nil != (data(c[0]) = cdr(data(c[0])))) {
          for (i = 1; i < n; ++i)
@@ -1315,7 +1322,10 @@ any doMapcar(Context *CONTEXT_PTR, any ex) {
          cdr(x) = cons(CONTEXT_PTR, apply(CONTEXT_PTR, ex, data(foo), YES, n, c), Nil);
          x = cdr(x);
       }
+
+      free(c);
    }
+
    return Pop(res);
 }
 
