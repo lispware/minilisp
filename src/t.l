@@ -146,6 +146,17 @@
      ))
          
 
+
+
+#### TEST EVAL #
+
+(setq E '(+ a b))
+(prinl "EVAL OUTPUT")
+(prinl (let (a 1 b 2) (eval E)))
+
+
+################
+
  
     
 

@@ -41,3 +41,4 @@ fork {doFork}
 sleep {doSleep}
 io {doIO}
 load {doLoad}
+eval {doEval}

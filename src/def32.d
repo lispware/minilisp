@@ -78,7 +78,9 @@ any doSleep(Context *, any);
 any doIO(Context *, any);
 #define doLoad_D (any)(CONTEXT_PTR->Mem+237)
 any doLoad(Context *, any);
+#define doEval_D (any)(CONTEXT_PTR->Mem+240)
+any doEval(Context *, any);
 
-#define MEMS 240
+#define MEMS 243
 
 #endif
