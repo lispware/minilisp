@@ -157,7 +157,14 @@
 
 ################
 
- 
+### TEST MAPCAR ###
+
+(prinl "START MAPCAR")
+(let X '( 1 2 3)
+     (mapcar prinl X)
+     (mapcar 'prinl X)
+     (for i (mapcar '((Y)(+ 1 Y)) X)  (prinl i)))
+(prinl "END MAPCAR")
     
 
 
@@ -176,3 +183,4 @@
 
 (hs)
 (bye)
+

@@ -42,3 +42,4 @@ sleep {doSleep}
 io {doIO}
 load {doLoad}
 eval {doEval}
+mapcar {doMapcar}

@@ -24,6 +24,11 @@ bool isSym(any x)
 any evList(Context *, any);
 any EVAL(Context *CONTEXT_PTR, any x)
 {
+    if (isFunc(x))
+    {
+        // TODO - we need to fix the FUNC value perhaps
+        return x;
+    }
    if (isNum(x))
    {
       return x;
@@ -493,35 +498,21 @@ static any evList2(Context *CONTEXT_PTR, any foo, any ex)
 any evList(Context *CONTEXT_PTR, any ex)
 {
     any foo;
+    //dumpMem(CONTEXT_PTR, "DEBUG_BEFORE_evList.txt");
 
     if (ex == Nil) return Nil;
 
     if (isNum(foo = car(ex)))
         return ex;
 
-    if (getCARType(ex) == BIN_START) return Nil;
-
-    if (isCell(foo))
-    {
-        if (isFunc(foo = evList(CONTEXT_PTR, foo)))
-        {
-            return evSubr(foo,ex);
-        }
-        // TODO - this does not seem quite right - why only NUM?
-        else if (isNum(foo))
-        {
-            return foo;
-        }
-        return evList2(CONTEXT_PTR, foo,ex);
-    }
     for (;;)
     {
         if (isNil(val(foo)))
             undefined(foo,ex);
-        if (isFunc(foo))
-            return evSubr(foo->cdr,ex);
         if (isNum(foo = val(foo)))
             return evSubr(foo,ex);
+        if (isFunc(foo))
+            return evSubr(foo->car,ex);
         if (isCell(foo))
             return evExpr(CONTEXT_PTR, foo, cdr(ex));
     }
@@ -572,11 +563,11 @@ int initialize_context(Context *CONTEXT_PTR)
       CellPartType carType = getCARType(cell);
       CellPartType cdrType = getCDRType(cell);
 
-      if ((BIN_START == carType || TXT == carType) && cdrType != FUNC && cell->cdr)
+      if ((BIN_START == carType || TXT == carType))
       {
          intern(CONTEXT_PTR, cell, CONTEXT_PTR->Intern);
       }
-      else if ((BIN_START == carType || TXT == carType) && cdrType == FUNC && cell->cdr)
+      else if ((BIN_START == carType || TXT == carType))
       {
          intern(CONTEXT_PTR, cell, CONTEXT_PTR->Intern);
       }

@@ -10,77 +10,79 @@ extern any Mem[];
 #define One (any)(CONTEXT_PTR->Mem+24)
 #define doBye_D (any)(CONTEXT_PTR->Mem+30)
 any doBye(Context *, any);
-#define doDe_D (any)(CONTEXT_PTR->Mem+33)
+#define doDe_D (any)(CONTEXT_PTR->Mem+36)
 any doDe(Context *, any);
-#define doAdd_D (any)(CONTEXT_PTR->Mem+36)
+#define doAdd_D (any)(CONTEXT_PTR->Mem+42)
 any doAdd(Context *, any);
-#define doSub_D (any)(CONTEXT_PTR->Mem+39)
+#define doSub_D (any)(CONTEXT_PTR->Mem+48)
 any doSub(Context *, any);
-#define doMul_D (any)(CONTEXT_PTR->Mem+42)
+#define doMul_D (any)(CONTEXT_PTR->Mem+54)
 any doMul(Context *, any);
-#define doLet_D (any)(CONTEXT_PTR->Mem+45)
+#define doLet_D (any)(CONTEXT_PTR->Mem+60)
 any doLet(Context *, any);
-#define doPrin_D (any)(CONTEXT_PTR->Mem+48)
+#define doPrin_D (any)(CONTEXT_PTR->Mem+66)
 any doPrin(Context *, any);
-#define doDo_D (any)(CONTEXT_PTR->Mem+51)
+#define doDo_D (any)(CONTEXT_PTR->Mem+72)
 any doDo(Context *, any);
-#define doSetq_D (any)(CONTEXT_PTR->Mem+54)
+#define doSetq_D (any)(CONTEXT_PTR->Mem+78)
 any doSetq(Context *, any);
-#define doMake_D (any)(CONTEXT_PTR->Mem+57)
+#define doMake_D (any)(CONTEXT_PTR->Mem+84)
 any doMake(Context *, any);
-#define doLink_D (any)(CONTEXT_PTR->Mem+60)
+#define doLink_D (any)(CONTEXT_PTR->Mem+90)
 any doLink(Context *, any);
-#define doCons_D (any)(CONTEXT_PTR->Mem+63)
+#define doCons_D (any)(CONTEXT_PTR->Mem+96)
 any doCons(Context *, any);
-#define doCar_D (any)(CONTEXT_PTR->Mem+66)
+#define doCar_D (any)(CONTEXT_PTR->Mem+102)
 any doCar(Context *, any);
-#define doCdr_D (any)(CONTEXT_PTR->Mem+69)
+#define doCdr_D (any)(CONTEXT_PTR->Mem+108)
 any doCdr(Context *, any);
-#define doQuote_D (any)(CONTEXT_PTR->Mem+72)
+#define doQuote_D (any)(CONTEXT_PTR->Mem+114)
 any doQuote(Context *, any);
-#define doDump_D (any)(CONTEXT_PTR->Mem+75)
+#define doDump_D (any)(CONTEXT_PTR->Mem+120)
 any doDump(Context *, any);
-#define doWhile_D (any)(CONTEXT_PTR->Mem+78)
+#define doWhile_D (any)(CONTEXT_PTR->Mem+126)
 any doWhile(Context *, any);
-#define doIn_D (any)(CONTEXT_PTR->Mem+81)
+#define doIn_D (any)(CONTEXT_PTR->Mem+132)
 any doIn(Context *, any);
-#define doOut_D (any)(CONTEXT_PTR->Mem+84)
+#define doOut_D (any)(CONTEXT_PTR->Mem+138)
 any doOut(Context *, any);
-#define doChar_D (any)(CONTEXT_PTR->Mem+87)
+#define doChar_D (any)(CONTEXT_PTR->Mem+144)
 any doChar(Context *, any);
-#define doLine_D (any)(CONTEXT_PTR->Mem+90)
+#define doLine_D (any)(CONTEXT_PTR->Mem+150)
 any doLine(Context *, any);
-#define doNot_D (any)(CONTEXT_PTR->Mem+93)
+#define doNot_D (any)(CONTEXT_PTR->Mem+156)
 any doNot(Context *, any);
-#define doFor_D (any)(CONTEXT_PTR->Mem+96)
+#define doFor_D (any)(CONTEXT_PTR->Mem+162)
 any doFor(Context *, any);
-#define doRun_D (any)(CONTEXT_PTR->Mem+99)
+#define doRun_D (any)(CONTEXT_PTR->Mem+168)
 any doRun(Context *, any);
-#define doHS_D (any)(CONTEXT_PTR->Mem+102)
+#define doHS_D (any)(CONTEXT_PTR->Mem+174)
 any doHS(Context *, any);
-#define doEq_D (any)(CONTEXT_PTR->Mem+105)
+#define doEq_D (any)(CONTEXT_PTR->Mem+180)
 any doEq(Context *, any);
-#define doIf_D (any)(CONTEXT_PTR->Mem+108)
+#define doIf_D (any)(CONTEXT_PTR->Mem+186)
 any doIf(Context *, any);
-#define doLongFunc_D (any)(CONTEXT_PTR->Mem+162)
+#define doLongFunc_D (any)(CONTEXT_PTR->Mem+243)
 any doLongFunc(Context *, any);
-#define doVeryLongFunc_D (any)(CONTEXT_PTR->Mem+171)
+#define doVeryLongFunc_D (any)(CONTEXT_PTR->Mem+255)
 any doVeryLongFunc(Context *, any);
-#define doCall_D (any)(CONTEXT_PTR->Mem+183)
+#define doCall_D (any)(CONTEXT_PTR->Mem+270)
 any doCall(Context *, any);
-#define doPack_D (any)(CONTEXT_PTR->Mem+186)
+#define doPack_D (any)(CONTEXT_PTR->Mem+276)
 any doPack(Context *, any);
-#define doFork_D (any)(CONTEXT_PTR->Mem+189)
+#define doFork_D (any)(CONTEXT_PTR->Mem+282)
 any doFork(Context *, any);
-#define doSleep_D (any)(CONTEXT_PTR->Mem+192)
+#define doSleep_D (any)(CONTEXT_PTR->Mem+288)
 any doSleep(Context *, any);
-#define doIO_D (any)(CONTEXT_PTR->Mem+195)
+#define doIO_D (any)(CONTEXT_PTR->Mem+294)
 any doIO(Context *, any);
-#define doLoad_D (any)(CONTEXT_PTR->Mem+198)
+#define doLoad_D (any)(CONTEXT_PTR->Mem+300)
 any doLoad(Context *, any);
-#define doEval_D (any)(CONTEXT_PTR->Mem+201)
+#define doEval_D (any)(CONTEXT_PTR->Mem+306)
 any doEval(Context *, any);
+#define doMapcar_D (any)(CONTEXT_PTR->Mem+312)
+any doMapcar(Context *, any);
 
-#define MEMS 204
+#define MEMS 318
 
 #endif
