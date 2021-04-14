@@ -1330,3 +1330,55 @@ any doMapcar(Context *CONTEXT_PTR, any ex) {
 }
 
 
+any doSampleOpen(Context *CONTEXT_PTR, any ex)
+{
+    any x1, x2;
+
+    x1 = cdr(ex),  x1 = EVAL(CONTEXT_PTR, car(x1));
+    x2 = cdr(cdr(ex)),  x2 = EVAL(CONTEXT_PTR, car(x2));
+
+
+    if (x1 == Nil || x2 == Nil)
+    {
+        printf("BAD ARGUMENTS\n");
+        return Nil;
+    }
+
+
+    int ps = pathSize(CONTEXT_PTR, x1);
+    char *nm = (char*)malloc(ps);
+    pathString(CONTEXT_PTR, x1,nm);
+    ps = pathSize(CONTEXT_PTR, x1);
+    char *md = (char*)malloc(ps);
+    pathString(CONTEXT_PTR, x2,md);
+
+
+    FILE *fp = fopen(nm, md);
+
+//    for(int i =0; i< 10;i++)
+//        mkNum(CONTEXT_PTR, i);
+
+    // cell c;
+    // Push(c, mkNum(CONTEXT_PTR, (word)w));
+    // any y = Pop(c);
+    // printf("---------> %p\n", y->car);
+
+
+    free(nm);
+    free(md);
+
+    return mkNum(CONTEXT_PTR, (word)fp);
+}
+
+any doSampleRead(Context *CONTEXT_PTR, any ex)
+{
+    any x1, x2;
+
+    x1 = cdr(ex),  x1 = EVAL(CONTEXT_PTR, car(x1));
+    FILE *fp = (FILE*)(x1->car);
+
+    char s[1024];
+    fscanf(fp, "%s", s);
+    printf("############### %s\n",s );
+    return mkStr(CONTEXT_PTR, s);
+}

@@ -625,11 +625,11 @@ void check(Context *CONTEXT_PTR)
 
 void copy_mem(any *M, Context *To)
 {
-    To->Mem=(any)malloc(sizeof(cell)*MEMS);
+    To->Mem=(any*)malloc(sizeof(cell)*MEMS);
     for(int i = 0; i < MEMS; i+=3)
     {
-        cell *fromCell = M+i;
-        cell *toCell = To->Mem + i;
+        cell *fromCell = (any)(M + i);
+        cell *toCell = (any)(To->Mem + i);
 
         toCell->meta.type=fromCell->meta.type;
 
@@ -649,7 +649,7 @@ void copy_mem(any *M, Context *To)
             int index = 3*(x-L)/sizeof(cell);
             if (x)
             {
-                toCell->car = To->Mem + index;
+                toCell->car = (any)(To->Mem + index);
             }
             else
             {
@@ -668,7 +668,7 @@ void copy_mem(any *M, Context *To)
             int index = 3*(x - L)/sizeof(cell);
             if (x)
             {
-                toCell->cdr = To->Mem + index;
+                toCell->cdr = (any)(To->Mem + index);
             }
             else 
             {
@@ -759,7 +759,7 @@ void copy_heap(Context *From, Context *To)
     {
         heapAlloc(To);
     }
-    To->Mem=(any)calloc(1, sizeof(cell)*MEMS);
+    To->Mem=(any*)calloc(1, sizeof(cell)*MEMS);
 
     /////////////////////////////////////////////////////
     //dumpMem(From, "DEBUG_HEAP0.txt");
@@ -768,8 +768,8 @@ void copy_heap(Context *From, Context *To)
     heap *to = To->Heaps;
     for(int i = 0; i < MEMS; i+=3)
     {
-        cell *fromCell = From->Mem + i;
-        cell *toCell = To->Mem + i;
+        cell *fromCell = (any)From->Mem + i;
+        cell *toCell = (any)To->Mem + i;
         copy_backup_cell(fromCell, toCell);
     }
     while(from)
@@ -792,8 +792,8 @@ void copy_heap(Context *From, Context *To)
     to = To->Heaps;
     for(int i = 0; i < MEMS; i+=3)
     {
-        cell *fromCell = From->Mem + i;
-        cell *toCell = To->Mem + i;
+        cell *fromCell = (any)From->Mem + i;
+        cell *toCell = (any)To->Mem + i;
         copy_fixup_cell(From, To, fromCell, toCell);
     }
     while(from)
@@ -815,8 +815,8 @@ void copy_heap(Context *From, Context *To)
     to = To->Heaps;
     for(int i = 0; i < MEMS; i+=3)
     {
-        cell *fromCell = From->Mem + i;
-        cell *toCell = To->Mem + i;
+        cell *fromCell = (any)From->Mem + i;
+        cell *toCell = (any)To->Mem + i;
         copy_restore_cell(From, To, fromCell, toCell);
     }
     while(from)

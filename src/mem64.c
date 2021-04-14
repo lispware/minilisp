@@ -110,5 +110,13 @@ any Mem[] = {
 /* Mem +  309 */    (any)((any)(doEval)), (any)((any)(Mem+0)), (any)0x403,
 /* Mem +  312 */    (any)(0x72616370616d), (any)((any)(Mem + 315)), (any)0x401,
 /* Mem +  315 */    (any)((any)(doMapcar)), (any)((any)(Mem+0)), (any)0x403,
+/* Mem +  318 */    (any)((any)(Mem + 321)), (any)((any)(Mem + 327)), (any)0x407,
+/* Mem +  321 */    (any)(0x704f656c706d6173), (any)((any)(Mem + 324)), (any)0x406,
+/* Mem +  324 */    (any)(0x6e65), (any)((any)(Mem+0)), (any)0x406,
+/* Mem +  327 */    (any)((any)(doSampleOpen))/*DINGO*/, (any)((any)(Mem+0)), (any)0x403/*H*/,
+/* Mem +  330 */    (any)((any)(Mem + 333)), (any)((any)(Mem + 339)), (any)0x407,
+/* Mem +  333 */    (any)(0x6552656c706d6173), (any)((any)(Mem + 336)), (any)0x406,
+/* Mem +  336 */    (any)(0x6461), (any)((any)(Mem+0)), (any)0x406,
+/* Mem +  339 */    (any)((any)(doSampleRead))/*DINGO*/, (any)((any)(Mem+0)), (any)0x403/*H*/,
 };
 #endif

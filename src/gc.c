@@ -150,7 +150,7 @@ void dumpHeap(heap *h, FILE *fp)
     for(int i=0; i < CELLS; i++)
     {
         any c = &(h->cells[i]);
-        fprintf(fp, "%p %p %p %p\n", &c->car, c->car, c->cdr, c->meta.type);
+        fprintf(fp, "%p %p %p %p\n", &c->car, c->car, c->cdr, c->meta.ptr);
     }
 }
 

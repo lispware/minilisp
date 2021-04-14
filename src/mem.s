@@ -43,3 +43,5 @@ io {doIO}
 load {doLoad}
 eval {doEval}
 mapcar {doMapcar}
+sampleOpen {doSampleOpen}
+sampleRead {doSampleRead}

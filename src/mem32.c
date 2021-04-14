@@ -125,5 +125,15 @@ any Mem[] = {
 /* Mem +  354 */    (any)(0x6370616d), (any)((any)(Mem + 357)), (any)0x406,
 /* Mem +  357 */    (any)(0x7261), (any)((any)(Mem+0)), (any)0x406,
 /* Mem +  360 */    (any)((any)(doMapcar))/*DINGO*/, (any)((any)(Mem+0)), (any)0x403/*H*/,
+/* Mem +  363 */    (any)((any)(Mem + 366)), (any)((any)(Mem + 375)), (any)0x407,
+/* Mem +  366 */    (any)(0x706d6173), (any)((any)(Mem + 369)), (any)0x406,
+/* Mem +  369 */    (any)(0x704f656c), (any)((any)(Mem + 372)), (any)0x406,
+/* Mem +  372 */    (any)(0x6e65), (any)((any)(Mem+0)), (any)0x406,
+/* Mem +  375 */    (any)((any)(doSampleOpen))/*DINGO*/, (any)((any)(Mem+0)), (any)0x403/*H*/,
+/* Mem +  378 */    (any)((any)(Mem + 381)), (any)((any)(Mem + 390)), (any)0x407,
+/* Mem +  381 */    (any)(0x706d6173), (any)((any)(Mem + 384)), (any)0x406,
+/* Mem +  384 */    (any)(0x6552656c), (any)((any)(Mem + 387)), (any)0x406,
+/* Mem +  387 */    (any)(0x6461), (any)((any)(Mem+0)), (any)0x406,
+/* Mem +  390 */    (any)((any)(doSampleRead))/*DINGO*/, (any)((any)(Mem+0)), (any)0x403/*H*/,
 };
 #endif

@@ -82,7 +82,11 @@ any doLoad(Context *, any);
 any doEval(Context *, any);
 #define doMapcar_D (any)(CONTEXT_PTR->Mem+351)
 any doMapcar(Context *, any);
+#define doSampleOpen_D (any)(CONTEXT_PTR->Mem+363)
+any doSampleOpen(Context *, any);
+#define doSampleRead_D (any)(CONTEXT_PTR->Mem+378)
+any doSampleRead(Context *, any);
 
-#define MEMS 363
+#define MEMS 393
 
 #endif
