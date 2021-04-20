@@ -10,7 +10,6 @@ any plt_bind(Context *CONTEXT_PTR, word n)
 {
     cell c1;
 
-    Push(c1, mkNum(CONTEXT_PTR, n));
 
     int server_fd, new_socket, valread;
     struct sockaddr_in address;
@@ -45,10 +44,33 @@ any plt_bind(Context *CONTEXT_PTR, word n)
         exit(EXIT_FAILURE);
     }
 
+    Push(c1, mkNum(CONTEXT_PTR, server_fd));
     return Pop(c1);
 }
 
 any plt_listen(Context *CONTEXT_PTR, word n)
 {
-    return Nil;
+    int server_fd = (int)n;
+    int new_socket, valread;
+    struct sockaddr_in address;
+    int opt = 1;
+    int addrlen = sizeof(address);
+    char buffer[1024] = {0};
+    char *hello = "Hello from server";
+
+    if (listen(server_fd, 3) < 0)
+    {
+        perror("listen");
+        exit(EXIT_FAILURE);
+    }
+    if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
+                    (socklen_t*)&addrlen))<0)
+    {
+        perror("accept");
+        exit(EXIT_FAILURE);
+    }
+
+    cell c1;
+    Push(c1, mkNum(CONTEXT_PTR, new_socket));
+    return Pop(c1);
 }
