@@ -45,4 +45,5 @@ eval {doEval}
 mapcar {doMapcar}
 sampleOpen {doSampleOpen}
 sampleRead {doSampleRead}
+bind {doBind}
 listen {doListen}
