@@ -25,3 +25,16 @@ any doSleep(Context *CONTEXT_PTR, any ex)
 
     return car(x);
 }
+
+any doListen(Context *CONTEXT_PTR, any ex)
+{
+    uword n;
+    any x,y;
+    x = cdr(ex);
+    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
+        return Nil;
+    NeedNum(ex,y);
+    n = unBox(y);
+
+    return plt_listen(CONTEXT_PTR, n);
+}

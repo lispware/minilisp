@@ -11,4 +11,6 @@ void plt_thread_start(Context *CONTEXT_PTR, thread_func_t FUNC, int wait);
 
 void plt_sleep(int ms);
 
+any plt_listen(Context *, word);
+
 #endif

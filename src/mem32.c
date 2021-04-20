@@ -135,5 +135,9 @@ any Mem[] = {
 /* Mem +  384 */    (any)(0x6552656c), (any)((any)(Mem + 387)), (any)0x406,
 /* Mem +  387 */    (any)(0x6461), (any)((any)(Mem+0)), (any)0x406,
 /* Mem +  390 */    (any)((any)(doSampleRead))/*DINGO*/, (any)((any)(Mem+0)), (any)0x403/*H*/,
+/* Mem +  393 */    (any)((any)(Mem + 396)), (any)((any)(Mem + 402)), (any)0x407,
+/* Mem +  396 */    (any)(0x7473696c), (any)((any)(Mem + 399)), (any)0x406,
+/* Mem +  399 */    (any)(0x6e65), (any)((any)(Mem+0)), (any)0x406,
+/* Mem +  402 */    (any)((any)(doListen))/*DINGO*/, (any)((any)(Mem+0)), (any)0x403/*H*/,
 };
 #endif

@@ -86,7 +86,9 @@ any doMapcar(Context *, any);
 any doSampleOpen(Context *, any);
 #define doSampleRead_D (any)(CONTEXT_PTR->Mem+378)
 any doSampleRead(Context *, any);
+#define doListen_D (any)(CONTEXT_PTR->Mem+393)
+any doListen(Context *, any);
 
-#define MEMS 393
+#define MEMS 405
 
 #endif
