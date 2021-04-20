@@ -505,6 +505,20 @@ any evList(Context *CONTEXT_PTR, any ex)
     if (isNum(foo = car(ex)))
         return ex;
 
+    if (isCell(foo))
+    {
+        if (isFunc(foo = evList(CONTEXT_PTR, foo)))
+        {
+            return evSubr(foo,ex);
+        }
+        // TODO - this does not seem quite right - why only NUM?
+        else if (isNum(foo))
+        {
+            return foo;
+        }
+        return evList2(CONTEXT_PTR, foo,ex);
+    }
+
     for (;;)
     {
         if (isNil(val(foo)))
@@ -768,8 +782,8 @@ void copy_heap(Context *From, Context *To)
     heap *to = To->Heaps;
     for(int i = 0; i < MEMS; i+=3)
     {
-        cell *fromCell = (any)From->Mem + i;
-        cell *toCell = (any)To->Mem + i;
+        cell *fromCell = From->Mem + i;
+        cell *toCell = To->Mem + i;
         copy_backup_cell(fromCell, toCell);
     }
     while(from)
@@ -784,16 +798,16 @@ void copy_heap(Context *From, Context *To)
         from=from->next;
         to=to->next;
     }
+    //dumpMem(From, "DEBUG_HEAP1.txt");
     //dumpMem(To, "DEBUG_COPY1.txt");
 
     /////////////////////////////////////////////////////
-    //dumpMem(From, "DEBUG_HEAP1.txt");
     from = From->Heaps;
     to = To->Heaps;
     for(int i = 0; i < MEMS; i+=3)
     {
-        cell *fromCell = (any)From->Mem + i;
-        cell *toCell = (any)To->Mem + i;
+        cell *fromCell = From->Mem + i;
+        cell *toCell = To->Mem + i;
         copy_fixup_cell(From, To, fromCell, toCell);
     }
     while(from)
@@ -815,8 +829,8 @@ void copy_heap(Context *From, Context *To)
     to = To->Heaps;
     for(int i = 0; i < MEMS; i+=3)
     {
-        cell *fromCell = (any)From->Mem + i;
-        cell *toCell = (any)To->Mem + i;
+        cell *fromCell = From->Mem + i;
+        cell *toCell = To->Mem + i;
         copy_restore_cell(From, To, fromCell, toCell);
     }
     while(from)
@@ -850,6 +864,8 @@ any doFork(Context *CONTEXT_PTR_ORIG, any x)
     CONTEXT_PTR->ApplyBody = Nil; //cons(CONTEXT_PTR, Nil, Nil);
 
     copy_heap(CONTEXT_PTR_ORIG, CONTEXT_PTR);
+    //dumpMem(CONTEXT_PTR_ORIG, "DEBUG_FROM.txt");
+    //dumpMem(CONTEXT_PTR, "DEBUG_TO.txt");
 
 
     //dumpMem(CONTEXT_PTR, "DEBUG_NEW.txt");

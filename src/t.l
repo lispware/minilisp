@@ -146,6 +146,9 @@
      ))
          
 
+(fork (out "HELLO" (prinl "TEST")))
+(sleep 1000)
+(in "HELLO" (if (= "TEST" (pack (line))) (prinl "FORK PASS") (prinl "FORK FAIL")))
 
 
 #### TEST EVAL #
