@@ -82,10 +82,7 @@ any plt_socket(Context *CONTEXT_PTR, word n)
 
 
      int r = read( skt , buffer, 1024);
-     for(int i = 0;i<5; i++)
-     {
-         printf("%c\n", buffer[i]);
-     }
+     printf("%s\n", buffer);
 
     return Nil;
 }
