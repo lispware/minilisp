@@ -47,3 +47,4 @@ sampleOpen {doSampleOpen}
 sampleRead {doSampleRead}
 bind {doBind}
 listen {doListen}
+skt {doSocket}

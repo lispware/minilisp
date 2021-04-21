@@ -90,7 +90,9 @@ any doSampleRead(Context *, any);
 any doBind(Context *, any);
 #define doListen_D (any)(CONTEXT_PTR->Mem+348)
 any doListen(Context *, any);
+#define doSocket_D (any)(CONTEXT_PTR->Mem+354)
+any doSocket(Context *, any);
 
-#define MEMS 354
+#define MEMS 360
 
 #endif

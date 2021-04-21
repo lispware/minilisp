@@ -74,3 +74,18 @@ any plt_listen(Context *CONTEXT_PTR, word n)
     Push(c1, mkNum(CONTEXT_PTR, new_socket));
     return Pop(c1);
 }
+
+any plt_socket(Context *CONTEXT_PTR, word n)
+{
+    char buffer[1024];
+    int skt = (int)n;
+
+
+     int r = read( skt , buffer, 1024);
+     for(int i = 0;i<5; i++)
+     {
+         printf("%c\n", buffer[i]);
+     }
+
+    return Nil;
+}

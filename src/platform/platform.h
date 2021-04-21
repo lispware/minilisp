@@ -21,5 +21,6 @@ void plt_sleep(int ms);
 
 any plt_listen(Context *, word);
 any plt_bind(Context *, word);
+any plt_socket(Context *, word);
 
 #endif

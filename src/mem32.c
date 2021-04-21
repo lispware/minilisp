@@ -141,5 +141,7 @@ any Mem[] = {
 /* Mem +  402 */    (any)(0x7473696c), (any)((any)(Mem + 405)), (any)0x406,
 /* Mem +  405 */    (any)(0x6e65), (any)((any)(Mem+0)), (any)0x406,
 /* Mem +  408 */    (any)((any)(doListen))/*DINGO*/, (any)((any)(Mem+0)), (any)0x403/*H*/,
+/* Mem +  411 */    (any)(0x746b73), (any)((any)(Mem + 414)), (any)0x401,
+/* Mem +  414 */    (any)((any)(doSocket)), (any)((any)(Mem+0)), (any)0x403,
 };
 #endif
