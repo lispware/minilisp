@@ -23,5 +23,6 @@ any plt_listen(Context *, word);
 any plt_bind(Context *, word);
 any plt_socket(Context *, any);
 any plt_http(Context *, any);
+any plt_connect(Context *, any);
 
 #endif
