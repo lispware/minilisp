@@ -143,9 +143,13 @@ any Mem[] = {
 /* Mem +  408 */    (any)((any)(doListen))/*DINGO*/, (any)((any)(Mem+0)), (any)0x403/*H*/,
 /* Mem +  411 */    (any)(0x746b73), (any)((any)(Mem + 414)), (any)0x401,
 /* Mem +  414 */    (any)((any)(doSocket)), (any)((any)(Mem+0)), (any)0x403,
-/* Mem +  417 */    (any)(0x70747468), (any)((any)(Mem + 420)), (any)0x401,
-/* Mem +  420 */    (any)((any)(doHTTP)), (any)((any)(Mem+0)), (any)0x403,
-/* Mem +  423 */    (any)(0x706f6f6c), (any)((any)(Mem + 426)), (any)0x401,
-/* Mem +  426 */    (any)((any)(doLoop)), (any)((any)(Mem+0)), (any)0x403,
+/* Mem +  417 */    (any)((any)(Mem + 420)), (any)((any)(Mem + 426)), (any)0x407,
+/* Mem +  420 */    (any)(0x6e6e6f63), (any)((any)(Mem + 423)), (any)0x406,
+/* Mem +  423 */    (any)(0x746365), (any)((any)(Mem+0)), (any)0x406,
+/* Mem +  426 */    (any)((any)(doConnect))/*DINGO*/, (any)((any)(Mem+0)), (any)0x403/*H*/,
+/* Mem +  429 */    (any)(0x70747468), (any)((any)(Mem + 432)), (any)0x401,
+/* Mem +  432 */    (any)((any)(doHTTP)), (any)((any)(Mem+0)), (any)0x403,
+/* Mem +  435 */    (any)(0x706f6f6c), (any)((any)(Mem + 438)), (any)0x401,
+/* Mem +  438 */    (any)((any)(doLoop)), (any)((any)(Mem+0)), (any)0x403,
 };
 #endif

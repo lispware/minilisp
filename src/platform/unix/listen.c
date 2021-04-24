@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -91,7 +92,7 @@ void putStdoutNet(Context *CONTEXT_PTR, int c)
 {
     char buf[1];
     buf[0] = (char)c;
-    int current_client = (int)CONTEXT_PTR->InFile;
+    int current_client = (int)CONTEXT_PTR->OutFile;
 
     send(current_client, buf, 1, 0);
 }
@@ -150,6 +151,8 @@ any plt_socket(Context *CONTEXT_PTR, any ex)
 
 any plt_http(Context *CONTEXT_PTR, any ex)
 {
+    signal(SIGPIPE, SIG_IGN);
+
     uword n;
     any x,y;
     x = cdr(ex);
@@ -172,4 +175,61 @@ any plt_http(Context *CONTEXT_PTR, any ex)
     popIOFilesNet(CONTEXT_PTR);
 
     return Nil;
+}
+
+any plt_connect(Context *CONTEXT_PTR, any ex)
+{
+
+    uword n;
+    any x,y;
+    x = cdr(ex);
+    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
+        return Nil;
+    NeedNum(ex,y);
+    n = unBox(y);
+
+    cell c1;
+
+    int client_socket, valread;
+    struct sockaddr_in serv_addr;
+
+    // Creating socket file descriptor
+    if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+    {
+        perror("socket failed");
+        exit(EXIT_FAILURE);
+    }
+
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(n);
+
+    // Convert IPv4 and IPv6 addresses from text to binary form
+    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) 
+    {
+        printf("\nInvalid address/ Address not supported \n");
+        return -1;
+    }
+
+    if (connect(client_socket, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+    {
+        printf("\nConnection Failed \n");
+        return -1;
+    }
+    
+
+    ////////////////////////////
+    inFrame f;
+    outFrame fo;
+
+
+    f.fp = fo.fp = (FILE*)client_socket;
+    f.get = getStdinNet;
+    fo.put = putStdoutNet;
+
+    pushIOFilesNet(CONTEXT_PTR, &f, &fo);
+    x = prog(CONTEXT_PTR, cddr(ex));
+    popIOFilesNet(CONTEXT_PTR);
+
+    return Nil;
+
 }
