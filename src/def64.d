@@ -92,7 +92,11 @@ any doBind(Context *, any);
 any doListen(Context *, any);
 #define doSocket_D (any)(CONTEXT_PTR->Mem+354)
 any doSocket(Context *, any);
+#define doHTTP_D (any)(CONTEXT_PTR->Mem+360)
+any doHTTP(Context *, any);
+#define doLoop_D (any)(CONTEXT_PTR->Mem+366)
+any doLoop(Context *, any);
 
-#define MEMS 360
+#define MEMS 372
 
 #endif

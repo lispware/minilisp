@@ -148,15 +148,28 @@ any plt_socket(Context *CONTEXT_PTR, any ex)
     return Nil;
 }
 
-// any doIO(Context *CONTEXT_PTR, any ex) {
-//    any x;
-//    inFrame f;
-//    outFrame fo;
-// 
-//    x = cdr(ex),  x = EVAL(CONTEXT_PTR, car(x));
-//    rwOpen(CONTEXT_PTR, ex,x,&f, &fo);
-//    pushIOFiles(CONTEXT_PTR, &f, &fo);
-//    x = prog(CONTEXT_PTR, cddr(ex));
-//    popIOFiles(CONTEXT_PTR);
-//    return x;
-// }
+any plt_http(Context *CONTEXT_PTR, any ex)
+{
+    uword n;
+    any x,y;
+    x = cdr(ex);
+    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
+        return Nil;
+    NeedNum(ex,y);
+    n = unBox(y);
+
+    inFrame f;
+    outFrame fo;
+    printf("DOING HTTP\n");
+
+
+    f.fp = fo.fp = (FILE*)n;
+    f.get = getStdinNet;
+    fo.put = putStdoutNet;
+
+    pushIOFilesNet(CONTEXT_PTR, &f, &fo);
+    x = prog(CONTEXT_PTR, cddr(ex));
+    popIOFilesNet(CONTEXT_PTR);
+
+    return Nil;
+}

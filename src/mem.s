@@ -48,3 +48,5 @@ sampleRead {doSampleRead}
 bind {doBind}
 listen {doListen}
 skt {doSocket}
+http {doHTTP}
+loop {doLoop}
