@@ -97,6 +97,12 @@
     (prinl "pack failed")
     (bye))
 
+(let X (chop abcd)
+     (if (= "abcd" (pack X)) (prinl "CHOP PASSED") (prinl "CHOP FAILED")))
+
+
+
+
 (setq longnumber 1234567890)
 (prinl (+ (* longnumber 10) 1))
 
