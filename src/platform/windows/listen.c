@@ -117,7 +117,6 @@ any plt_listen(Context *CONTEXT_PTR, word n)
 
     // accept connections
     client = accept(server_fd,(struct SOCKADDR*)&from,&fromlen);
-    printf("Client connected\r\n");
 
 
     cell c1;
@@ -128,22 +127,62 @@ any plt_listen(Context *CONTEXT_PTR, word n)
 }
 
 
-any plt_socket(Context *CONTEXT_PTR, word n)
+any plt_socket(Context *CONTEXT_PTR, any ex)
 {
-    cell c1;
+    uword n;
+    any x,y;
+    x = cdr(ex);
+    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
+        return Nil;
+    NeedNum(ex,y);
+    n = unBox(y);
 
-    Push(c1, mkNum(CONTEXT_PTR, n));
+    inFrame f;
+    outFrame fo;
 
-    return Pop(c1);
+    // printf("----------->%d\n", n);
+    // char buf[100];
+    // read(n, buf, 100);
+    // printf("===> %s\n", buf);
+
+    f.fp = fo.fp = (FILE*)n;
+    f.get = getStdinNet;
+    fo.put = putStdoutNet;
+
+    pushIOFilesNet(CONTEXT_PTR, &f, &fo);
+    x = prog(CONTEXT_PTR, cddr(ex));
+    popIOFilesNet(CONTEXT_PTR);
+
+    return Nil;
 }
 
-any plt_http(Context *CONTEXT_PTR, word n)
+any plt_http(Context *CONTEXT_PTR, any ex)
 {
-    cell c1;
+    uword n;
+    any x,y;
+    x = cdr(ex);
+    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
+        return Nil;
+    NeedNum(ex,y);
+    n = unBox(y);
 
-    Push(c1, mkNum(CONTEXT_PTR, n));
+    inFrame f;
+    outFrame fo;
 
-    return Pop(c1);
+    // printf("----------->%d\n", n);
+    // char buf[100];
+    // read(n, buf, 100);
+    // printf("===> %s\n", buf);
+
+    f.fp = fo.fp = (FILE*)n;
+    f.get = getStdinNet;
+    fo.put = putStdoutNet;
+
+    pushIOFilesNet(CONTEXT_PTR, &f, &fo);
+    x = prog(CONTEXT_PTR, cddr(ex));
+    popIOFilesNet(CONTEXT_PTR);
+
+    return Nil;
 }
 
 any plt_connect(Context *CONTEXT_PTR, any ex)
