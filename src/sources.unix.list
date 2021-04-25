@@ -1,1 +1,1 @@
-sym.c read.c gc.c flow.c lisp.c cell.c math.c platform.c platform/unix/thread.c platform/unix/sleep.c platform/unix/listen.c
+sym.c read.c gc.c flow.c lisp.c cell.c math.c platform.c platform/unix/thread.c platform/unix/sleep.c platform/unix/net.c
