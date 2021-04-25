@@ -203,7 +203,7 @@ any plt_socket_close(Context *CONTEXT_PTR, any ex)
 
     printf("CLOSE SOCKET\n");
 
-    close(n);
+    closesocket(n);
 
     return Nil;
 }
