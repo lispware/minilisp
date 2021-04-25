@@ -25,16 +25,16 @@ void plt_thread_start(Context *CONTEXT_PTR, thread_func_t FUNC, int wait)
 {
     DWORD thread;
 
-    PACK *P = (PACK*)calloc(sizeof(PACK), 1);
-    P->C = CONTEXT_PTR;
-    P->F = FUNC;
+   // PACK *P = (PACK*)calloc(sizeof(PACK), 1);
+   // P->C = CONTEXT_PTR;
+   // P->F = FUNC;
 
     // TODO - wait is not supported yet
     if (wait)
     {
         printf("Waiting for the completion of a thread is not supported yet\n");
     }
-    //_beginthread(FUNC, 0, CONTEXT_PTR);
+    _beginthread(FUNC, 0, CONTEXT_PTR);
 
-    CreateThread(NULL, 0,receive_cmds,(LPVOID)P, 0, &thread);
+    //CreateThread(NULL, 0,receive_cmds,(LPVOID)P, 0, &thread);
 }
