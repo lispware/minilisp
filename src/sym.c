@@ -384,7 +384,10 @@ any doChop(Context *CONTEXT_PTR, any x) {
     while (c)
     {
         c = getByte(CONTEXT_PTR,&i, &w, &x);
-        y = cdr(y) = cons(CONTEXT_PTR, mkChar(CONTEXT_PTR, c), Nil);
+        if (c)
+        {
+            y = cdr(y) = cons(CONTEXT_PTR, mkChar(CONTEXT_PTR, c), Nil);
+        }
     }
 
     return Pop(c1);
