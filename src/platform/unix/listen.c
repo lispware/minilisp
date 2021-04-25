@@ -232,3 +232,21 @@ any plt_connect(Context *CONTEXT_PTR, any ex)
     return Nil;
 
 }
+
+any plt_socket_close(Context *CONTEXT_PTR, any ex)
+{
+    uword n;
+    any x,y;
+    x = cdr(ex);
+    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
+        return Nil;
+    NeedNum(ex,y);
+    n = unBox(y);
+
+
+    printf("CLOSE SOCKET\n");
+
+    close(n);
+
+    return Nil;
+}

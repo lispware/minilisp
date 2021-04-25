@@ -128,7 +128,9 @@ any Mem[] = {
 /* Mem +  363 */    (any)((any)(doConnect)), (any)((any)(Mem+0)), (any)0x403,
 /* Mem +  366 */    (any)(0x70747468), (any)((any)(Mem + 369)), (any)0x401,
 /* Mem +  369 */    (any)((any)(doHTTP)), (any)((any)(Mem+0)), (any)0x403,
-/* Mem +  372 */    (any)(0x706f6f6c), (any)((any)(Mem + 375)), (any)0x401,
-/* Mem +  375 */    (any)((any)(doLoop)), (any)((any)(Mem+0)), (any)0x403,
+/* Mem +  372 */    (any)(0x65736f6c43746b73), (any)((any)(Mem + 375)), (any)0x401,
+/* Mem +  375 */    (any)((any)(doSocketClose)), (any)((any)(Mem+0)), (any)0x403,
+/* Mem +  378 */    (any)(0x706f6f6c), (any)((any)(Mem + 381)), (any)0x401,
+/* Mem +  381 */    (any)((any)(doLoop)), (any)((any)(Mem+0)), (any)0x403,
 };
 #endif

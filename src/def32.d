@@ -96,9 +96,11 @@ any doSocket(Context *, any);
 any doConnect(Context *, any);
 #define doHTTP_D (any)(CONTEXT_PTR->Mem+429)
 any doHTTP(Context *, any);
-#define doLoop_D (any)(CONTEXT_PTR->Mem+435)
+#define doSocketClose_D (any)(CONTEXT_PTR->Mem+435)
+any doSocketClose(Context *, any);
+#define doLoop_D (any)(CONTEXT_PTR->Mem+447)
 any doLoop(Context *, any);
 
-#define MEMS 441
+#define MEMS 453
 
 #endif

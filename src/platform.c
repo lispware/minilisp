@@ -90,3 +90,8 @@ any doConnect(Context *CONTEXT_PTR, any ex)
 
     return plt_connect(CONTEXT_PTR, ex);
 }
+
+any doSocketClose(Context *CONTEXT_PTR, any ex)
+{
+    return plt_socket_close(CONTEXT_PTR, ex);
+}

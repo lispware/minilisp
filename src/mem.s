@@ -50,4 +50,5 @@ listen {doListen}
 skt {doSocket}
 connect {doConnect}
 http {doHTTP}
+sktClose {doSocketClose}
 loop {doLoop}

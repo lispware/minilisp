@@ -24,5 +24,6 @@ any plt_bind(Context *, word);
 any plt_socket(Context *, any);
 any plt_http(Context *, any);
 any plt_connect(Context *, any);
+any plt_socket_close(CONTEXT_PTR, ex);
 
 #endif
