@@ -373,7 +373,8 @@ any doChop(Context *CONTEXT_PTR, any x) {
     cell c1, c2;
     any y = Nil;
 
-    x = cadr(x);
+    x = cdr(x);
+    x = EVAL(CONTEXT_PTR, car(x));
 
     c = getByte1(CONTEXT_PTR, &i, &w, &x);
     Push(c1, cons(CONTEXT_PTR, mkChar(CONTEXT_PTR, c), Nil));

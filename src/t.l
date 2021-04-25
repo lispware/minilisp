@@ -99,6 +99,10 @@
 
 (let X (chop abcd)
      (if (= "abcd" (pack X)) (prinl "CHOP PASSED") (prinl "CHOP FAILED")))
+(de CHOP (X) (chop X))
+(let X (CHOP abcd)
+     (if (= "abcd" (pack X)) (prinl "CHOP PASSED") (prinl "CHOP FAILED")))
+
 
 
 
