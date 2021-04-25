@@ -376,6 +376,8 @@ any doChop(Context *CONTEXT_PTR, any x) {
     x = cdr(x);
     x = EVAL(CONTEXT_PTR, car(x));
 
+    if(x==Nil) return Nil;
+
     c = getByte1(CONTEXT_PTR, &i, &w, &x);
     Push(c1, cons(CONTEXT_PTR, mkChar(CONTEXT_PTR, c), Nil));
     y = data(c1);

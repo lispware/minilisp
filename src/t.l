@@ -103,6 +103,7 @@
 (let X (CHOP abcd)
      (if (= "abcd" (pack X)) (prinl "CHOP PASSED") (prinl "CHOP FAILED")))
 
+(if (= Nil (chop "")) (prinl "NIL CHOP PASSED")  (prinl "NIL CHOP FAILED"))
 
 
 
