@@ -56,7 +56,6 @@ any plt_listen(Context *CONTEXT_PTR, word n)
     struct sockaddr_in address;
     int opt = 1;
     int addrlen = sizeof(address);
-    char buffer[1024] = {0};
 
     printf ("START LISTEN %d\n",  n);
 
