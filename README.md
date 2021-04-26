@@ -4,8 +4,6 @@ This is an adaptation of [miniPicoLisp](https://picolisp.com/wiki/?embedded). Th
 
 MiniLisp, like PicoLisp, is an *interpreter only* implementation. *Singly linked list is the only built in data structure* that this language provides. Just these may be sufficient for you to disregard this as a viable programming language. A few years ago, I had myself rejected PicoLisp just for those reasons. However, I have a very different opinon after I took a second look at PicoLisp after having more experience with Lisp/Clojure and having implemented a couple of Lisp compilers - [s2c](https://github.com/ckkashyap/s2c) for example.
 
-There is a prevailing notion that compiled languages are faster than interpreted languages. I dont just believe that this notion is incorrect, I believe that the fundamental premise on which this notion is built is itself misleading. 
-
 ## Building
 
 lisp.c is the LISP interpreter and can be built using a regular C compiler as follows

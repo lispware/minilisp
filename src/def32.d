@@ -86,7 +86,23 @@ any doMapcar(Context *, any);
 any doSampleOpen(Context *, any);
 #define doSampleRead_D (any)(CONTEXT_PTR->Mem+378)
 any doSampleRead(Context *, any);
+#define doBind_D (any)(CONTEXT_PTR->Mem+393)
+any doBind(Context *, any);
+#define doListen_D (any)(CONTEXT_PTR->Mem+399)
+any doListen(Context *, any);
+#define doSocket_D (any)(CONTEXT_PTR->Mem+411)
+any doSocket(Context *, any);
+#define doConnect_D (any)(CONTEXT_PTR->Mem+417)
+any doConnect(Context *, any);
+#define doHTTP_D (any)(CONTEXT_PTR->Mem+429)
+any doHTTP(Context *, any);
+#define doSocketClose_D (any)(CONTEXT_PTR->Mem+435)
+any doSocketClose(Context *, any);
+#define doLoop_D (any)(CONTEXT_PTR->Mem+447)
+any doLoop(Context *, any);
+#define doChop_D (any)(CONTEXT_PTR->Mem+453)
+any doChop(Context *, any);
 
-#define MEMS 393
+#define MEMS 459
 
 #endif

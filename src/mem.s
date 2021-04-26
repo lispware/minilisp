@@ -45,3 +45,11 @@ eval {doEval}
 mapcar {doMapcar}
 sampleOpen {doSampleOpen}
 sampleRead {doSampleRead}
+bind {doBind}
+listen {doListen}
+skt {doSocket}
+connect {doConnect}
+http {doHTTP}
+sktClose {doSocketClose}
+loop {doLoop}
+chop {doChop}
