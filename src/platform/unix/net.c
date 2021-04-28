@@ -151,6 +151,8 @@ any plt_socket(Context *CONTEXT_PTR, any ex)
 any plt_http(Context *CONTEXT_PTR, any ex)
 {
     signal(SIGPIPE, SIG_IGN);
+    cell c1;
+    Push(c1, ex);
 
     uword n;
     any x,y;
@@ -162,7 +164,6 @@ any plt_http(Context *CONTEXT_PTR, any ex)
 
     inFrame f;
     outFrame fo;
-    printf("DOING HTTP\n");
 
 
     f.fp = fo.fp = (FILE*)n;
@@ -173,6 +174,7 @@ any plt_http(Context *CONTEXT_PTR, any ex)
     x = prog(CONTEXT_PTR, cddr(ex));
     popIOFilesNet(CONTEXT_PTR);
 
+    Pop(c1);
     return Nil;
 }
 

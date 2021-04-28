@@ -158,6 +158,9 @@ any plt_socket(Context *CONTEXT_PTR, any ex)
 
 any plt_http(Context *CONTEXT_PTR, any ex)
 {
+    cell c1;
+    Push(c1, ex);
+
     uword n;
     any x,y;
     x = cdr(ex);
@@ -169,10 +172,6 @@ any plt_http(Context *CONTEXT_PTR, any ex)
     inFrame f;
     outFrame fo;
 
-    // printf("----------->%d\n", n);
-    // char buf[100];
-    // read(n, buf, 100);
-    // printf("===> %s\n", buf);
 
     f.fp = fo.fp = (FILE*)n;
     f.get = getStdinNet;
@@ -182,6 +181,7 @@ any plt_http(Context *CONTEXT_PTR, any ex)
     x = prog(CONTEXT_PTR, cddr(ex));
     popIOFilesNet(CONTEXT_PTR);
 
+    Pop(c1);
     return Nil;
 }
 

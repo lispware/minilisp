@@ -12,11 +12,18 @@
 
 int firstByte(Context*CONTEXT_PTR, any s)
 {
-    int c;
-
-    if (isNil(s)) return 0;
-    c = (uword)s;
-    return c & 127;
+    if (getCARType(s) == TXT)
+    {
+        return ((uword)(s->car)) & 127;
+    }
+    else if (getCARType(s) == BIN_START)
+    {
+        return ((uword)(s->car->car)) & 127;
+    }
+    else
+    {
+        giveup("Cant get first byte");
+    }
 }
 
 int getByte1(Context *CONTEXT_PTR, int *i, uword *p, any *q)
@@ -157,13 +164,30 @@ int symBytes(Context *CONTEXT_PTR, any x)
     if (isNil(x))
         return 0;
 
-    if (isTxt(x))
+    CellPartType t = getCARType(x);
+
+    if (t == TXT)
     {
         w = (uword)(x->car);
         while (w)
         {
             ++cnt;
             w >>= 8;
+        }
+    }
+    else if (t == BIN_START)
+    {
+
+        x = x->car;
+        while (x != Nil)
+        {
+			w = (uword)(x->car);
+            while (w)
+            {
+                ++cnt;
+                w >>= 8;
+            }
+            x = x->cdr;
         }
     }
 
