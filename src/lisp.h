@@ -11,7 +11,7 @@
 #include <stdint.h>
 
 #ifndef CELLS
-#define CELLS (1024*1024/sizeof(cell))
+#define CELLS 1
 #endif
 
 #if INTPTR_MAX == INT32_MAX

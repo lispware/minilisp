@@ -421,7 +421,7 @@ any evExpr(Context *CONTEXT_PTR, any expr, any x)
    {
       int n, cnt;
       cell *arg;
-      cell *c = (cell*)malloc(sizeof(cell) * (n = cnt = length(CONTEXT_PTR, x)));
+      cell *c = (cell*)calloc(sizeof(cell) * (n = cnt = length(CONTEXT_PTR, x)), 1);
 
       while (--n >= 0)
       {
@@ -639,7 +639,7 @@ void check(Context *CONTEXT_PTR)
 
 void copy_mem(any *M, Context *To)
 {
-    To->Mem=(any*)malloc(sizeof(cell)*MEMS);
+    To->Mem=(any*)calloc(sizeof(cell)*MEMS, 1);
     for(int i = 0; i < MEMS; i+=3)
     {
         cell *fromCell = (any)(M + i);
@@ -845,14 +845,18 @@ void copy_heap(Context *From, Context *To)
         from=from->next;
         to=to->next;
     }
+
     //dumpMem(From, "DEBUG_HEAP2.txt");
     //dumpMem(To, "DEBUG_COPY2.txt");
 }
 
 any doFork(Context *CONTEXT_PTR_ORIG, any x)
 {
+    Context *CONTEXT_PTR = CONTEXT_PTR_ORIG;
+    cell c1;
+    Push(c1, x);
     //dumpMem(CONTEXT_PTR_ORIG, "DEBUG_ORIGINAL.txt");
-    Context *CONTEXT_PTR = (Context*)calloc(1, sizeof(Context));
+    CONTEXT_PTR = (Context*)calloc(1, sizeof(Context));
 
 
     CONTEXT_PTR->InFile = stdin, CONTEXT_PTR->Env.get = getStdin;
@@ -864,6 +868,7 @@ any doFork(Context *CONTEXT_PTR_ORIG, any x)
     CONTEXT_PTR->ApplyBody = Nil; //cons(CONTEXT_PTR, Nil, Nil);
 
     copy_heap(CONTEXT_PTR_ORIG, CONTEXT_PTR);
+    if (!CONTEXT_PTR_ORIG->Avail) CONTEXT_PTR->Avail = 0;
     //dumpMem(CONTEXT_PTR_ORIG, "DEBUG_FROM.txt");
     //dumpMem(CONTEXT_PTR, "DEBUG_TO.txt");
 
@@ -874,7 +879,8 @@ any doFork(Context *CONTEXT_PTR_ORIG, any x)
     //EVAL(CONTEXT_PTR, CONTEXT_PTR->Code);
     //EVAL(CONTEXT_PTR_ORIG, CONTEXT_PTR_ORIG->Code);
 
-    return x;
+    CONTEXT_PTR = CONTEXT_PTR_ORIG;
+    return Pop(c1);
 }
 
 
