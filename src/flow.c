@@ -253,6 +253,7 @@ any doFor(Context *CONTEXT_PTR, any x) {
          val(f->bnd[1].sym) = f->bnd[1].val;
       val(f->bnd[0].sym) = f->bnd[0].val;
       CONTEXT_PTR->Env.bind = f->link;
+      free(f);
       return y;
    }
    if (!isCell(car(y))) {
@@ -314,6 +315,7 @@ for2:
       val(f->bnd[1].sym) = f->bnd[1].val;
    val(f->bnd[0].sym) = f->bnd[0].val;
    CONTEXT_PTR->Env.bind = f->link;
+   free(f);
    return Pop(c1);
 }
 
@@ -1206,6 +1208,7 @@ any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p) {
          while (--f->cnt >= 0)
             val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
          CONTEXT_PTR->Env.bind = f->link;
+         free(f);
          return x;
       }
 //      if (val(foo) == val(Meth)) {
