@@ -13,6 +13,8 @@
     #error "Unsupported bit width"
 #endif
 
+static void gc(Context *CONTEXT_PTR, word c);
+
 static void mark(Context *CONTEXT_PTR, any x)
 {
     if (!x) return;
@@ -127,6 +129,7 @@ void markAll(Context *CONTEXT_PTR)
 
 any doHS(Context *CONTEXT_PTR, any ignore)
 {
+    //gc(CONTEXT_PTR, CELLS);
     getHeapSize(CONTEXT_PTR);
     return ignore;
 }
@@ -330,4 +333,10 @@ void heapAlloc(Context *CONTEXT_PTR)
       Free(p);
    }
    while (--p >= h->cells);
+}
+
+any doGC(Context *CONTEXT_PTR, any ex)
+{
+    gc(CONTEXT_PTR, CELLS);
+    return Nil;
 }
