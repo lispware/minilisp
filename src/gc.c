@@ -67,22 +67,6 @@ void dump(FILE *fp, any p)
     }
 }
 
-void dumpHeaps(FILE *mem, heap *h)
-{
-    any p;
-    if (!h) return;
-    dumpHeaps(mem, h->next);
-
-    fprintf(mem, "# START HEAP\n");
-    p = h->cells + CELLS-1;
-    do
-    {
-        //fprintf(mem, "0x%016lx %p %p %p\n", p, p->car, p->cdr, p->meta.type._t);
-        dump(mem, p);
-    }
-    while (--p >= h->cells);
-}
-
 void markAll(Context *CONTEXT_PTR)
 {
    any p;
@@ -209,7 +193,10 @@ static void gc(Context *CONTEXT_PTR, word c)
             {
                 if (!getMark(p))
                 {
-                    Free(p);
+                    //Free(p);
+                    memset(p, 0, sizeof(cell));
+                    p->car = CONTEXT_PTR->Avail;
+                    CONTEXT_PTR->Avail = p;
                     --c;
                 }
                 setMark(p, 0);
@@ -313,12 +300,14 @@ void heapAlloc(Context *CONTEXT_PTR)
 
    CONTEXT_PTR->HeapCount++;
    //h = (heap*)((word)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
-   h = (heap*)((word)alloc(NULL, sizeof(heap) + sizeof(cell)));
+   h = (heap*)((word)calloc(1, sizeof(heap) + sizeof(cell)));
    h->next = CONTEXT_PTR->Heaps,  CONTEXT_PTR->Heaps = h;
    p = h->cells + CELLS-1;
    do
    {
-      Free(p);
+      //Free(p);
+      p->car=CONTEXT_PTR->Avail;
+      CONTEXT_PTR->Avail = p;
    }
    while (--p >= h->cells);
 }

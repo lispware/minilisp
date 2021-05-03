@@ -134,5 +134,7 @@ any Mem[] = {
 /* Mem +  381 */    (any)((any)(doLoop)), (any)((any)(Mem+0)), (any)0x403,
 /* Mem +  384 */    (any)(0x706f6863), (any)((any)(Mem + 387)), (any)0x401,
 /* Mem +  387 */    (any)((any)(doChop)), (any)((any)(Mem+0)), (any)0x403,
+/* Mem +  390 */    (any)(0x6367), (any)((any)(Mem + 393)), (any)0x401,
+/* Mem +  393 */    (any)((any)(doGC)), (any)((any)(Mem+0)), (any)0x403,
 };
 #endif

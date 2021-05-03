@@ -53,3 +53,4 @@ http {doHTTP}
 sktClose {doSocketClose}
 loop {doLoop}
 chop {doChop}
+gc {doGC}

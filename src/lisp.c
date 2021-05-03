@@ -232,6 +232,12 @@ void print(Context *CONTEXT_PTR, any x)
         return;
     }
 
+    if (getCARType(x) == FUNC)
+    {
+        printf ("C FUNCTION %p", x);
+        return;
+    }
+
     printf ("TODO NOT A NUMBER %p %p\n", x, Nil);
     return;
 }
