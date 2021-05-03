@@ -490,6 +490,7 @@ any doEq(Context *CONTEXT_PTR, any x)
         }
         else if (t == PTR_CELL)
         {
+            drop(c1);
             return eqList(CONTEXT_PTR, v, v2);
         }
         else

@@ -36,6 +36,13 @@
 (if (= 1 2) (if (= 1 2) (prinl 11) (prinl 12)) (prinl 13))
 (if (= 1 1) (if (= 1 1) (prinl 11) (prinl 12)) (prinl 13))
 
+(prinl "LIST COMPARISON 1 " (if (= '(1 2 3) '(1 2 3))  "PASSED" "FAILED"))
+(prinl "LIST COMPARISON 2 " (if (= '(1 2 ) '(1 2 3))  "FAILED" "PASSED"))
+(prinl "LIST COMPARISON 3 " (if (= '(1 2 3) '(1 2 3 4)) "FAILED"  "PASSED"))
+(prinl "LIST COMPARISON 4 " (if (= '(1 2 3 4) '(1 2 3)) "FAILED"  "PASSED"))
+(prinl "LIST COMPARISON 5 " (if (= '((1) 1 2 3) '((1) 1 2 3)) "PASSED"  "FAILED"))
+(prinl "LIST COMPARISON 6 " (if (= '((1) 1 2 3) '((2) 1 2 3)) "FAILED"  "PASSED"))
+
 (do 2
 (prinl (F 1 2)))
 
