@@ -30,11 +30,6 @@ run {doRun}
 hs {doHS}
 = {doEq}
 if {doIf}
-G ((X)(+  1 2 X))
-Z 10
-ABCDEFGHIJ 10
-ABCDEFGHIJK {doLongFunc}
-ABCDEFGHIJABCDEFGHIJK {doVeryLongFunc}
 call {doCall}
 pack {doPack}
 fork {doFork}
@@ -54,3 +49,11 @@ sktClose {doSocketClose}
 loop {doLoop}
 chop {doChop}
 gc {doGC}
+#######################################################################
+############ TEST FUNCTIONS                              ##############
+#######################################################################
+G ((X)(+  1 2 X))
+Z 10
+ABCDEFGHIJ 10
+ABCDEFGHIJK {doLongFunc}
+ABCDEFGHIJABCDEFGHIJK {doVeryLongFunc}
