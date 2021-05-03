@@ -420,6 +420,31 @@ any doQuote(Context *CONTEXT_PTR, any x)
 //     return 1;
 // }
 
+any eqList(Context *CONTEXT_PTR, any v1, any v2)
+{
+    while(v1 != Nil)
+    {
+        any x1 = car(v1);
+        if (getCARType(x1) == PTR_CELL)
+        {
+            any r = eqList(CONTEXT_PTR, x1, car(v2));
+            if (r != T) return Nil;
+        }
+        else
+        {
+            if (car(x1) != car(car(v2))) return Nil;
+        }
+
+        v1 = cdr(v1);
+        v2 = cdr(v2);
+    }
+
+    if (v2 != Nil) return Nil;
+
+    if (v2 != Nil) return Nil;
+
+    return T;
+}
 
 any doEq(Context *CONTEXT_PTR, any x)
 {
@@ -462,6 +487,10 @@ any doEq(Context *CONTEXT_PTR, any x)
 
             drop(c1);
             return p2 == Nil? T : Nil;
+        }
+        else if (t == PTR_CELL)
+        {
+            return eqList(CONTEXT_PTR, v, v2);
         }
         else
         {
