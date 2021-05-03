@@ -27,7 +27,7 @@ static void mark(Context *CONTEXT_PTR, any x)
     {
         mark(CONTEXT_PTR, cdr(x));
         x = x->car;
-        while(x && x != Nil)
+        while(x != Nil)
         {
             setMark(x, 1);
             x=x->cdr;
@@ -35,21 +35,19 @@ static void mark(Context *CONTEXT_PTR, any x)
         return;
     }
 
-
     if (getCARType(x) == PTR_CELL) mark(CONTEXT_PTR, car(x));
 
     while (1)
     {
         x = cdr(x);
-        if (x==Nil) break;
         if (getMark(x)) break;
-        setMark(x, 1);
-        if (getCARType(x) == BIN_START)
+        if (x==Nil) break;
+        if (getCARType(x) == BIN_START || getCARType(x) == PTR_CELL)
         {
-            setMark(x, 0);
-            mark(CONTEXT_PTR, x);
+            mark(CONTEXT_PTR, x->car);
         }
-        if (getCARType(x) == PTR_CELL) mark(CONTEXT_PTR, car(x));
+
+        setMark(x, 1);
     }
 }
 
@@ -97,12 +95,12 @@ void markAll(Context *CONTEXT_PTR)
    }
 
    /* Mark */
-   setMark(CONTEXT_PTR->Intern[0], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Intern[0]);
-   setMark(CONTEXT_PTR->Intern[1], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Intern[1]);
-   setMark(CONTEXT_PTR->Transient[0], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Transient[0]);
-   setMark(CONTEXT_PTR->Transient[1], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Transient[1]);
-   if (CONTEXT_PTR->ApplyArgs) setMark(CONTEXT_PTR->ApplyArgs, 0);mark(CONTEXT_PTR, CONTEXT_PTR->ApplyArgs);
-   if (CONTEXT_PTR->ApplyBody) setMark(CONTEXT_PTR->ApplyBody, 0);mark(CONTEXT_PTR, CONTEXT_PTR->ApplyBody);
+   mark(CONTEXT_PTR, CONTEXT_PTR->Intern[0]);
+   mark(CONTEXT_PTR, CONTEXT_PTR->Intern[1]);
+   mark(CONTEXT_PTR, CONTEXT_PTR->Transient[0]);
+   mark(CONTEXT_PTR, CONTEXT_PTR->Transient[1]);
+   if (CONTEXT_PTR->ApplyArgs) mark(CONTEXT_PTR, CONTEXT_PTR->ApplyArgs);
+   if (CONTEXT_PTR->ApplyBody) mark(CONTEXT_PTR, CONTEXT_PTR->ApplyBody);
    for (p = CONTEXT_PTR->Env.stack; p; p = cdr(p))
    {
       mark(CONTEXT_PTR, car(p));
@@ -114,12 +112,6 @@ void markAll(Context *CONTEXT_PTR)
          mark(CONTEXT_PTR, ((bindFrame*)p)->bnd[i].sym);
          mark(CONTEXT_PTR, ((bindFrame*)p)->bnd[i].val);
       }
-   }
-   for (p = (any)CONTEXT_PTR->CatchPtr; p; p = (any)((catchFrame*)p)->link)
-   {
-      if (((catchFrame*)p)->tag)
-         mark(CONTEXT_PTR, ((catchFrame*)p)->tag);
-      mark(CONTEXT_PTR, ((catchFrame*)p)->fin);
    }
 }
 
