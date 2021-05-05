@@ -253,6 +253,7 @@ any doFor(Context *CONTEXT_PTR, any x) {
          val(f->bnd[1].sym) = f->bnd[1].val;
       val(f->bnd[0].sym) = f->bnd[0].val;
       CONTEXT_PTR->Env.bind = f->link;
+      free(f);
       return y;
    }
    if (!isCell(car(y))) {
@@ -314,6 +315,7 @@ for2:
       val(f->bnd[1].sym) = f->bnd[1].val;
    val(f->bnd[0].sym) = f->bnd[0].val;
    CONTEXT_PTR->Env.bind = f->link;
+   free(f);
    return Pop(c1);
 }
 
@@ -418,6 +420,31 @@ any doQuote(Context *CONTEXT_PTR, any x)
 //     return 1;
 // }
 
+any eqList(Context *CONTEXT_PTR, any v1, any v2)
+{
+    while(v1 != Nil)
+    {
+        any x1 = car(v1);
+        if (getCARType(x1) == PTR_CELL)
+        {
+            any r = eqList(CONTEXT_PTR, x1, car(v2));
+            if (r != T) return Nil;
+        }
+        else
+        {
+            if (car(x1) != car(car(v2))) return Nil;
+        }
+
+        v1 = cdr(v1);
+        v2 = cdr(v2);
+    }
+
+    if (v2 != Nil) return Nil;
+
+    if (v2 != Nil) return Nil;
+
+    return T;
+}
 
 any doEq(Context *CONTEXT_PTR, any x)
 {
@@ -460,6 +487,11 @@ any doEq(Context *CONTEXT_PTR, any x)
 
             drop(c1);
             return p2 == Nil? T : Nil;
+        }
+        else if (t == PTR_CELL)
+        {
+            drop(c1);
+            return eqList(CONTEXT_PTR, v, v2);
         }
         else
         {
@@ -1206,6 +1238,7 @@ any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p) {
          while (--f->cnt >= 0)
             val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
          CONTEXT_PTR->Env.bind = f->link;
+         free(f);
          return x;
       }
 //      if (val(foo) == val(Meth)) {

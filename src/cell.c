@@ -1,7 +1,7 @@
 #include "lisp.h"
 #include "cell.h"
 
-CellPartType getCARType(any cell)
+inline CellPartType getCARType(any cell)
 {
     return cell->meta.type.parts[0];
 }

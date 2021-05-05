@@ -13,10 +13,10 @@
     #error "Unsupported bit width"
 #endif
 
+static void gc(Context *CONTEXT_PTR, word c);
+
 static void mark(Context *CONTEXT_PTR, any x)
 {
-    if (!x) return;
-
     if (getMark(x)) return;
 
     setMark(x, 1);
@@ -25,33 +25,29 @@ static void mark(Context *CONTEXT_PTR, any x)
 
     if (getCARType(x) == BIN_START)
     {
-        if (getCDRType(x) == PTR_CELL) mark(CONTEXT_PTR, cdr(x));
+        mark(CONTEXT_PTR, cdr(x));
         x = x->car;
-        while(x && x != Nil)
+        while(x != Nil)
         {
-            mark(CONTEXT_PTR, x);
+            setMark(x, 1);
             x=x->cdr;
         }
         return;
     }
 
-
-    if (getCARType(x) == PTR_CELL || getCARType(x) == INTERN) mark(CONTEXT_PTR, car(x));
+    if (getCARType(x) == PTR_CELL) mark(CONTEXT_PTR, car(x));
 
     while (1)
     {
-        if (getCDRType(x) != PTR_CELL && getCARType(x) != INTERN) break;
         x = cdr(x);
-        if (!x) break;
-        if (x==Nil) break;
         if (getMark(x)) break;
-        setMark(x, 1);
-        if (getCARType(x) == BIN_START)
+        if (x==Nil) break;
+        if (getCARType(x) == BIN_START || getCARType(x) == PTR_CELL)
         {
-            setMark(x, 0);
-            mark(CONTEXT_PTR, x);
+            mark(CONTEXT_PTR, x->car);
         }
-        if (getCARType(x) == PTR_CELL || getCARType(x) == INTERN) mark(CONTEXT_PTR, car(x));
+
+        setMark(x, 1);
     }
 }
 
@@ -71,22 +67,6 @@ void dump(FILE *fp, any p)
     }
 }
 
-void dumpHeaps(FILE *mem, heap *h)
-{
-    any p;
-    if (!h) return;
-    dumpHeaps(mem, h->next);
-
-    fprintf(mem, "# START HEAP\n");
-    p = h->cells + CELLS-1;
-    do
-    {
-        //fprintf(mem, "0x%016lx %p %p %p\n", p, p->car, p->cdr, p->meta.type._t);
-        dump(mem, p);
-    }
-    while (--p >= h->cells);
-}
-
 void markAll(Context *CONTEXT_PTR)
 {
    any p;
@@ -99,12 +79,12 @@ void markAll(Context *CONTEXT_PTR)
    }
 
    /* Mark */
-   setMark(CONTEXT_PTR->Intern[0], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Intern[0]);
-   setMark(CONTEXT_PTR->Intern[1], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Intern[1]);
-   setMark(CONTEXT_PTR->Transient[0], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Transient[0]);
-   setMark(CONTEXT_PTR->Transient[1], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Transient[1]);
-   if (CONTEXT_PTR->ApplyArgs) setMark(CONTEXT_PTR->ApplyArgs, 0);mark(CONTEXT_PTR, CONTEXT_PTR->ApplyArgs);
-   if (CONTEXT_PTR->ApplyBody) setMark(CONTEXT_PTR->ApplyBody, 0);mark(CONTEXT_PTR, CONTEXT_PTR->ApplyBody);
+   mark(CONTEXT_PTR, CONTEXT_PTR->Intern[0]);
+   mark(CONTEXT_PTR, CONTEXT_PTR->Intern[1]);
+   mark(CONTEXT_PTR, CONTEXT_PTR->Transient[0]);
+   mark(CONTEXT_PTR, CONTEXT_PTR->Transient[1]);
+   if (CONTEXT_PTR->ApplyArgs) mark(CONTEXT_PTR, CONTEXT_PTR->ApplyArgs);
+   if (CONTEXT_PTR->ApplyBody) mark(CONTEXT_PTR, CONTEXT_PTR->ApplyBody);
    for (p = CONTEXT_PTR->Env.stack; p; p = cdr(p))
    {
       mark(CONTEXT_PTR, car(p));
@@ -117,16 +97,11 @@ void markAll(Context *CONTEXT_PTR)
          mark(CONTEXT_PTR, ((bindFrame*)p)->bnd[i].val);
       }
    }
-   for (p = (any)CONTEXT_PTR->CatchPtr; p; p = (any)((catchFrame*)p)->link)
-   {
-      if (((catchFrame*)p)->tag)
-         mark(CONTEXT_PTR, ((catchFrame*)p)->tag);
-      mark(CONTEXT_PTR, ((catchFrame*)p)->fin);
-   }
 }
 
 any doHS(Context *CONTEXT_PTR, any ignore)
 {
+    gc(CONTEXT_PTR, CELLS);
     getHeapSize(CONTEXT_PTR);
     return ignore;
 }
@@ -218,7 +193,10 @@ static void gc(Context *CONTEXT_PTR, word c)
             {
                 if (!getMark(p))
                 {
-                    Free(p);
+                    //Free(p);
+                    memset(p, 0, sizeof(cell));
+                    p->car = CONTEXT_PTR->Avail;
+                    CONTEXT_PTR->Avail = p;
                     --c;
                 }
                 setMark(p, 0);
@@ -241,8 +219,8 @@ any consIntern(Context *CONTEXT_PTR, any x, any y)
 {
     any r = cons(CONTEXT_PTR, x, y);
 
-    setCARType(r, INTERN);
-    setCDRType(r, INTERN);
+    setCARType(r, PTR_CELL);
+    setCDRType(r, PTR_CELL);
 
     return r;
 }
@@ -322,12 +300,20 @@ void heapAlloc(Context *CONTEXT_PTR)
 
    CONTEXT_PTR->HeapCount++;
    //h = (heap*)((word)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
-   h = (heap*)((word)alloc(NULL, sizeof(heap) + sizeof(cell)));
+   h = (heap*)((word)calloc(1, sizeof(heap) + sizeof(cell)));
    h->next = CONTEXT_PTR->Heaps,  CONTEXT_PTR->Heaps = h;
    p = h->cells + CELLS-1;
    do
    {
-      Free(p);
+      //Free(p);
+      p->car=CONTEXT_PTR->Avail;
+      CONTEXT_PTR->Avail = p;
    }
    while (--p >= h->cells);
+}
+
+any doGC(Context *CONTEXT_PTR, any ex)
+{
+    gc(CONTEXT_PTR, CELLS);
+    return Nil;
 }

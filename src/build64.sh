@@ -10,5 +10,6 @@ fi
 
 SOURCES=$(cat sources.unix.list)
 
-echo gcc -g3 mem64.c $SOURCES -o lisp64 -lpthread
-gcc -g3 mem64.c $SOURCES -o lisp64 -lpthread
+echo gcc -g3 mem64.c $SOURCES -fsanitize=address -o lisp64 -lpthread
+# gcc -g3 mem64.c $SOURCES -fsanitize=address -o lisp64 -lpthread
+gcc -g3 mem64.c $SOURCES  -o lisp64 -lpthread
