@@ -446,6 +446,29 @@ any eqList(Context *CONTEXT_PTR, any v1, any v2)
     return T;
 }
 
+// TODO - implement for symbols and lists too
+any doGt(Context *CONTEXT_PTR, any ex)
+{
+    any x, y;
+    uword n=0;
+
+    x = cdr(ex);
+    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
+        return Nil;
+    NeedNum(ex,y);
+    n = unBox(y);
+    while (Nil != (x = cdr(x)))
+    {
+        if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
+            return Nil;
+        NeedNum(ex,y);
+        if (n <= unBox(y)) return Nil ;
+        n = unBox(y);
+    }
+
+    return T;
+}
+
 any doEq(Context *CONTEXT_PTR, any x)
 {
    cell c1;
