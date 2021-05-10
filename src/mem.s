@@ -29,6 +29,7 @@ for {doFor}
 run {doRun}
 hs {doHS}
 = {doEq}
+> {doGt}
 if {doIf}
 call {doCall}
 pack {doPack}
