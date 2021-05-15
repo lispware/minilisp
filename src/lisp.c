@@ -575,7 +575,7 @@ int initialize_context(Context *CONTEXT_PTR)
    CONTEXT_PTR->Intern[0] = CONTEXT_PTR->Intern[1] = CONTEXT_PTR->Transient[0] = CONTEXT_PTR->Transient[1] = Nil;
 
    CONTEXT_PTR->Mem[4]=(any)CONTEXT_PTR->Mem;
-   CONTEXT_PTR->Mem[7]=(any)CONTEXT_PTR->Mem + 6;
+   CONTEXT_PTR->Mem[7]=&CONTEXT_PTR->Mem[6];
 
    for (int i = 3; i < MEMS; i += 3) // 2 because Nil has already been interned
    {
@@ -642,6 +642,7 @@ void check(Context *CONTEXT_PTR)
     }
     printf("END CHECK...\n");
 }
+
 
 void copy_mem(any *M, Context *To)
 {
@@ -772,6 +773,7 @@ void copy_restore_cell(Context *From, Context *To, cell *fromCell, cell *toCell)
 
     fromCell->meta.type = toCell->meta.type;
 }
+
 
 void copy_heap(Context *From, Context *To)
 {

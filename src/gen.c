@@ -560,7 +560,7 @@ int main(int ac, char *av[])
     insert(&Intern, "Nil", x);
 
     x = ramSym("T", "(Mem)", PTR_CELL);
-    insert(&Intern, "Nil", x);
+    insert(&Intern, "T", x);
 
     do
     {

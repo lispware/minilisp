@@ -28,6 +28,7 @@ not {doNot}
 for {doFor}
 run {doRun}
 hs {doHS}
+and {doAnd}
 = {doEq}
 > {doGt}
 if {doIf}
