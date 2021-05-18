@@ -60,55 +60,57 @@ any doRun(Context *, any);
 any doHS(Context *, any);
 #define doAnd_D (any)(CONTEXT_PTR->Mem+198)
 any doAnd(Context *, any);
-#define doEq_D (any)(CONTEXT_PTR->Mem+204)
+#define doOr_D (any)(CONTEXT_PTR->Mem+204)
+any doOr(Context *, any);
+#define doEq_D (any)(CONTEXT_PTR->Mem+210)
 any doEq(Context *, any);
-#define doGt_D (any)(CONTEXT_PTR->Mem+210)
+#define doGt_D (any)(CONTEXT_PTR->Mem+216)
 any doGt(Context *, any);
-#define doIf_D (any)(CONTEXT_PTR->Mem+216)
+#define doIf_D (any)(CONTEXT_PTR->Mem+222)
 any doIf(Context *, any);
-#define doCall_D (any)(CONTEXT_PTR->Mem+222)
+#define doCall_D (any)(CONTEXT_PTR->Mem+228)
 any doCall(Context *, any);
-#define doPack_D (any)(CONTEXT_PTR->Mem+228)
+#define doPack_D (any)(CONTEXT_PTR->Mem+234)
 any doPack(Context *, any);
-#define doFork_D (any)(CONTEXT_PTR->Mem+234)
+#define doFork_D (any)(CONTEXT_PTR->Mem+240)
 any doFork(Context *, any);
-#define doSleep_D (any)(CONTEXT_PTR->Mem+240)
+#define doSleep_D (any)(CONTEXT_PTR->Mem+246)
 any doSleep(Context *, any);
-#define doIO_D (any)(CONTEXT_PTR->Mem+252)
+#define doIO_D (any)(CONTEXT_PTR->Mem+258)
 any doIO(Context *, any);
-#define doLoad_D (any)(CONTEXT_PTR->Mem+258)
+#define doLoad_D (any)(CONTEXT_PTR->Mem+264)
 any doLoad(Context *, any);
-#define doEval_D (any)(CONTEXT_PTR->Mem+264)
+#define doEval_D (any)(CONTEXT_PTR->Mem+270)
 any doEval(Context *, any);
-#define doMapcar_D (any)(CONTEXT_PTR->Mem+270)
+#define doMapcar_D (any)(CONTEXT_PTR->Mem+276)
 any doMapcar(Context *, any);
-#define doSampleOpen_D (any)(CONTEXT_PTR->Mem+282)
+#define doSampleOpen_D (any)(CONTEXT_PTR->Mem+288)
 any doSampleOpen(Context *, any);
-#define doSampleRead_D (any)(CONTEXT_PTR->Mem+297)
+#define doSampleRead_D (any)(CONTEXT_PTR->Mem+303)
 any doSampleRead(Context *, any);
-#define doBind_D (any)(CONTEXT_PTR->Mem+312)
+#define doBind_D (any)(CONTEXT_PTR->Mem+318)
 any doBind(Context *, any);
-#define doListen_D (any)(CONTEXT_PTR->Mem+318)
+#define doListen_D (any)(CONTEXT_PTR->Mem+324)
 any doListen(Context *, any);
-#define doSocket_D (any)(CONTEXT_PTR->Mem+330)
+#define doSocket_D (any)(CONTEXT_PTR->Mem+336)
 any doSocket(Context *, any);
-#define doConnect_D (any)(CONTEXT_PTR->Mem+336)
+#define doConnect_D (any)(CONTEXT_PTR->Mem+342)
 any doConnect(Context *, any);
-#define doHTTP_D (any)(CONTEXT_PTR->Mem+348)
+#define doHTTP_D (any)(CONTEXT_PTR->Mem+354)
 any doHTTP(Context *, any);
-#define doSocketClose_D (any)(CONTEXT_PTR->Mem+354)
+#define doSocketClose_D (any)(CONTEXT_PTR->Mem+360)
 any doSocketClose(Context *, any);
-#define doLoop_D (any)(CONTEXT_PTR->Mem+366)
+#define doLoop_D (any)(CONTEXT_PTR->Mem+372)
 any doLoop(Context *, any);
-#define doChop_D (any)(CONTEXT_PTR->Mem+372)
+#define doChop_D (any)(CONTEXT_PTR->Mem+378)
 any doChop(Context *, any);
-#define doGC_D (any)(CONTEXT_PTR->Mem+378)
+#define doGC_D (any)(CONTEXT_PTR->Mem+384)
 any doGC(Context *, any);
-#define doLongFunc_D (any)(CONTEXT_PTR->Mem+438)
+#define doLongFunc_D (any)(CONTEXT_PTR->Mem+444)
 any doLongFunc(Context *, any);
-#define doVeryLongFunc_D (any)(CONTEXT_PTR->Mem+453)
+#define doVeryLongFunc_D (any)(CONTEXT_PTR->Mem+459)
 any doVeryLongFunc(Context *, any);
 
-#define MEMS 477
+#define MEMS 483
 
 #endif

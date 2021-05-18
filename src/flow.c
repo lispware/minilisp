@@ -545,6 +545,19 @@ any doAnd(Context *CONTEXT_PTR, any x) {
    return a;
 }
 
+// (or 'any ..) -> any
+any doOr(Context *CONTEXT_PTR, any x) {
+   any a;
+
+   x = cdr(x);
+   do
+      if (!isNil(a = EVAL(CONTEXT_PTR, car(x))))
+         return val(At) = a;
+   while (Nil != (x = cdr(x)));
+   return Nil;
+}
+
+
 // (== 'any ..) -> flg
 any doEq2(Context *CONTEXT_PTR, any x)
 {

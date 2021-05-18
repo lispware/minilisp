@@ -29,6 +29,7 @@ for {doFor}
 run {doRun}
 hs {doHS}
 and {doAnd}
+or {doOr}
 = {doEq}
 > {doGt}
 if {doIf}
