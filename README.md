@@ -6,20 +6,25 @@ MiniLisp, like PicoLisp, is an *interpreter only* implementation. *Singly linked
 
 ## Building
 
-lisp.c is the LISP interpreter and can be built using a regular C compiler as follows
+```bash
+git clone https://github.com/lispware/minilisp.git
+cd minilisp
+git submodule init
+git submodule update
+```
 
 ### Windows
 
 Assuming that you have run vcvars64.bat or vcvars32.bat to ensure that Micrsoft C compiler is set in the PATH.
 ```bash
-build.bat
+nmake -f makefile
 ```
 
 ### Linux and MacOS / OS X
 
 Assuming that you have gcc
 ```bash
-./build64.sh
+make
 ```
 
 ## Acknowledgements
