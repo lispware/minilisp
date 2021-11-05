@@ -1,8 +1,10 @@
 # What is this?
 
-This is an adaptation of [miniPicoLisp](https://picolisp.com/wiki/?embedded). The main difference from miniPicoLisp is that the core data structure CELL contains three parts instead of two. The third part is introduced to eliminate the need for pointer tagging. 
+This is an adaptation of [miniPicoLisp](https://picolisp.com/wiki/?embedded), a lisp interpreter. The primary goal of this adaptation is to be extremely readable and make vanilla C as the only dependency. It is not that PicoLisp implementation is not readable. It is my opinion however that some of the performance optimizations used in PicoLisp implementation make it harder to understand. Plus, PicoLisp uses some _gcc only_ features. Please note that the readability goal is not achieved yet :)
 
-MiniLisp, like PicoLisp, is an *interpreter only* implementation. *Singly linked list is the only built in data structure* that this language provides. Just these may be sufficient for you to disregard this as a viable programming language. A few years ago, I had myself rejected PicoLisp just for those reasons. However, I have a very different opinon after I took a second look at PicoLisp after having more experience with Lisp/Clojure and having implemented a couple of Lisp compilers - [s2c](https://github.com/ckkashyap/s2c) for example.
+Let me address the "interpreter only" aspect first since this could be turn-off for some folks. It was for me. I had rejected PicoLisp in the past for just this reason. There are some interesting points about why the need for a compiler is unnecessary are mentioned [here](http://software-lab.de/radical.pdf) under section 2.1 - "Myth 1: Lisp needs a compiler".
+
+It is truly simple - the VM of the interpreter is essentially a singly linked list. Which means that you can pretty much understand the complete implementation really quickly and would never have to depend on anyone (or any corp) for any feature.
 
 ## Building
 
