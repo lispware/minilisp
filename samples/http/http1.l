@@ -23,12 +23,12 @@
 
     (prinl CONTENT)
 
-    (sktClose *S)
-
 )
 
 (setq *B (bind 8080))
 (loop
    (setq *S (listen *B))
-   (fork (http *S (ECHO *S)))
+
+    # means, zero out  *S from the calling thread so that it is not GC'd from both threads
+   (thread '(*S) (socket *S (ECHO *S))) 
 )
