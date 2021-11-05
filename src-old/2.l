@@ -1,1 +1,0 @@
-(prinl "SCRIPT 2")

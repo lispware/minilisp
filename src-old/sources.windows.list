@@ -1,1 +1,0 @@
-SOURCES=sym.c read.c gc.c flow.c lisp.c cell.c math.c platform.c platform/windows/thread.c platform/windows/sleep.c platform/windows/net.c
