@@ -1,4 +1,4 @@
-# MiniLisp
+# What is this?
 
 This is an adaptation of [miniPicoLisp](https://picolisp.com/wiki/?embedded). The main difference from miniPicoLisp is that the core data structure CELL contains three parts instead of two. The third part is introduced to eliminate the need for pointer tagging. 
 
