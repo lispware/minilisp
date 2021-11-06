@@ -1,3 +1,5 @@
+# ref - https://rosettacode.org/wiki/Base64_decode_data#PicoLisp
+
 (setq Base64Table `'(chop "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" ))
 
 (de SkipNonBase64Chars (S)
