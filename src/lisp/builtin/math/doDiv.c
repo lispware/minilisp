@@ -43,5 +43,9 @@ any doDiv(Context *CONTEXT_PTR, any ex)
     r2->car = (any)d;
     r2->meta.type.parts[0] = NUM;
 
-    return cons(CONTEXT_PTR, Pop(c1), cons(CONTEXT_PTR, Pop(c2), Nil));
+    any result = cons(CONTEXT_PTR, data(c1), cons(CONTEXT_PTR, data(c2), Nil));
+
+    Pop(c1);
+    return result;
+
 }
