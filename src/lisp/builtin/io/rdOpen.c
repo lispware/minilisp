@@ -13,15 +13,8 @@ void rdOpen(Context *CONTEXT_PTR, any ex, any x, inFrame *f)
         char *nm = (char*)malloc(ps);
 
         pathString(CONTEXT_PTR, x,nm);
-        if (nm[0] == '+')
-        {
-            if (!(f->fp = fopen(nm+1, "a+")))
-            {
-                openErr(ex, nm);
-            }
-            fseek(f->fp, 0L, SEEK_SET);
-        }
-        else if (!(f->fp = fopen(nm, "r")))
+
+        if (!(f->fp = fopen(nm, "rb")))
         {
             openErr(ex, nm);
         }

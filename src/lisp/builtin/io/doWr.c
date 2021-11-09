@@ -15,7 +15,15 @@ any doWr(Context *CONTEXT_PTR, any ex)
 
     if (count == 0)
     {
-        fputc(0, CONTEXT_PTR->OutFile);
+        CONTEXT_PTR->Env.put(CONTEXT_PTR, 0);
+        mp_int *n = (mp_int*)malloc(sizeof(mp_int));
+        _mp_error = mp_init(n); // TODO handle the errors appropriately
+        mp_set(n, 1);
+
+        any r = cons(CONTEXT_PTR, Nil, Nil);
+        r->car = (any)n;
+        r->meta.type.parts[0] = NUM;
+        return r;
     }
 
 
@@ -37,7 +45,10 @@ any doWr(Context *CONTEXT_PTR, any ex)
     unsigned char *buf = (char *)malloc(count);
     _mp_error = mp_pack((void *)buf, count, &written, order, 1, endianess, 0, (mp_int*)p1->car);
 
-    fwrite(buf, 1, count, CONTEXT_PTR->OutFile);
+    for (int i = 0; i < count; i++)
+    {
+        CONTEXT_PTR->Env.put(CONTEXT_PTR, buf[i]);
+    }
     free(buf);
 
     mp_int *n = (mp_int*)malloc(sizeof(mp_int));

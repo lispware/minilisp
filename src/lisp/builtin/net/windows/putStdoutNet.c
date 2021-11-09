@@ -8,8 +8,8 @@
 
 void putStdoutNet(Context *CONTEXT_PTR, int c)
 {
-    char buf[1];
-    buf[0] = (char)c;
+    unsigned char buf[1];
+    buf[0] = (unsigned char)c;
     SOCKET current_client = (SOCKET)CONTEXT_PTR->OutFile;
 
     send(current_client,buf,1,0);

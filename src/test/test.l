@@ -284,8 +284,8 @@
 ################################################################################
 
 (setq TEST_PORT 8080)
-(de SRV ()
-    (let (B (bind 8080)
+(de SRV (PORT)
+    (let (B (bind PORT)
           S (listen B))
         (socket S
             (let L (line)
@@ -295,7 +295,7 @@
 
 
 (do 1
-    (thread () (SRV))
+    (thread () (SRV TEST_PORT))
     (sleep 100)
 
     (let (X Nil
@@ -305,6 +305,21 @@
             (setq X (pack (line))))
         (TEST "networking" "ECHO: HELLO" X))
 )
+
+(de SRV_BIN (PORT)
+    (let (B (bind PORT)
+          S (listen B))
+        (socket S (for I 256 (let X (rd 1)  (wr X))))))
+
+(do 1
+    (thread () (SRV_BIN 9090))
+    (sleep 100)
+
+    (let (X 0
+          S (connect "127.0.0.1" 9090))
+        (socket S (for I 256 (wr (- I 1)) (setq X  (+ X (rd 1))) (out "+CLIENT" (prinl X)) ))
+        (TEST "networking binary" (let Y 0 (for I 255 (setq Y (+ I Y)))) X)))
+
 
 ################################################################################
 # end of test

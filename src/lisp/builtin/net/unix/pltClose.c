@@ -14,7 +14,6 @@ void pltClose(struct _external* obj)
         fprintf(stderr, "Not a socket %d\n", obj->type);
         exit(0);
     }
-    fprintf(stderr, "Releasing the socket %p\n", obj->pointer );
 
     close((uword)obj->pointer);
     free(obj);

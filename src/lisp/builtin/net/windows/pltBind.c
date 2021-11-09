@@ -40,8 +40,6 @@ any pltBind(Context *CONTEXT_PTR, word n)
     e->print = printSocket;
     e->pointer = (void*)sock;
 
-    printf("BIND e = %p POINTER =  %p\n", e, e->pointer);
-
     any r = cons(CONTEXT_PTR, (any)e, Nil);
     setCARType(r, EXT);
 

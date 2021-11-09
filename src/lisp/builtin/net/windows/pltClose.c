@@ -13,7 +13,6 @@ void pltClose(struct _external* obj)
         fprintf(stderr, "Not a socket\n");
         exit(0);
     }
-    fprintf(stderr, "Releasing the socket %d\n",(int)obj->pointer );
     closesocket((int)obj->pointer);
     free(obj);
 }

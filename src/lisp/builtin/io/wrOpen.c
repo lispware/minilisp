@@ -10,10 +10,10 @@ void wrOpen(Context *CONTEXT_PTR, any ex, any x, outFrame *f)
 
       pathString(CONTEXT_PTR, x,nm);
       if (nm[0] == '+') {
-         if (!(f->fp = fopen(nm+1, "a")))
+         if (!(f->fp = fopen(nm+1, "ab")))
             openErr(ex, nm);
       }
-      else if (!(f->fp = fopen(nm, "w")))
+      else if (!(f->fp = fopen(nm, "wb")))
          openErr(ex, nm);
 
       free(nm);

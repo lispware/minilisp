@@ -14,10 +14,17 @@ any doRd(Context *CONTEXT_PTR, any ex)
     size_t count = mp_get_i32((mp_int*)p1->car);
 
     unsigned char *buf = (char *)malloc(count);
-    if (fread(buf, 1, count, CONTEXT_PTR->InFile) == 0)
+    //if (fread(buf, 1, count, CONTEXT_PTR->InFile) == 0)
+    //{
+    //    // TODO - EOF probably or some other error
+    //    return Nil;
+    //}
+
+    for(int i = 0;i < count; i++)
     {
-        // TODO - EOF probably or some other error
-        return Nil;
+        CONTEXT_PTR->Env.get(CONTEXT_PTR);
+        if (CONTEXT_PTR->Chr < 0 ) break;
+        buf[i] = CONTEXT_PTR->Chr;
     }
 
     mp_order order = MP_LSB_FIRST;

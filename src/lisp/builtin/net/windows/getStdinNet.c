@@ -8,7 +8,7 @@
 
 void getStdinNet(Context *CONTEXT_PTR)
 {
-    char buf[1];
+    unsigned char buf[1];
 
     SOCKET current_client = (SOCKET)CONTEXT_PTR->InFile;
 
