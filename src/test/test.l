@@ -107,7 +107,7 @@
 (TEST "(let X (1 2 3) (++ X))" 1 (let X (1 2 3) (++ X)))
 
 ################################################################################
-# make/link
+# make/link/list/length
 ################################################################################
 (TEST "(make)" Nil (make))
 (TEST "(make (link 1))" (1) (make (link 1)))
@@ -115,6 +115,17 @@
 (TEST "(make (do 2 (link 1)))" (1 1) (make (do 2 (link 1))))
 (TEST "(make (for I 2 (link I)))" (1 2) (make (for I 2 (link I))))
 (TEST "(make (for I (1 2) (link I)))" (1 2) (make (for I (1 2) (link I))))
+(TEST "(list)" (cons Nil Nil) (list))
+(TEST "(list 1 2)" (1 2) (list 1 2))
+(TEST "(list (+ 1 1) (+ 2 1))" (2 3) (list (+ 1 1) (+ 2 1)))
+(TEST "(let (a 10 b 20) (list a b))" (10 20) (let (a 10 b 20) (list a b)))
+(TEST "(length)" Nil (length))
+(TEST "(length 100)" 100 (length 100))
+(TEST "(length \"a\")" 1 (length "a"))
+(TEST "(length \"abcd\")" 4 (length "abcd"))
+(TEST "(length \"abcd\")" 4 (length "abcd"))
+(TEST "(length (list 1 2 3))" 3 (length (list 1 2 3)))
+(TEST "(length (list))" 1 (length (list)))
 
 ################################################################################
 # index
@@ -236,12 +247,14 @@
 (TEST "(cmp (call \"exit 1\") 0)" 1 (cmp (call "exit 1") 0))
 
 ################################################################################
-# if
+# if / cond
 ################################################################################
 (de RETURN_TRUE () (link "C") T)
 (de RETURN_FALSE () (link "C") Nil)
 (TEST "if true path" '("C" "TRUE") (make (if (RETURN_TRUE) (link "TRUE") (link "FALSE"))))
 (TEST "if false path" '("C" "FALSE") (make (if (RETURN_FALSE) (link "TRUE") (link "FALSE"))))
+(TEST "(cond ((= 3 4) 1) ((= 3 3) 2) (T 3) )" 2 (cond ((= 3 4) 1) ((= 3 3) 2) (T 3) ))
+(TEST "(cond ((= 3 4) 1) ((= 3 5) 2) (T 3) )" 3 (cond ((= 3 4) 1) ((= 3 5) 2) (T 3) ))
 
 ################################################################################
 # pack / chop

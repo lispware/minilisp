@@ -40,6 +40,7 @@ SOURCES=lisp/eval/evList.c \
     lisp/builtin/flow/doRun.c \
     lisp/builtin/flow/doArgs.c \
     lisp/builtin/flow/doIf.c \
+    lisp/builtin/flow/doCond.c \
     lisp/builtin/flow/doNext.c \
     lisp/builtin/sym/doHide.c \
     lisp/builtin/sym/doPack.c \
@@ -77,6 +78,8 @@ SOURCES=lisp/eval/evList.c \
     lisp/builtin/list/indx.c \
     lisp/builtin/list/doIndex.c \
     lisp/builtin/list/doLink.c \
+    lisp/builtin/list/doLength.c \
+    lisp/builtin/list/doList.c \
     lisp/builtin/list/doMapcar.c \
     lisp/builtin/list/doMake.c \
     lisp/builtin/list/doCons.c \

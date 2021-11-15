@@ -5,7 +5,7 @@
 any doRandom(Context *CONTEXT_PTR, any ex)
 {
     any x, y;
-    word s = 32;
+    uword s = 32;
     mp_int *n = (mp_int*)malloc(sizeof(mp_int));
     mp_err _mp_error = mp_init(n);
 

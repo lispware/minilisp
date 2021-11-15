@@ -62,6 +62,8 @@ void setupBuiltinFunctions(any * Mem)
     AddFunc(memCell, "make", doMake);
     AddFunc(memCell, "index", doIndex);
     AddFunc(memCell, "link", doLink);
+    AddFunc(memCell, "length", doLength);
+    AddFunc(memCell, "list", doList);
     AddFunc(memCell, "cons", doCons);
     AddFunc(memCell, "car", doCar);
     AddFunc(memCell, "cdr", doCdr);
@@ -79,6 +81,7 @@ void setupBuiltinFunctions(any * Mem)
     AddFunc(memCell, "or", doOr);
     AddFunc(memCell, "=", doEq);
     AddFunc(memCell, "if", doIf);
+    AddFunc(memCell, "cond", doCond);
     AddFunc(memCell, "call", doCall);
     AddFunc(memCell, "pack", doPack);
     AddFunc(memCell, "load", doLoad);
