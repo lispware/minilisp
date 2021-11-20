@@ -9,7 +9,6 @@ void initialize_context(Context *CONTEXT_PTR)
    {
       any cell = (any)(CONTEXT_PTR->Mem + i);
       CellPartType carType = getCARType(cell);
-      CellPartType cdrType = getCDRType(cell);
 
       if ((BIN_START == carType || TXT == carType))
       {

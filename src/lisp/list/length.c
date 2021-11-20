@@ -4,7 +4,6 @@ uword length(Context *CONTEXT_PTR, any x)
 {
    uword n;
 
-   if (getCDRType(x) != PTR_CELL) return 0;
    if (getCARType(x) != PTR_CELL) return 0;
    if (cdr(x) == x) return 0;
 

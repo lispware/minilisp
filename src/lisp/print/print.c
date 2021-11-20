@@ -36,7 +36,7 @@ void print(Context *CONTEXT_PTR, any x)
         free(b);
     }
 
-    if (getCARType(x) == PTR_CELL && getCDRType(x) == PTR_CELL)
+    if (getCARType(x) == PTR_CELL)
     {
         CONTEXT_PTR->Env.put(CONTEXT_PTR, '(');
         print(CONTEXT_PTR, x->car);

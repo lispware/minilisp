@@ -3,9 +3,8 @@
 
 void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
 {
-    CellPartType carType, cdrType;
+    CellPartType carType;
     carType = getCARType(toCell);
-    cdrType = getCDRType(toCell);
 
     if (carType == NUM)
     {
@@ -37,19 +36,12 @@ void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
         }
     }
 
-    if (cdrType == TXT || cdrType == NUM || cdrType == FUNC || cdrType == BIN || carType == EXT)
+    if (fromCell->cdr != 0)
     {
-        toCell->cdr = fromCell->cdr;
+        toCell->cdr = fromCell->cdr->meta.ptr;
     }
     else
     {
-        if (fromCell->cdr != 0)
-        {
-            toCell->cdr = fromCell->cdr->meta.ptr;
-        }
-        else
-        {
-            toCell->cdr = fromCell->cdr;
-        }
+        toCell->cdr = fromCell->cdr;
     }
 }

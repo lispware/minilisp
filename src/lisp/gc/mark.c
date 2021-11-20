@@ -12,7 +12,8 @@ void mark(Context *CONTEXT_PTR, any x)
 
     if (getCARType(x) == BIN_START)
     {
-        if (getCDRType(x) == PTR_CELL) mark(CONTEXT_PTR, cdr(x));
+        mark(CONTEXT_PTR, cdr(x));
+
         x = x->car;
         while(x && x != Nil)
         {
@@ -26,7 +27,6 @@ void mark(Context *CONTEXT_PTR, any x)
 
     while (1)
     {
-        if (getCDRType(x) != PTR_CELL && getCARType(x) != INTERN) break;
         x = cdr(x);
         if (!x) break;
         if (x==Nil) break;

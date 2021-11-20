@@ -36,10 +36,7 @@ any read0(Context *CONTEXT_PTR, bool top)
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
         any rest = read0(CONTEXT_PTR, top);
-        if (getCDRType(rest) == PTR_CELL) 
         return cons(CONTEXT_PTR, doQuote_D, rest);
-        else
-        return cons(CONTEXT_PTR, doQuote_D, cons(CONTEXT_PTR, rest, Nil));
     }
     if (CONTEXT_PTR->Chr == ',')
     {

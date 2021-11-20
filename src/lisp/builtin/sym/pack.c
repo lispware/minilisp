@@ -7,7 +7,7 @@ void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp)
     uword w;
     mp_err _mp_error;
 
-    if (x != Nil && getCARType(x) == PTR_CELL && getCDRType(x) == PTR_CELL)
+    if (x != Nil && getCARType(x) == PTR_CELL)
     {
         do
         {

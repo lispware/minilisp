@@ -93,7 +93,6 @@ typedef struct _cell
 cell, *any;
 
 #define getCARType(C) ((C)->meta.type.parts[0])
-#define getCDRType(C) ((C)->meta.type.parts[1])
 #define setCARType(C, V) ((C)->meta.type.parts[0] = V)
 #define setCDRType(C, V) ((C)->meta.type.parts[1] = V)
 
