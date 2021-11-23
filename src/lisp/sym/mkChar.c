@@ -2,5 +2,17 @@
 
 any mkChar(Context *CONTEXT_PTR, int c)
 {
-   return consSym(CONTEXT_PTR, NULL, c);
+    cell c1;
+    any r = cons(CONTEXT_PTR, Nil, Nil);
+    Push (c1, r);
+    r->car = cons(CONTEXT_PTR, Nil, Nil);
+    r->cdr = Nil;
+    r->car->car = c;
+    r->car->cdr = Nil;
+
+    setCARType(r, BIN_START);
+    setCARType(r->car, BIN);
+
+
+    return Pop(c1);
 }

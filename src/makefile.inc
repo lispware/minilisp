@@ -125,10 +125,8 @@ SOURCES=lisp/eval/evList.c \
     lisp/read/comment.c \
     lisp/read/pathString.c \
     lisp/read/skip.c \
-    lisp/init/addLongString.c \
     lisp/init/setupBuiltinFunctions.c \
     lisp/init/addString.c \
-    lisp/init/addShortString.c \
     lisp/init/initializeContext.c \
     lisp/list/consIntern.c \
     lisp/list/consSym.c \

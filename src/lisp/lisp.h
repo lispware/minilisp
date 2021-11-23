@@ -41,12 +41,12 @@ DEFINITONS
 #define Bind(s,f)       ((f).i=0, (f).cnt=1, (f).bnd[0].sym=(s), (f).bnd[0].val=val(s), (f).link=CONTEXT_PTR->Env.bind, CONTEXT_PTR->Env.bind=&(f))
 #define Unbind(f)       (val((f).bnd[0].sym)=(f).bnd[0].val, CONTEXT_PTR->Env.bind=(f).link)
 
-#define Nil ((CONTEXT_PTR->Mem))
-#define T (&(CONTEXT_PTR->Mem[2]))
-#define At (&(CONTEXT_PTR->Mem[3]))
-#define At2 (&(CONTEXT_PTR->Mem[4]))
-#define At3 (&(CONTEXT_PTR->Mem[5]))
-#define doQuote_D (&(CONTEXT_PTR->Mem[6]))
+#define Nil (&(CONTEXT_PTR->Mem[0]))
+#define T (&(CONTEXT_PTR->Mem[3]))
+#define At (&(CONTEXT_PTR->Mem[5]))
+#define At2 (&(CONTEXT_PTR->Mem[7]))
+#define At3 (&(CONTEXT_PTR->Mem[9]))
+#define doQuote_D (&(CONTEXT_PTR->Mem[11]))
 
 #ifndef CELLS
 #define CELLS (1024*1024)

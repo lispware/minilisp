@@ -10,6 +10,17 @@
     M = M->cdr + 1; \
     }
 
+void printIndex(char *name, void *_MemStart, void *_Mem)
+{
+#if 0 // TODO - is this needed
+    uword MemStart = (uword)_MemStart;
+    uword Mem = (uword)_Mem;
+    int index = (Mem - MemStart)/sizeof(cell);
+
+    printf("Index of %s is %d\n", name, index);
+#endif
+}
+
 void setupBuiltinFunctions(any * Mem)
 {
     int MEM_SIZE_GUESS = 300;
@@ -24,18 +35,23 @@ void setupBuiltinFunctions(any * Mem)
 
     memCell++;
     memCell->cdr = *Mem;
+    printIndex("Nil", *Mem, memCell);
     memCell = addString(Mem, memCell, "Nil");
 
     memCell->cdr = *Mem;
+    printIndex("T", *Mem, memCell);
     memCell = addString(Mem, memCell, "T");
 
     memCell->cdr = *Mem + 1;
+    printIndex("@", *Mem, memCell);
     memCell = addString(Mem, memCell, "@");
 
     memCell->cdr = *Mem + 1;
+    printIndex("@@", *Mem, memCell);
     memCell = addString(Mem, memCell, "@@");
 
     memCell->cdr = *Mem + 1;
+    printIndex("@@@", *Mem, memCell);
     memCell = addString(Mem, memCell, "@@@");
 
     AddFunc(memCell, "quote", doQuote); 
@@ -113,8 +129,10 @@ void setupBuiltinFunctions(any * Mem)
     {
         fprintf(stderr, "MEM_SIZE_GUESS is %d; It should be atleast %d\n", MEM_SIZE_GUESS, MEMS);
     }
+#if 0 // TODO - is this needed
     if (MEMS < MEM_SIZE_GUESS)
     {
         fprintf(stderr, "MEM_SIZE_GUESS is %d; %d is sufficient\n", MEM_SIZE_GUESS, MEMS);
     }
+#endif
 }

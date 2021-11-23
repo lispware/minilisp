@@ -8,5 +8,15 @@ any popSym(Context *CONTEXT_PTR, int i, uword n, any q, cell *cp)
         q->cdr = consName(CONTEXT_PTR, n, Nil);
         return Pop(*cp);
     }
-    return consSym(CONTEXT_PTR, NULL, n);
+    else
+    {
+        cell c1;
+        any x = consSym(CONTEXT_PTR, NULL, 0);
+        setCARType(x, BIN_START);
+        Push(c1, x);
+        any y = consName(CONTEXT_PTR, n, Nil);
+        setCARType(y, BIN);
+        c1.car->car = y;
+        return Pop(c1);
+    }
 }
