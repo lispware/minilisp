@@ -16,7 +16,6 @@ any pltSocket(Context *CONTEXT_PTR, any ex)
 
     external *e = (external*)y->car;
     n = (uword)e->pointer;
-    printf("SOCKET e = %p POINTER =  %p\n", e, e->pointer);
 
     inFrame f;
     outFrame fo;
@@ -30,5 +29,6 @@ any pltSocket(Context *CONTEXT_PTR, any ex)
     popIOFilesNet(CONTEXT_PTR);
 
     e->release(e);
+    y->CAR = NULL; // TODO -> this has to be understood more
     return Nil;
 }
