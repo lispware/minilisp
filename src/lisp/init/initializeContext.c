@@ -10,7 +10,7 @@ void initialize_context(Context *CONTEXT_PTR)
       any cell = (any)(CONTEXT_PTR->Mem + i);
       CellPartType carType = getCARType(cell);
 
-      if ((BIN_START == carType || TXT == carType))
+      if (BIN_START == carType)
       {
          intern(CONTEXT_PTR, cell, CONTEXT_PTR->Intern);
       }

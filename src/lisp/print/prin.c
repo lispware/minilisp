@@ -18,10 +18,6 @@ void prin(Context *CONTEXT_PTR, any x)
         {
             printf("T");
         }
-        else if (getCARType(x) == TXT)
-        {
-            printLongTXT(CONTEXT_PTR, x);
-        }
         else if (getCARType(x) == BIN_START)
         {
             printLongTXT(CONTEXT_PTR, x);

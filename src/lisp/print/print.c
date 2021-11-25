@@ -19,7 +19,7 @@ void print(Context *CONTEXT_PTR, any x)
         outNum(CONTEXT_PTR, x);
         return;
     }
-    if (getCARType(x) == TXT || getCARType(x) == BIN_START)
+    if (getCARType(x) == BIN_START)
     {
         int quotedText = NULL != isIntern(CONTEXT_PTR, x, CONTEXT_PTR->Transient);
         if (quotedText) CONTEXT_PTR->Env.put(CONTEXT_PTR, '"');
