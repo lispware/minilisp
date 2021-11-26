@@ -19,7 +19,7 @@ any EVAL(Context *CONTEXT_PTR, any x)
     {
         return x;
     }
-    else if (isTxt(x) || getCARType(x) == BIN_START)
+    else if (getCARType(x) == BIN_START)
     {
         return val(x);
     }
