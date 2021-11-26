@@ -11,7 +11,8 @@ any isIntern(Context *CONTEXT_PTR, any nm, any tree[2])
         z = x->car->car;
         while ((n = (word)(car(y)) - (word)car(z)) == 0)
         {
-            if (getCARType(y) != BIN) return car(x);
+            if (y == Nil) return car(x);
+
             y=y->cdr;
             z=z->cdr;
         }
