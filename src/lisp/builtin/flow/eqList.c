@@ -5,6 +5,8 @@ int eqList(Context *CONTEXT_PTR, any v1, any v2)
 {
     while(v1 != Nil)
     {
+        if (v2 == Nil) return 1;
+
         CellPartType t1 = getCARType(v1);
         CellPartType t2 = getCARType(v2);
 
