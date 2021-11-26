@@ -28,7 +28,7 @@ any doChar(Context *CONTEXT_PTR, any ex)
     }
 
     CellPartType t = getCARType(x);
-    if (t == TXT || t == BIN_START)
+    if (t == BIN_START)
     {
 
         mp_int *n = (mp_int*)malloc(sizeof(mp_int));

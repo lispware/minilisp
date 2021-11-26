@@ -12,7 +12,7 @@ any doCall(Context *CONTEXT_PTR, any ex)
     }
 
     CellPartType t = getCARType(y);
-    if (t != TXT && t != BIN_START)
+    if (t != BIN_START)
     {
         return Nil;
     }
