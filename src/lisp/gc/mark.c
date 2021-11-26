@@ -23,7 +23,7 @@ void mark(Context *CONTEXT_PTR, any x)
         return;
     }
 
-    if (getCARType(x) == PTR_CELL || getCARType(x) == INTERN) mark(CONTEXT_PTR, car(x));
+    if (getCARType(x) == PTR_CELL) mark(CONTEXT_PTR, car(x));
 
     while (1)
     {
@@ -37,6 +37,6 @@ void mark(Context *CONTEXT_PTR, any x)
             setMark(x, 0);
             mark(CONTEXT_PTR, x);
         }
-        if (getCARType(x) == PTR_CELL || getCARType(x) == INTERN) mark(CONTEXT_PTR, car(x));
+        if (getCARType(x) == PTR_CELL) mark(CONTEXT_PTR, car(x));
     }
 }
