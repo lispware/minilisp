@@ -10,16 +10,7 @@ int symBytes(Context *CONTEXT_PTR, any x)
 
     CellPartType t = getCARType(x);
 
-    if (t == TXT)
-    {
-        w = (uword)(x->car);
-        while (w)
-        {
-            ++cnt;
-            w >>= 8;
-        }
-    }
-    else if (t == BIN_START)
+    if (t == BIN_START)
     {
 
         x = x->car;
