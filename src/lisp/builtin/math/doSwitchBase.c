@@ -26,7 +26,7 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
         free(buf);
         return r;
     }
-    else if (t == TXT || t == BIN_START)
+    else if (t == BIN_START)
     {
         int LEN = pathSize(CONTEXT_PTR, p1);
         int CTR = 0;

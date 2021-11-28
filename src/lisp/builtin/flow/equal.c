@@ -15,15 +15,6 @@ int equal(Context *CONTEXT_PTR, any v, any v2)
     {
         return mp_cmp((mp_int*)v->car, (mp_int*)v2->car);
     }
-    else if(t == TXT)
-    {
-        if (car(v2) != car(v))
-        {
-            return ((uword)car(v2) > (uword)car(v)) ? -1 : 1;
-        }
-
-        return 0;
-    }
     else if (t == BIN_START)
     {
         any p1 = car(v);

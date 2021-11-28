@@ -28,7 +28,7 @@ libtommath/libtommath.a:
 	$(CC) -I lisp -I libtommath -g3 -c $< -o $@
 
 clean:
-	rm -f $(OBJECTS)
+	find lisp -name "*.obj" -exec rm -f {} \;
 	rm -f lisp.exe
 
 cleanall:

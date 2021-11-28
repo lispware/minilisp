@@ -104,11 +104,9 @@ typedef any (*FunPtr)(struct _Context *, any);
 typedef enum
 {
     UNDEFINED,
-    TXT,
     NUM,
     FUNC,
     PTR_CELL,
-    INTERN,
     BIN,
     BIN_START,
     EXT,
@@ -228,7 +226,6 @@ typedef struct _external
 
 /* Predicates */
 #define isNil(x)        ((x)==Nil)
-#define isTxt(x)        (((any)(x))->meta.type.parts[0] == TXT)
 #define isNum(x)        (((any)(x))->meta.type.parts[0] == NUM)
 #define isCell(x)        (((any)(x))->meta.type.parts[0] == PTR_CELL)
 #define isFunc(x)        (((any)(x))->meta.type.parts[0] == FUNC)

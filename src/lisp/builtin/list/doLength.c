@@ -24,16 +24,6 @@ any doLength(Context *CONTEXT_PTR, any x)
     {
         return x;
     }
-    else if (t == TXT)
-    {
-        w = (uword)(x->car);
-        if (w) lengthBiggerThanZero = 1;
-        while (w)
-        {
-            _mp_error = mp_incr(r);
-            w >>= 8;
-        }
-    }
     else if (t == BIN_START)
     {
         x = x->car;
