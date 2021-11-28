@@ -29,6 +29,6 @@ any pltSocket(Context *CONTEXT_PTR, any ex)
     popIOFilesNet(CONTEXT_PTR);
 
     e->release(e);
-    y->CAR = NULL; // TODO -> this has to be understood more
+    y->car = NULL; // TODO -> this has to be understood more
     return Nil;
 }

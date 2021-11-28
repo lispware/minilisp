@@ -34,7 +34,7 @@ any doThread(Context *CONTEXT_PTR_ORIG, any x)
     CONTEXT_PTR->ApplyBody = Nil; //cons(CONTEXT_PTR, Nil, Nil);
 
     copyHeap(CONTEXT_PTR_ORIG, CONTEXT_PTR);
-    CONTEXT_PTR->Mem[0].car = CONTEXT_PTR->Mem[0].cdr;
+    CONTEXT_PTR->Mem[0].car = CONTEXT_PTR->Mem[0].cdr; // TODO - should find a better place for this
     if (!CONTEXT_PTR_ORIG->Avail) CONTEXT_PTR->Avail = 0;
 
     // Clear out the items that need to be moved to the new thread
