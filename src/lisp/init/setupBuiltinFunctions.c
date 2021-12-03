@@ -31,7 +31,7 @@ void setupBuiltinFunctions(any * Mem)
 
     memCell->car = *Mem;
     memCell->cdr = *Mem;
-    memCell->meta.ptr = (any)0x404;
+    memCell->meta.ptr = (any)(PTR_CELL | PTR_CELL << 8);
 
     memCell++;
     memCell->cdr = *Mem;
