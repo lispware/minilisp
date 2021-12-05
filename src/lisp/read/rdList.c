@@ -26,7 +26,9 @@ any rdList(Context *CONTEXT_PTR)
 
         x = read0(CONTEXT_PTR, NO);
         Push(c1, x);
-        if (isCell(x = data(c1) = EVAL(CONTEXT_PTR, data(c1))) && x != Nil)
+
+        x = data(c1) = EVAL(CONTEXT_PTR, data(c1));
+        if (isCell(x) && x != Nil)
         {
             while (Nil != cdr(x) && isCell(cdr(x)))
             {

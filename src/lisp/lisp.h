@@ -227,7 +227,7 @@ typedef struct _external
 /* Predicates */
 #define isNil(x)        ((x)==Nil)
 #define isNum(x)        (((any)(x))->meta.type.parts[0] == NUM)
-#define isCell(x)        (((any)(x))->meta.type.parts[0] == PTR_CELL)
+#define isCell(x)        ((((any)(x))->meta.type.parts[0] == PTR_CELL) && (((any)(x->car))->meta.type.parts[0] != BIN))
 #define isFunc(x)        (((any)(x))->meta.type.parts[0] == FUNC)
 
 

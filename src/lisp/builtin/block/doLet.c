@@ -16,7 +16,8 @@ any doLet(Context *CONTEXT_PTR, any x)
     any y;
 
     x = cdr(x);
-    if (!isCell(y = car(x)))
+    y = car(x);
+    if (!isCell(y))
     {
         bindFrame f;
 
@@ -37,8 +38,10 @@ any doLet(Context *CONTEXT_PTR, any x)
             f->bnd[f->cnt].val = val(car(y));
             ++f->cnt;
             val(car(y)) = EVAL(CONTEXT_PTR, cadr(y));
+
+            y = cddr(y);
         }
-        while (isCell(y = cddr(y)) && y != Nil);
+        while (isCell(y) && y != Nil);
         x = prog(CONTEXT_PTR, cdr(x));
         while (--f->cnt >= 0)
             val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;

@@ -20,7 +20,8 @@ any doFor(Context *CONTEXT_PTR, any x)
     f->link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = f;
     f->i = 0;
 
-    if (!isCell(y = car(x = cdr(x))) || !isCell(cdr(y)))
+    y = car(x = cdr(x));
+    if (!isCell(y) || !isCell(cdr(y)))
     {
         if (!isCell(y))
         {

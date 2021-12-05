@@ -8,7 +8,9 @@ any doMapcar(Context *CONTEXT_PTR, any ex)
 
    Push(res, Nil);
    Push(foo, EVAL(CONTEXT_PTR, car(x)));
-   if (isCell(x = cdr(x))) {
+
+   x = cdr(x);
+   if (isCell(x)) {
       int i, n = 0;
       //cell c[length(CONTEXT_PTR, x)];
       cell *c = (cell *)calloc(sizeof(cell), length(CONTEXT_PTR, x));
