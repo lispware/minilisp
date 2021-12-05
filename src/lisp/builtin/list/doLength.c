@@ -39,7 +39,7 @@ any doLength(Context *CONTEXT_PTR, any x)
             x = x->cdr;
         }
     }
-    else if (t == PTR_CELL)
+    else if (isCell(x))
     {
         lengthBiggerThanZero = 1;
         while (Nil != x)
