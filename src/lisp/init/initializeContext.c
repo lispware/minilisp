@@ -8,9 +8,8 @@ void initialize_context(Context *CONTEXT_PTR)
    for (int i = 1; i < MEMS; i++)
    {
       any cell = (any)(CONTEXT_PTR->Mem + i);
-      CellPartType carType = getCARType(cell);
 
-      if (BIN_START == carType)
+      if (isSym(cell))
       {
          intern(CONTEXT_PTR, cell, CONTEXT_PTR->Intern);
       }

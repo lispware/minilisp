@@ -24,7 +24,7 @@ any doLength(Context *CONTEXT_PTR, any x)
     {
         return x;
     }
-    else if (t == BIN_START)
+    else if (isSym(x))
     {
         x = x->car;
         while (x != Nil)

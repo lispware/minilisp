@@ -4,7 +4,7 @@ int getByte1(Context *CONTEXT_PTR, int *i, uword *p, any *q)
 {
     int c;
 
-    if (getCARType(*q) == BIN_START)
+    if (isSym(*q))
     {
         (*q)=(*q)->car;
         *i = BITS, *p = (uword)((*q)->car) , *q = ((*q)->cdr);

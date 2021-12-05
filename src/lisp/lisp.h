@@ -229,6 +229,7 @@ typedef struct _external
 #define isNum(x)        (((any)(x))->meta.type.parts[0] == NUM)
 #define isCell(x)        ((((any)(x))->meta.type.parts[0] == PTR_CELL) && (((any)(x->car))->meta.type.parts[0] != BIN))
 #define isFunc(x)        (((any)(x))->meta.type.parts[0] == FUNC)
+#define isSym(x)        (((any)(x))->meta.type.parts[0] == BIN_START)
 
 
 /* Error checking */
@@ -267,7 +268,6 @@ void print(Context *CONTEXT_PTR, any x);
 void space(Context *CONTEXT_PTR);
 void prin(Context *CONTEXT_PTR, any x);
 void newline(Context *CONTEXT_PTR);
-bool isSym(any x);
 void rdOpen(Context *CONTEXT_PTR, any ex, any x, inFrame *f);
 void popInFiles(Context *CONTEXT_PTR);
 void pushOutFiles(Context *CONTEXT_PTR, outFrame *f);
