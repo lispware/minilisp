@@ -10,7 +10,7 @@ void mark(Context *CONTEXT_PTR, any x)
 
     if (x == Nil) return;
 
-    if (isSym(x))
+    if (getCARType(x) == BIN_START)
     {
         mark(CONTEXT_PTR, cdr(x));
 
@@ -32,7 +32,7 @@ void mark(Context *CONTEXT_PTR, any x)
         if (x==Nil) break;
         if (getMark(x)) break;
         setMark(x, 1);
-        if (isSym(x))
+        if (getCARType(x) == BIN_START)
         {
             setMark(x, 0);
             mark(CONTEXT_PTR, x);

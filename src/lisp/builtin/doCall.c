@@ -11,7 +11,8 @@ any doCall(Context *CONTEXT_PTR, any ex)
         return Nil;
     }
 
-    if (!isSym(y))
+    CellPartType t = getCARType(y);
+    if (t != BIN_START)
     {
         return Nil;
     }

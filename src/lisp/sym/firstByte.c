@@ -2,7 +2,7 @@
 
 int firstByte(Context*CONTEXT_PTR, any s)
 {
-    if (isSym(s))
+    if (getCARType(s) == BIN_START)
     {
         return ((uword)(s->car->car)) & 0xff;
     }

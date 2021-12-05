@@ -4,8 +4,9 @@
 any doPopq(Context *CONTEXT_PTR, any ex)
 {
     any p1 = cadr(ex);
+    CellPartType t = getCARType(p1);
 
-    if (isSym(p1))
+    if (t != BIN_START)
     {
         return p1;
     }

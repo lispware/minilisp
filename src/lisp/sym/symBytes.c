@@ -8,7 +8,9 @@ int symBytes(Context *CONTEXT_PTR, any x)
     if (isNil(x))
         return 0;
 
-    if (isSym(x))
+    CellPartType t = getCARType(x);
+
+    if (t == BIN_START)
     {
 
         x = x->car;

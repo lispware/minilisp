@@ -18,7 +18,7 @@ void prin(Context *CONTEXT_PTR, any x)
         {
             printf("T");
         }
-        else if (isSym(x))
+        else if (getCARType(x) == BIN_START)
         {
             printLongTXT(CONTEXT_PTR, x);
 

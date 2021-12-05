@@ -21,7 +21,7 @@ any pltConnect(Context *CONTEXT_PTR, any ex)
         targetHostName = (char*)malloc(10);
         strcpy(targetHostName, "127.0.0.1");
     }
-    else if (isSym(y))
+    else if (getCARType(y) == BIN_START)
     {
         int len = symBytes(CONTEXT_PTR, y);
         targetHostName = (char*)malloc(len + 1);

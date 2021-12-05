@@ -27,7 +27,8 @@ any doChar(Context *CONTEXT_PTR, any ex)
         return mkChar(CONTEXT_PTR, mp_get_i32((mp_int*)x->car));
     }
 
-    if (isSym(x))
+    CellPartType t = getCARType(x);
+    if (t == BIN_START)
     {
 
         mp_int *n = (mp_int*)malloc(sizeof(mp_int));
