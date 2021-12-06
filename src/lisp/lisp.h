@@ -108,9 +108,10 @@ typedef enum
     FUNC,
     PTR_CELL,
     BIN,
-    BIN_START,
     EXT,
 } CellPartType;
+
+#define BIN_START PTR_CELL
 
 typedef struct heap
 {
@@ -229,7 +230,7 @@ typedef struct _external
 #define isNum(x)        (((any)(x))->meta.type.parts[0] == NUM)
 #define isCell(x)        ((((any)(x))->meta.type.parts[0] == PTR_CELL) && (((any)(x->car))->meta.type.parts[0] != BIN))
 #define isFunc(x)        (((any)(x))->meta.type.parts[0] == FUNC)
-#define isSym(x)        (((any)(x))->meta.type.parts[0] == BIN_START)
+#define isSym(x)        ((((any)(x))->meta.type.parts[0] == PTR_CELL) && (((any)((x)->car))->meta.type.parts[0] == BIN))
 
 
 /* Error checking */
