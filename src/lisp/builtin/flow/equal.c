@@ -32,7 +32,7 @@ int equal(Context *CONTEXT_PTR, any v, any v2)
 
         return p2 == Nil? 0 : 1;
     }
-    else if (t == PTR_CELL)
+    else if (isCell(v2))
     {
         return eqList(CONTEXT_PTR, v, v2);
     }
