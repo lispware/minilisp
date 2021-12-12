@@ -313,7 +313,7 @@ any name(any s);
 void bufNum(char *b, word n);
 void putByte0(int *i, uword *p, any *q);
 any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p);
-any consSym(Context *CONTEXT_PTR, any val, uword w);
+any consSym(Context *CONTEXT_PTR, any val, any w);
 any load(Context *CONTEXT_PTR, any ex, int pr, any x);
 any loadAll(Context *CONTEXT_PTR, any ex);
 any addString(any *, any m, char *s);

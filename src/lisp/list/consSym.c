@@ -1,6 +1,6 @@
 #include <lisp.h>
 
-any consSym(Context *CONTEXT_PTR, any val, uword w)
+any consSym(Context *CONTEXT_PTR, any val, any w)
 {
     cell *p;
 
