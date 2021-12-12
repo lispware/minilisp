@@ -11,7 +11,13 @@ int equal(Context *CONTEXT_PTR, any v, any v2)
         return 1;
     }
 
-    if (t == NUM)
+    if (t == EXT)
+    {
+        external *e1 = (external*)v->car;
+        external *e2 = (external*)v2->car;
+        return e1->equal(CONTEXT_PTR, e1, e2);
+    }
+    else if (t == NUM)
     {
         return mp_cmp((mp_int*)v->car, (mp_int*)v2->car);
     }

@@ -155,4 +155,6 @@ SOURCES=lisp/eval/evList.c \
     lisp/builtin/net/doListen.c \
     lisp/builtin/net/doSocket.c \
     lisp/builtin/net/releaseSocket.c \
+    lisp/builtin/net/copySocket.c \
+    lisp/builtin/net/equalSocket.c \
     lisp/builtin/net/printSocket.c

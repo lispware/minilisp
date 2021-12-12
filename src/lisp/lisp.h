@@ -222,6 +222,8 @@ typedef struct _external
     void *pointer;
     void (*release)(struct _external*);
     char *(*print)(Context *, struct _external*);
+    int (*equal)(Context *, struct _external *, struct _external *);
+    struct _external *(*copy)(Context *, struct _external *);
 } external;
 
 

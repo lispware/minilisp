@@ -47,6 +47,8 @@ any pltBind(Context *CONTEXT_PTR, word n)
     e->type = EXT_SOCKET;
     e->release = releaseSocket;
     e->print = printSocket;
+    e->equal = equalSocket;
+    e->copy = copySocket;
     e->pointer = (void*)(uword)server_fd;
 
     any r = cons(CONTEXT_PTR, (any)e, Nil);

@@ -17,5 +17,7 @@ any doSocket(Context *CONTEXT_PTR, any ex);
 any doSocketClose(Context *CONTEXT_PTR, any ex);
 void releaseSocket(struct _external* obj);
 char *printSocket(Context *CONTEXT_PTR, struct _external* obj);
+external * copySocket(Context *CONTEXT_PTR, external *ext);
+int equalSocket(Context *CONTEXT_PTR, external*x, external*y);
 void pltClose(struct _external* obj);
 #endif
