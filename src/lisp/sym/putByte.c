@@ -19,7 +19,7 @@ void putByte(Context *CONTEXT_PTR, int c, int *i, uword *p, any *q, cell *cp)
         }
         else
         {
-            any x = consSym(CONTEXT_PTR, NULL, 0);
+            any x = consSym(CONTEXT_PTR, NULL, Nil);
             setCARType(x, BIN_START);
             Push(*cp, x);
             any y = consName(CONTEXT_PTR, *p, Nil);

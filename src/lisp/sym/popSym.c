@@ -11,7 +11,7 @@ any popSym(Context *CONTEXT_PTR, int i, uword n, any q, cell *cp)
     else
     {
         cell c1;
-        any x = consSym(CONTEXT_PTR, NULL, 0);
+        any x = consSym(CONTEXT_PTR, NULL, Nil);
         setCARType(x, BIN_START);
         Push(c1, x);
         any y = consName(CONTEXT_PTR, n, Nil);
