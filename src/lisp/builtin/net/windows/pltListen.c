@@ -29,11 +29,7 @@ any pltListen(Context *CONTEXT_PTR, word n)
     // accept connections
     client = accept(server_fd, &from, &fromlen);
 
-    external *e = (external *)malloc(sizeof(external));
-    e->type = EXT_SOCKET;
-    e->release = releaseSocket;
-    e->print = printSocket;
-    e->pointer = (void*)client;
+    external *e = NewExternalSocket(client);
 
     any r = cons(CONTEXT_PTR, (any)e, Nil);
     setCARType(r, EXT);

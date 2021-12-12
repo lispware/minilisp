@@ -43,13 +43,7 @@ any pltBind(Context *CONTEXT_PTR, word n)
         return Nil;
     }
 
-    external *e = (external *)malloc(sizeof(external));
-    e->type = EXT_SOCKET;
-    e->release = releaseSocket;
-    e->print = printSocket;
-    e->equal = equalSocket;
-    e->copy = copySocket;
-    e->pointer = (void*)(uword)server_fd;
+    external *e = NewExternalSocket(server_fd);
 
     any r = cons(CONTEXT_PTR, (any)e, Nil);
     setCARType(r, EXT);

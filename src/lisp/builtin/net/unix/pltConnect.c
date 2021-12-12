@@ -65,11 +65,7 @@ any pltConnect(Context *CONTEXT_PTR, any ex)
         return Nil;
     }
 
-    external *e = (external *)malloc(sizeof(external));
-    e->type = EXT_SOCKET;
-    e->release = releaseSocket;
-    e->print = printSocket;
-    e->pointer = (void*)client_socket;
+    external *e = NewExternalSocket(client_socket);
 
     any r = cons(CONTEXT_PTR, (any)e, Nil);
     setCARType(r, EXT);

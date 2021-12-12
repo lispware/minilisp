@@ -29,11 +29,7 @@ any pltListen(Context *CONTEXT_PTR, word n)
         exit(EXIT_FAILURE);
     }
 
-    external *e = (external *)malloc(sizeof(external));
-    e->type = EXT_SOCKET;
-    e->release = releaseSocket;
-    e->print = printSocket;
-    e->pointer = (void*)(uword)new_socket;
+    external *e = NewExternalSocket(new_socket);
 
     any r = cons(CONTEXT_PTR, (any)e, Nil);
     setCARType(r, EXT);
