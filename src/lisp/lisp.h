@@ -264,7 +264,7 @@ void lstError(any,any) ;
 void numError(any,any) ;
 void openErr(any ex, char *s);
 /* Construct a cell */
-#define evSubr(f,x)     (*(FunPtr)(num(f)))(CONTEXT_PTR, x)
+#define evSubr(f,x)     (*(FunPtr)(((f))))(CONTEXT_PTR, x)
 
 
 
