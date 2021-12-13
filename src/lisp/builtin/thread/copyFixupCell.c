@@ -6,7 +6,13 @@ void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
     CellPartType carType;
     carType = getCARType(toCell);
 
-    if (carType == NUM)
+    if (carType == EXT)
+    {
+        external *e = (external*)fromCell->car;
+        if (e) toCell->car = (any)e->copy(From, e);
+        else toCell->car = fromCell->car;
+    }
+    else if (carType == NUM)
     {
         mp_int *n = (mp_int*)malloc(sizeof(mp_int));
         mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
@@ -20,7 +26,7 @@ void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
         //    printf("COPYING NUMBER %s\n", buf);
         //free(buf);
     }
-    else if (carType == FUNC || carType == BIN || carType == EXT)
+    else if (carType == FUNC || carType == BIN)
     {
         toCell->car = fromCell->car;
     }
