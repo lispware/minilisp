@@ -4,6 +4,8 @@
 // (inc 'num ..) -> num
 any doInc(Context *CONTEXT_PTR, any ex)
 {
+    return Nil;
+#if 0
     any x;
     cell c1, c2;
     mp_err _mp_error;
@@ -23,4 +25,5 @@ any doInc(Context *CONTEXT_PTR, any ex)
     r->meta.type.parts[0] = NUM;
 
     return r;
+#endif
 }

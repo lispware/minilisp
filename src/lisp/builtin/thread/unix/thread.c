@@ -50,8 +50,10 @@ any pltGetThreadId(Context *CONTEXT_PTR)
     mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
     mp_set(n, pthread_self());
 
+    NewExtNum(ext, n);
+
     any r = cons(CONTEXT_PTR, Nil, Nil);
-    r->car = (any)n;
-    r->meta.type.parts[0] = NUM;
+    r->car = (any)ext;
+    r->meta.type.parts[0] = EXT_NUM;
     return r;
 }

@@ -77,9 +77,11 @@ any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
     _mp_error = mp_read_radix(BIGNUM, str, base);
     free(str);
 
+    NewExtNum(ext, BIGNUM);
+
     any r = cons(CONTEXT_PTR, Nil, Nil);
-    r->car = (any)BIGNUM;
-    r->meta.type.parts[0] = NUM;
+    r->car = (any)ext;
+    r->meta.type.parts[0] = EXT;
 
     return r;
 

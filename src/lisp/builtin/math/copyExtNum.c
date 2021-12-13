@@ -1,4 +1,5 @@
 #include <lisp.h>
+#include <tommath.h>
 
 external * copyExtNum(Context *CONTEXT_PTR, external *ext)
 {
@@ -14,5 +15,6 @@ external * copyExtNum(Context *CONTEXT_PTR, external *ext)
     _mp_error = mp_init(BIGNUM);
     _mp_error = mp_copy((mp_int*)ext->pointer, BIGNUM);
 
-    return NewExtNum(BIGNUM);
+    NewExtNum(ret, BIGNUM);
+    return ret;
 }

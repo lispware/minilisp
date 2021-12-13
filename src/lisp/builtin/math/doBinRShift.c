@@ -4,6 +4,8 @@
 // (>> 'num ..) -> num
 any doBinRShift(Context *CONTEXT_PTR, any ex)
 {
+    return Nil;
+#if 0
     mp_err _mp_error;
     any x, y;
     word s = 1;
@@ -36,4 +38,5 @@ any doBinRShift(Context *CONTEXT_PTR, any ex)
     r->car = (any)m;
     r->meta.type.parts[0] = NUM;
     return r;
+#endif
 }

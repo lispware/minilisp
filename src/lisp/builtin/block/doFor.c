@@ -52,18 +52,20 @@ any doFor(Context *CONTEXT_PTR, any x)
         {
             if (isNum(data(c1)))
             {
-                if (! mp_cmp((mp_int*)f->bnd[0].sym->cdr->car, (mp_int*)num(data(c1)->car)))
+                if (! mp_cmp(num(f->bnd[0].sym->cdr), num(data(c1))))
                     break;
 
                 mp_int *n = (mp_int*)malloc(sizeof(mp_int));
                 _mp_error = mp_init(n); // TODO handle the errors appropriately
 
-                _mp_error = mp_copy((mp_int*)f->bnd[0].sym->cdr->car, n);
+                _mp_error = mp_copy(num(f->bnd[0].sym->cdr), n);
                 _mp_error = mp_incr(n);
 
+                NewExtNum(ext, n);
+
                 any r = cons(CONTEXT_PTR, Nil, Nil);
-                r->car = (any)n;
-                r->meta.type.parts[0] = NUM;
+                r->car = (any)ext;
+                r->meta.type.parts[0] = EXT;
 
                 f->bnd[0].sym->cdr  = r;
             }

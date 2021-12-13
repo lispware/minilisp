@@ -4,6 +4,8 @@
 // (rand 'num ..) -> num
 any doRandom(Context *CONTEXT_PTR, any ex)
 {
+    return Nil;
+#if 0
     any x, y;
     uword s = 32;
     mp_int *n = (mp_int*)malloc(sizeof(mp_int));
@@ -23,4 +25,5 @@ any doRandom(Context *CONTEXT_PTR, any ex)
     r->car = (any)n;
     r->meta.type.parts[0] = NUM;
     return r;
+#endif
 }

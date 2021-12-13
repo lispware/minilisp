@@ -8,6 +8,7 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
+#include <tommath.h>
 
 
 /*******************************************************************************
@@ -49,7 +50,7 @@ DEFINITONS
 #define doQuote_D (&(CONTEXT_PTR->Mem[11]))
 
 #ifndef CELLS
-#define CELLS (1024*1024)
+#define CELLS (1)
 #endif
 
 #if INTPTR_MAX == INT32_MAX
@@ -104,7 +105,6 @@ typedef any (*FunPtr)(struct _Context *, any);
 typedef enum
 {
     UNDEFINED,
-    NUM,
     FUNC,
     PTR_CELL,
     BIN,
@@ -214,6 +214,7 @@ Context;
 typedef enum
 {
     EXT_SOCKET,
+    EXT_NUM,
 } EXT_TYPE;
 
 typedef struct _external
@@ -229,10 +230,20 @@ typedef struct _external
 
 /* Predicates */
 #define isNil(x)        ((x)==Nil)
-#define isNum(x)        (((any)(x))->meta.type.parts[0] == NUM)
+//#define isNum(x)        (((any)(x))->meta.type.parts[0] == NUM)
 #define isCell(x)        ((((any)(x))->meta.type.parts[0] == PTR_CELL) && (((any)(x->car))->meta.type.parts[0] != BIN))
 #define isFunc(x)        (((any)(x))->meta.type.parts[0] == FUNC)
 #define isSym(x)        ((((any)(x))->meta.type.parts[0] == PTR_CELL) && (((any)((x)->car))->meta.type.parts[0] == BIN))
+#define isNum(x)        ((((any)(x))->meta.type.parts[0] == EXT) && (((external*)(((any)(x)->car)))->type == EXT_NUM))
+
+#define NewExtNum(EXTRA_PARAM, MATH_NUM)  external *EXTRA_PARAM = (external *)malloc(sizeof(external));\
+                                EXTRA_PARAM->type = EXT_NUM;\
+                                EXTRA_PARAM->release = releaseExtNum;\
+                                EXTRA_PARAM->print = printExtNum;\
+                                EXTRA_PARAM->copy = copyExtNum;\
+                                EXTRA_PARAM->equal = equalExtNum;\
+                                EXTRA_PARAM->pointer = (void*)(MATH_NUM);
+
 
 
 /* Error checking */
@@ -243,7 +254,7 @@ typedef struct _external
 #define NeedLst(ex,x)   if (!isCell(x) && !isNil(x)) lstError(ex,x)
 #define NeedVar(ex,x)   if (isNum(x)) varError(ex,x)
 
-#define num(x)          ((word)(x))
+#define num(x)          ((mp_int*)(((external*)((any)(x)->car))->pointer))
 #define tail(x)         (x)
 #define val(x)          ((x)->cdr)
 #define symPtr(x)       (x)
@@ -277,6 +288,10 @@ void pushOutFiles(Context *CONTEXT_PTR, outFrame *f);
 void wrOpen(Context *CONTEXT_PTR, any ex, any x, outFrame *f);
 any mkChar(Context *CONTEXT_PTR, int c);
 any copyNum(Context *CONTEXT_PTR, any n);
+void releaseExtNum(struct _external* obj);
+char *printExtNum(Context *CONTEXT_PTR, struct _external* obj);
+external * copyExtNum(Context *CONTEXT_PTR, external *ext);
+int equalExtNum(Context *CONTEXT_PTR, external*x, external*y);
 void putByte1(int c, int *i, uword *p, any *q);
 void putByte(Context *CONTEXT_PTR, int c, int *i, uword *p, any *q, cell *cp);
 any popSym(Context *CONTEXT_PTR, int i, uword n, any q, cell *cp);

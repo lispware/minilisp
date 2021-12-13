@@ -4,6 +4,7 @@
 // (/ 'num ..) -> num
 any doDiv(Context *CONTEXT_PTR, any ex)
 {
+#if 0
     mp_err _mp_error;
     cell c1, c2;
     any x, y, z;
@@ -47,5 +48,6 @@ any doDiv(Context *CONTEXT_PTR, any ex)
 
     Pop(c1);
     return result;
-
+#endif
+    return Nil;
 }

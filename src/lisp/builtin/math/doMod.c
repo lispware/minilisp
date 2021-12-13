@@ -4,6 +4,8 @@
 // (% 'num ..) -> num
 any doMod(Context *CONTEXT_PTR, any ex)
 {
+    return Nil;
+#if 0
     mp_err _mp_error;
     cell c1, c2;
     any x, y, z;
@@ -37,4 +39,5 @@ any doMod(Context *CONTEXT_PTR, any ex)
     r1->meta.type.parts[0] = NUM;
 
     return Pop(c1);
+#endif 
 }

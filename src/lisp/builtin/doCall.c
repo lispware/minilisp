@@ -3,6 +3,8 @@
 
 any doCall(Context *CONTEXT_PTR, any ex)
 {
+    return Nil;
+#if 0
     any y;
     any x = cdr(ex);
 
@@ -30,4 +32,5 @@ any doCall(Context *CONTEXT_PTR, any ex)
     r->meta.type.parts[0] = NUM;
 
     return r;
+#endif
 }

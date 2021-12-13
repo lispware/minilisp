@@ -74,6 +74,10 @@ SOURCES=lisp/eval/evList.c \
     lisp/builtin/math/doDec.c \
     lisp/builtin/math/doRandom.c \
     lisp/builtin/math/copyNum.c \
+    lisp/builtin/math/releaseExtNum.c \
+    lisp/builtin/math/copyExtNum.c \
+    lisp/builtin/math/equalExtNum.c \
+    lisp/builtin/math/printExtNum.c \
     lisp/builtin/list/doPopq.c \
     lisp/builtin/list/indx.c \
     lisp/builtin/list/doIndex.c \

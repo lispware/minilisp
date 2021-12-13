@@ -16,8 +16,8 @@ void print(Context *CONTEXT_PTR, any x)
 
     if (isNum(x))
     {
-        outNum(CONTEXT_PTR, x);
-        return;
+        //outNum(CONTEXT_PTR, x);
+        //return;
     }
     if (isSym(x))
     {
@@ -34,6 +34,7 @@ void print(Context *CONTEXT_PTR, any x)
         char *b = e->print(CONTEXT_PTR, e);
         outString(CONTEXT_PTR, b);
         free(b);
+        return;
     }
 
     if (isCell(x))

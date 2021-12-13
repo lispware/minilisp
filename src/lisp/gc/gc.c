@@ -22,12 +22,7 @@ void gc(Context *CONTEXT_PTR, word c)
             {
                 if (!getMark(p))
                 {
-                    if (getCARType(p) == NUM)
-                    {
-                        mp_clear((mp_int*)p->car);
-                        free(p->car);
-                    }
-                    else if (getCARType(p) == EXT)
+                    if (getCARType(p) == EXT)
                     {
                         external *e = (external*)p->car;
                         if (e) e->release(e);

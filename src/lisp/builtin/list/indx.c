@@ -3,6 +3,8 @@
 
 any indx(Context *CONTEXT_PTR, any x, any y)
 {
+    return Nil;
+#if 0
     any z = y;
 
     mp_int *n = (mp_int*)malloc(sizeof(mp_int));
@@ -23,4 +25,5 @@ any indx(Context *CONTEXT_PTR, any x, any y)
             return Nil;
     }
     return Nil;
+#endif
 }

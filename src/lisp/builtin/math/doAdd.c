@@ -4,6 +4,8 @@
 // (+ 'num ..) -> num
 any doAdd(Context *CONTEXT_PTR, any ex)
 {
+    return Nil;
+#if 0
     any x;
     cell c1, c2;
     mp_err _mp_error;
@@ -47,4 +49,5 @@ any doAdd(Context *CONTEXT_PTR, any ex)
     }
 
     return Pop(c1);
+#endif
 }

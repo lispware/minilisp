@@ -17,10 +17,6 @@ int equal(Context *CONTEXT_PTR, any v, any v2)
         external *e2 = (external*)v2->car;
         return e1->equal(CONTEXT_PTR, e1, e2);
     }
-    else if (t == NUM)
-    {
-        return mp_cmp((mp_int*)v->car, (mp_int*)v2->car);
-    }
     else if (isSym(v2))
     {
         any p1 = car(v);

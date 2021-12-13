@@ -1,7 +1,7 @@
 #include <lisp.h>
 #include <tommath.h>
 
-void releaseNum(external *p)
+void releaseExtNum(external *p)
 {
     if (p->type != EXT_NUM)
     {

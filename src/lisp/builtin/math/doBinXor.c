@@ -4,6 +4,8 @@
 // (x| 'num ..) -> num
 any doBinXor(Context *CONTEXT_PTR, any ex)
 {
+    return Nil;
+#if 0
     mp_err _mp_error;
     any x, y;
 
@@ -30,6 +32,7 @@ any doBinXor(Context *CONTEXT_PTR, any ex)
     r->car = (any)n;
     r->meta.type.parts[0] = NUM;
     return r;
+#endif
 }
 
 

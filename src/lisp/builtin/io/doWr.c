@@ -3,6 +3,8 @@
 
 any doWr(Context *CONTEXT_PTR, any ex)
 {
+    return 0;
+#if 0
     mp_err _mp_error;
     any params = cdr(ex);
     any p1 = car(params);
@@ -59,4 +61,5 @@ any doWr(Context *CONTEXT_PTR, any ex)
     r->car = (any)n;
     r->meta.type.parts[0] = NUM;
     return r;
+#endif
 }

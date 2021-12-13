@@ -16,12 +16,12 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
         base = mp_get_i32((mp_int*)p2->car);
     }
 
-    if (t == NUM)
+    if (isNum(p1))
     {
         int len;
-        mp_err _mp_error = mp_radix_size((mp_int*)p1->car, base, &len);
+        mp_err _mp_error = mp_radix_size(num(p1), base, &len);
         char *buf = (char*)malloc(len);
-        _mp_error = mp_to_radix((mp_int*)p1->car, buf, len, NULL, base);
+        _mp_error = mp_to_radix(num(p1), buf, len, NULL, base);
         any r = mkSym(CONTEXT_PTR, (byte*)buf);
         free(buf);
         return r;
@@ -38,9 +38,11 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
         _mp_error = mp_read_radix(BIGNUM, str, base);
         free(str);
 
+        NewExtNum(ext, BIGNUM);
+
         any r = cons(CONTEXT_PTR, Nil, Nil);
-        r->car = (any)BIGNUM;
-        r->meta.type.parts[0] = NUM;
+        r->car = (any)ext;
+        r->meta.type.parts[0] = EXT_NUM;
 
         return r;
     }

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <tommath.h>
 
-char * printNum(Context *CONTEXT_PTR, struct _external* obj)
+char * printExtNum(Context *CONTEXT_PTR, struct _external* obj)
 {
     int len;
     mp_err _mp_error = mp_radix_size((mp_int*)obj->pointer, 10, &len);
