@@ -22,7 +22,7 @@ any doCmp(Context *CONTEXT_PTR, any x)
             NewExtNum(ext, id);
             any idr = cons(CONTEXT_PTR, Nil, Nil);
             idr->car = (any)ext;
-            idr->meta.type.parts[0] = EXT_NUM;
+            idr->meta.type.parts[0] = EXT;
             return idr;
         }
 
@@ -39,6 +39,6 @@ any doCmp(Context *CONTEXT_PTR, any x)
 
     any idr = cons(CONTEXT_PTR, Nil, Nil);
     idr->car = (any)ext;
-    idr->meta.type.parts[0] = EXT_NUM;
+    idr->meta.type.parts[0] = EXT;
     return idr;
 }

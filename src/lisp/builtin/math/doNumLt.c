@@ -14,14 +14,14 @@ any doNumLt(Context *CONTEXT_PTR, any ex)
 
     mp_int *n = (mp_int*)malloc(sizeof(mp_int));
     _mp_error = mp_init(n);
-    _mp_error = mp_copy((mp_int*)y->car, n);
+    _mp_error = mp_copy(num(y), n);
 
     while (Nil != (x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        mp_int *m = (mp_int*)y->car;
+        mp_int *m = num(y);
         if (MP_LT != mp_cmp(n, m))
         {
             mp_clear(n);
