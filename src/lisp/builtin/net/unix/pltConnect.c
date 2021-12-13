@@ -65,7 +65,7 @@ any pltConnect(Context *CONTEXT_PTR, any ex)
         return Nil;
     }
 
-    external *e = NewExternalSocket(client_socket);
+    NewExternalSocket(e, client_socket);
 
     any r = cons(CONTEXT_PTR, (any)e, Nil);
     setCARType(r, EXT);

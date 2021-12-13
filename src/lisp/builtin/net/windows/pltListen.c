@@ -29,7 +29,7 @@ any pltListen(Context *CONTEXT_PTR, word n)
     // accept connections
     client = accept(server_fd, &from, &fromlen);
 
-    external *e = NewExternalSocket(client);
+    NewExternalSocket(e, client);
 
     any r = cons(CONTEXT_PTR, (any)e, Nil);
     setCARType(r, EXT);

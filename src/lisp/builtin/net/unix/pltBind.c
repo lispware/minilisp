@@ -43,7 +43,7 @@ any pltBind(Context *CONTEXT_PTR, word n)
         return Nil;
     }
 
-    external *e = NewExternalSocket(server_fd);
+    NewExternalSocket(e, server_fd);
 
     any r = cons(CONTEXT_PTR, (any)e, Nil);
     setCARType(r, EXT);

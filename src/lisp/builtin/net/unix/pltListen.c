@@ -29,7 +29,7 @@ any pltListen(Context *CONTEXT_PTR, word n)
         exit(EXIT_FAILURE);
     }
 
-    external *e = NewExternalSocket(new_socket);
+    NewExternalSocket(e, new_socket);
 
     any r = cons(CONTEXT_PTR, (any)e, Nil);
     setCARType(r, EXT);

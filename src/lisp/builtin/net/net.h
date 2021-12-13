@@ -21,12 +21,12 @@ external * copySocket(Context *CONTEXT_PTR, external *ext);
 int equalSocket(Context *CONTEXT_PTR, external*x, external*y);
 void pltClose(struct _external* obj);
 
-#define NewExternalSocket(FD) (external *)malloc(sizeof(external));\
-    e->type = EXT_SOCKET;\
-    e->release = releaseSocket;\
-    e->print = printSocket;\
-    e->equal = equalSocket;\
-    e->copy = copySocket;\
-    e->pointer = (void*)(uword)FD;
+#define NewExternalSocket(EXT_PARAM, FD) external *EXT_PARAM = (external *)malloc(sizeof(external));\
+    EXT_PARAM->type = EXT_SOCKET;\
+    EXT_PARAM->release = releaseSocket;\
+    EXT_PARAM->print = printSocket;\
+    EXT_PARAM->equal = equalSocket;\
+    EXT_PARAM->copy = copySocket;\
+    EXT_PARAM->pointer = (void*)(uword)FD;
 
 #endif
