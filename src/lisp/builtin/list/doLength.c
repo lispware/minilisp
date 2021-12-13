@@ -59,6 +59,6 @@ any doLength(Context *CONTEXT_PTR, any x)
 
     any l = cons(CONTEXT_PTR, Nil, Nil);
     l->car = (any)ext;
-    l->meta.type.parts[0] = EXT_NUM;
+    l->meta.type.parts[0] = EXT;
     return l;
 }

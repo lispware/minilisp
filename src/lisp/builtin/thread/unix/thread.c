@@ -54,6 +54,6 @@ any pltGetThreadId(Context *CONTEXT_PTR)
 
     any r = cons(CONTEXT_PTR, Nil, Nil);
     r->car = (any)ext;
-    r->meta.type.parts[0] = EXT_NUM;
+    r->meta.type.parts[0] = EXT;
     return r;
 }
