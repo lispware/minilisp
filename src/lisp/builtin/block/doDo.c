@@ -19,7 +19,7 @@ any doDo(Context *CONTEXT_PTR, any x)
     }
     else
     {
-        _mp_error = mp_copy((mp_int *)f->car, &CTR);
+        _mp_error = mp_copy(num(f), &CTR);
     }
 
     x = cdr(x),  z = Nil;

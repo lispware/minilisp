@@ -13,7 +13,7 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
     p2 = EVAL(CONTEXT_PTR, p2);
     if (isNum(p2))
     {
-        base = mp_get_i32((mp_int*)p2->car);
+        base = mp_get_i32(num(p2));
     }
 
     if (isNum(p1))
@@ -42,7 +42,7 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
 
         any r = cons(CONTEXT_PTR, Nil, Nil);
         r->car = (any)ext;
-        r->meta.type.parts[0] = EXT_NUM;
+        r->meta.type.parts[0] = EXT;
 
         return r;
     }

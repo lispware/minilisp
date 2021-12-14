@@ -25,10 +25,10 @@ void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp)
     if (isNum(x))
     {
         int len;
-        _mp_error = mp_radix_size((mp_int*)x->car, 10, &len);
+        _mp_error = mp_radix_size(num(x), 10, &len);
         char *buf = (char*)malloc(len);
 
-        _mp_error = mp_to_radix((mp_int*)x->car, buf, len, NULL, 10);
+        _mp_error = mp_to_radix(num(x), buf, len, NULL, 10);
         char *b = buf;
 
         do

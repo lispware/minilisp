@@ -3,8 +3,6 @@
 
 any indx(Context *CONTEXT_PTR, any x, any y)
 {
-    return Nil;
-#if 0
     any z = y;
 
     mp_int *n = (mp_int*)malloc(sizeof(mp_int));
@@ -15,9 +13,10 @@ any indx(Context *CONTEXT_PTR, any x, any y)
     {
         if (0 == equal(CONTEXT_PTR, x, car(y)))
         {
+            NewExtNum(ext, n);
             any r = cons(CONTEXT_PTR, Nil, Nil);
-            r->car = (any)n;
-            r->meta.type.parts[0] = NUM;
+            r->car = (any)ext;
+            r->meta.type.parts[0] = EXT;
             return r;
         }
         _mp_error = mp_incr(n);
@@ -25,5 +24,4 @@ any indx(Context *CONTEXT_PTR, any x, any y)
             return Nil;
     }
     return Nil;
-#endif
 }

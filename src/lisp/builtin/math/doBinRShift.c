@@ -13,7 +13,7 @@ any doBinRShift(Context *CONTEXT_PTR, any ex)
 
     if (isNil(p1) || !isNum(p1)) return Nil;
 
-    s = mp_get_i32((mp_int*)p1->car);
+    s = mp_get_i32(num(p1));
 
     x = cdr(x);
     any p2 = EVAL(CONTEXT_PTR, car(x));

@@ -4,8 +4,6 @@
 // (** 'num ..) -> num
 any doPow(Context *CONTEXT_PTR, any ex)
 {
-    return Nil;
-#if 0
     mp_err _mp_error;
     any x, y;
 
@@ -16,7 +14,7 @@ any doPow(Context *CONTEXT_PTR, any ex)
 
     mp_int *n = (mp_int*)malloc(sizeof(mp_int));
     _mp_error = mp_init(n);
-    _mp_error = mp_copy((mp_int*)y->car, n);
+    _mp_error = mp_copy(num(y), n);
 
     while (Nil != (x = cdr(x)))
     {
@@ -24,14 +22,14 @@ any doPow(Context *CONTEXT_PTR, any ex)
             return Nil;
         NeedNum(ex,y);
 
-        int m = mp_get_i32((mp_int*)y->car);
+        int m = mp_get_i32(num(y));
         _mp_error = mp_expt_u32(n, m, n);
 
     }
 
+    NewExtNum(ext, n);
     any r = cons(CONTEXT_PTR, Nil, Nil);
-    r->car = (any)n;
-    r->meta.type.parts[0] = NUM;
+    r->car = (any)ext;
+    r->meta.type.parts[0] = EXT;
     return r;
-#endif
 }
