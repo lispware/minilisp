@@ -4,8 +4,6 @@
 // (% 'num ..) -> num
 any doMod(Context *CONTEXT_PTR, any ex)
 {
-    return Nil;
-#if 0
     mp_err _mp_error;
     cell c1, c2;
     any x, y, z;
@@ -31,13 +29,14 @@ any doMod(Context *CONTEXT_PTR, any ex)
     data(c2) = copyNum(CONTEXT_PTR, data(c2));
     mp_int *c = (mp_int*)malloc(sizeof(mp_int));
     _mp_error = mp_init(c);
-    _mp_error = mp_div((mp_int*)data(c1)->car, (mp_int*)data(c2)->car, NULL, c);
+    _mp_error = mp_div(num(data(c1)), num(data(c2)), NULL, c);
+
+    NewExtNum(ext, c);
 
     any r1 = cons(CONTEXT_PTR, Nil, Nil);
     data(c1) = r1;
-    r1->car = (any)c;
-    r1->meta.type.parts[0] = NUM;
+    r1->car = (any)ext;
+    r1->meta.type.parts[0] = EXT;
 
     return Pop(c1);
-#endif 
 }

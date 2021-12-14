@@ -4,7 +4,6 @@
 // (/ 'num ..) -> num
 any doDiv(Context *CONTEXT_PTR, any ex)
 {
-#if 0
     mp_err _mp_error;
     cell c1, c2;
     any x, y, z;
@@ -32,22 +31,23 @@ any doDiv(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_init(c);
     mp_int *d = (mp_int*)malloc(sizeof(mp_int));
     _mp_error = mp_init(d);
-    _mp_error = mp_div((mp_int*)data(c1)->car, (mp_int*)data(c2)->car, c, d);
+    _mp_error = mp_div(num(data(c1)), num(data(c2)), c, d);
+
+    NewExtNum(ext1, c);
+    NewExtNum(ext2, d);
 
     any r1 = cons(CONTEXT_PTR, Nil, Nil);
     data(c1) = r1;
-    r1->car = (any)c;
-    r1->meta.type.parts[0] = NUM;
+    r1->car = (any)ext1;
+    r1->meta.type.parts[0] = EXT;
 
     any r2 = cons(CONTEXT_PTR, Nil, Nil);
     data(c2) = r2;
-    r2->car = (any)d;
-    r2->meta.type.parts[0] = NUM;
+    r2->car = (any)ext2;
+    r2->meta.type.parts[0] = EXT;
 
     any result = cons(CONTEXT_PTR, data(c1), cons(CONTEXT_PTR, data(c2), Nil));
 
     Pop(c1);
     return result;
-#endif
-    return Nil;
 }

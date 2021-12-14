@@ -4,8 +4,6 @@
 // (>> 'num ..) -> num
 any doBinRShift(Context *CONTEXT_PTR, any ex)
 {
-    return Nil;
-#if 0
     mp_err _mp_error;
     any x, y;
     word s = 1;
@@ -26,17 +24,18 @@ any doBinRShift(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_init(m);
     if (s >= 0)
     {
-        _mp_error = mp_div_2d((mp_int*)p2->car, s, m, NULL);
+        _mp_error = mp_div_2d(num(p2), s, m, NULL);
     }
     else
     {
         s *= -1;
-        _mp_error = mp_mul_2d((mp_int*)p2->car, s, m);
+        _mp_error = mp_mul_2d(num(p2), s, m);
     }
 
+    NewExtNum(ext, m);
+
     any r = cons(CONTEXT_PTR, Nil, Nil);
-    r->car = (any)m;
-    r->meta.type.parts[0] = NUM;
+    r->car = (any)ext;
+    r->meta.type.parts[0] = EXT;
     return r;
-#endif
 }

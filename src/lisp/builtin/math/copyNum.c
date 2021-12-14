@@ -9,7 +9,7 @@ any copyNum(Context *CONTEXT_PTR, any n)
 
     mp_int *BIGNUM = (mp_int*)malloc(sizeof(mp_int));
     _mp_error = mp_init(BIGNUM);
-    _mp_error = mp_copy((mp_int*)n->car, BIGNUM);
+    _mp_error = mp_copy(num(n), BIGNUM);
 
     NewExtNum(ext, BIGNUM);
 
