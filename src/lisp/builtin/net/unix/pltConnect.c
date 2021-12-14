@@ -32,7 +32,7 @@ any pltConnect(Context *CONTEXT_PTR, any ex)
     y = EVAL(CONTEXT_PTR, car(x));
 
     NeedNum(ex,y);
-    n = mp_get_i32((mp_int*)y->car);
+    n = mp_get_i32(num(y));
 
     cell c1;
 

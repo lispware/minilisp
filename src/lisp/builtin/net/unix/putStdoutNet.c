@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <tommath.h>
 #include "../net.h"
 
 void putStdoutNet(Context *CONTEXT_PTR, int c)

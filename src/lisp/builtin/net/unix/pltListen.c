@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <tommath.h>
 #include "../net.h"
 
 any pltListen(Context *CONTEXT_PTR, word n)

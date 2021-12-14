@@ -9,7 +9,7 @@ any doSleep(Context *CONTEXT_PTR, any ex)
     if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
         return Nil;
     NeedNum(ex,y);
-    n = mp_get_i32((mp_int*)y->car);
+    n = mp_get_i32(num(y));
 
     plt_sleep(n);
 

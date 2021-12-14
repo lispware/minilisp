@@ -6,7 +6,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <lisp.h>
-#include <tommath.h>
 #include "../net.h"
 
 void getStdinNet(Context *CONTEXT_PTR)
