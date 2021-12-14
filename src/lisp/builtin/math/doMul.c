@@ -3,9 +3,6 @@
 
 any doMul(Context *CONTEXT_PTR, any ex)
 {
-    return Nil;
-#if 0
-
     any x;
     cell c1, c2;
     mp_err _mp_error;
@@ -16,9 +13,10 @@ any doMul(Context *CONTEXT_PTR, any ex)
         mp_int *id = (mp_int*)malloc(sizeof(mp_int));
         _mp_error = mp_init(id); // TODO handle the errors appropriately
         mp_set_i32(id, 1);
+        NewExtNum(ext, id);
         any idr = cons(CONTEXT_PTR, Nil, Nil);
-        idr->car = (any)id;
-        idr->meta.type.parts[0] = NUM;
+        idr->car = (any)ext;
+        idr->meta.type.parts[0] = EXT;
         return idr;
     }
 
@@ -26,10 +24,12 @@ any doMul(Context *CONTEXT_PTR, any ex)
 
     mp_int *n = (mp_int*)malloc(sizeof(mp_int));
     _mp_error = mp_init(n); // TODO handle the errors appropriately
-    _mp_error = mp_copy((mp_int*)data(c1)->car, n);
+    _mp_error = mp_copy(num(data(c1)), n);
+
+    NewExtNum(ext, n);
     any r = cons(CONTEXT_PTR, Nil, Nil);
-    r->car = (any)n;
-    r->meta.type.parts[0] = NUM;
+    r->car = (any)ext;
+    r->meta.type.parts[0] = EXT;
     Push(c1, r);
 
     while (Nil != (x = cdr(x)))
@@ -42,12 +42,11 @@ any doMul(Context *CONTEXT_PTR, any ex)
         }
 
         NeedNum(ex,data(c2));
-        mp_int *m = (mp_int*)data(c2)->car;
+        mp_int *m = num(data(c2));
         _mp_error = mp_mul(n, m, n);
 
         drop(c2);
     }
 
     return Pop(c1);
-#endif
 }
