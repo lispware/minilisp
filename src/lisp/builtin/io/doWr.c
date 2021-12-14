@@ -3,8 +3,6 @@
 
 any doWr(Context *CONTEXT_PTR, any ex)
 {
-    return 0;
-#if 0
     mp_err _mp_error;
     any params = cdr(ex);
     any p1 = car(params);
@@ -13,7 +11,7 @@ any doWr(Context *CONTEXT_PTR, any ex)
 
     p1 = EVAL(CONTEXT_PTR, p1);
     if (!isNum(p1)) return Nil;
-    size_t count = mp_pack_count((mp_int*)p1->car, 0, 1 );
+    size_t count = mp_pack_count(num(p1), 0, 1 );
 
     if (count == 0)
     {
@@ -22,9 +20,11 @@ any doWr(Context *CONTEXT_PTR, any ex)
         _mp_error = mp_init(n); // TODO handle the errors appropriately
         mp_set(n, 1);
 
+        NewExtNum(ext, n);
+
         any r = cons(CONTEXT_PTR, Nil, Nil);
-        r->car = (any)n;
-        r->meta.type.parts[0] = NUM;
+        r->car = (any)ext;
+        r->meta.type.parts[0] = EXT;
         return r;
     }
 
@@ -33,19 +33,19 @@ any doWr(Context *CONTEXT_PTR, any ex)
     p2 = EVAL(CONTEXT_PTR, p2);
     if (isNum(p2))
     {
-        if (mp_get_i32((mp_int*)p2->car) == 1) order = MP_MSB_FIRST;
+        if (mp_get_i32(num(p2)) == 1) order = MP_MSB_FIRST;
     }
 
     mp_endian endianess = MP_BIG_ENDIAN;
     p3 = EVAL(CONTEXT_PTR, p3);
     if (isNum(p3))
     {
-        if (mp_get_i32((mp_int*)p3->car) == 1) endianess = MP_LITTLE_ENDIAN;
+        if (mp_get_i32(num(p3)) == 1) endianess = MP_LITTLE_ENDIAN;
     }
 
     size_t written;
     unsigned char *buf = (char *)malloc(count);
-    _mp_error = mp_pack((void *)buf, count, &written, order, 1, endianess, 0, (mp_int*)p1->car);
+    _mp_error = mp_pack((void *)buf, count, &written, order, 1, endianess, 0, num(p1));
 
     for (int i = 0; i < count; i++)
     {
@@ -57,9 +57,10 @@ any doWr(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_init(n); // TODO handle the errors appropriately
     mp_set(n, written);
 
+    NewExtNum(ext, n);
+
     any r = cons(CONTEXT_PTR, Nil, Nil);
-    r->car = (any)n;
-    r->meta.type.parts[0] = NUM;
+    r->car = (any)ext;
+    r->meta.type.parts[0] = EXT;
     return r;
-#endif
 }
