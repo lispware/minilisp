@@ -31,8 +31,9 @@ any pltListen(Context *CONTEXT_PTR, word n)
 
     NewExternalSocket(e, client);
 
-    any r = cons(CONTEXT_PTR, (any)e, Nil);
+    any r = cons(CONTEXT_PTR, Nil, Nil);
     setCARType(r, EXT);
+    r->car = (any)e;
 
     return r;
 }
