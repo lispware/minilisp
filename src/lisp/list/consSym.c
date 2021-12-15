@@ -19,6 +19,5 @@ any consSym(Context *CONTEXT_PTR, any val, any w)
     CONTEXT_PTR->Avail = p->car;
     p->cdr = val ? val : p;
     p->car = (any)w;
-    setCDRType(p, PTR_CELL);
     return p;
 }

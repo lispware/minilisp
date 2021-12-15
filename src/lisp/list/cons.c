@@ -18,6 +18,5 @@ any cons(Context *CONTEXT_PTR, any x, any y)
     p->car = x;
     p->cdr = y;
     setCARType(p, PTR_CELL);
-    setCDRType(p, PTR_CELL);
     return p;
 }

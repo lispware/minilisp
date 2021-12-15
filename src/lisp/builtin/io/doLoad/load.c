@@ -54,14 +54,11 @@ any load(Context *CONTEXT_PTR, any ex, int pr, any x)
             Push(c2, val(At));
             x = EVAL(CONTEXT_PTR, data(c1));
             cdr(At) = x;
-            setCDRType(At, PTR_CELL);
             //x = val(At) = EVAL(CONTEXT_PTR, data(c1));
 
             cdr(At2) = c2.car;
-            setCDRType(At2, GetType(&c2));
 
             cdr(At3) = cdr(At2);
-            setCDRType(At3, PTR_CELL);
 
             //val(At3) = val(At2),  val(At2) = data(c2);
             outString(CONTEXT_PTR, "-> ");

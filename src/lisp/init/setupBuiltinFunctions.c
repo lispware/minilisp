@@ -4,7 +4,6 @@
     { \
     M->cdr = addString(Mem, M, N);\
     setCARType(M->cdr, FUNC);\
-    setCDRType(M->cdr, PTR_CELL);\
     *(FunPtr *)(void*)&M->cdr->car = F;/* This was necessary to satisfy the pedantic gcc Function pointer to object pointer */ \
     M->cdr->cdr = *Mem; \
     M = M->cdr + 1; \
