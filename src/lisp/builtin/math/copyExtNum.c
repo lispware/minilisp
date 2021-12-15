@@ -15,6 +15,13 @@ external * copyExtNum(Context *CONTEXT_PTR, external *ext)
     _mp_error = mp_init(BIGNUM);
     _mp_error = mp_copy((mp_int*)ext->pointer, BIGNUM);
 
-    NewExtNum(ret, BIGNUM);
-    return ret;
+    external *e = (external *)malloc(sizeof(external));
+    e->type = EXT_NUM;
+    e->release = releaseExtNum;
+    e->print = printExtNum;
+    e->copy = copyExtNum;
+    e->equal = equalExtNum;
+    e->pointer = (void*)(BIGNUM);
+
+    return e;
 }

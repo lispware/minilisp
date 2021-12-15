@@ -31,12 +31,8 @@ any doMod(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_init(c);
     _mp_error = mp_div(num(data(c1)), num(data(c2)), NULL, c);
 
-    NewExtNum(ext, c);
-
-    any r1 = cons(CONTEXT_PTR, Nil, Nil);
+    NewNumber(ext, c, r1);
     data(c1) = r1;
-    r1->car = (any)ext;
-    r1->meta.type.parts[0] = EXT;
 
     return Pop(c1);
 }

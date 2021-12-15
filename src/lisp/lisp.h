@@ -235,14 +235,6 @@ typedef struct _external
 #define isSym(x)        ((((any)(x))->meta.type.parts[0] == PTR_CELL) && (((any)((x)->car))->meta.type.parts[0] == BIN))
 #define isNum(x)        ((((any)(x))->meta.type.parts[0] == EXT) && (((external*)(((any)(x)->car)))->type == EXT_NUM))
 
-#define NewExtNum(EXTRA_PARAM, MATH_NUM)  external *EXTRA_PARAM = (external *)malloc(sizeof(external));\
-                                EXTRA_PARAM->type = EXT_NUM;\
-                                EXTRA_PARAM->release = releaseExtNum;\
-                                EXTRA_PARAM->print = printExtNum;\
-                                EXTRA_PARAM->copy = copyExtNum;\
-                                EXTRA_PARAM->equal = equalExtNum;\
-                                EXTRA_PARAM->pointer = (void*)(MATH_NUM);
-
 #define NewNumber(EXTRA_PARAM, MATH_NUM, R)  external *EXTRA_PARAM = (external *)malloc(sizeof(external));\
                                 EXTRA_PARAM->type = EXT_NUM;\
                                 EXTRA_PARAM->release = releaseExtNum;\

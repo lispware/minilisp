@@ -11,10 +11,6 @@ any copyNum(Context *CONTEXT_PTR, any n)
     _mp_error = mp_init(BIGNUM);
     _mp_error = mp_copy(num(n), BIGNUM);
 
-    NewExtNum(ext, BIGNUM);
-
-    any r = cons(CONTEXT_PTR, Nil, Nil);
-    r->car = (any)ext;
-    r->meta.type.parts[0] = EXT;
+    NewNumber(ext, BIGNUM, r);
     return r;
 }
