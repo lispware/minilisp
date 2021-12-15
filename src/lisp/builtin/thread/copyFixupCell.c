@@ -4,7 +4,7 @@
 void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
 {
     CellPartType carType;
-    carType = getCARType(toCell);
+    carType = GetType(toCell);
 
     if (carType == EXT)
     {

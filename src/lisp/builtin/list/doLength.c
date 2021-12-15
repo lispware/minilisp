@@ -11,7 +11,7 @@ any doLength(Context *CONTEXT_PTR, any x)
     int lengthBiggerThanZero=0;
 
     x = EVAL(CONTEXT_PTR, cadr(x));
-    CellPartType t = getCARType(x);
+    CellPartType t = GetType(x);
     mp_int *r = (mp_int*)malloc(sizeof(mp_int));
     _mp_error = mp_init(r); // TODO handle the errors appropriately
     mp_set_i32(r, 0);

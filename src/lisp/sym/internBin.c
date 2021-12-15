@@ -20,7 +20,7 @@ any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
         z = x->car->car;
         while ((n = (word)(car(y)) - (word)car(z)) == 0)
         {
-            if (getCARType(y) != BIN) return sym;
+            if (GetType(y) != BIN) return sym;
             y=y->cdr;
             z=z->cdr;
         }

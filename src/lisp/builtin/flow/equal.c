@@ -3,8 +3,8 @@
 
 int equal(Context *CONTEXT_PTR, any v, any v2)
 {
-    CellPartType vt = getCARType(v);
-    CellPartType t = getCARType(v2);
+    CellPartType vt = GetType(v);
+    CellPartType t = GetType(v2);
 
     if (t != vt)
     {

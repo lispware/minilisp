@@ -22,7 +22,7 @@ void gc(Context *CONTEXT_PTR, word c)
             {
                 if (!getMark(p))
                 {
-                    if (getCARType(p) == EXT)
+                    if (GetType(p) == EXT)
                     {
                         external *e = (external*)p->car;
                         if (e) e->release(e);

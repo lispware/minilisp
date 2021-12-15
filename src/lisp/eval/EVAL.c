@@ -6,7 +6,7 @@ any EVAL(Context *CONTEXT_PTR, any x)
     {
         return T;
     }
-    else if (getCARType(x) == EXT)
+    else if (GetType(x) == EXT)
     {
         return x;
     }

@@ -8,7 +8,7 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
     int base = 10;
 
     p1 = EVAL(CONTEXT_PTR, p1);
-    CellPartType t = getCARType(p1);
+    CellPartType t = GetType(p1);
 
     p2 = EVAL(CONTEXT_PTR, p2);
     if (isNum(p2))

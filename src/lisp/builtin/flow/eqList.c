@@ -7,8 +7,8 @@ int eqList(Context *CONTEXT_PTR, any v1, any v2)
     {
         if (v2 == Nil) return 1;
 
-        CellPartType t1 = getCARType(v1);
-        CellPartType t2 = getCARType(v2);
+        CellPartType t1 = GetType(v1);
+        CellPartType t2 = GetType(v2);
 
         if (t1 != t2) return -1;
 

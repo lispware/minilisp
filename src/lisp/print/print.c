@@ -28,7 +28,7 @@ void print(Context *CONTEXT_PTR, any x)
         return;
     }
 
-    if (getCARType(x) == EXT)
+    if (GetType(x) == EXT)
     {
         external *e = (external*)x->car;
         char *b = e->print(CONTEXT_PTR, e);
@@ -57,7 +57,7 @@ void print(Context *CONTEXT_PTR, any x)
         return;
     }
 
-    if (getCARType(x) == FUNC)
+    if (GetType(x) == FUNC)
     {
         char buf[256];
         sprintf (buf, "C FUNCTION %p", (void*)x);

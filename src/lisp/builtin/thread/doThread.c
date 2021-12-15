@@ -40,7 +40,7 @@ any doThread(Context *CONTEXT_PTR_ORIG, any x)
     // Clear out the items that need to be moved to the new thread
     x = cadr(x);
     any m = EVAL(CONTEXT_PTR_ORIG, car(x));
-    while (getCARType(m) == EXT)
+    while (GetType(m) == EXT)
     {
         m->car = NULL;
         x = cdr(x);

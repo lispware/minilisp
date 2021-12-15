@@ -11,7 +11,7 @@ void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp)
     {
         do
         {
-            if (getCARType(x) == PTR_CELL)
+            if (GetType(x) == PTR_CELL)
             {
                 pack(CONTEXT_PTR, car(x), i, p, q, cp);
             }

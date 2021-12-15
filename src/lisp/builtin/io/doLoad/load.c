@@ -58,7 +58,7 @@ any load(Context *CONTEXT_PTR, any ex, int pr, any x)
             //x = val(At) = EVAL(CONTEXT_PTR, data(c1));
 
             cdr(At2) = c2.car;
-            setCDRType(At2, getCARType(&c2));
+            setCDRType(At2, GetType(&c2));
 
             cdr(At3) = cdr(At2);
             setCDRType(At3, PTR_CELL);
