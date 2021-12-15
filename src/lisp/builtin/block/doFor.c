@@ -61,12 +61,7 @@ any doFor(Context *CONTEXT_PTR, any x)
                 _mp_error = mp_copy(num(f->bnd[0].sym->cdr), n);
                 _mp_error = mp_incr(n);
 
-                NewExtNum(ext, n);
-
-                any r = cons(CONTEXT_PTR, Nil, Nil);
-                r->car = (any)ext;
-                r->meta.type.parts[0] = EXT;
-
+                NewNumber(ext, n, r);
                 f->bnd[0].sym->cdr  = r;
             }
             else

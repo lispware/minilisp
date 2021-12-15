@@ -55,10 +55,6 @@ any doLength(Context *CONTEXT_PTR, any x)
 
     if (!lengthBiggerThanZero) return Nil;
 
-    NewExtNum(ext, r);
-
-    any l = cons(CONTEXT_PTR, Nil, Nil);
-    l->car = (any)ext;
-    l->meta.type.parts[0] = EXT;
+    NewNumber(ext, r, l);
     return l;
 }

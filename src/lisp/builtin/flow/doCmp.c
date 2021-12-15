@@ -19,10 +19,7 @@ any doCmp(Context *CONTEXT_PTR, any x)
             mp_int *id = (mp_int*)malloc(sizeof(mp_int));
             _mp_error = mp_init(id); // TODO handle the errors appropriately
             mp_set_i32(id, r);
-            NewExtNum(ext, id);
-            any idr = cons(CONTEXT_PTR, Nil, Nil);
-            idr->car = (any)ext;
-            idr->meta.type.parts[0] = EXT;
+            NewNumber(ext, id, idr);
             return idr;
         }
 
@@ -35,10 +32,6 @@ any doCmp(Context *CONTEXT_PTR, any x)
     _mp_error = mp_init(id); // TODO handle the errors appropriately
     mp_set_i32(id, 0);
 
-    NewExtNum(ext, id);
-
-    any idr = cons(CONTEXT_PTR, Nil, Nil);
-    idr->car = (any)ext;
-    idr->meta.type.parts[0] = EXT;
+    NewNumber(ext, id, idr);
     return idr;
 }

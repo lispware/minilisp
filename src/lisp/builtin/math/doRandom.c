@@ -18,10 +18,6 @@ any doRandom(Context *CONTEXT_PTR, any ex)
 
     _mp_error = mp_rand(n, s);
 
-    NewExtNum(ext, n);
-
-    any r = cons(CONTEXT_PTR, Nil, Nil);
-    r->car = (any)ext;
-    r->meta.type.parts[0] = EXT;
+    NewNumber(ext, n, r);
     return r;
 }

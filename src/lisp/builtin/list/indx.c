@@ -13,10 +13,7 @@ any indx(Context *CONTEXT_PTR, any x, any y)
     {
         if (0 == equal(CONTEXT_PTR, x, car(y)))
         {
-            NewExtNum(ext, n);
-            any r = cons(CONTEXT_PTR, Nil, Nil);
-            r->car = (any)ext;
-            r->meta.type.parts[0] = EXT;
+            NewNumber(ext, n, r);
             return r;
         }
         _mp_error = mp_incr(n);

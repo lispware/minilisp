@@ -243,6 +243,16 @@ typedef struct _external
                                 EXTRA_PARAM->equal = equalExtNum;\
                                 EXTRA_PARAM->pointer = (void*)(MATH_NUM);
 
+#define NewNumber(EXTRA_PARAM, MATH_NUM, R)  external *EXTRA_PARAM = (external *)malloc(sizeof(external));\
+                                EXTRA_PARAM->type = EXT_NUM;\
+                                EXTRA_PARAM->release = releaseExtNum;\
+                                EXTRA_PARAM->print = printExtNum;\
+                                EXTRA_PARAM->copy = copyExtNum;\
+                                EXTRA_PARAM->equal = equalExtNum;\
+                                EXTRA_PARAM->pointer = (void*)(MATH_NUM);\
+                                any R = cons(CONTEXT_PTR, Nil, Nil);\
+                                R->car = (any)EXTRA_PARAM;\
+                                R->meta.type.parts[0] = EXT;
 
 
 /* Error checking */

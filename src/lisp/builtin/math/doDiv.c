@@ -33,18 +33,11 @@ any doDiv(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_init(d);
     _mp_error = mp_div(num(data(c1)), num(data(c2)), c, d);
 
-    NewExtNum(ext1, c);
-    NewExtNum(ext2, d);
-
-    any r1 = cons(CONTEXT_PTR, Nil, Nil);
+    NewNumber(ext1, c, r1);
     data(c1) = r1;
-    r1->car = (any)ext1;
-    r1->meta.type.parts[0] = EXT;
 
-    any r2 = cons(CONTEXT_PTR, Nil, Nil);
+    NewNumber(ext2, d, r2);
     data(c2) = r2;
-    r2->car = (any)ext2;
-    r2->meta.type.parts[0] = EXT;
 
     any result = cons(CONTEXT_PTR, data(c1), cons(CONTEXT_PTR, data(c2), Nil));
 

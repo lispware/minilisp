@@ -14,11 +14,7 @@ any doSub(Context *CONTEXT_PTR, any ex)
         _mp_error = mp_init(id); // TODO handle the errors appropriately
         mp_set_i32(id, 0);
 
-        NewExtNum(ext, id);
-
-        any idr = cons(CONTEXT_PTR, Nil, Nil);
-        idr->car = (any)ext;
-        idr->meta.type.parts[0] = EXT;
+        NewNumber(ext, id, idr);
         return idr;
     }
 
@@ -28,10 +24,7 @@ any doSub(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_init(n); // TODO handle the errors appropriately
     _mp_error = mp_copy(num(data(c1)), n);
 
-    NewExtNum(ext, n);
-    any r = cons(CONTEXT_PTR, Nil, Nil);
-    r->car = (any)ext;
-    r->meta.type.parts[0] = EXT;
+    NewNumber(ext, n, r);
     Push(c1, r);
 
     while (Nil != (x = cdr(x)))
