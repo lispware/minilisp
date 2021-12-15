@@ -104,7 +104,7 @@ typedef any (*FunPtr)(struct _Context *, any);
 
 typedef enum
 {
-    FUNC,
+    FUNC, // this needs to be at 0; look at copyFixup where its used
     PTR_CELL,
     BIN,
     EXT,
