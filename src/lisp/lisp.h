@@ -227,13 +227,13 @@ typedef struct _external
 } external;
 
 
+#define GetType(x) (((any)(x))->meta.type.parts[0])
 /* Predicates */
 #define isNil(x)        ((x)==Nil)
-//#define isNum(x)        (((any)(x))->meta.type.parts[0] == NUM)
-#define isCell(x)        ((((any)(x))->meta.type.parts[0] == PTR_CELL) && (((any)(x->car))->meta.type.parts[0] != BIN))
-#define isFunc(x)        (((any)(x))->meta.type.parts[0] == FUNC)
-#define isSym(x)        ((((any)(x))->meta.type.parts[0] == PTR_CELL) && (((any)((x)->car))->meta.type.parts[0] == BIN))
-#define isNum(x)        ((((any)(x))->meta.type.parts[0] == EXT) && (((external*)(((any)(x)->car)))->type == EXT_NUM))
+#define isCell(x)        ((GetType(x) == PTR_CELL) && GetType((x)->car) != BIN)
+#define isFunc(x)        (GetType(x) == FUNC)
+#define isSym(x)        ((GetType(x) == PTR_CELL) && GetType((x)->car) == BIN)
+#define isNum(x)        ((GetType(x) == EXT) && (((external*)(((any)(x)->car)))->type == EXT_NUM))
 
 #define NewNumber(EXTRA_PARAM, MATH_NUM, R)  external *EXTRA_PARAM = (external *)malloc(sizeof(external));\
                                 EXTRA_PARAM->type = EXT_NUM;\
@@ -244,7 +244,7 @@ typedef struct _external
                                 EXTRA_PARAM->pointer = (void*)(MATH_NUM);\
                                 any R = cons(CONTEXT_PTR, Nil, Nil);\
                                 R->car = (any)EXTRA_PARAM;\
-                                R->meta.type.parts[0] = EXT;
+                                GetType(R) = EXT;
 
 
 /* Error checking */
