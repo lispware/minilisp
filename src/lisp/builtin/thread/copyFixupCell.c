@@ -26,7 +26,7 @@ void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
     //    //    printf("COPYING NUMBER %s\n", buf);
     //    //free(buf);
     //}
-    else if (carType == FUNC || carType == BIN)
+    else if ((carType == FUNC && fromCell->car && fromCell->cdr) || carType == BIN)
     {
         toCell->car = fromCell->car;
     }
