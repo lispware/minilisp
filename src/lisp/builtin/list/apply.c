@@ -72,5 +72,5 @@ any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p)
       cdr(CONTEXT_PTR->ApplyBody) = car(x);
    }
 
-   return evSubr(foo->car, CONTEXT_PTR->ApplyBody);
+   return evSubr(car(foo), CONTEXT_PTR->ApplyBody);
 }

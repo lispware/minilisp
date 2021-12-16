@@ -24,7 +24,7 @@ any doChar(Context *CONTEXT_PTR, any ex)
 
     if (isNum(x))
     {
-        return mkChar(CONTEXT_PTR, mp_get_i32((mp_int*)x->car));
+        return mkChar(CONTEXT_PTR, mp_get_i32((mp_int*)car(x)));
     }
 
     if (isSym(x))

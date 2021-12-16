@@ -102,7 +102,6 @@ any read0(Context *CONTEXT_PTR, bool top)
     }
 
     y = popSym(CONTEXT_PTR, i, w, p, &c1);
-    //printf("%p --> CAR = %p CDR = %p \n", y, y->car, y->cdr);
     if (x = symToNum(CONTEXT_PTR, tail(y), 0, '.', 0))
     {
         return x;

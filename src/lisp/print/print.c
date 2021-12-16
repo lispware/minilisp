@@ -30,7 +30,7 @@ void print(Context *CONTEXT_PTR, any x)
 
     if (GetType(x) == EXT)
     {
-        external *e = (external*)x->car;
+        external *e = (external*)car(x);
         char *b = e->print(CONTEXT_PTR, e);
         outString(CONTEXT_PTR, b);
         free(b);
@@ -40,7 +40,7 @@ void print(Context *CONTEXT_PTR, any x)
     if (isCell(x))
     {
         CONTEXT_PTR->Env.put(CONTEXT_PTR, '(');
-        print(CONTEXT_PTR, x->car);
+        print(CONTEXT_PTR, car(x));
         while (Nil != (x = cdr(x)))
         {
             CONTEXT_PTR->Env.put(CONTEXT_PTR, ' ');
