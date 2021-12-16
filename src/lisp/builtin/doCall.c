@@ -3,8 +3,6 @@
 
 any doCall(Context *CONTEXT_PTR, any ex)
 {
-    return Nil;
-#if 0
     any y;
     any x = cdr(ex);
 
@@ -27,10 +25,8 @@ any doCall(Context *CONTEXT_PTR, any ex)
     mp_int *n = (mp_int*)malloc(sizeof(mp_int));
     mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
     mp_set_i32(n, ret);
-    any r = cons(CONTEXT_PTR, Nil, Nil);
-    r->car = (any)n;
-    r->meta.type.parts[0] = NUM;
+
+    NewNumber(e, n, r);
 
     return r;
-#endif
 }
