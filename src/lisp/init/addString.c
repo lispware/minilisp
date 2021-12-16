@@ -5,7 +5,7 @@ any addString(any *Mem, any m, char *s)
     int ctr = 0;
     int shift = 0;
     setCARType(m, BIN_START);
-    m->car = m + 1;
+    car(m) = m + 1;
     m++;
     while(*s)
     {
@@ -19,14 +19,14 @@ any addString(any *Mem, any m, char *s)
             shift = 0;
             if (*(s+1))
             {
-                m->cdr = m + 1;
+                cdr(m) = m + 1;
                 m++;
             }
         }
         s++;
     }
 
-    m->cdr = *Mem;//TODO
+    cdr(m) = *Mem;//TODO
 
     return m + 1;
 }

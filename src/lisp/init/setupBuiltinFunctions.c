@@ -2,11 +2,11 @@
 
 #define AddFunc(M, N, F) \
     { \
-    M->cdr = addString(Mem, M, N);\
+    cdr(M) = addString(Mem, M, N);\
     setCARType(M->cdr, FUNC);\
     *(FunPtr *)(void*)&(car(cdr(M))) = F;/* This was necessary to satisfy the pedantic gcc Function pointer to object pointer */ \
-    M->cdr->cdr = *Mem; \
-    M = M->cdr + 1; \
+    cdr(cdr(M)) = *Mem; \
+    M = cdr(M) + 1; \
     }
 
 void printIndex(char *name, void *_MemStart, void *_Mem)
@@ -28,28 +28,28 @@ void setupBuiltinFunctions(any * Mem)
 
     any memCell = *Mem, tempCell;
 
-    memCell->car = *Mem;
-    memCell->cdr = *Mem;
+    car(memCell) = *Mem;
+    cdr(memCell) = *Mem;
     memCell->meta.ptr = (any)(PTR_CELL | PTR_CELL << 8);
 
     memCell++;
-    memCell->cdr = *Mem;
+    cdr(memCell) = *Mem;
     printIndex("Nil", *Mem, memCell);
     memCell = addString(Mem, memCell, "Nil");
 
-    memCell->cdr = *Mem;
+    cdr(memCell) = *Mem;
     printIndex("T", *Mem, memCell);
     memCell = addString(Mem, memCell, "T");
 
-    memCell->cdr = *Mem + 1;
+    cdr(memCell) = *Mem + 1;
     printIndex("@", *Mem, memCell);
     memCell = addString(Mem, memCell, "@");
 
-    memCell->cdr = *Mem + 1;
+    cdr(memCell) = *Mem + 1;
     printIndex("@@", *Mem, memCell);
     memCell = addString(Mem, memCell, "@@");
 
-    memCell->cdr = *Mem + 1;
+    cdr(memCell) = *Mem + 1;
     printIndex("@@@", *Mem, memCell);
     memCell = addString(Mem, memCell, "@@@");
 

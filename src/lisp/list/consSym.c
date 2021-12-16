@@ -16,8 +16,8 @@ any consSym(Context *CONTEXT_PTR, any val, any w)
         }
         p = CONTEXT_PTR->Avail;
     }
-    CONTEXT_PTR->Avail = p->car;
-    p->cdr = val ? val : p;
-    p->car = (any)w;
+    CONTEXT_PTR->Avail = car(p);
+    cdr(p) = val ? val : p;
+    car(p) = (any)w;
     return p;
 }

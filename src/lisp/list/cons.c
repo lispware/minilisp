@@ -14,9 +14,9 @@ any cons(Context *CONTEXT_PTR, any x, any y)
         drop(c1);
         p = CONTEXT_PTR->Avail;
     }
-    CONTEXT_PTR->Avail = p->car;
-    p->car = x;
-    p->cdr = y;
+    CONTEXT_PTR->Avail = car(p);
+    car(p) = x;
+    cdr(p) = y;
     setCARType(p, PTR_CELL);
     return p;
 }

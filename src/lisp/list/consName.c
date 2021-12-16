@@ -9,9 +9,9 @@ any consName(Context *CONTEXT_PTR, uword w, any n)
       gc(CONTEXT_PTR, CELLS);
       p = CONTEXT_PTR->Avail;
    }
-   CONTEXT_PTR->Avail = p->car;
+   CONTEXT_PTR->Avail = car(p);
    p = symPtr(p);
-   p->car = (any)w;
-   p->cdr = n;
+   car(p) = (any)w;
+   cdr(p) = n;
    return p;
 }
