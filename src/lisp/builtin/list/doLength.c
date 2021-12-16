@@ -26,10 +26,10 @@ any doLength(Context *CONTEXT_PTR, any x)
     }
     else if (isSym(x))
     {
-        x = x->car;
+        x = car(x);
         while (x != Nil)
         {
-            w = (uword)(x->car);
+            w = (uword)(car(x));
             if (w) lengthBiggerThanZero = 1;
             while (w)
             {
