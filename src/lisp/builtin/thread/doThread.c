@@ -42,7 +42,7 @@ any doThread(Context *CONTEXT_PTR_ORIG, any x)
     any m = EVAL(CONTEXT_PTR_ORIG, car(x));
     while (GetType(m) == EXT)
     {
-        m->car = NULL;
+        car(m) = NULL;
         x = cdr(x);
         m = EVAL(CONTEXT_PTR_ORIG, car(x));
     }
