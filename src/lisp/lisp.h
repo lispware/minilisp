@@ -16,8 +16,9 @@ DEFINITONS
 *******************************************************************************/
 
 /* Cell access */
-#define car(x)          ((x)->car)
-#define cdr(x)          ((x)->cdr)
+#define makeptr(x)      ((any)((uword)(x) & ~3))
+#define car(x)          ((makeptr(x))->car)
+#define cdr(x)          ((makeptr(x))->cdr)
 #define caar(x)         (car(car(x)))
 #define cadr(x)         (car(cdr(x)))
 #define cdar(x)         (cdr(car(x)))
