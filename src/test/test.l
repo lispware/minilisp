@@ -161,6 +161,8 @@
 (TEST "readback after append" "LINE1LINE2" (in "TESTFILE" (pack (line) (line))))
 (TEST "readback with char" "LINE1LINE2" (in "TESTFILE" (pack (make (do 5 (link (char))) (char) (do 5 (link (char)))))))
 
+(TEST "(char 65)" "A" (char 65))
+
 (out "TESTFILE" (let X (sb "12abcdef" 16) (wr X)))
 (TEST "read 4 bytes" (sb (sb "12abcdef" 16)) (in "TESTFILE" (sb (rd 4) 10 )))
 (let BYTES_WRITTEN (out "TESTFILE" (let X (sb "aabbccddeeffaabb" 16) (wr X)))
