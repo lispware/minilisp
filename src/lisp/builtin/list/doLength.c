@@ -18,10 +18,14 @@ any doLength(Context *CONTEXT_PTR, any x)
 
     if (x == Nil)
     {
+        mp_clear(r);
+        free(r);
         return Nil;
     }
     if (isNum(x))
     {
+        mp_clear(r);
+        free(r);
         return x;
     }
     else if (isSym(x))
@@ -50,10 +54,17 @@ any doLength(Context *CONTEXT_PTR, any x)
     }
     else
     {
+        mp_clear(r);
+        free(r);
         return Nil;
     }
 
-    if (!lengthBiggerThanZero) return Nil;
+    if (!lengthBiggerThanZero)
+    {
+        mp_clear(r);
+        free(r);
+        return Nil;
+    }
 
     NewNumber(ext, r, l);
     return l;
