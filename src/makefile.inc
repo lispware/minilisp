@@ -24,6 +24,7 @@ SOURCES=lisp/eval/evList.c \
     lisp/gc/getMark.c \
     lisp/gc/gc.c \
     lisp/gc/heapAlloc.c \
+    lisp/gc/alignedAlloc.c \
     lisp/gc/mark.c \
     lisp/sys-libc/alloc.c \
     lisp/sys-libc/giveup.c \

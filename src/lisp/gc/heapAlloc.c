@@ -6,7 +6,7 @@ void heapAlloc(Context *CONTEXT_PTR)
    cell *p;
 
    CONTEXT_PTR->HeapCount++;
-   //h = (heap*)((word)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
+
    h = (heap*)((word)calloc(1, sizeof(heap) + sizeof(cell)));
    h->next = CONTEXT_PTR->Heaps,  CONTEXT_PTR->Heaps = h;
    p = h->cells + CELLS-1;

@@ -346,6 +346,7 @@ int getMark(any cell);
 void markAll(Context *CONTEXT_PTR);
 void mark(Context *CONTEXT_PTR, any x);
 void heapAlloc(Context *CONTEXT_PTR);
+void *allignedAlloc(size_t size);
 void copy_mem(any M, Context *To);
 any isIntern(Context *CONTEXT_PTR, any nm, any tree[2]);
 any intern(Context *CONTEXT_PTR, any sym, any tree[2]);
