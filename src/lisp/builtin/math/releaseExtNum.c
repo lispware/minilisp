@@ -10,5 +10,6 @@ void releaseExtNum(external *p)
     }
 
     mp_clear((mp_int*)p->pointer);
+    free(p->pointer);
     free(p);
 }

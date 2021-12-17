@@ -119,7 +119,6 @@ SOURCES=lisp/eval/evList.c \
     lisp/print/outNum.c \
     lisp/print/print.c \
     lisp/print/printLongTXT.c \
-    lisp/read/bufSize.c \
     lisp/read/pathSize.c \
     lisp/read/read0.c \
     lisp/read/read1.c \
