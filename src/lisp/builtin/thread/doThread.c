@@ -5,6 +5,9 @@ void *thread_func(void *arg)
     Context *CONTEXT_PTR = arg;
 
     EVAL(CONTEXT_PTR, CONTEXT_PTR->Code);
+
+    gc(CONTEXT_PTR, CELLS);
+
     heap *h = CONTEXT_PTR->Heaps;
 
     while (h)
