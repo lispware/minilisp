@@ -163,8 +163,8 @@
 
 (out "TESTFILE" (let X (sb "12abcdef" 16) (wr X)))
 (TEST "read 4 bytes" (sb (sb "12abcdef" 16)) (in "TESTFILE" (sb (rd 4) 10 )))
-(out "TESTFILE" (let X (sb "aabbccddeeffaabb" 16) (wr X)))
-(TEST "read 10 bytes" (sb (sb "aabbccddeeffaabb" 16)) (in "TESTFILE" (sb (rd 10) 10 )))
+(let BYTES_WRITTEN (out "TESTFILE" (let X (sb "aabbccddeeffaabb" 16) (wr X)))
+(TEST (pack "read " BYTES_WRITTEN " bytes") (sb (sb "aabbccddeeffaabb" 16)) (in "TESTFILE" (sb (rd BYTES_WRITTEN) 10 ))))
 
 ################################################################################
 # sb - switch base for numbers
