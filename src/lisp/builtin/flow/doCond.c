@@ -5,7 +5,7 @@ any doCond(Context *CONTEXT_PTR, any x)
 {
    any a;
 
-   while (Nil != (x = cdr(x)))
+   while (!isNil(x = cdr(x)))
    {
       if (!isNil(a = EVAL(CONTEXT_PTR, caar(x))))
       {

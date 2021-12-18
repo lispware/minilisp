@@ -30,9 +30,9 @@ int equal(Context *CONTEXT_PTR, any v, any v2)
             p1 = cdr(p1);
             p2 = cdr(p2);
         }
-        while (p1 != Nil);
+        while (!isNil(p1));
 
-        return p2 == Nil? 0 : 1;
+        return isNil(p2)? 0 : 1;
     }
     else if (isCell(v2))
     {

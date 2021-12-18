@@ -10,6 +10,6 @@ any doAnd(Context *CONTEXT_PTR, any x) {
       if (isNil(a = EVAL(CONTEXT_PTR, car(x))))
          return Nil;
       val(At) = a;
-   } while (Nil != (x = cdr(x)));
+   } while (!isNil(x = cdr(x)));
    return a;
 }

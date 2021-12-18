@@ -9,7 +9,7 @@ any doEq(Context *CONTEXT_PTR, any x)
 
     x = cdr(x),  Push(c1, EVAL(CONTEXT_PTR, car(x)));
     x = cdr(x);
-    while (x != Nil)
+    while (!isNil(x))
     {
         if (0 != equal(CONTEXT_PTR, data(c1), EVAL(CONTEXT_PTR, car(x))))
         {

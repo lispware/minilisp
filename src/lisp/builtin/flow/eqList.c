@@ -3,7 +3,7 @@
 
 int eqList(Context *CONTEXT_PTR, any v1, any v2)
 {
-    while(v1 != Nil)
+    while(!isNil(v1))
     {
         if (v2 == Nil) return 1;
 
@@ -32,9 +32,9 @@ int eqList(Context *CONTEXT_PTR, any v1, any v2)
         v2 = cdr(v2);
     }
 
-    if (v1 != Nil) return -1;
+    if (!isNil(v1)) return -1;
 
-    if (v2 != Nil) return 1;
+    if (!isNil(v2)) return 1;
 
     return 0;
 }
