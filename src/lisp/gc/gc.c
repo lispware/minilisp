@@ -24,11 +24,11 @@ void gc(Context *CONTEXT_PTR, word c)
                 {
                     if (GetType(p) == EXT)
                     {
-                        external *e = (external*)p->car;
+                        external *e = (external*)car(p);
                         if (e) e->release(e);
                     }
                     memset(p, 0, sizeof(cell));
-                    p->car = CONTEXT_PTR->Avail;
+                    car(p) = CONTEXT_PTR->Avail;
                     CONTEXT_PTR->Avail = p;
                     --c;
                 }

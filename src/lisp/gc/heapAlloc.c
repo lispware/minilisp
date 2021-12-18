@@ -13,7 +13,7 @@ void heapAlloc(Context *CONTEXT_PTR)
    do
    {
       //Free(p);
-      p->car=CONTEXT_PTR->Avail;
+      car(p) = CONTEXT_PTR->Avail;
       CONTEXT_PTR->Avail = p;
    }
    while (--p >= h->cells);

@@ -14,11 +14,11 @@ void mark(Context *CONTEXT_PTR, any x)
     {
         mark(CONTEXT_PTR, cdr(x));
 
-        x = x->car;
+        x = car(x);
         while(x && x != Nil)
         {
             mark(CONTEXT_PTR, x);
-            x=x->cdr;
+            x=cdr(x);
         }
         return;
     }

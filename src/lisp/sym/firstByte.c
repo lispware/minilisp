@@ -4,7 +4,7 @@ int firstByte(Context*CONTEXT_PTR, any s)
 {
     if (isSym(s))
     {
-        return ((uword)(s->car->car)) & 0xff;
+        return ((uword)(car(car(s)))) & 0xff;
     }
     else
     {

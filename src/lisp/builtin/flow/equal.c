@@ -13,8 +13,8 @@ int equal(Context *CONTEXT_PTR, any v, any v2)
 
     if (t == EXT)
     {
-        external *e1 = (external*)v->car;
-        external *e2 = (external*)v2->car;
+        external *e1 = (external*)car(v);
+        external *e2 = (external*)car(v2);
         return e1->equal(CONTEXT_PTR, e1, e2);
     }
     else if (isSym(v2))
