@@ -27,6 +27,7 @@ any addString(any *Mem, any m, char *s)
     }
 
     cdr(m) = *Mem;//TODO
+    setCARType(m, BIN);
 
     return m + 1;
 }

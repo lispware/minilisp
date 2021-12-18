@@ -223,11 +223,13 @@ typedef struct _external
 } external;
 
 
+#if 1
 #define GetType(x) (((any)(x))->meta.type.parts[0])
 #define setCARType(C, V) ((C)->meta.type.parts[0] = V)
-
-//#define GetType(x) ((uword)(cdr(x)) & 7)
-//#define setCARType(C, V) (cdr(C) = (any)((uword)(cdr(C)) | V))
+#else
+#define GetType(x) ((uword)(cdr(x)) & 7)
+#define setCARType(C, V) (cdr(C) = (any)((uword)(cdr(C)) | V))
+#endif
 
 /* Predicates */
 #define isNil(x)        ((x)==Nil)
