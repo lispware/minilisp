@@ -7,7 +7,7 @@ any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
 
     x = tree[1];
 
-    if (x == Nil)
+    if (isNil(x))
     {
         tree[1] = consIntern(CONTEXT_PTR, sym, Nil);
         return tree[1];

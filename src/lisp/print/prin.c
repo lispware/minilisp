@@ -2,7 +2,7 @@
 
 void prin(Context *CONTEXT_PTR, any x)
 {
-    if (x == Nil)
+    if (isNil(x))
     {
         printf("Nil");
         return;

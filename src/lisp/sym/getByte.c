@@ -6,7 +6,7 @@ int getByte(Context *CONTEXT_PTR, int *i, uword *p, any *q)
 
     if (*i == 0)
     {
-        if (!*q || *q == Nil)
+        if (!*q || isNil(*q))
         {
             return 0;
         }

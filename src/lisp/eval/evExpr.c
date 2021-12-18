@@ -11,7 +11,6 @@ any evExpr(Context *CONTEXT_PTR, any expr, any x)
    f->cnt = 1,  f->bnd[0].sym = At,  f->bnd[0].val = val(At);
 
    while (!isNil(y) && y != cdr(y) && isCell(y))
-   //while (y != Nil && y != cdr(y)  && 0 != cdr(y))
    {
       f->bnd[f->cnt].sym = car(y);
       f->bnd[f->cnt].val = EVAL(CONTEXT_PTR, car(x));

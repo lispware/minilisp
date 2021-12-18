@@ -5,7 +5,7 @@ int eqList(Context *CONTEXT_PTR, any v1, any v2)
 {
     while(!isNil(v1))
     {
-        if (v2 == Nil) return 1;
+        if (isNil(v2)) return 1;
 
         CellPartType t1 = GetType(v1);
         CellPartType t2 = GetType(v2);

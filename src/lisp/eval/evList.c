@@ -4,7 +4,7 @@ any evList(Context *CONTEXT_PTR, any ex)
 {
     any foo;
 
-    if (ex == Nil) return Nil;
+    if (isNil(ex)) return Nil;
 
     if (isNum(foo = car(ex)))
         return ex;
