@@ -6,8 +6,8 @@ int getByte1(Context *CONTEXT_PTR, int *i, uword *p, any *q)
 
     if (isSym(*q))
     {
-        (*q)=(*q)->car;
-        *i = BITS, *p = (uword)((*q)->car) , *q = ((*q)->cdr);
+        (*q)=car(*q);
+        *i = BITS, *p = (uword)(car(*q)) , *q = (cdr(*q));
     }
     else
     {

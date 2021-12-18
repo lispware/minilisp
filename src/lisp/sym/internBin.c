@@ -16,13 +16,13 @@ any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
     for (;;)
     {
 
-        y = sym->car;
-        z = x->car->car;
+        y = car(sym);
+        z = car(car(x));
         while ((n = (word)(car(y)) - (word)car(z)) == 0)
         {
             if (GetType(y) != BIN) return sym;
-            y=y->cdr;
-            z=z->cdr;
+            y=cdr(y);
+            z=cdr(z);
         }
 
         if (Nil == cdr(x))

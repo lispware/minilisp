@@ -4,8 +4,8 @@ any popSym(Context *CONTEXT_PTR, int i, uword n, any q, cell *cp)
 {
     if (q)
     {
-        q->cdr = consName(CONTEXT_PTR, n, Nil);
-        setCARType(q->cdr, BIN);
+        cdr(q) = consName(CONTEXT_PTR, n, Nil);
+        setCARType(cdr(q), BIN);
         return Pop(*cp);
     }
     else
@@ -16,7 +16,7 @@ any popSym(Context *CONTEXT_PTR, int i, uword n, any q, cell *cp)
         Push(c1, x);
         any y = consName(CONTEXT_PTR, n, Nil);
         setCARType(y, BIN);
-        c1.car->car = y;
+        car(car(&c1)) = y;
         return Pop(c1);
     }
 }
