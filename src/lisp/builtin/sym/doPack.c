@@ -11,7 +11,7 @@ any doPack(Context *CONTEXT_PTR, any x)
    x = cdr(x),  Push(c1, EVAL(CONTEXT_PTR, car(x)));
    putByte0(&i, &w, &y);
    pack(CONTEXT_PTR, data(c1), &i, &w, &y, &c2);
-   while (Nil != (x = cdr(x)))
+   while (!isNil(x = cdr(x)))
    {
       pack(CONTEXT_PTR, data(c1) = EVAL(CONTEXT_PTR, car(x)), &i, &w, &y, &c2);
    }

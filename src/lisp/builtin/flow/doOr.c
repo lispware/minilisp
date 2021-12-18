@@ -11,7 +11,7 @@ any doOr(Context *CONTEXT_PTR, any x) {
       {
          return val(At) = a;
       }
-   } while (Nil != (x = cdr(x)));
+   } while (!isNil(x = cdr(x)));
 
    return Nil;
 }

@@ -67,6 +67,6 @@ any doDo(Context *CONTEXT_PTR, any x)
                     z = evList(CONTEXT_PTR, z);
                 }
             }
-        } while (Nil != (y = cdr(y)));
+        } while (!isNil(y = cdr(y)));
     }
 }

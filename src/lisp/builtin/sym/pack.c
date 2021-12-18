@@ -7,7 +7,7 @@ void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp)
     uword w;
     mp_err _mp_error;
 
-    if (x != Nil && isCell(x))
+    if (!isNil(x) && isCell(x))
     {
         do
         {
@@ -20,7 +20,7 @@ void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp)
                 pack(CONTEXT_PTR, x, i, p, q, cp);
             }
         }
-        while (Nil != (x = cdr(x)));
+        while (!isNil(x = cdr(x)));
     }
     if (isNum(x))
     {

@@ -41,7 +41,7 @@ any doLet(Context *CONTEXT_PTR, any x)
 
             y = cddr(y);
         }
-        while (isCell(y) && y != Nil);
+        while (isCell(y) && !isNil(y));
         x = prog(CONTEXT_PTR, cdr(x));
         while (--f->cnt >= 0)
             val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
