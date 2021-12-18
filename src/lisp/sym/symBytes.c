@@ -20,7 +20,7 @@ int symBytes(Context *CONTEXT_PTR, any x)
                 ++cnt;
                 w >>= 8;
             }
-            x = x->cdr;
+            x = cdr(x);
         }
     }
 

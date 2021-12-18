@@ -7,14 +7,14 @@ any isIntern(Context *CONTEXT_PTR, any nm, any tree[2])
 
     for (x = tree[1];  x != Nil;)
     {
-        y = nm->car;
-        z = x->car->car;
+        y = car(nm);
+        z = car(car(x));
         while ((n = (word)(car(y)) - (word)car(z)) == 0)
         {
             if (y == Nil) return car(x);
 
-            y=y->cdr;
-            z=z->cdr;
+            y=cdr(y);
+            z=cdr(z);
         }
 
         x = n<0? cadr(x) : cddr(x);

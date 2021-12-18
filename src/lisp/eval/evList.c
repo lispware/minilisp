@@ -13,9 +13,9 @@ any evList(Context *CONTEXT_PTR, any ex)
     {
         if (isFunc(foo = evList(CONTEXT_PTR, foo)))
         {
-            return evSubr(foo->car,ex);
+            return evSubr(car(foo), ex);
         }
-        return evList2(CONTEXT_PTR, foo,ex);
+        return evList2(CONTEXT_PTR, foo, ex);
     }
 
     for (;;)
@@ -25,7 +25,7 @@ any evList(Context *CONTEXT_PTR, any ex)
         if (isNum(foo = val(foo)))
             return foo;
         if (isFunc(foo))
-            return evSubr(foo->car,ex);
+            return evSubr(car(foo), ex);
         if (isCell(foo))
             return evExpr(CONTEXT_PTR, foo, cdr(ex));
 

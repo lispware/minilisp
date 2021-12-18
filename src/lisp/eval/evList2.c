@@ -19,7 +19,7 @@ any evList2(Context *CONTEXT_PTR, any foo, any ex)
 
         if (isFunc(foo = val(foo)))
         {
-            foo = evSubr(foo->car,ex);
+            foo = evSubr(car(foo), ex);
             drop(c1);
             return foo;
         }

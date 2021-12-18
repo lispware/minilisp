@@ -12,7 +12,7 @@ int getByte(Context *CONTEXT_PTR, int *i, uword *p, any *q)
         }
         else
         {
-            *i = BITS,  *p = (uword)((*q)->car),  *q = (*q)->cdr;
+            *i = BITS,  *p = (uword)(car(*q)),  *q = cdr(*q);
         }
     }
     c = *p & 0xff,  *p >>= 8;
