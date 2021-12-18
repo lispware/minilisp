@@ -10,7 +10,7 @@ any run(Context *CONTEXT_PTR, any x)
    {
       y = EVAL(CONTEXT_PTR, car(x));
    }
-   while (Nil != (x = cdr(x)));
+   while (!isNil(x = cdr(x)));
    val(At) = Pop(at);
    return y;
 }

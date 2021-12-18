@@ -8,7 +8,7 @@ any prog(Context *CONTEXT_PTR, any x)
    {
       y = EVAL(CONTEXT_PTR, car(x));
    }
-   while (Nil != (x = cdr(x)));
+   while (!isNil(x = cdr(x)));
 
    return y;
 }
