@@ -11,10 +11,10 @@ int symBytes(Context *CONTEXT_PTR, any x)
     if (isSym(x))
     {
 
-        x = x->car;
+        x = car(x);
         while (x != Nil)
         {
-			w = (uword)(x->car);
+			w = (uword)(car(x));
             while (w)
             {
                 ++cnt;

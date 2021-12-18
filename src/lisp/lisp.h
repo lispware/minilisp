@@ -51,7 +51,7 @@ DEFINITONS
 #define doQuote_D (&(CONTEXT_PTR->Mem[11]))
 
 #ifndef CELLS
-#define CELLS (1024*1024)
+#define CELLS (1)
 #endif
 
 #if INTPTR_MAX == INT32_MAX
@@ -93,9 +93,6 @@ typedef struct _cell
    } meta;
 }
 cell, *any;
-
-#define setCARType(C, V) ((C)->meta.type.parts[0] = V)
-
 
 struct _Context;
 
@@ -227,12 +224,17 @@ typedef struct _external
 
 
 #define GetType(x) (((any)(x))->meta.type.parts[0])
+#define setCARType(C, V) ((C)->meta.type.parts[0] = V)
+
+//#define GetType(x) ((uword)(((any)(x))->cdr) & 7)
+//#define setCARType(C, V) ((C)->cdr = (any)((uword)((C)->cdr) | V))
+
 /* Predicates */
 #define isNil(x)        ((x)==Nil)
-#define isCell(x)        ((GetType(x) == PTR_CELL) && GetType((x)->car) != BIN)
+#define isCell(x)        ((GetType(x) == PTR_CELL) && GetType(car(x)) != BIN)
 #define isFunc(x)        (GetType(x) == FUNC)
-#define isSym(x)        ((GetType(x) == PTR_CELL) && GetType((x)->car) == BIN)
-#define isNum(x)        ((GetType(x) == EXT) && (((external*)(((any)(x)->car)))->type == EXT_NUM))
+#define isSym(x)        ((GetType(x) == PTR_CELL) && GetType(car(x)) == BIN)
+#define isNum(x)        ((GetType(x) == EXT) && (((external*)(((any)car(x))))->type == EXT_NUM))
 
 #define NewNumber(EXTRA_PARAM, MATH_NUM, R)  external *EXTRA_PARAM = (external *)malloc(sizeof(external));\
                                 EXTRA_PARAM->type = EXT_NUM;\
@@ -242,8 +244,8 @@ typedef struct _external
                                 EXTRA_PARAM->equal = equalExtNum;\
                                 EXTRA_PARAM->pointer = (void*)(MATH_NUM);\
                                 any R = cons(CONTEXT_PTR, Nil, Nil);\
-                                R->car = (any)EXTRA_PARAM;\
-                                GetType(R) = EXT;
+                                car(R) = (any)EXTRA_PARAM;\
+                                setCARType(R, EXT);
 
 
 /* Error checking */
