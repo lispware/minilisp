@@ -232,7 +232,7 @@ typedef struct _external
 #endif
 
 /* Predicates */
-#define isNil(x)        ((x)==Nil)
+#define isNil(x)        (makeptr(x)==Nil)
 #define isCell(x)        ((GetType(x) == PTR_CELL) && GetType(car(x)) != BIN)
 #define isFunc(x)        (GetType(x) == FUNC)
 #define isSym(x)        ((GetType(x) == PTR_CELL) && GetType(car(x)) == BIN)

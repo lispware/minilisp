@@ -12,7 +12,7 @@ int symBytes(Context *CONTEXT_PTR, any x)
     {
 
         x = car(x);
-        while (x != Nil)
+        while (!isNil(x))
         {
 			w = (uword)(car(x));
             while (w)

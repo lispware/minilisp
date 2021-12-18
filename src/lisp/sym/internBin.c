@@ -25,14 +25,14 @@ any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
             z=cdr(z);
         }
 
-        if (Nil == cdr(x))
+        if (isNil(cdr(x)))
         {
             cdr(x) = n < 0 ? consIntern(CONTEXT_PTR, consIntern(CONTEXT_PTR, sym, Nil), Nil) : consIntern(CONTEXT_PTR, Nil, consIntern(CONTEXT_PTR, sym, Nil));
             return sym;
         }
         if (n < 0)
         {
-            if (Nil != cadr(x))
+            if (!isNil(cadr(x)))
             {
                 x = cadr(x);
             }
@@ -44,7 +44,7 @@ any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
         }
         else
         {
-            if (Nil != cddr(x))
+            if (!isNil(cddr(x)))
             {
                 x = cddr(x);
             }

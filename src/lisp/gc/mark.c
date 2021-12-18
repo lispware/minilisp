@@ -8,14 +8,14 @@ void mark(Context *CONTEXT_PTR, any x)
 
     setMark(x, 1);
 
-    if (x == Nil) return;
+    if (isNil(x)) return;
 
     if (isSym(x))
     {
         mark(CONTEXT_PTR, cdr(x));
 
         x = car(x);
-        while(x && x != Nil)
+        while(x && !isNil(x))
         {
             mark(CONTEXT_PTR, x);
             x=cdr(x);
@@ -29,7 +29,7 @@ void mark(Context *CONTEXT_PTR, any x)
     {
         x = cdr(x);
         if (!x) break;
-        if (x==Nil) break;
+        if (isNil(x)) break;
         if (getMark(x)) break;
         setMark(x, 1);
         if (isSym(x))
