@@ -5,7 +5,7 @@ any doPrin(Context *CONTEXT_PTR, any x)
 {
    any y = Nil;
 
-   while (Nil != (x = cdr(x))  )
+   while (!isNil(x = cdr(x)) )
    {
       prin(CONTEXT_PTR, y = EVAL(CONTEXT_PTR, car(x)));
    }

@@ -17,7 +17,7 @@ any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p)
          f->link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = f;
          f->i = 0;
          f->cnt = 1,  f->bnd[0].sym = At,  f->bnd[0].val = val(At);
-         while (Nil != x) {
+         while (!isNil(x)) {
             f->bnd[f->cnt].val = val(f->bnd[f->cnt].sym = car(x));
             val(f->bnd[f->cnt].sym) = --n<0? Nil : cf? car(data(p[f->cnt-1])) : data(p[f->cnt-1]);
             ++f->cnt, x = cdr(x);

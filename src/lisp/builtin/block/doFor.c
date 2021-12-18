@@ -66,12 +66,12 @@ any doFor(Context *CONTEXT_PTR, any x)
             }
             else
             {
-                if (Nil == (data(c1)))
+                if (isNil(data(c1)))
                 {
                     break;
                 }
                 val(f->bnd[0].sym) = car(data(c1));
-                if (Nil == (data(c1) = cdr(data(c1))))
+                if (isNil(data(c1) = cdr(data(c1))))
                 {
                     data(c1) = Nil;
                 }
@@ -107,7 +107,7 @@ any doFor(Context *CONTEXT_PTR, any x)
                         y = evList(CONTEXT_PTR, y);
                     }
                 }
-            } while (Nil != (x = cdr(x)));
+            } while (!isNil(x = cdr(x)));
             x = body;
         }
 for1:

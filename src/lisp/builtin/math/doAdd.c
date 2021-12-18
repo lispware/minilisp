@@ -27,7 +27,7 @@ any doAdd(Context *CONTEXT_PTR, any ex)
     NewNumber(ext, n, r);
     Push(c1, r);
 
-    while (Nil != (x = cdr(x)))
+    while (!isNil(x = cdr(x)))
     {
         Push(c2, EVAL(CONTEXT_PTR, car(x)));
         if (isNil(data(c2)))

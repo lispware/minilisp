@@ -8,7 +8,7 @@ void print(Context *CONTEXT_PTR, any x)
         return;
     }
 
-    if (x == Nil)
+    if (isNil(x))
     {
         outString(CONTEXT_PTR, "Nil");
         return;
@@ -41,7 +41,7 @@ void print(Context *CONTEXT_PTR, any x)
     {
         CONTEXT_PTR->Env.put(CONTEXT_PTR, '(');
         print(CONTEXT_PTR, car(x));
-        while (Nil != (x = cdr(x)))
+        while (!isNil(x = cdr(x)))
         {
             CONTEXT_PTR->Env.put(CONTEXT_PTR, ' ');
             if (isCell(x))

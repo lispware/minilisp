@@ -11,7 +11,7 @@ any doMake(Context *CONTEXT_PTR, any x)
     yoke = CONTEXT_PTR->Env.yoke;
     CONTEXT_PTR->Env.make = CONTEXT_PTR->Env.yoke = &data(c1);
 
-    while (Nil != (x = cdr(x)))
+    while (!isNil(x = cdr(x)))
     {
         if (isCell(car(x)))
         {

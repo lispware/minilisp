@@ -15,6 +15,6 @@ any doLink(Context *CONTEXT_PTR, any x)
         y = EVAL(CONTEXT_PTR, car(x));
         CONTEXT_PTR->Env.make = &cdr(*CONTEXT_PTR->Env.make = cons(CONTEXT_PTR, y, Nil));
     }
-    while (Nil != (x = cdr(x)));
+    while (!isNil(x = cdr(x)));
     return y;
 }

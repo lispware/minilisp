@@ -8,7 +8,7 @@ any doLoop(Context *CONTEXT_PTR, any ex)
    for (;;) {
       x = cdr(ex);
       do {
-         if (Nil != (y = car(x))) {
+         if (!isNil(y = car(x))) {
             if (isNil(car(y))) {
                y = cdr(y);
                if (isNil(a = EVAL(CONTEXT_PTR, car(y))))
@@ -25,6 +25,6 @@ any doLoop(Context *CONTEXT_PTR, any ex)
             else
                evList(CONTEXT_PTR, y);
          }
-      } while (Nil != (x = cdr(x)));
+      } while (!isNil(x = cdr(x)));
    }
 }

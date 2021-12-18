@@ -8,7 +8,7 @@ any doList(Context *CONTEXT_PTR, any x)
 
    x = cdr(x);
    Push(c1, y = cons(CONTEXT_PTR, EVAL(CONTEXT_PTR, car(x)),Nil));
-   while (Nil != (x = cdr(x)))
+   while (!isNil(x = cdr(x)))
       y = cdr(y) = cons(CONTEXT_PTR, EVAL(CONTEXT_PTR, car(x)),Nil);
    return Pop(c1);
 }

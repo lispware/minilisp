@@ -16,7 +16,7 @@ any doBinAnd(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_init(n);
     _mp_error = mp_copy(num(y), n);
 
-    while (Nil != (x = cdr(x)))
+    while (!isNil(x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;

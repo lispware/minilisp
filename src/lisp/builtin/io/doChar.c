@@ -8,7 +8,7 @@ any doChar(Context *CONTEXT_PTR, any ex)
 {
     any x = cdr(ex);
 
-    if (x == Nil)
+    if (isNil(x))
     {
         if (!CONTEXT_PTR->Chr)
         {

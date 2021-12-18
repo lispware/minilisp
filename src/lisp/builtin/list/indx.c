@@ -9,7 +9,7 @@ any indx(Context *CONTEXT_PTR, any x, any y)
     mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
     mp_set(n, 1);
 
-    while (y != Nil)
+    while (!isNil(y))
     {
         if (0 == equal(CONTEXT_PTR, x, car(y)))
         {

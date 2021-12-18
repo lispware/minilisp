@@ -17,14 +17,14 @@ any doMapcar(Context *CONTEXT_PTR, any ex)
 
       do
          Push(c[n], EVAL(CONTEXT_PTR, car(x))), ++n;
-      while (Nil != (x = cdr(x)));
+      while (!isNil(x = cdr(x)));
       if (!isCell(data(c[0])))
       {
           free(c);
          return Pop(res);
       }
       data(res) = x = cons(CONTEXT_PTR, apply(CONTEXT_PTR, ex, data(foo), YES, n, c), Nil);
-      while (Nil != (data(c[0]) = cdr(data(c[0])))) {
+      while (!isNil(data(c[0]) = cdr(data(c[0])))) {
          for (i = 1; i < n; ++i)
             data(c[i]) = cdr(data(c[i]));
          cdr(x) = cons(CONTEXT_PTR, apply(CONTEXT_PTR, ex, data(foo), YES, n, c), Nil);

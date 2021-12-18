@@ -13,7 +13,7 @@ any doSetq(Context *CONTEXT_PTR, any ex)
         // CheckVar(ex,y); - TODO - what is this for?
         val(y) = EVAL(CONTEXT_PTR, car(x));
     }
-    while (Nil != (x = cdr(x)));
+    while (!isNil(x = cdr(x)));
 
     return val(y);
 }

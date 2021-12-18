@@ -16,7 +16,7 @@ any doLength(Context *CONTEXT_PTR, any x)
     _mp_error = mp_init(r); // TODO handle the errors appropriately
     mp_set_i32(r, 0);
 
-    if (x == Nil)
+    if (isNil(x))
     {
         mp_clear(r);
         free(r);
@@ -31,7 +31,7 @@ any doLength(Context *CONTEXT_PTR, any x)
     else if (isSym(x))
     {
         x = car(x);
-        while (x != Nil)
+        while (!isNil(x))
         {
             w = (uword)(car(x));
             if (w) lengthBiggerThanZero = 1;
@@ -46,7 +46,7 @@ any doLength(Context *CONTEXT_PTR, any x)
     else if (isCell(x))
     {
         lengthBiggerThanZero = 1;
-        while (Nil != x)
+        while (!isNil(x))
         {
             _mp_error = mp_incr(r);
             x = cdr(x);

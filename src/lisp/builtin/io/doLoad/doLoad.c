@@ -11,6 +11,6 @@ any doLoad(Context *CONTEXT_PTR, any ex)
          y = load(CONTEXT_PTR, ex, '>', y);
       else
          y = loadAll(CONTEXT_PTR, ex);
-   } while (Nil != (x = cdr(x)));
+   } while (!isNil(x = cdr(x)));
    return y;
 }
