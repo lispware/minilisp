@@ -226,8 +226,8 @@ typedef struct _external
 #define GetType(x) (((any)(x))->meta.type.parts[0])
 #define setCARType(C, V) ((C)->meta.type.parts[0] = V)
 
-//#define GetType(x) ((uword)(((any)(x))->cdr) & 7)
-//#define setCARType(C, V) ((C)->cdr = (any)((uword)((C)->cdr) | V))
+//#define GetType(x) ((uword)(cdr(x)) & 7)
+//#define setCARType(C, V) (cdr(C) = (any)((uword)(cdr(C)) | V))
 
 /* Predicates */
 #define isNil(x)        ((x)==Nil)
@@ -256,11 +256,11 @@ typedef struct _external
 #define NeedLst(ex,x)   if (!isCell(x) && !isNil(x)) lstError(ex,x)
 #define NeedVar(ex,x)   if (isNum(x)) varError(ex,x)
 
-#define num(x)          ((mp_int*)(((external*)((any)(x)->car))->pointer))
+#define num(x)          ((mp_int*)(((external*)((any)car(x)))->pointer))
 #define tail(x)         (x)
-#define val(x)          ((x)->cdr)
+#define val(x)          (cdr(x))
 #define symPtr(x)       (x)
-#define unBox(n)        (num(n->car))
+#define unBox(n)        (num(car(n)))
 
 void lstError(any,any) ;
 void numError(any,any) ;
