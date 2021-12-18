@@ -7,6 +7,6 @@ uword length(Context *CONTEXT_PTR, any x)
    if (!isCell(x)) return 0;
    if (cdr(x) == x) return 0;
 
-   for (n = 0; x != Nil; x = cdr(x)) ++n;
+   for (n = 0; !isNil(x); x = cdr(x)) ++n;
    return n;
 }

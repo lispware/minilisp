@@ -28,9 +28,9 @@ any rdList(Context *CONTEXT_PTR)
         Push(c1, x);
 
         x = data(c1) = EVAL(CONTEXT_PTR, data(c1));
-        if (isCell(x) && x != Nil)
+        if (isCell(x) && !isNil(x))
         {
-            while (Nil != cdr(x) && isCell(cdr(x)))
+            while (!isNil(cdr(x)) && isCell(cdr(x)))
             {
                 x = cdr(x);
             }
@@ -67,7 +67,7 @@ any rdList(Context *CONTEXT_PTR)
             CONTEXT_PTR->Env.get(CONTEXT_PTR);
             cdr(x) = read0(CONTEXT_PTR, NO);
             cdr(x) = EVAL(CONTEXT_PTR, cdr(x));
-            while (Nil != cdr(x) && isCell(cdr(x)))
+            while (!isNil(cdr(x)) && isCell(cdr(x)))
             {
                 x = cdr(x);
             }
