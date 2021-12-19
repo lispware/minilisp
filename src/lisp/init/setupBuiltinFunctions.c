@@ -6,6 +6,7 @@
     setCARType(M->cdr, FUNC);\
     *(FunPtr *)(void*)&(car(cdr(M))) = F;/* This was necessary to satisfy the pedantic gcc Function pointer to object pointer */ \
     cdr(cdr(M)) = *Mem; \
+    setCARType(cdr(cdr(M)), PTR_CELL);\
     M = cdr(M) + 1; \
     }
 
@@ -35,22 +36,27 @@ void setupBuiltinFunctions(any * Mem)
 
     memCell++;
     cdr(memCell) = *Mem;
+    setCARType(memCell, PTR_CELL);
     printIndex("Nil", *Mem, memCell);
     memCell = addString(Mem, memCell, "Nil");
 
     cdr(memCell) = *Mem;
+    setCARType(memCell, PTR_CELL);
     printIndex("T", *Mem, memCell);
     memCell = addString(Mem, memCell, "T");
 
     cdr(memCell) = *Mem + 1;
+    setCARType(memCell, PTR_CELL);
     printIndex("@", *Mem, memCell);
     memCell = addString(Mem, memCell, "@");
 
     cdr(memCell) = *Mem + 1;
+    setCARType(memCell, PTR_CELL);
     printIndex("@@", *Mem, memCell);
     memCell = addString(Mem, memCell, "@@");
 
     cdr(memCell) = *Mem + 1;
+    setCARType(memCell, PTR_CELL);
     printIndex("@@@", *Mem, memCell);
     memCell = addString(Mem, memCell, "@@@");
 

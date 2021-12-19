@@ -51,7 +51,7 @@ DEFINITONS
 #define doQuote_D (&(CONTEXT_PTR->Mem[11]))
 
 #ifndef CELLS
-#define CELLS (1)
+#define CELLS (1024*1024)
 #endif
 
 #if INTPTR_MAX == INT32_MAX
@@ -311,6 +311,7 @@ int skip(Context *CONTEXT_PTR);
 any read0(Context *CONTEXT_PTR, bool top);
 any read1(Context *CONTEXT_PTR, int end);
 any rdList(Context *CONTEXT_PTR);
+void printTree(Context *CONTEXT_PTR, any r, int tab, int t);
 
 any evList(Context *, any);
 any evList2(Context *CONTEXT_PTR, any foo, any ex);

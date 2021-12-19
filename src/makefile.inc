@@ -4,6 +4,7 @@ SOURCES=lisp/eval/evList.c \
     lisp/eval/evExpr.c \
     lisp/eval/evList2.c \
     lisp/eval/run.c \
+    lisp/sym/printTree.c \
     lisp/sym/mkStr.c \
     lisp/sym/isIntern.c \
     lisp/sym/getByte.c \
