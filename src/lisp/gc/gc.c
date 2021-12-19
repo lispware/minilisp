@@ -6,9 +6,9 @@ void gc(Context *CONTEXT_PTR, word c)
     any p;
     heap *h;
 
-    //doDump(CONTEXT_PTR, Nil);
+    dumpMemory(CONTEXT_PTR);
     markAll(CONTEXT_PTR);
-    //doDump(CONTEXT_PTR, Nil);
+    dumpMemory(CONTEXT_PTR);
 
     /* Sweep */
     CONTEXT_PTR->Avail = NULL;

@@ -20,6 +20,7 @@ SOURCES=lisp/eval/evList.c \
     lisp/sym/mkSym.c \
     lisp/sym/popSym.c \
     lisp/sym/firstByte.c \
+    lisp/gc/dumpMemory.c \
     lisp/gc/setMark.c \
     lisp/gc/markAll.c \
     lisp/gc/getMark.c \

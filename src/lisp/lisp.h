@@ -51,7 +51,7 @@ DEFINITONS
 #define doQuote_D (&(CONTEXT_PTR->Mem[11]))
 
 #ifndef CELLS
-#define CELLS (1024*1024)
+#define CELLS (1)
 #endif
 
 #if INTPTR_MAX == INT32_MAX
@@ -370,6 +370,7 @@ void putStdout(Context *CONTEXT_PTR, int c);
 int equal(Context *CONTEXT_PTR, any v, any v2);
 any indx(Context *CONTEXT_PTR, any x, any y);
 any doPopq(Context *CONTEXT_PTR, any x);
+void dumpMemory(Context *CONTEXT_PTR);
 
 any doDe(Context *CONTEXT_PTR, any x);
 any doNumLt(Context *CONTEXT_PTR, any x);
