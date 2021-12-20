@@ -22,7 +22,7 @@ void dumpMemory(Context *CONTEXT_PTR, char *name)
     FILE *fp = fopen(fileName, "w");
     fprintf(fp, "MEM\n");
 
-    for (int i = 1; i < MEMS; i++)
+    for (int i = 0; i < MEMS; i++)
     {
         any cell = (any)(CONTEXT_PTR->Mem + i);
         fprintf(fp, "%014p %014p %014p %014p\n", &cell->car, cell->car, cell->cdr, cell->meta.ptr);
