@@ -2,5 +2,5 @@
 
 int getMark(any cell)
 {
-    return cell->meta.type.parts[3];
+    return makeptr(cell)->meta.type.parts[3];
 }

@@ -12,6 +12,7 @@ void initialize_context(Context *CONTEXT_PTR)
       if (isSym(cell))
       {
          intern(CONTEXT_PTR, cell, CONTEXT_PTR->Intern);
+         dump("symbol");
       }
    }
 }

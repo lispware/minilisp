@@ -42,6 +42,7 @@ any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
             else
             {
                 cadr(x) = consIntern(CONTEXT_PTR, sym, Nil);
+                setCARType(car(x), PTR_CELL);
                 return sym;
             }
         }
@@ -54,6 +55,7 @@ any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
             else
             {
                 cddr(x) = consIntern(CONTEXT_PTR, sym, Nil);
+                setCARType(cdr(x), PTR_CELL);
                 return sym;
             }
         }
