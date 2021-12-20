@@ -1,14 +1,17 @@
 #include <lisp.h>
 #include <tommath.h>
 
+static int CTR;
+
 void gc(Context *CONTEXT_PTR, word c)
 {
     any p;
     heap *h;
 
-    dumpMemory(CONTEXT_PTR);
+    CTR++;
+    dump("gc1");
     markAll(CONTEXT_PTR);
-    dumpMemory(CONTEXT_PTR);
+    dump("gc2");
 
     /* Sweep */
     CONTEXT_PTR->Avail = NULL;
@@ -44,5 +47,6 @@ void gc(Context *CONTEXT_PTR, word c)
         }
     }
 
+    dump("gc3");
     return;
 }

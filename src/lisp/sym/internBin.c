@@ -27,7 +27,9 @@ any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
 
         if (isNil(cdr(x)))
         {
+            dump("internBin1");
             cdr(x) = n < 0 ? consIntern(CONTEXT_PTR, consIntern(CONTEXT_PTR, sym, Nil), Nil) : consIntern(CONTEXT_PTR, Nil, consIntern(CONTEXT_PTR, sym, Nil));
+            dump("internBin2");
             return sym;
         }
         if (n < 0)

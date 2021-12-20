@@ -223,7 +223,7 @@ typedef struct _external
 } external;
 
 
-#if 1
+#if 0
 #define GetType(x) (((any)(x))->meta.type.parts[0])
 #define setCARType(C, V) ((C)->meta.type.parts[0] = V)
 #else
@@ -370,7 +370,8 @@ void putStdout(Context *CONTEXT_PTR, int c);
 int equal(Context *CONTEXT_PTR, any v, any v2);
 any indx(Context *CONTEXT_PTR, any x, any y);
 any doPopq(Context *CONTEXT_PTR, any x);
-void dumpMemory(Context *CONTEXT_PTR);
+void dumpMemory(Context *CONTEXT_PTR, char *);
+#define dump(x) dumpMemory(CONTEXT_PTR, x);
 
 any doDe(Context *CONTEXT_PTR, any x);
 any doNumLt(Context *CONTEXT_PTR, any x);
