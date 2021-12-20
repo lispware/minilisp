@@ -60,7 +60,7 @@ void setupBuiltinFunctions(any * Mem)
     printIndex("@@@", *Mem, memCell);
     memCell = addString(Mem, memCell, "@@@");
 
-    // AddFunc(memCell, "quote", doQuote); 
+    AddFunc(memCell, "quote", doQuote);
     // AddFunc(memCell, "de", doDe); 
     // AddFunc(memCell, "bye", doBye);
     // AddFunc(memCell, "+", doAdd);
