@@ -60,13 +60,17 @@ any rdList(Context *CONTEXT_PTR)
         }
         if (CONTEXT_PTR->Chr != '~')
         {
-            x = cdr(x) = cons(CONTEXT_PTR, read0(CONTEXT_PTR, NO),Nil);
+            cdr(x) = cons(CONTEXT_PTR, read0(CONTEXT_PTR, NO),Nil);
+            setCARType(x, PTR_CELL);
+            x = cdr(x);
         }
         else
         {
             CONTEXT_PTR->Env.get(CONTEXT_PTR);
             cdr(x) = read0(CONTEXT_PTR, NO);
+            setCARType(x, PTR_CELL);
             cdr(x) = EVAL(CONTEXT_PTR, cdr(x));
+            setCARType(x, PTR_CELL);
             while (!isNil(cdr(x)) && isCell(cdr(x)))
             {
                 x = cdr(x);
