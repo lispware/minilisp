@@ -113,5 +113,6 @@ any read0(Context *CONTEXT_PTR, bool top)
 
     intern(CONTEXT_PTR, y, CONTEXT_PTR->Intern);
     val(y) = Nil;
+    setCARType(y, PTR_CELL);
     return y;
 }
