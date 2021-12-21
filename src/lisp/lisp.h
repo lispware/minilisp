@@ -228,7 +228,7 @@ typedef struct _external
 #define setCARType(C, V) ((C)->meta.type.parts[0] = V)
 #else
 #define GetType(x) ((uword)(cdr(x)) & 7)
-#define setCARType(C, V) (cdr(C) = (any)((uword)(cdr(C)) | V))
+#define setCARType(C, V) (cdr(C) = (any)(((uword)(cdr(C)) & ~7) | V))
 #endif
 
 /* Predicates */

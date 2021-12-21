@@ -19,7 +19,10 @@ any doLine(Context *CONTEXT_PTR, any x)
       for (;;) {
          if (CONTEXT_PTR->Env.get(CONTEXT_PTR), eol(CONTEXT_PTR))
             return Pop(c1);
-         y = cdr(y) = cons(CONTEXT_PTR, mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr), Nil);
+         any c = mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr);
+         cdr(y) = cons(CONTEXT_PTR, c, Nil);
+         setCARType(y, PTR_CELL);
+         y = cdr(y);
       }
    }
    else {
