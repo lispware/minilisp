@@ -11,8 +11,9 @@ void initialize_context(Context *CONTEXT_PTR)
 
       if (isSym(cell))
       {
+         dump("symbol1");
          intern(CONTEXT_PTR, cell, CONTEXT_PTR->Intern);
-         dump("symbol");
+         dump("symbol2");
       }
    }
 }
