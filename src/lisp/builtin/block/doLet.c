@@ -21,7 +21,10 @@ any doLet(Context *CONTEXT_PTR, any x)
     {
         bindFrame f;
 
-        x = cdr(x),  Bind(y,f),  val(y) = EVAL(CONTEXT_PTR, car(x));
+        x = cdr(x);
+        Bind(y,f);
+        val(y) = EVAL(CONTEXT_PTR, car(x));
+        setCARType(y, PTR_CELL);
         x = prog(CONTEXT_PTR, cdr(x));
         Unbind(f);
     }
@@ -30,7 +33,8 @@ any doLet(Context *CONTEXT_PTR, any x)
         // TODO check out how to do stack 
         bindFrame *f = allocFrame((length(CONTEXT_PTR, y)+1)/2);
 
-        f->link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = f;
+        f->link = CONTEXT_PTR->Env.bind;
+        CONTEXT_PTR->Env.bind = f;
         f->i = f->cnt = 0;
         do
         {
@@ -38,6 +42,7 @@ any doLet(Context *CONTEXT_PTR, any x)
             f->bnd[f->cnt].val = val(car(y));
             ++f->cnt;
             val(car(y)) = EVAL(CONTEXT_PTR, cadr(y));
+            setCARType(car(y), PTR_CELL);
 
             y = cddr(y);
         }

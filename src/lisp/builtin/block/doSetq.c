@@ -12,6 +12,7 @@ any doSetq(Context *CONTEXT_PTR, any ex)
         NeedVar(ex,y);
         // CheckVar(ex,y); - TODO - what is this for?
         val(y) = EVAL(CONTEXT_PTR, car(x));
+        setCARType(y, PTR_CELL);
     }
     while (!isNil(x = cdr(x)));
 
