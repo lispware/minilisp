@@ -101,6 +101,7 @@ any read0(Context *CONTEXT_PTR, bool top)
         putByte(CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &p, &c1);
     }
 
+    dump("putbyte");
     y = popSym(CONTEXT_PTR, i, w, p, &c1);
     if (x = symToNum(CONTEXT_PTR, tail(y), 0, '.', 0))
     {
