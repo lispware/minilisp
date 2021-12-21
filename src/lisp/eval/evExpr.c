@@ -37,6 +37,7 @@ any evExpr(Context *CONTEXT_PTR, any expr, any x)
       {
          x = val(f->bnd[--f->i].sym);
          val(f->bnd[f->i].sym) = f->bnd[f->i].val;
+         setCARType(f->bnd[f->i].sym, PTR_CELL);
          f->bnd[f->i].val = x;
       }
       while (f->i);
@@ -57,6 +58,7 @@ any evExpr(Context *CONTEXT_PTR, any expr, any x)
       {
          x = val(f->bnd[--f->i].sym);
          val(f->bnd[f->i].sym) = f->bnd[f->i].val;
+         setCARType(f->bnd[f->i].sym, PTR_CELL);
          f->bnd[f->i].val = x;
       }
       while (f->i);
@@ -76,6 +78,7 @@ any evExpr(Context *CONTEXT_PTR, any expr, any x)
    while (--f->cnt >= 0)
    {
       val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
+      setCARType(f->bnd[f->cnt].sym, PTR_CELL);
    }
 
    CONTEXT_PTR->Env.bind = f->link;

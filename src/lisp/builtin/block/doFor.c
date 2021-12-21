@@ -37,6 +37,7 @@ any doFor(Context *CONTEXT_PTR, any x)
             f->bnd[1].sym = car(y);
             f->bnd[1].val = val(car(y));
             val(f->bnd[1].sym) = Nil;
+            setCARType(f->bnd[1].sym, PTR_CELL);
         }
 
         y = Nil;
@@ -45,6 +46,7 @@ any doFor(Context *CONTEXT_PTR, any x)
         if (isNum(data(c1)))
         {
             f->bnd[0].sym->cdr  = mkNum(CONTEXT_PTR, 0);
+            setCARType(f->bnd[0].sym, PTR_CELL);
         }
 
         body = x = cdr(x);
@@ -63,6 +65,7 @@ any doFor(Context *CONTEXT_PTR, any x)
 
                 NewNumber(ext, n, r);
                 f->bnd[0].sym->cdr  = r;
+                setCARType(f->bnd[0].sym, PTR_CELL);
             }
             else
             {
@@ -71,6 +74,7 @@ any doFor(Context *CONTEXT_PTR, any x)
                     break;
                 }
                 val(f->bnd[0].sym) = car(data(c1));
+                setCARType(f->bnd[0].sym, PTR_CELL);
                 if (isNil(data(c1) = cdr(data(c1))))
                 {
                     data(c1) = Nil;
@@ -89,6 +93,7 @@ any doFor(Context *CONTEXT_PTR, any x)
                             goto for1;
                         }
                         val(At) = a;
+                        setCARType(At, PTR_CELL);
                         y = Nil;
                     }
                     else if (car(y) == T)
@@ -97,6 +102,7 @@ any doFor(Context *CONTEXT_PTR, any x)
                         if (!isNil(a = EVAL(CONTEXT_PTR, car(y))))
                         {
                             val(At) = a;
+                            setCARType(At, PTR_CELL);
                             y = prog(CONTEXT_PTR, cdr(y));
                             goto for1;
                         }
@@ -113,6 +119,7 @@ any doFor(Context *CONTEXT_PTR, any x)
 for1:
         drop(c1);
         val(f->bnd[0].sym) = f->bnd[0].val;
+        setCARType(f->bnd[0].sym, PTR_CELL);
         CONTEXT_PTR->Env.bind = f->link;
         free(f);
         return y;
