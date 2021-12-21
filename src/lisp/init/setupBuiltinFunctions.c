@@ -3,11 +3,13 @@
 #define AddFunc(M, N, F) \
     { \
     cdr(M) = addString(Mem, M, N);\
+    setCARType(M, PTR_CELL);\
     setCARType(M->cdr, FUNC);\
     *(FunPtr *)(void*)&(car(cdr(M))) = F;/* This was necessary to satisfy the pedantic gcc Function pointer to object pointer */ \
     cdr(cdr(M)) = *Mem; \
     setCARType(cdr(cdr(M)), PTR_CELL);\
     M = cdr(M) + 1; \
+    M = makeptr(M); \
     }
 
 void printIndex(char *name, void *_MemStart, void *_Mem)
@@ -61,8 +63,8 @@ void setupBuiltinFunctions(any * Mem)
     memCell = addString(Mem, memCell, "@@@");
 
     AddFunc(memCell, "quote", doQuote);
-    // AddFunc(memCell, "de", doDe); 
-    // AddFunc(memCell, "bye", doBye);
+    AddFunc(memCell, "de", doDe); 
+    AddFunc(memCell, "bye", doBye);
     // AddFunc(memCell, "+", doAdd);
     // AddFunc(memCell, "-", doSub);
     // AddFunc(memCell, "*", doMul);
