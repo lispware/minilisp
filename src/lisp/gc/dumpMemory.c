@@ -17,7 +17,7 @@ static void dumpHeap(heap *h, FILE *fp)
 
 void dumpMemory(Context *CONTEXT_PTR, char *name)
 {
-#if 1
+#if 0
     if (name[0] != 'p' || name[1] != 'u') return;
     char fileName[20];
     sprintf(fileName, "%05d_%s.dump",INDEX++, name);
