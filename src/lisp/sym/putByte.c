@@ -15,6 +15,7 @@ void putByte(Context *CONTEXT_PTR, int c, int *i, uword *p, any *q, cell *cp)
             any x = consName(CONTEXT_PTR, *p, Nil);
             setCARType(x, BIN);
             cdr(*q) = x;
+            setCARType(*q, PTR_CELL);
             *q = x;
         }
         else
@@ -24,7 +25,9 @@ void putByte(Context *CONTEXT_PTR, int c, int *i, uword *p, any *q, cell *cp)
             Push(*cp, x);
             any y = consName(CONTEXT_PTR, *p, Nil);
             setCARType(y, BIN);
-            car(car(cp)) = *q = y;
+            *q = y;
+            setCARType(*q, PTR_CELL);
+            car(car(cp)) = *q;
         }
         *p = c >> BITS - *i;
         *i -= BITS;

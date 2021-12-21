@@ -13,5 +13,6 @@ any consName(Context *CONTEXT_PTR, uword w, any n)
    p = symPtr(p);
    car(p) = (any)w;
    cdr(p) = n;
+   setCARType(p, PTR_CELL);
    return p;
 }
