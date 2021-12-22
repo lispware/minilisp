@@ -18,6 +18,9 @@ any doMake(Context *CONTEXT_PTR, any x)
             evList(CONTEXT_PTR, car(x));
         }
     }
+
+    setCARType(*CONTEXT_PTR->Env.yoke, PTR_CELL);
+
     CONTEXT_PTR->Env.yoke = yoke;
     CONTEXT_PTR->Env.make = make;
     return Pop(c1);
