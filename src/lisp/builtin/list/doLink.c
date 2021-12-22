@@ -13,7 +13,9 @@ any doLink(Context *CONTEXT_PTR, any x)
     do
     {
         y = EVAL(CONTEXT_PTR, car(x));
-        CONTEXT_PTR->Env.make = &cdr(*CONTEXT_PTR->Env.make = cons(CONTEXT_PTR, y, Nil));
+        any r = *CONTEXT_PTR->Env.make = cons(CONTEXT_PTR, y, Nil);
+        setCARType(r, PTR_CELL);
+        CONTEXT_PTR->Env.make = &cdr(r);
     }
     while (!isNil(x = cdr(x)));
     return y;
