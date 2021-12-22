@@ -203,6 +203,9 @@ typedef struct _Context
     int HeapCount;
     any Mem;
 
+    // DEBUG
+    int Tab;
+
 }
 Context;
 
@@ -272,6 +275,9 @@ void openErr(any ex, char *s);
 
 
 
+void debugIndent(Context *CONTEXT_PTR);
+void debugOutdent(Context *CONTEXT_PTR);
+void debugLog(Context *CONTEXT_PTR, char *message);
 void eofErr(void);
 void printLongTXT(Context *CONTEXT_PTR, any nm);
 uword length(Context *CONTEXT_PTR, any x);

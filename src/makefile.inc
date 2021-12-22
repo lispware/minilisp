@@ -149,6 +149,7 @@ SOURCES=lisp/eval/evList.c \
     lisp/error/lstError.c \
     lisp/error/openErr.c \
     lisp/main.c \
+    lisp/debug.c \
     lisp/builtin/thread/copyHeap.c \
     lisp/builtin/thread/copyBackupCell.c \
     lisp/builtin/thread/copyFixupCell.c \
