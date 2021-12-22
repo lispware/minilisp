@@ -8,8 +8,7 @@ any doMake(Context *CONTEXT_PTR, any x)
 
     Push(c1, Nil);
     make = CONTEXT_PTR->Env.make;
-    yoke = CONTEXT_PTR->Env.yoke;
-    CONTEXT_PTR->Env.make = CONTEXT_PTR->Env.yoke = &data(c1);
+    CONTEXT_PTR->Env.make = &data(c1);
 
     while (!isNil(x = cdr(x)))
     {
@@ -19,9 +18,6 @@ any doMake(Context *CONTEXT_PTR, any x)
         }
     }
 
-    setCARType(*CONTEXT_PTR->Env.yoke, PTR_CELL);
-
-    CONTEXT_PTR->Env.yoke = yoke;
     CONTEXT_PTR->Env.make = make;
     return Pop(c1);
 }
