@@ -1,6 +1,5 @@
 #include <lisp.h>
 
-
 any doCons(Context *CONTEXT_PTR, any x)
 {
    any y;
@@ -13,5 +12,6 @@ any doCons(Context *CONTEXT_PTR, any x)
       y = cdr(y) = cons(CONTEXT_PTR, EVAL(CONTEXT_PTR, car(x)),Nil);
    }
    cdr(y) = EVAL(CONTEXT_PTR, car(x));
+   setCARType(y, PTR_CELL);
    return Pop(c1);
 }
