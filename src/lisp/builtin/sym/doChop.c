@@ -22,7 +22,9 @@ any doChop(Context *CONTEXT_PTR, any x)
         c = getByte(CONTEXT_PTR,&i, &w, &x);
         if (c)
         {
-            y = cdr(y) = cons(CONTEXT_PTR, mkChar(CONTEXT_PTR, c), Nil);
+            cdr(y) = cons(CONTEXT_PTR, mkChar(CONTEXT_PTR, c), Nil);
+            setCARType(y, PTR_CELL);
+            y = cdr(y);
         }
     }
 

@@ -28,6 +28,7 @@ any doMapcar(Context *CONTEXT_PTR, any ex)
          for (i = 1; i < n; ++i)
             data(c[i]) = cdr(data(c[i]));
          cdr(x) = cons(CONTEXT_PTR, apply(CONTEXT_PTR, ex, data(foo), YES, n, c), Nil);
+         setCARType(x, PTR_CELL);
          x = cdr(x);
       }
 
