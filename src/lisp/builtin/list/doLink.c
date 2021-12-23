@@ -13,8 +13,14 @@ any doLink(Context *CONTEXT_PTR, any x)
     do
     {
         y = EVAL(CONTEXT_PTR, car(x));
-        *CONTEXT_PTR->Env.make = cons(CONTEXT_PTR, y, Nil);
-        CONTEXT_PTR->Env.make = &cdr(*CONTEXT_PTR->Env.make);
+        any c = cons(CONTEXT_PTR, y, Nil);
+
+        c = (any)((((uword)c) & ~7) | 1); /// Set the CDR type to PTR_CELL
+
+        *CONTEXT_PTR->Env.make = c;
+        
+        CONTEXT_PTR->Env.make = &cdr(c);
+
     }
     while (!isNil(x = cdr(x)));
     return y;
