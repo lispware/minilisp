@@ -15,7 +15,8 @@ any doLink(Context *CONTEXT_PTR, any x)
         y = EVAL(CONTEXT_PTR, car(x));
         any c = cons(CONTEXT_PTR, y, Nil);
 
-        c = (any)((((uword)c) & ~7) | 1); /// Set the CDR type to PTR_CELL
+        //c = (any)((((uword)c) & ~7) | 1); /// Set the CDR type to PTR_CELL
+        setPtrType(c, PTR_CELL);
 
         *CONTEXT_PTR->Env.make = c;
         
