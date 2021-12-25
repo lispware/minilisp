@@ -2,6 +2,8 @@
 
 void copyBackupCell(cell *fromCell, cell * toCell)
 {
-    toCell->meta.type = fromCell->meta.type;
-    fromCell->meta.ptr = toCell;
+    uword  *temp = (uword*)malloc(sizeof(uword*) * 2);
+    temp[0] = fromCell->cdr;
+    temp[1] = toCell;
+    fromCell->cdr = temp;
 }

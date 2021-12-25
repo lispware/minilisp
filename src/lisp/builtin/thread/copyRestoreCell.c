@@ -27,5 +27,6 @@ void copyRestoreCell(Context *From, Context *To, cell *fromCell, cell *toCell)
         To->Code = toCell;
     }
 
-    fromCell->meta.type = toCell->meta.type;
+    uword *temp = (uword*)fromCell->cdr;
+    fromCell->cdr = temp[0];
 }

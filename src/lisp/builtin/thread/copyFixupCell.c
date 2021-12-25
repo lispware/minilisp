@@ -3,37 +3,30 @@
 
 void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
 {
-    CellPartType carType;
-    carType = GetType(toCell);
+    uword *temp = (uword*)fromCell->cdr;
+    any cdrOfFromCell = (any)temp[0];
+    CellPartType type = temp[0] & 7;
 
-    if (carType == EXT)
+    if (type == EXT)
     {
-        external *e = (external*)car(fromCell);
-        if (e) car(toCell) = (any)e->copy(From, e);
-        else car(toCell) = car(fromCell);
+        external *e = (external*)fromCell->car;
+        if (e) toCell->car = e->copy(From, e);
+        else toCell->car = fromCell->car;
     }
-    else if ((carType == FUNC && car(fromCell) && cdr(fromCell)) || carType == BIN)
+    else if (type == FUNC || type == BIN)
     {
-        car(toCell) = car(fromCell);
+        toCell->car = fromCell->car;
     }
-    else
+    else // PTR_CELL
     {
-        if (car(fromCell) != 0)
-        {
-            car(toCell) = car(fromCell)->meta.ptr;
-        }
-        else
-        {
-            car(toCell) = car(fromCell);
-        }
+        uword *temp2 = makeptr(fromCell->car)->cdr;
+        toCell->car = setPtrType((any)temp2[1], PTR_CELL);
     }
 
-    if (cdr(fromCell) != 0)
+    if (cdrOfFromCell != 0)
     {
-        cdr(toCell) = cdr(fromCell)->meta.ptr;
-    }
-    else
-    {
-        cdr(toCell) = cdr(fromCell);
+        any x = makeptr(cdrOfFromCell);
+        uword *temp2 = x->cdr;
+        toCell->cdr = setPtrType((any)temp2[1], type);
     }
 }
