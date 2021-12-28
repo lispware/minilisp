@@ -9,7 +9,7 @@ any doListen(Context *CONTEXT_PTR, any ex)
     if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
         return Nil;
 
-    external *e = (external*)y->car;
+    external *e = (external*)car(y);
     n = (uword)e->pointer;
 
     return pltListen(CONTEXT_PTR, n);

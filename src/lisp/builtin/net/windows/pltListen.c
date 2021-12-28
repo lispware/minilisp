@@ -33,7 +33,7 @@ any pltListen(Context *CONTEXT_PTR, word n)
 
     any r = cons(CONTEXT_PTR, Nil, Nil);
     setCARType(r, EXT);
-    r->car = (any)e;
+    car(r) = (any)e;
 
     return r;
 }

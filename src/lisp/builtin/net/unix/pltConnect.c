@@ -69,7 +69,7 @@ any pltConnect(Context *CONTEXT_PTR, any ex)
 
     any r = cons(CONTEXT_PTR, Nil, Nil);
     setCARType(r, EXT);
-    r->car = (any)e;
+    car(r) = (any)e;
 
     return r;
 }

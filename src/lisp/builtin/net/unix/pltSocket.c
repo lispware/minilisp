@@ -18,7 +18,7 @@ any pltSocket(Context *CONTEXT_PTR, any ex)
     if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
         return Nil;
 
-    external *e = (external*)y->car;
+    external *e = (external*)car(y);
     n = (uword)e->pointer;
 
     inFrame f;
@@ -33,6 +33,6 @@ any pltSocket(Context *CONTEXT_PTR, any ex)
     popIOFilesNet(CONTEXT_PTR);
 
     e->release(e);
-    y->car = NULL;
+    car(y) = NULL;
     return Nil;
 }
