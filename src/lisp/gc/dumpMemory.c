@@ -17,12 +17,12 @@ static void dumpHeap(heap *h, FILE *fp)
 
 void dumpMemory(Context *CONTEXT_PTR, char *name)
 {
-#if 1
+#if 0
     if (name[0] != 't' || name[1] != 'h') return;
-    char fileName[20];
-    sprintf(fileName, "%05d_%s.dump",INDEX++, name);
+    char fileName[40];
+    sprintf(fileName, "%05d_%s_%d.dump",INDEX++, name, CONTEXT_PTR->THREAD_COUNT);
     FILE *fp = fopen(fileName, "w");
-    fprintf(fp, "MEM\n");
+    fprintf(fp, "MEM %p\n", CONTEXT_PTR->Avail);
 
     for (int i = 0; i < MEMS; i++)
     {

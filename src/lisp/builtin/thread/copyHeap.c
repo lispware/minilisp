@@ -32,8 +32,9 @@ void copyHeap(Context *From, Context *To)
         from=from->next;
         to=to->next;
     }
-    //dumpMem(From, "DEBUG_HEAP1.txt");
-    //dumpMem(To, "DEBUG_COPY1.txt");
+
+    //dumpMemory(From, "th_AFTERBACKUP_FROM");
+    //dumpMemory(To, "th_AFTERBACKUP_To");
 
     /////////////////////////////////////////////////////
     from = From->Heaps;

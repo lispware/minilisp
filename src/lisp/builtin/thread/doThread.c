@@ -4,6 +4,7 @@ void *thread_func(void *arg)
 {
     Context *CONTEXT_PTR = arg;
 
+    dumpMemory(CONTEXT_PTR, "thIN");
     EVAL(CONTEXT_PTR, CONTEXT_PTR->Code);
 
     gc(CONTEXT_PTR, CELLS);
@@ -35,14 +36,26 @@ any doThread(Context *CONTEXT_PTR_ORIG, any x)
 
     CONTEXT_PTR->ApplyArgs = Nil; //cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, 0), Nil), Nil);
     CONTEXT_PTR->ApplyBody = Nil; //cons(CONTEXT_PTR, Nil, Nil);
+    CONTEXT_PTR->THREAD_COUNT = 1;
 
     dumpMemory(CONTEXT_PTR_ORIG, "th0");
+
     copyHeap(CONTEXT_PTR_ORIG, CONTEXT_PTR);
-    CONTEXT_PTR->Mem[0].car = CONTEXT_PTR->Mem[0].cdr; // TODO - should find a better place for this
-    if (!CONTEXT_PTR_ORIG->Avail) CONTEXT_PTR->Avail = 0;
 
     dumpMemory(CONTEXT_PTR_ORIG, "th1");
+
+    CONTEXT_PTR->Mem[0].car = CONTEXT_PTR->Mem[0].cdr; // TODO - should find a better place for this
+    if (!CONTEXT_PTR_ORIG->Avail)
+    {
+        CONTEXT_PTR->Avail = 0;
+    }
+    else if (!CONTEXT_PTR_ORIG->Avail->car)
+    {
+        CONTEXT_PTR->Avail->car = 0;
+    }
+
     dumpMemory(CONTEXT_PTR, "th2");
+
 
     // Clear out the items that need to be moved to the new thread
     x = cadr(x);

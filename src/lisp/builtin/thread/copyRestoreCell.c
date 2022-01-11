@@ -29,4 +29,5 @@ void copyRestoreCell(Context *From, Context *To, cell *fromCell, cell *toCell)
 
     uword *temp = (uword*)fromCell->cdr;
     fromCell->cdr = temp[0];
+    free(temp);
 }

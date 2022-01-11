@@ -8,6 +8,8 @@ void gc(Context *CONTEXT_PTR, word c)
     any p;
     heap *h;
 
+    //fprintf(stderr, "GC CALLED %p\n", pthread_self());
+
     CTR++;
     dump("gc1");
     markAll(CONTEXT_PTR);

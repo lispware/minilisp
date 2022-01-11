@@ -205,6 +205,7 @@ typedef struct _Context
 
     // DEBUG
     int Tab;
+    int THREAD_COUNT;
 
 }
 Context;
@@ -229,7 +230,7 @@ typedef struct _external
 #if 0
 #define GetType(x) (((any)(x))->meta.type.parts[0])
 #define setCARType(C, V) ((C)->meta.type.parts[0] = V)
-#define setPtrType(x, T) 
+#define setPtrType(x, T)  x
 #else
 #define setPtrType(x, T) ((any)((((uword)x) & ~7) | T))
 #define GetType(x) ((uword)(cdr(x)) & 7)

@@ -11,7 +11,7 @@ void pltClose(struct _external* obj)
 {
     if (obj->type != EXT_SOCKET)
     {
-        fprintf(stderr, "Not a socket %d\n", obj->type);
+        fprintf(stderr, "Not a socket %p %d\n", obj, obj->type);
         exit(0);
     }
 

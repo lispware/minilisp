@@ -13,6 +13,15 @@ void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
         if (e) toCell->car = e->copy(From, e);
         else toCell->car = fromCell->car;
     }
+    else if (!cdrOfFromCell)
+    {
+        any c = fromCell->car;
+        if (c)
+        {
+            uword *temp2 = makeptr(c)->cdr;
+            toCell->car = (any)temp2[1];
+        }
+    }
     else if (type == FUNC || type == BIN)
     {
         toCell->car = fromCell->car;
@@ -20,7 +29,7 @@ void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
     else // PTR_CELL
     {
         uword *temp2 = makeptr(fromCell->car)->cdr;
-        toCell->car = setPtrType((any)temp2[1], PTR_CELL);
+        toCell->car = (any)temp2[1];
     }
 
     if (cdrOfFromCell != 0)

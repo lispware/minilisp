@@ -19,6 +19,7 @@ int main(int argc, char *av[])
     CONTEXT_PTR->ApplyBody = Nil;
 
 
+    //fprintf(stderr, "main thread id = %p\n", pthread_self());
 
     loadAll(CONTEXT_PTR, NULL);
     while (!feof(stdin))
