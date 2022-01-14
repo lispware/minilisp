@@ -20,6 +20,7 @@ any addString(any *Mem, any m, char *s)
             if (*(s+1))
             {
                 cdr(m) = m + 1;
+                setCARType(m, BIN);
                 m++;
             }
         }
