@@ -16,7 +16,7 @@ DEFINITONS
 *******************************************************************************/
 
 /* Cell access */
-#define makeptr(x)      ((any)((uword)(x) & ~7))
+#define makeptr(x)      ((any)((uword)(x) & ~3))
 #define car(x)          ((makeptr(x))->car)
 #define cdr(x)          ((makeptr(x))->cdr)
 #define caar(x)         (car(car(x)))
@@ -232,9 +232,9 @@ typedef struct _external
 #define setCARType(C, V) ((C)->meta.type.parts[0] = V)
 #define setPtrType(x, T)  x
 #else
-#define setPtrType(x, T) ((any)((((uword)x) & ~7) | T))
-#define GetType(x) ((uword)(cdr(x)) & 7)
-#define setCARType(C, V) (cdr(C) = (any)(((uword)(cdr(C)) & ~7) | V))
+#define setPtrType(x, T) ((any)((((uword)x) & ~3) | T))
+#define GetType(x) ((uword)(cdr(x)) & 3)
+#define setCARType(C, V) (cdr(C) = (any)(((uword)(cdr(C)) & ~3) | V))
 #endif
 
 /* Predicates */
