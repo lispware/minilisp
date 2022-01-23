@@ -11,13 +11,12 @@ any popSym(Context *CONTEXT_PTR, int i, uword n, any q, cell *cp)
     }
     else
     {
-        cell c1;
         any x = consSym(CONTEXT_PTR, NULL, Nil);
         setCARType(x, BIN_START);
-        Push(c1, x);
+        Push(*cp, x);
         any y = consName(CONTEXT_PTR, n, Nil);
         setCARType(y, BIN);
-        car(car(&c1)) = y;
-        return Pop(c1);
+        car(car(cp)) = y;
+        return Pop(*cp);
     }
 }
