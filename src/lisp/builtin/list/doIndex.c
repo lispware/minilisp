@@ -13,8 +13,16 @@ any doIndex(Context *CONTEXT_PTR, any x)
    x = cdr(x);
    x = EVAL(CONTEXT_PTR, car(x));
 
-   if (isNil(x)) return Nil;
-   if (!isCell(x)) return Nil;
+   if (isNil(x))
+   {
+       Pop(c1);
+       return Nil;
+   }
+   if (!isCell(x))
+   {
+       Pop(c1);
+       return Nil;
+   }
 
    return indx(CONTEXT_PTR, Pop(c1), x);
 }
