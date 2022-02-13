@@ -1,10 +1,17 @@
 #include "thread.h"
 
+extern int CONSCTR;
+pthread_t THETHREAD;
+
 void *thread_func(void *arg)
 {
     Context *CONTEXT_PTR = arg;
 
+    THETHREAD = pthread_self();
+
     dumpMemory(CONTEXT_PTR, "thIN");
+
+    CONSCTR=1000;
     EVAL(CONTEXT_PTR, CONTEXT_PTR->Code);
 
     gc(CONTEXT_PTR, CELLS);
@@ -20,6 +27,7 @@ void *thread_func(void *arg)
 
     free(CONTEXT_PTR->Mem);
     free(CONTEXT_PTR);
+    //TODO - Free the Env->Stack
 
     return NULL;
 }
@@ -38,11 +46,11 @@ any doThread(Context *CONTEXT_PTR_ORIG, any x)
     CONTEXT_PTR->ApplyBody = Nil; //cons(CONTEXT_PTR, Nil, Nil);
     CONTEXT_PTR->THREAD_COUNT = 1;
 
-    dumpMemory(CONTEXT_PTR_ORIG, "th0");
+    dumpMemory(CONTEXT_PTR_ORIG, "t0");
 
     copyHeap(CONTEXT_PTR_ORIG, CONTEXT_PTR);
 
-    dumpMemory(CONTEXT_PTR_ORIG, "th1");
+    dumpMemory(CONTEXT_PTR_ORIG, "t0");
 
     CONTEXT_PTR->Mem[0].car = CONTEXT_PTR->Mem[0].cdr; // TODO - should find a better place for this
     if (!CONTEXT_PTR_ORIG->Avail)
@@ -54,7 +62,7 @@ any doThread(Context *CONTEXT_PTR_ORIG, any x)
         CONTEXT_PTR->Avail->car = 0;
     }
 
-    dumpMemory(CONTEXT_PTR, "th2");
+    dumpMemory(CONTEXT_PTR, "t0");
 
 
     // Clear out the items that need to be moved to the new thread

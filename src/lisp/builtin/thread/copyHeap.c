@@ -1,6 +1,49 @@
 #include <lisp.h>
 #include "thread.h"
 
+
+void RestoreStack(Context *From, Context *To)
+{
+    any stackptr = From->Env.stack;
+    if (!stackptr) return;
+    To->Env.stack = (any)calloc(sizeof(cell), 1);
+    any tostackptr = To->Env.stack;
+
+    while (stackptr)
+    {
+        any fromCell = car(stackptr);
+        any toCell = car(tostackptr) = (any)calloc(sizeof(cell), 1);
+
+        uword *temp23 = (uword*)fromCell->cdr;
+        uword *temp = (uword*)cdr(fromCell);
+        any cdrOfFromCell = (any)temp[0];
+        CellPartType type = temp[0] & 3;
+
+        any c = car(fromCell);
+        if (c)
+        {
+            uword *temp2 = makeptr(c)->cdr;
+            toCell->car = (any)temp2[1];
+        }
+
+        any x = makeptr(cdrOfFromCell);
+        uword *temp2 = x->cdr;
+        toCell->cdr = setPtrType((any)temp2[1], type);
+
+
+        stackptr = cdr(stackptr);
+        if (stackptr)
+        {
+            cdr(tostackptr) = (any)calloc(sizeof(cell), 1);
+            tostackptr = cdr(tostackptr);
+        }
+        else
+        {
+            cdr(tostackptr) = NULL;
+        }
+    }
+}
+
 void copyHeap(Context *From, Context *To)
 {
     for (int i = 0;i < From->HeapCount; i++)
@@ -33,8 +76,8 @@ void copyHeap(Context *From, Context *To)
         to=to->next;
     }
 
-    //dumpMemory(From, "th_AFTERBACKUP_FROM");
-    //dumpMemory(To, "th_AFTERBACKUP_To");
+    dumpMemory(From, "t1");
+    dumpMemory(To, "t1");
 
     /////////////////////////////////////////////////////
     from = From->Heaps;
@@ -58,6 +101,14 @@ void copyHeap(Context *From, Context *To)
         from=from->next;
         to=to->next;
     }
+
+    /////////////////////////////////////////////////////
+    
+
+
+    // COPY STACK
+    RestoreStack(From, To);
+
 
     /////////////////////////////////////////////////////
     from = From->Heaps;

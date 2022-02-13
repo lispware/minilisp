@@ -47,8 +47,10 @@ any load(Context *CONTEXT_PTR, any ex, int pr, any x)
         }
         Save(c1);
         if (CONTEXT_PTR->InFile != stdin || CONTEXT_PTR->Chr || !pr)
+        {
             // TODO - WHY @ does not work in files
             x = EVAL(CONTEXT_PTR, data(c1));
+        }
         else
         {
             Push(c2, val(At));

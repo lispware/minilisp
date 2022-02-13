@@ -2,6 +2,9 @@
 
 static int INDEX;
 
+extern int CONSCTR;
+extern pthread_t THETHREAD;
+
 static void dumpHeap(heap *h, FILE *fp)
 {
     if(!h) return;
@@ -17,8 +20,22 @@ static void dumpHeap(heap *h, FILE *fp)
 
 void dumpMemory(Context *CONTEXT_PTR, char *name)
 {
-#if 0
-    if (name[0] != 't' || name[1] != 'h') return;
+#if 1
+    //if (name[0] != 't' || name[1] != 'h') return;
+    //if (CONSCTR < 1000) return;
+
+    //if (THETHREAD != pthread_self() || name[0]!='t' || name[1] != '0') return;
+    if (THETHREAD != pthread_self())
+    { 
+        return;//if (name[0] != 't' || name[1] != '0') return;
+    }
+    return;
+
+    if (INDEX==210)
+    {
+        asm("nop");
+    }
+
     char fileName[40];
     sprintf(fileName, "%05d_%s_%d.dump",INDEX++, name, CONTEXT_PTR->THREAD_COUNT);
     FILE *fp = fopen(fileName, "w");
