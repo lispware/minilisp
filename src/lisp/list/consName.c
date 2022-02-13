@@ -6,7 +6,10 @@ any consName(Context *CONTEXT_PTR, uword w, any n)
 
    if (!(p = CONTEXT_PTR->Avail))
    {
+       cell c1;
+       Push(c1, n);
       gc(CONTEXT_PTR, CELLS);
+      drop(c1);
       p = CONTEXT_PTR->Avail;
    }
    CONTEXT_PTR->Avail = car(p);

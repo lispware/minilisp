@@ -5,7 +5,7 @@ void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
 {
     uword *temp = (uword*)fromCell->cdr;
     any cdrOfFromCell = (any)temp[0];
-    CellPartType type = temp[0] & 7;
+    CellPartType type = temp[0] & 3;
 
     if (type == EXT)
     {
