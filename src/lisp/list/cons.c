@@ -1,11 +1,11 @@
 #include <lisp.h>
 
-static int CTR;
+int CONSCTR;
 any cons(Context *CONTEXT_PTR, any x, any y)
 {
     cell *p;
 
-    CTR++;
+    CONSCTR++;
     dump("cons1");
     if (!(p = CONTEXT_PTR->Avail))
     {
