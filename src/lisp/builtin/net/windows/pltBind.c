@@ -36,7 +36,8 @@ any pltBind(Context *CONTEXT_PTR, word n)
 
     NewExternalSocket(e, sock);
 
-    any r = cons(CONTEXT_PTR, (any)e, Nil);
+    any r = cons(CONTEXT_PTR, Nil, Nil);
+    car(r) = (any)e;
     setCARType(r, EXT);
 
     return r;

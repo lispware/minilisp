@@ -34,9 +34,12 @@ DEFINITONS
 #define cadddr(x)       (car(cdr(cdr(cdr(x)))))
 #define cddddr(x)       (cdr(cdr(cdr(cdr(x)))))
 
+extern int PUSH_POP;
+//void ppp(Context *, char*);
+
 #define data(c)         ((c).car)
-#define Save(c)         ((c).cdr=CONTEXT_PTR->Env.stack, CONTEXT_PTR->Env.stack=&(c))
-#define drop(c)         (CONTEXT_PTR->Env.stack=(c).cdr)
+#define Save(c)         (PUSH_POP++, (c).cdr=CONTEXT_PTR->Env.stack, CONTEXT_PTR->Env.stack=&(c), ppp(CONTEXT_PTR, "save\n", c))
+#define drop(c)         (PUSH_POP--,  CONTEXT_PTR->Env.stack=(c).cdr, ppp(CONTEXT_PTR, "drop\n", c), CONTEXT_PTR->Env.stack)
 #define Push(c,x)       (data(c)=(x), Save(c))
 #define Pop(c)          (drop(c), data(c))
 

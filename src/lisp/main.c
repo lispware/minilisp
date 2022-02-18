@@ -5,6 +5,13 @@ any Mem;
 
 Context LISP_CONTEXT;
 
+int PUSH_POP=0;
+void ppp(Context*CONTEXT_PTR, char *m, cell c)
+{
+    //for (int i = 0; i < PUSH_POP; i++) printf(" ");
+    //printf("c.car=%p c.cdr=%p Env->stack=%p %s", (c).car, (c).cdr, CONTEXT_PTR->Env.stack, m);
+}
+
 int main(int argc, char *av[])
 {
     Context *CONTEXT_PTR = &LISP_CONTEXT;
@@ -20,6 +27,7 @@ int main(int argc, char *av[])
 
 
     //fprintf(stderr, "main thread id = %p\n", pthread_self());
+    fprintf(stderr, "Env->stack=%p\n", CONTEXT_PTR->Env.stack);
 
     loadAll(CONTEXT_PTR, NULL);
     while (!feof(stdin))
