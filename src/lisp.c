@@ -35,7 +35,6 @@ DEFINITONS
 #define cddddr(x)       (cdr(cdr(cdr(cdr(x)))))
 
 extern int PUSH_POP;
-//void ppp(Context *, char*);
 
 #define data(c)         ((c).car)
 #define Save(c)         (PUSH_POP++, (c).cdr=CONTEXT_PTR->Env.stack, CONTEXT_PTR->Env.stack=&(c), ppp(CONTEXT_PTR, "save\n", c))
@@ -506,6 +505,8 @@ void plt_sleep(int ms);
 any pltGetThreadId(Context *CONTEXT_PTR);
 
 #endif
+
+void ppp(Context*CONTEXT_PTR, char *m, cell c);
 // THIS IS FROM lisp/eval/prog.c
 
 any prog(Context *CONTEXT_PTR, any x)

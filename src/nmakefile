@@ -22,6 +22,9 @@ OBJECTS=$(ALL_SOURCES:.c=.obj) libtommath/tommath.lib
 all: $(OBJECTS)
 	cl /Zi $(OBJECTS) ws2_32.lib advapi32.lib /Felisp.exe
 
+single: lisp.c windows.c
+	cl /I libtommath /Zi ws2_32.lib advapi32.lib libtommath/tommath.lib lisp.c windows.c
+
 libtommath/tommath.lib:
 	cd libtommath && nmake -f makefile.msvc
 

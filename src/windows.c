@@ -534,6 +534,8 @@ void pltClose(struct _external* obj)
 }
 // THIS IS FROM lisp/builtin/net/windows/pltBind.c
 
+void initializeWindowsSockets();
+
 any pltBind(Context *CONTEXT_PTR, word n)
 {
     int server_fd, new_socket, valread;
