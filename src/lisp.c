@@ -137,14 +137,6 @@ typedef struct outFrame
 }
 outFrame;
 
-typedef struct parseFrame
-{
-   int i;
-   uword w;
-   any sym, nm;
-}
-parseFrame;
-
 typedef struct stkEnv
 {
    cell *stack, *arg;
@@ -153,21 +145,11 @@ typedef struct stkEnv
    any key, cls, *make, *yoke;
    inFrame *inFrames;
    outFrame *outFrames;
-   parseFrame *parser;
    void (*get)(struct _Context*);
    void (*put)(struct _Context*, int);
    bool brk;
 }
 stkEnv;
-
-typedef struct catchFrame
-{
-   struct catchFrame *link;
-   any tag, fin;
-   stkEnv env;
-   jmp_buf rst;
-}
-catchFrame;
 
 typedef struct
 {
@@ -192,7 +174,6 @@ typedef struct _Context
     heap *Heaps;
     cell *Avail;
     stkEnv Env;
-    catchFrame *CatchPtr;
     FILE *InFile, *OutFile;
     any Intern[2], Transient[2];
     any ApplyArgs, ApplyBody;
@@ -225,22 +206,16 @@ typedef struct _external
 } external;
 
 
-#if 0
-#define GetType(x) (((any)(x))->meta.type.parts[0])
-#define setCARType(C, V) ((C)->meta.type.parts[0] = V)
-#define setPtrType(x, T)  x
-#else
 #define setPtrType(x, T) ((any)((((uword)x) & ~3) | T))
 #define GetType(x) ((uword)(cdr(x)) & 3)
 #define setCARType(C, V) (cdr(C) = (any)(((uword)(cdr(C)) & ~3) | V))
-#endif
 
 /* Predicates */
-#define isNil(x)        (makeptr(x)==Nil)
-#define isCell(x)        ((GetType(x) == PTR_CELL) && GetType(car(x)) != BIN)
-#define isFunc(x)        (GetType(x) == FUNC)
-#define isSym(x)        ((GetType(x) == PTR_CELL) && GetType(car(x)) == BIN)
-#define isNum(x)        ((GetType(x) == EXT) && (((external*)(((any)car(x))))->type == EXT_NUM))
+#define isNil(x)  (makeptr(x)==Nil)
+#define isCell(x) ((GetType(x) == PTR_CELL) && GetType(car(x)) != BIN)
+#define isFunc(x) (GetType(x) == FUNC)
+#define isSym(x)  ((GetType(x) == PTR_CELL) && GetType(car(x)) == BIN)
+#define isNum(x)  ((GetType(x) == EXT) && (((external*)(((any)car(x))))->type == EXT_NUM))
 
 #define NewNumber(EXTRA_PARAM, MATH_NUM, R)  external *EXTRA_PARAM = (external *)malloc(sizeof(external));\
                                 EXTRA_PARAM->type = EXT_NUM;\
@@ -256,9 +231,6 @@ typedef struct _external
 
 /* Error checking */
 #define NeedNum(ex,x)   if (!isNum(x)) numError(ex,x)
-// #define NeedSym(ex,x)   if (!isSym(x)) symError(ex,x)
-// #define NeedPair(ex,x)  if (!isCell(x)) pairError(ex,x)
-// #define NeedAtom(ex,x)  if (isCell(x)) atomError(ex,x)
 #define NeedLst(ex,x)   if (!isCell(x) && !isNil(x)) lstError(ex,x)
 #define NeedVar(ex,x)   if (isNum(x)) varError(ex,x)
 
@@ -273,8 +245,6 @@ void numError(any,any) ;
 void openErr(any ex, char *s);
 /* Construct a cell */
 #define evSubr(f,x)     (*(FunPtr)(((f))))(CONTEXT_PTR, x)
-
-
 
 void debugIndent(Context *CONTEXT_PTR);
 void debugOutdent(Context *CONTEXT_PTR);
@@ -1299,12 +1269,6 @@ void markAll(Context *CONTEXT_PTR)
          mark(CONTEXT_PTR, ((bindFrame*)p)->bnd[i].sym);
          mark(CONTEXT_PTR, ((bindFrame*)p)->bnd[i].val);
       }
-   }
-   for (p = (any)CONTEXT_PTR->CatchPtr; p; p = (any)((catchFrame*)p)->link)
-   {
-      if (((catchFrame*)p)->tag)
-         mark(CONTEXT_PTR, ((catchFrame*)p)->tag);
-      mark(CONTEXT_PTR, ((catchFrame*)p)->fin);
    }
 }
 // THIS IS FROM lisp/gc/getMark.c
