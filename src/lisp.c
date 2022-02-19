@@ -1230,13 +1230,11 @@ static void dumpHeap(heap *h, FILE *fp)
 
 void dumpMemory(Context *CONTEXT_PTR, char *name)
 {
-#if 1
+#if 0
     //if (name[0] != 't' || name[1] != 'h') return;
     //if (CONSCTR < 1000) return;
 
     //if (THETHREAD != pthread_self() || name[0]!='t' || name[1] != '0') return;
-
-    return;
 
     char fileName[40];
     sprintf(fileName, "%05d_%s_%d.dump",INDEX++, name, CONTEXT_PTR->THREAD_COUNT);
