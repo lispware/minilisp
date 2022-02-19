@@ -1314,7 +1314,14 @@ void markAll(Context *CONTEXT_PTR)
 int getMark(any cell)
 {
     //return makeptr(cell)->meta.type.parts[3];
-    return ((any)((((uword)cdr(cell))) & ~4));
+    if((uword)((any)((((uword)cdr(cell))) & ~4)))
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 // THIS IS FROM lisp/gc/gc.c
 
@@ -4766,12 +4773,12 @@ void RestoreStack(Context *From, Context *To)
         any c = car(fromCell);
         if (c)
         {
-            uword *temp2 = makeptr(c)->cdr;
+            uword *temp2 = (uword*)makeptr(c)->cdr;
             toCell->car = (any)temp2[1];
         }
 
         any x = makeptr(cdrOfFromCell);
-        uword *temp2 = x->cdr;
+        uword *temp2 = (uword*)x->cdr;
         toCell->cdr = setPtrType((any)temp2[1], type);
 
 
@@ -4884,9 +4891,9 @@ void copyHeap(Context *From, Context *To)
 void copyBackupCell(cell *fromCell, cell * toCell)
 {
     uword  *temp = (uword*)calloc(sizeof(uword*) * 2, 1);
-    temp[0] = fromCell->cdr;
-    temp[1] = toCell;
-    fromCell->cdr = temp;
+    temp[0] = (uword)fromCell->cdr;
+    temp[1] = (uword)toCell;
+    fromCell->cdr = (any)temp;
 }
 // THIS IS FROM lisp/builtin/thread/copyFixupCell.c
 
@@ -4899,7 +4906,7 @@ void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
     if (type == EXT)
     {
         external *e = (external*)fromCell->car;
-        if (e) toCell->car = e->copy(From, e);
+        if (e) toCell->car = (any)e->copy(From, e);
         else toCell->car = fromCell->car;
     }
     else if (!cdrOfFromCell)
@@ -4918,14 +4925,14 @@ void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
     }
     else // PTR_CELL
     {
-        uword *temp2 = makeptr(fromCell->car)->cdr;
+        uword *temp2 = (uword*)makeptr(fromCell->car)->cdr;
         toCell->car = (any)temp2[1];
     }
 
     if (cdrOfFromCell != 0)
     {
         any x = makeptr(cdrOfFromCell);
-        uword *temp2 = x->cdr;
+        uword *temp2 = (uword*)x->cdr;
         toCell->cdr = setPtrType((any)temp2[1], type);
     }
 }
@@ -4959,7 +4966,7 @@ void copyRestoreCell(Context *From, Context *To, cell *fromCell, cell *toCell)
     }
 
     uword *temp = (uword*)fromCell->cdr;
-    fromCell->cdr = temp[0];
+    fromCell->cdr = (any)temp[0];
     free(temp);
 }
 // THIS IS FROM lisp/builtin/thread/doThread.c
