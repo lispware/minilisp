@@ -10,6 +10,10 @@
 #include <ctype.h>
 #include <tommath.h>
 
+#include <windows.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <winsock.h>
 
 /*******************************************************************************
 DEFINITONS
