@@ -3,7 +3,6 @@
 static int INDEX;
 
 extern int CONSCTR;
-extern pthread_t THETHREAD;
 
 static void dumpHeap(heap *h, FILE *fp)
 {
