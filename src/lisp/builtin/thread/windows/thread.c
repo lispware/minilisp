@@ -50,3 +50,8 @@ any pltGetThreadId(Context *CONTEXT_PTR)
     NewNumber(ext, n, r);
     return r;
 }
+
+word GetThreadID()
+{
+    return (word)GetCurrentThreadId();
+}

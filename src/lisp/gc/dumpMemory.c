@@ -25,10 +25,7 @@ void dumpMemory(Context *CONTEXT_PTR, char *name)
     //if (CONSCTR < 1000) return;
 
     //if (THETHREAD != pthread_self() || name[0]!='t' || name[1] != '0') return;
-    if (THETHREAD != pthread_self())
-    { 
-        return;//if (name[0] != 't' || name[1] != '0') return;
-    }
+
     return;
 
     if (INDEX==210)

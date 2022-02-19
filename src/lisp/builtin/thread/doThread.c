@@ -1,13 +1,10 @@
 #include "thread.h"
 
 extern int CONSCTR;
-pthread_t THETHREAD;
 
 void *thread_func(void *arg)
 {
     Context *CONTEXT_PTR = arg;
-
-    THETHREAD = pthread_self();
 
     dumpMemory(CONTEXT_PTR, "thIN");
 
@@ -45,6 +42,7 @@ any doThread(Context *CONTEXT_PTR_ORIG, any x)
     CONTEXT_PTR->ApplyArgs = Nil; //cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, 0), Nil), Nil);
     CONTEXT_PTR->ApplyBody = Nil; //cons(CONTEXT_PTR, Nil, Nil);
     CONTEXT_PTR->THREAD_COUNT = 1;
+    CONTEXT_PTR->THREAD_ID = GetThreadID();
 
     dumpMemory(CONTEXT_PTR_ORIG, "t0");
 

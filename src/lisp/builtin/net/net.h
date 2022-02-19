@@ -21,6 +21,8 @@ external * copySocket(Context *CONTEXT_PTR, external *ext);
 int equalSocket(Context *CONTEXT_PTR, external*x, external*y);
 void pltClose(struct _external* obj);
 
+word GetThreadID();
+
 #define NewExternalSocket(EXT_PARAM, FD) external *EXT_PARAM = (external *)malloc(sizeof(external));\
     EXT_PARAM->type = EXT_SOCKET;\
     EXT_PARAM->release = releaseSocket;\

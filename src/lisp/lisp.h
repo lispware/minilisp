@@ -54,7 +54,7 @@ extern int PUSH_POP;
 #define doQuote_D (&(CONTEXT_PTR->Mem[11]))
 
 #ifndef CELLS
-#define CELLS (1)
+#define CELLS (1024*1024)
 #endif
 
 #if INTPTR_MAX == INT32_MAX
@@ -209,6 +209,7 @@ typedef struct _Context
     // DEBUG
     int Tab;
     int THREAD_COUNT;
+    word THREAD_ID;
 
 }
 Context;
