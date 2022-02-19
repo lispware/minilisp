@@ -22,7 +22,7 @@ all: $(OBJECTS)
 	$(CC) $(OBJECTS) -lpthread libtommath/libtommath.a -o lisp.exe
 
 
-single: lisp.c unix.c
+single: lisp.c unix.c libtommath/libtommath.a
 	$(CC) -I libtommath  lisp.c unix.c libtommath/libtommath.a -lpthread -o lisp.exe
 
 libtommath/libtommath.a:
