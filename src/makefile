@@ -21,6 +21,10 @@ OBJECTS=$(ALL_SOURCES:.c=.obj) libtommath/libtommath.a
 all: $(OBJECTS)
 	$(CC) $(OBJECTS) -lpthread libtommath/libtommath.a -o lisp.exe
 
+
+single: lisp.c unix.c
+	$(CC) -I libtommath  lisp.c unix.c libtommath/libtommath.a -lpthread -o lisp.exe
+
 libtommath/libtommath.a:
 	cd libtommath && make CC="$(CC)"
 
