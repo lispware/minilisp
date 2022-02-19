@@ -529,7 +529,7 @@ void pltClose(struct _external* obj)
         fprintf(stderr, "Not a socket\n");
         exit(0);
     }
-    closesocket((int)obj->pointer);
+    closesocket((uword)obj->pointer);
     free(obj);
 }
 // THIS IS FROM lisp/builtin/net/windows/pltBind.c
@@ -720,7 +720,7 @@ any pltConnect(Context *CONTEXT_PTR, any ex)
 
     any r = cons(CONTEXT_PTR, Nil, Nil);
     setCARType(r, EXT);
-    car(r) = e;
+    car(r) = (any)e;
 
     return r;
 }
