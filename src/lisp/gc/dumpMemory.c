@@ -13,7 +13,7 @@ static void dumpHeap(heap *h, FILE *fp)
     for(int i=0; i < CELLS; i++)
     {
         any c = &(h->cells[i]);
-        fprintf(fp, "%p %p %p %p\n", &c->car, c->car, c->cdr, c->meta.ptr);
+        fprintf(fp, "%p %p %p\n", &c->car, c->car, c->cdr);
     }
 }
 
@@ -35,7 +35,7 @@ void dumpMemory(Context *CONTEXT_PTR, char *name)
     for (int i = 0; i < MEMS; i++)
     {
         any cell = (any)(CONTEXT_PTR->Mem + i);
-        fprintf(fp, "%014p %014p %014p %014p\n", &cell->car, cell->car, cell->cdr, cell->meta.ptr);
+        fprintf(fp, "%014p %014p %014p\n", &cell->car, cell->car, cell->cdr);
     }
 
     fprintf(fp, "---------------------------\n");

@@ -54,7 +54,7 @@ extern int PUSH_POP;
 #define doQuote_D (&(CONTEXT_PTR->Mem[11]))
 
 #ifndef CELLS
-#define CELLS (1024*1024)
+#define CELLS (1024)
 #endif
 
 #if INTPTR_MAX == INT32_MAX
@@ -89,11 +89,6 @@ typedef struct _cell
 {
    struct _cell *car;
    struct _cell *cdr;
-   union
-   {
-       PartType type;
-       struct _cell *ptr;
-   } meta;
 }
 cell, *any;
 
