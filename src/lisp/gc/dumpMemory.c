@@ -27,11 +27,6 @@ void dumpMemory(Context *CONTEXT_PTR, char *name)
 
     return;
 
-    if (INDEX==210)
-    {
-        asm("nop");
-    }
-
     char fileName[40];
     sprintf(fileName, "%05d_%s_%d.dump",INDEX++, name, CONTEXT_PTR->THREAD_COUNT);
     FILE *fp = fopen(fileName, "w");
