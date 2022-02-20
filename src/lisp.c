@@ -51,7 +51,6 @@ any pltGetThreadId(Context *CONTEXT_PTR);
 #endif
 
 void ppp(Context*CONTEXT_PTR, char *m, cell c);
-// THIS IS FROM lisp/eval/prog.c
 
 any prog(Context *CONTEXT_PTR, any x)
 {
@@ -65,7 +64,6 @@ any prog(Context *CONTEXT_PTR, any x)
 
    return y;
 }
-// THIS IS FROM lisp/eval/EVAL.c
 
 any EVAL(Context *CONTEXT_PTR, any x)
 {
@@ -95,7 +93,6 @@ any EVAL(Context *CONTEXT_PTR, any x)
         return evList(CONTEXT_PTR, x);
     }
 }
-// THIS IS FROM lisp/eval/evExpr.c
 
 any evExpr(Context *CONTEXT_PTR, any expr, any x)
 {
@@ -183,7 +180,6 @@ any evExpr(Context *CONTEXT_PTR, any expr, any x)
    free(f);
    return x;
 }
-// THIS IS FROM lisp/eval/evList.c
 
 any evList(Context *CONTEXT_PTR, any ex)
 {
@@ -216,7 +212,6 @@ any evList(Context *CONTEXT_PTR, any ex)
 
     }
 }
-// THIS IS FROM lisp/eval/evList2.c
 
 any evList2(Context *CONTEXT_PTR, any foo, any ex)
 {
@@ -250,7 +245,6 @@ any evList2(Context *CONTEXT_PTR, any foo, any ex)
         }
     }
 }
-// THIS IS FROM lisp/eval/run.c
 
 any run(Context *CONTEXT_PTR, any x)
 {
@@ -266,7 +260,6 @@ any run(Context *CONTEXT_PTR, any x)
    val(At) = Pop(at);
    return y;
 }
-// THIS IS FROM lisp/sym/printTree.c
 
 static void p(Context *CONTEXT_PTR, any nm)
 {
@@ -318,7 +311,6 @@ void printTree(Context *CONTEXT_PTR, any r, int tab, int t)
     printTree(CONTEXT_PTR, car(r), tab + 1, 1);
     printTree(CONTEXT_PTR, cdr(r), tab + 1, 2);
 }
-// THIS IS FROM lisp/sym/mkStr.c
 
 any mkStr(Context *CONTEXT_PTR, char *s)
 {
@@ -331,7 +323,6 @@ any mkStr(Context *CONTEXT_PTR, char *s)
       return Nil;
    }
 }
-// THIS IS FROM lisp/sym/isIntern.c
 
 any isIntern(Context *CONTEXT_PTR, any nm, any tree[2])
 {
@@ -357,7 +348,6 @@ any isIntern(Context *CONTEXT_PTR, any nm, any tree[2])
 
     return NULL;
 }
-// THIS IS FROM lisp/sym/getByte.c
 
 int getByte(Context *CONTEXT_PTR, int *i, uword *p, any *q)
 {
@@ -395,7 +385,6 @@ int getByte(Context *CONTEXT_PTR, int *i, uword *p, any *q)
 
     return c;
 }
-// THIS IS FROM lisp/sym/intern.c
 
 any intern(Context *CONTEXT_PTR, any sym, any tree[2])
 {
@@ -405,7 +394,6 @@ any intern(Context *CONTEXT_PTR, any sym, any tree[2])
    return internBin(CONTEXT_PTR, sym, tree);
 
 }
-// THIS IS FROM lisp/sym/putByte.c
 
 void putByte(Context *CONTEXT_PTR, int c, int *i, uword *p, any *q, cell *cp)
 {
@@ -442,7 +430,6 @@ void putByte(Context *CONTEXT_PTR, int c, int *i, uword *p, any *q, cell *cp)
 
     *i += d;
 }
-// THIS IS FROM lisp/sym/putByte0.c
 
 void putByte0(int *i, uword *p, any *q)
 {
@@ -450,7 +437,6 @@ void putByte0(int *i, uword *p, any *q)
     *i = 0;
     *q = NULL;
 }
-// THIS IS FROM lisp/sym/internBin.c
 
 any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
 {
@@ -543,7 +529,6 @@ any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
         }
     }
 }
-// THIS IS FROM lisp/sym/getByte1.c
 
 int getByte1(Context *CONTEXT_PTR, int *i, uword *p, any *q)
 {
@@ -563,7 +548,6 @@ int getByte1(Context *CONTEXT_PTR, int *i, uword *p, any *q)
 
     return c;
 }
-// THIS IS FROM lisp/sym/symBytes.c
 
 int symBytes(Context *CONTEXT_PTR, any x)
 {
@@ -591,7 +575,6 @@ int symBytes(Context *CONTEXT_PTR, any x)
 
     return cnt;
 }
-// THIS IS FROM lisp/sym/putByte1.c
 
 void putByte1(int c, int *i, uword *p, any *q)
 {
@@ -599,7 +582,6 @@ void putByte1(int c, int *i, uword *p, any *q)
     *i = 8;
     *q = NULL;
 }
-// THIS IS FROM lisp/sym/symToNum.c
 
 any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
 {
@@ -685,7 +667,6 @@ returnNULL:
     return NULL;
 
 }
-// THIS IS FROM lisp/sym/mkChar.c
 
 any mkChar(Context *CONTEXT_PTR, int c)
 {
@@ -702,7 +683,6 @@ any mkChar(Context *CONTEXT_PTR, int c)
 
     return Pop(c1);
 }
-// THIS IS FROM lisp/sym/mkSym.c
 
 any mkSym(Context *CONTEXT_PTR, byte *s)
 {
@@ -717,7 +697,6 @@ any mkSym(Context *CONTEXT_PTR, byte *s)
     }
     return popSym(CONTEXT_PTR, i, w, p, &c1);
 }
-// THIS IS FROM lisp/sym/popSym.c
 
 any popSym(Context *CONTEXT_PTR, int i, uword n, any q, cell *cp)
 {
@@ -739,7 +718,6 @@ any popSym(Context *CONTEXT_PTR, int i, uword n, any q, cell *cp)
         return Pop(*cp);
     }
 }
-// THIS IS FROM lisp/sym/firstByte.c
 
 int firstByte(Context*CONTEXT_PTR, any s)
 {
@@ -753,7 +731,6 @@ int firstByte(Context*CONTEXT_PTR, any s)
         return -1;
     }
 }
-// THIS IS FROM lisp/gc/dumpMemory.c
 
 static int INDEX;
 
@@ -798,7 +775,6 @@ void dumpMemory(Context *CONTEXT_PTR, char *name)
     fclose(fp);
 #endif
 }
-// THIS IS FROM lisp/gc/setMark.c
 
 void setMark(any cell, int m)
 {
@@ -812,7 +788,6 @@ void setMark(any cell, int m)
         cdr(cell) = ((any)((((uword)cdr(cell))) & ~4));
     }
 }
-// THIS IS FROM lisp/gc/markAll.c
 
 void markAll(Context *CONTEXT_PTR)
 {
@@ -845,7 +820,6 @@ void markAll(Context *CONTEXT_PTR)
       }
    }
 }
-// THIS IS FROM lisp/gc/getMark.c
 
 int getMark(any cell)
 {
@@ -859,7 +833,6 @@ int getMark(any cell)
         return 0;
     }
 }
-// THIS IS FROM lisp/gc/gc.c
 
 static int CTR;
 
@@ -912,7 +885,6 @@ void gc(Context *CONTEXT_PTR, word c)
     dump("gc3");
     return;
 }
-// THIS IS FROM lisp/gc/heapAlloc.c
 
 void heapAlloc(Context *CONTEXT_PTR)
 {
@@ -932,7 +904,6 @@ void heapAlloc(Context *CONTEXT_PTR)
    }
    while (--p >= h->cells);
 }
-// THIS IS FROM lisp/gc/alignedAlloc.c
 
 void *allignedAlloc(size_t size)
 {
@@ -950,7 +921,6 @@ void *allignedAlloc(size_t size)
 
     return q;
 }
-// THIS IS FROM lisp/gc/mark.c
 
 void mark(Context *CONTEXT_PTR, any x)
 {
@@ -992,7 +962,6 @@ void mark(Context *CONTEXT_PTR, any x)
         if (isCell(x)) mark(CONTEXT_PTR, car(x));
     }
 }
-// THIS IS FROM lisp/sys-libc/alloc.c
 
 /* Allocate memory */
 void *alloc(void *p, size_t siz)
@@ -1002,20 +971,17 @@ void *alloc(void *p, size_t siz)
    return p;
 }
 
-// THIS IS FROM lisp/sys-libc/giveup.c
 
 void giveup(char *msg)
 {
     fprintf(stderr, "%s\n", msg);
     exit(1);
 }
-// THIS IS FROM lisp/sys-libc/bye.c
 
 void bye(int n)
 {
     exit(n);
 }
-// THIS IS FROM lisp/builtin/flow/eqList.c
 
 int eqList(Context *CONTEXT_PTR, any v1, any v2)
 {
@@ -1054,7 +1020,6 @@ int eqList(Context *CONTEXT_PTR, any v1, any v2)
 
     return 0;
 }
-// THIS IS FROM lisp/builtin/flow/doAnd.c
 
 // (and 'any ..) -> any
 any doAnd(Context *CONTEXT_PTR, any x) {
@@ -1069,7 +1034,6 @@ any doAnd(Context *CONTEXT_PTR, any x) {
    } while (!isNil(x = cdr(x)));
    return a;
 }
-// THIS IS FROM lisp/builtin/flow/doOr.c
 
 // (or 'any ..) -> any
 any doOr(Context *CONTEXT_PTR, any x) {
@@ -1086,7 +1050,6 @@ any doOr(Context *CONTEXT_PTR, any x) {
 
    return Nil;
 }
-// THIS IS FROM lisp/builtin/flow/doNot.c
 
 any doNot(Context *CONTEXT_PTR, any x)
 {
@@ -1097,7 +1060,6 @@ any doNot(Context *CONTEXT_PTR, any x)
    val(At) = a;
    return Nil;
 }
-// THIS IS FROM lisp/builtin/flow/doEval.c
 
 // (eval 'any ['cnt ['lst]]) -> any
 any doEval(Context *CONTEXT_PTR, any x)
@@ -1113,7 +1075,6 @@ any doEval(Context *CONTEXT_PTR, any x)
 
    return Pop(c1);
 }
-// THIS IS FROM lisp/builtin/flow/equal.c
 
 int equal(Context *CONTEXT_PTR, any v, any v2)
 {
@@ -1162,7 +1123,6 @@ int equal(Context *CONTEXT_PTR, any v, any v2)
 
     return 0;
 }
-// THIS IS FROM lisp/builtin/flow/doEq.c
 
 
 // (= 'any ..) -> flg
@@ -1186,7 +1146,6 @@ any doEq(Context *CONTEXT_PTR, any x)
     drop(c1);
     return T;
 }
-// THIS IS FROM lisp/builtin/flow/doCmp.c
 
 // (cmp 'any ..) -> flg
 any doCmp(Context *CONTEXT_PTR, any x)
@@ -1222,7 +1181,6 @@ any doCmp(Context *CONTEXT_PTR, any x)
     NewNumber(ext, id, idr);
     return idr;
 }
-// THIS IS FROM lisp/builtin/flow/sym2str.c
 
 void sym2str(Context *CONTEXT_PTR, any nm, char *buf)
 {
@@ -1241,7 +1199,6 @@ void sym2str(Context *CONTEXT_PTR, any nm, char *buf)
     while (c = getByte(CONTEXT_PTR, &i, &w, &nm));
     buf[ctr++]=0;
 }
-// THIS IS FROM lisp/builtin/flow/doRun.c
 
 
 any doRun(Context *CONTEXT_PTR, any x)
@@ -1259,14 +1216,12 @@ any doRun(Context *CONTEXT_PTR, any x)
    }
    return Pop(c1);
 }
-// THIS IS FROM lisp/builtin/flow/doArgs.c
 
 // (args) -> flg
 any doArgs(Context *CONTEXT_PTR, any ex)
 {
    return CONTEXT_PTR->Env.next > 0? T : Nil;
 }
-// THIS IS FROM lisp/builtin/flow/doIf.c
 
 // (if 'any1 any2 . prg) -> any
 any doIf(Context *CONTEXT_PTR, any x)
@@ -1280,7 +1235,6 @@ any doIf(Context *CONTEXT_PTR, any x)
    x = cdr(x);
    return EVAL(CONTEXT_PTR, car(x));
 }
-// THIS IS FROM lisp/builtin/flow/doCond.c
 
 // (if 'any1 any2 . prg) -> any
 any doCond(Context *CONTEXT_PTR, any x)
@@ -1297,7 +1251,6 @@ any doCond(Context *CONTEXT_PTR, any x)
    }
    return Nil;
 }
-// THIS IS FROM lisp/builtin/flow/doNext.c
 
 // (next) -> any
 any doNext(Context *CONTEXT_PTR, any ex)
@@ -1308,7 +1261,6 @@ any doNext(Context *CONTEXT_PTR, any ex)
       CONTEXT_PTR->Env.next = -1;
    return Nil;
 }
-// THIS IS FROM lisp/builtin/sym/doHide.c
 
 any doHide(Context* CONTEXT_PTR, any ex)
 {
@@ -1318,7 +1270,6 @@ any doHide(Context* CONTEXT_PTR, any ex)
    return Nil;
 }
 
-// THIS IS FROM lisp/builtin/sym/doPack.c
 
 // (pack 'any ..) -> sym
 any doPack(Context *CONTEXT_PTR, any x)
@@ -1340,7 +1291,6 @@ any doPack(Context *CONTEXT_PTR, any x)
 
    return i? y : Nil;
 }
-// THIS IS FROM lisp/builtin/sym/doChop.c
 
 // (chop 'any) -> lst
 any doChop(Context *CONTEXT_PTR, any x)
@@ -1373,7 +1323,6 @@ any doChop(Context *CONTEXT_PTR, any x)
     return Pop(c1);
 
 }
-// THIS IS FROM lisp/builtin/sym/pack.c
 
 void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp)
 {
@@ -1418,7 +1367,6 @@ void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp)
         }
     }
 }
-// THIS IS FROM lisp/builtin/block/doDo.c
 
 any doDo(Context *CONTEXT_PTR, any x)
 {
@@ -1489,7 +1437,6 @@ any doDo(Context *CONTEXT_PTR, any x)
         } while (!isNil(y = cdr(y)));
     }
 }
-// THIS IS FROM lisp/builtin/block/doQuote.c
 
 // (quote . any) -> any
 any doQuote(Context *CONTEXT_PTR, any x)
@@ -1497,7 +1444,6 @@ any doQuote(Context *CONTEXT_PTR, any x)
     return cdr(x);
 }
 
-// THIS IS FROM lisp/builtin/block/mkNum.c
 
 any mkNum(Context *CONTEXT_PTR, word n)
 {
@@ -1510,7 +1456,6 @@ any mkNum(Context *CONTEXT_PTR, word n)
     NewNumber(ext, BIGNUM, r);
     return r;
 }
-// THIS IS FROM lisp/builtin/block/doLet.c
 
 // (let sym 'any . prg) -> any
 // (let (sym 'any ..) . prg) -> any
@@ -1568,7 +1513,6 @@ any doLet(Context *CONTEXT_PTR, any x)
     }
     return x;
 }
-// THIS IS FROM lisp/builtin/block/doDe.c
 
 // (de sym . any) -> sym
 any doDe(Context *CONTEXT_PTR, any ex)
@@ -1578,7 +1522,6 @@ any doDe(Context *CONTEXT_PTR, any ex)
     return s;
 }
 
-// THIS IS FROM lisp/builtin/block/doFor.c
 
 // (for sym 'num ['any | (NIL 'any . prg) | (T 'any . prg) ..]) -> any
 // (for sym|(sym2 . sym) 'lst ['any | (NIL 'any . prg) | (T 'any . prg) ..]) -> any
@@ -1706,7 +1649,6 @@ for1:
 
     return Nil;
 }
-// THIS IS FROM lisp/builtin/block/doWhile.c
 
 // (while 'any . prg) -> any
 any doWhile(Context *CONTEXT_PTR, any x)
@@ -1722,7 +1664,6 @@ any doWhile(Context *CONTEXT_PTR, any x)
    }
    return Pop(c1);
 }
-// THIS IS FROM lisp/builtin/block/doSetq.c
 
 // (setq var 'any ..) -> any
 any doSetq(Context *CONTEXT_PTR, any ex)
@@ -1742,7 +1683,6 @@ any doSetq(Context *CONTEXT_PTR, any ex)
 
     return val(y);
 }
-// THIS IS FROM lisp/builtin/block/doLoop.c
 
 
 any doLoop(Context *CONTEXT_PTR, any ex)
@@ -1772,7 +1712,6 @@ any doLoop(Context *CONTEXT_PTR, any ex)
       } while (!isNil(x = cdr(x)));
    }
 }
-// THIS IS FROM lisp/builtin/debug/getHeapSize.c
 
 
 uword getHeapSize(Context *CONTEXT_PTR)
@@ -1800,7 +1739,6 @@ uword getHeapSize(Context *CONTEXT_PTR)
     printf("MEM SIZE = %d FREE = %d\n", size, sizeFree);
     return size;
 }
-// THIS IS FROM lisp/builtin/debug/doHS.c
 
 
 any doHS(Context *CONTEXT_PTR, any ignore)
@@ -1809,7 +1747,6 @@ any doHS(Context *CONTEXT_PTR, any ignore)
     getHeapSize(CONTEXT_PTR);
     return Nil;
 }
-// THIS IS FROM lisp/builtin/math/doSub.c
 
 any doSub(Context *CONTEXT_PTR, any ex)
 {
@@ -1855,7 +1792,6 @@ any doSub(Context *CONTEXT_PTR, any ex)
 
     return Pop(c1);
 }
-// THIS IS FROM lisp/builtin/math/doDiv.c
 
 // (/ 'num ..) -> num
 any doDiv(Context *CONTEXT_PTR, any ex)
@@ -1900,7 +1836,6 @@ any doDiv(Context *CONTEXT_PTR, any ex)
     Pop(c1);
     return result;
 }
-// THIS IS FROM lisp/builtin/math/doMul.c
 
 any doMul(Context *CONTEXT_PTR, any ex)
 {
@@ -1945,7 +1880,6 @@ any doMul(Context *CONTEXT_PTR, any ex)
 
     return Pop(c1);
 }
-// THIS IS FROM lisp/builtin/math/doPow.c
 
 // (** 'num ..) -> num
 any doPow(Context *CONTEXT_PTR, any ex)
@@ -1976,7 +1910,6 @@ any doPow(Context *CONTEXT_PTR, any ex)
     NewNumber(ext, n, r);
     return r;
 }
-// THIS IS FROM lisp/builtin/math/doMod.c
 
 // (% 'num ..) -> num
 any doMod(Context *CONTEXT_PTR, any ex)
@@ -2013,7 +1946,6 @@ any doMod(Context *CONTEXT_PTR, any ex)
 
     return Pop(c1);
 }
-// THIS IS FROM lisp/builtin/math/doBinNot.c
 
 // (& 'num ..) -> num
 any doBinNot(Context *CONTEXT_PTR, any ex)
@@ -2035,7 +1967,6 @@ any doBinNot(Context *CONTEXT_PTR, any ex)
     NewNumber(ext, n, r);
     return r;
 }
-// THIS IS FROM lisp/builtin/math/doBinAnd.c
 
 // (& 'num ..) -> num
 any doBinAnd(Context *CONTEXT_PTR, any ex)
@@ -2065,7 +1996,6 @@ any doBinAnd(Context *CONTEXT_PTR, any ex)
     NewNumber(ext, n, r);
     return r;
 }
-// THIS IS FROM lisp/builtin/math/doBinOr.c
 
 // (| 'num ..) -> num
 any doBinOr(Context *CONTEXT_PTR, any ex)
@@ -2095,7 +2025,6 @@ any doBinOr(Context *CONTEXT_PTR, any ex)
     NewNumber(ext, n, r);
     return r;
 }
-// THIS IS FROM lisp/builtin/math/doBinXor.c
 
 // (x| 'num ..) -> num
 any doBinXor(Context *CONTEXT_PTR, any ex)
@@ -2125,7 +2054,6 @@ any doBinXor(Context *CONTEXT_PTR, any ex)
     NewNumber(ext, n, r);
     return r;
 }
-// THIS IS FROM lisp/builtin/math/doBinRShift.c
 
 // (>> 'num ..) -> num
 any doBinRShift(Context *CONTEXT_PTR, any ex)
@@ -2162,7 +2090,6 @@ any doBinRShift(Context *CONTEXT_PTR, any ex)
 
     return r;
 }
-// THIS IS FROM lisp/builtin/math/doNumLt.c
 
 // (+ 'num ..) -> num
 any doNumLt(Context *CONTEXT_PTR, any ex)
@@ -2199,7 +2126,6 @@ any doNumLt(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
-// THIS IS FROM lisp/builtin/math/doNumGt.c
 
 // (+ 'num ..) -> num
 any doNumGt(Context *CONTEXT_PTR, any ex)
@@ -2237,7 +2163,6 @@ any doNumGt(Context *CONTEXT_PTR, any ex)
 }
 
 
-// THIS IS FROM lisp/builtin/math/doAdd.c
 
 // (+ 'num ..) -> num
 any doAdd(Context *CONTEXT_PTR, any ex)
@@ -2283,7 +2208,6 @@ any doAdd(Context *CONTEXT_PTR, any ex)
 
     return Pop(c1);
 }
-// THIS IS FROM lisp/builtin/math/doInc.c
 
 // (inc 'num ..) -> num
 any doInc(Context *CONTEXT_PTR, any ex)
@@ -2306,7 +2230,6 @@ any doInc(Context *CONTEXT_PTR, any ex)
 
     return r;
 }
-// THIS IS FROM lisp/builtin/math/doDec.c
 
 // (inc 'num ..) -> num
 any doDec(Context *CONTEXT_PTR, any ex)
@@ -2329,7 +2252,6 @@ any doDec(Context *CONTEXT_PTR, any ex)
 
     return r;
 }
-// THIS IS FROM lisp/builtin/math/doRandom.c
 
 // (rand 'num ..) -> num
 any doRandom(Context *CONTEXT_PTR, any ex)
@@ -2351,7 +2273,6 @@ any doRandom(Context *CONTEXT_PTR, any ex)
     NewNumber(ext, n, r);
     return r;
 }
-// THIS IS FROM lisp/builtin/math/copyNum.c
 
 any copyNum(Context *CONTEXT_PTR, any n)
 {
@@ -2366,7 +2287,6 @@ any copyNum(Context *CONTEXT_PTR, any n)
     NewNumber(ext, BIGNUM, r);
     return r;
 }
-// THIS IS FROM lisp/builtin/math/releaseExtNum.c
 
 void releaseExtNum(external *p)
 {
@@ -2380,7 +2300,6 @@ void releaseExtNum(external *p)
     free(p->pointer);
     free(p);
 }
-// THIS IS FROM lisp/builtin/math/copyExtNum.c
 
 external * copyExtNum(Context *CONTEXT_PTR, external *ext)
 {
@@ -2406,7 +2325,6 @@ external * copyExtNum(Context *CONTEXT_PTR, external *ext)
 
     return e;
 }
-// THIS IS FROM lisp/builtin/math/equalExtNum.c
 
 int equalExtNum(Context *CONTEXT_PTR, external*x, external*y)
 {
@@ -2424,7 +2342,6 @@ int equalExtNum(Context *CONTEXT_PTR, external*x, external*y)
 
     return mp_cmp((mp_int*)x->pointer, (mp_int*)y->pointer);
 }
-// THIS IS FROM lisp/builtin/math/printExtNum.c
 
 char * printExtNum(Context *CONTEXT_PTR, struct _external* obj)
 {
@@ -2434,7 +2351,6 @@ char * printExtNum(Context *CONTEXT_PTR, struct _external* obj)
     _mp_error = mp_to_radix((mp_int*)obj->pointer, buf, len, NULL, 10);
     return buf;
 }
-// THIS IS FROM lisp/builtin/list/doPopq.c
 
 // (++ var) -> any
 any doPopq(Context *CONTEXT_PTR, any ex)
@@ -2454,7 +2370,6 @@ any doPopq(Context *CONTEXT_PTR, any ex)
 
     return car(theList);
 }
-// THIS IS FROM lisp/builtin/list/indx.c
 
 any indx(Context *CONTEXT_PTR, any x, any y)
 {
@@ -2477,7 +2392,6 @@ any indx(Context *CONTEXT_PTR, any x, any y)
     }
     return Nil;
 }
-// THIS IS FROM lisp/builtin/list/doIndex.c
 
 // (index 'any 'lst) -> cnt | NIL
 any doIndex(Context *CONTEXT_PTR, any x)
@@ -2504,7 +2418,6 @@ any doIndex(Context *CONTEXT_PTR, any x)
 
    return indx(CONTEXT_PTR, Pop(c1), x);
 }
-// THIS IS FROM lisp/builtin/list/doLink.c
 
 // (link 'any ..) -> any
 any doLink(Context *CONTEXT_PTR, any x)
@@ -2531,7 +2444,6 @@ any doLink(Context *CONTEXT_PTR, any x)
     while (!isNil(x = cdr(x)));
     return y;
 }
-// THIS IS FROM lisp/builtin/list/doLength.c
 
 // (length 'any) -> cnt | T
 any doLength(Context *CONTEXT_PTR, any x)
@@ -2601,7 +2513,6 @@ any doLength(Context *CONTEXT_PTR, any x)
     NewNumber(ext, r, l);
     return l;
 }
-// THIS IS FROM lisp/builtin/list/doList.c
 
 // (list 'any ['any ..]) -> lst
 any doList(Context *CONTEXT_PTR, any x)
@@ -2619,7 +2530,6 @@ any doList(Context *CONTEXT_PTR, any x)
    }
    return Pop(c1);
 }
-// THIS IS FROM lisp/builtin/list/doMapcar.c
 
 // (mapcar 'fun 'lst ..) -> lst
 any doMapcar(Context *CONTEXT_PTR, any ex)
@@ -2658,7 +2568,6 @@ any doMapcar(Context *CONTEXT_PTR, any ex)
 
    return Pop(res);
 }
-// THIS IS FROM lisp/builtin/list/doMake.c
 
 // (make .. [(made 'lst ..)] .. [(link 'any ..)] ..) -> any
 any doMake(Context *CONTEXT_PTR, any x)
@@ -2681,7 +2590,6 @@ any doMake(Context *CONTEXT_PTR, any x)
     CONTEXT_PTR->Env.make = make;
     return Pop(c1);
 }
-// THIS IS FROM lisp/builtin/list/doCons.c
 
 any doCons(Context *CONTEXT_PTR, any x)
 {
@@ -2698,7 +2606,6 @@ any doCons(Context *CONTEXT_PTR, any x)
    setCARType(y, PTR_CELL);
    return Pop(c1);
 }
-// THIS IS FROM lisp/builtin/list/doCar.c
 
 // (c...r 'lst) -> any
 any doCar(Context *CONTEXT_PTR, any ex)
@@ -2708,7 +2615,6 @@ any doCar(Context *CONTEXT_PTR, any ex)
    NeedLst(ex,x);
    return car(x);
 }
-// THIS IS FROM lisp/builtin/list/doCdr.c
 
 
 any doCdr(Context *CONTEXT_PTR, any ex)
@@ -2718,7 +2624,6 @@ any doCdr(Context *CONTEXT_PTR, any ex)
    NeedLst(ex,x);
    return cdr(x);
 }
-// THIS IS FROM lisp/builtin/list/apply.c
 
 any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p)
 {
@@ -2809,7 +2714,6 @@ any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p)
 
    return evSubr(car(foo), CONTEXT_PTR->ApplyBody);
 }
-// THIS IS FROM lisp/builtin/io/wrOpen.c
 
 void wrOpen(Context *CONTEXT_PTR, any ex, any x, outFrame *f)
 {
@@ -2830,7 +2734,6 @@ void wrOpen(Context *CONTEXT_PTR, any ex, any x, outFrame *f)
       free(nm);
    }
 }
-// THIS IS FROM lisp/builtin/io/doLoad/load.c
 
 any load(Context *CONTEXT_PTR, any ex, int pr, any x)
 {
@@ -2910,7 +2813,6 @@ any load(Context *CONTEXT_PTR, any ex, int pr, any x)
 
     return ex;
 }
-// THIS IS FROM lisp/builtin/io/doLoad/loadAll.c
 
 any loadAll(Context *CONTEXT_PTR, any ex)
 {
@@ -2920,7 +2822,6 @@ any loadAll(Context *CONTEXT_PTR, any ex)
       x = load(CONTEXT_PTR, ex, 0, mkStr(CONTEXT_PTR, *CONTEXT_PTR->AV++));
    return x;
 }
-// THIS IS FROM lisp/builtin/io/doLoad/doLoad.c
 
 
 any doLoad(Context *CONTEXT_PTR, any ex)
@@ -2936,7 +2837,6 @@ any doLoad(Context *CONTEXT_PTR, any ex)
    } while (!isNil(x = cdr(x)));
    return y;
 }
-// THIS IS FROM lisp/builtin/io/pushOutFiles.c
 
 void pushOutFiles(Context *CONTEXT_PTR, outFrame *f)
 {
@@ -2944,7 +2844,6 @@ void pushOutFiles(Context *CONTEXT_PTR, outFrame *f)
     f->put = CONTEXT_PTR->Env.put,  CONTEXT_PTR->Env.put = putStdout;
     f->link = CONTEXT_PTR->Env.outFrames,  CONTEXT_PTR->Env.outFrames = f;
 }
-// THIS IS FROM lisp/builtin/io/rdOpen.c
 
 void rdOpen(Context *CONTEXT_PTR, any ex, any x, inFrame *f)
 {
@@ -2968,7 +2867,6 @@ void rdOpen(Context *CONTEXT_PTR, any ex, any x, inFrame *f)
         free(nm);
     }
 }
-// THIS IS FROM lisp/builtin/io/doPrin.c
 
 // (prin 'any ..) -> any
 any doPrin(Context *CONTEXT_PTR, any x)
@@ -2982,13 +2880,11 @@ any doPrin(Context *CONTEXT_PTR, any x)
    newline(CONTEXT_PTR);
    return y;
 }
-// THIS IS FROM lisp/builtin/io/getStdin.c
 
 void getStdin(Context *CONTEXT_PTR)
 {
     CONTEXT_PTR->Chr = getc(CONTEXT_PTR->InFile);
 }
-// THIS IS FROM lisp/builtin/io/doIn/doIn.c
 
 
 any doIn(Context *CONTEXT_PTR, any ex)
@@ -3003,13 +2899,11 @@ any doIn(Context *CONTEXT_PTR, any ex)
    popInFiles(CONTEXT_PTR);
    return x;
 }
-// THIS IS FROM lisp/builtin/io/space.c
 
 void space(Context *CONTEXT_PTR)
 {
     CONTEXT_PTR->Env.put(CONTEXT_PTR, ' ');
 }
-// THIS IS FROM lisp/builtin/io/doLine.c
 
 // (line 'flg) -> lst|sym
 any doLine(Context *CONTEXT_PTR, any x)
@@ -3045,7 +2939,6 @@ any doLine(Context *CONTEXT_PTR, any x)
       }
    }
 }
-// THIS IS FROM lisp/builtin/io/pushInFiles.c
 
 void pushInFiles(Context *CONTEXT_PTR, inFrame *f)
 {
@@ -3054,7 +2947,6 @@ void pushInFiles(Context *CONTEXT_PTR, inFrame *f)
     f->get = CONTEXT_PTR->Env.get,  CONTEXT_PTR->Env.get = getStdin;
     f->link = CONTEXT_PTR->Env.inFrames,  CONTEXT_PTR->Env.inFrames = f;
 }
-// THIS IS FROM lisp/builtin/io/doOut/doOut.c
 
 // (out 'any . prg) -> any
 any doOut(Context *CONTEXT_PTR, any ex)
@@ -3069,13 +2961,11 @@ any doOut(Context *CONTEXT_PTR, any ex)
    popOutFiles(CONTEXT_PTR);
    return x;
 }
-// THIS IS FROM lisp/builtin/io/newline.c
 
 void newline(Context *CONTEXT_PTR)
 {
     CONTEXT_PTR->Env.put(CONTEXT_PTR, '\n');
 }
-// THIS IS FROM lisp/builtin/io/popInFiles.c
 
 void popInFiles(Context *CONTEXT_PTR)
 {
@@ -3087,7 +2977,6 @@ void popInFiles(Context *CONTEXT_PTR)
     CONTEXT_PTR->Env.get = CONTEXT_PTR->Env.inFrames->get;
     CONTEXT_PTR->InFile = (CONTEXT_PTR->Env.inFrames = CONTEXT_PTR->Env.inFrames->link)?  CONTEXT_PTR->Env.inFrames->fp : stdin;
 }
-// THIS IS FROM lisp/builtin/io/doChar.c
 
 // (char) -> sym
 // (char 'num) -> sym
@@ -3127,7 +3016,6 @@ any doChar(Context *CONTEXT_PTR, any ex)
     }
     return Nil;
 }
-// THIS IS FROM lisp/builtin/math/doSwitchBase.c
 
 any doSwitchBase(Context *CONTEXT_PTR, any ex)
 {
@@ -3173,7 +3061,6 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
     return Nil;
 }
 
-// THIS IS FROM lisp/builtin/io/doRd.c
 
 any doRd(Context *CONTEXT_PTR, any ex)
 {
@@ -3224,7 +3111,6 @@ any doRd(Context *CONTEXT_PTR, any ex)
     NewNumber(ext, n, r);
     return r;
 }
-// THIS IS FROM lisp/builtin/io/doWr.c
 
 any doWr(Context *CONTEXT_PTR, any ex)
 {
@@ -3281,7 +3167,6 @@ any doWr(Context *CONTEXT_PTR, any ex)
     NewNumber(ext, n, r);
     return r;
 }
-// THIS IS FROM lisp/builtin/io/popOutFiles.c
 
 void popOutFiles(Context *CONTEXT_PTR)
 {
@@ -3292,7 +3177,6 @@ void popOutFiles(Context *CONTEXT_PTR)
     CONTEXT_PTR->Env.put = CONTEXT_PTR->Env.outFrames->put;
     CONTEXT_PTR->OutFile = (CONTEXT_PTR->Env.outFrames = CONTEXT_PTR->Env.outFrames->link)? CONTEXT_PTR->Env.outFrames->fp : stdout;
 }
-// THIS IS FROM lisp/builtin/io/bufNum.c
 
 void bufNum(char *b, word n)
 {
@@ -3328,20 +3212,17 @@ void bufNum(char *b, word n)
     }
 
 }
-// THIS IS FROM lisp/builtin/io/putStdout.c
 
 void putStdout(Context *CONTEXT_PTR, int c)
 {
     putc(c, CONTEXT_PTR->OutFile);
 }
-// THIS IS FROM lisp/builtin/io/outString.c
 
 void outString(Context *CONTEXT_PTR, char *s)
 {
     while (*s)
         CONTEXT_PTR->Env.put(CONTEXT_PTR, *s++);
 }
-// THIS IS FROM lisp/builtin/doBye.c
 
 // (bye 'num|NIL)
 any doBye(Context *CONTEXT_PTR, any ex)
@@ -3350,7 +3231,6 @@ any doBye(Context *CONTEXT_PTR, any ex)
    return ex;
 }
 
-// THIS IS FROM lisp/builtin/doCall.c
 
 any doCall(Context *CONTEXT_PTR, any ex)
 {
@@ -3381,7 +3261,6 @@ any doCall(Context *CONTEXT_PTR, any ex)
 
     return r;
 }
-// THIS IS FROM lisp/print/prin.c
 
 void prin(Context *CONTEXT_PTR, any x)
 {
@@ -3419,7 +3298,6 @@ void prin(Context *CONTEXT_PTR, any x)
         }
     }
 }
-// THIS IS FROM lisp/print/outNum.c
 
 void outNum(Context *CONTEXT_PTR, any n)
 {
@@ -3430,7 +3308,6 @@ void outNum(Context *CONTEXT_PTR, any n)
     outString(CONTEXT_PTR, buf);
     free(buf);
 }
-// THIS IS FROM lisp/print/print.c
 
 void print(Context *CONTEXT_PTR, any x)
 {
@@ -3500,7 +3377,6 @@ void print(Context *CONTEXT_PTR, any x)
     fprintf (stderr, "TODO NOT A NUMBER %p %p\n", (void*)x, (void*)Nil);
     return;
 }
-// THIS IS FROM lisp/print/printLongTXT.c
 
 void printLongTXT(Context *CONTEXT_PTR, any nm)
 {
@@ -3518,13 +3394,11 @@ void printLongTXT(Context *CONTEXT_PTR, any nm)
     }
    while (c = getByte(CONTEXT_PTR, &i, &w, &nm));
 }
-// THIS IS FROM lisp/read/pathSize.c
 
 int pathSize(Context *CONTEXT_PTR, any x)
 {
     return symBytes(CONTEXT_PTR, x) + 1;
 }
-// THIS IS FROM lisp/read/read0.c
 
 static char Delim[] = " \t\n\r\"'(),[]`~{}";
 
@@ -3644,7 +3518,6 @@ any read0(Context *CONTEXT_PTR, bool top)
     setCARType(y, PTR_CELL);
     return y;
 }
-// THIS IS FROM lisp/read/read1.c
 
 any read1(Context *CONTEXT_PTR, int end)
 {
@@ -3654,7 +3527,6 @@ any read1(Context *CONTEXT_PTR, int end)
       return Nil;
    return read0(CONTEXT_PTR, YES);
 }
-// THIS IS FROM lisp/read/testEsc.c
 
 bool testEsc(Context *CONTEXT_PTR)
 {
@@ -3673,7 +3545,6 @@ bool testEsc(Context *CONTEXT_PTR)
         while (CONTEXT_PTR->Chr == ' '  ||  CONTEXT_PTR->Chr == '\t');
     }
 }
-// THIS IS FROM lisp/read/rdList.c
 
 any rdList(Context *CONTEXT_PTR)
 {
@@ -3754,7 +3625,6 @@ any rdList(Context *CONTEXT_PTR)
     }
     return Pop(c1);
 }
-// THIS IS FROM lisp/read/eol.c
 
 bool eol(Context *CONTEXT_PTR)
 {
@@ -3781,7 +3651,6 @@ bool eol(Context *CONTEXT_PTR)
 
    return NO;
 }
-// THIS IS FROM lisp/read/comment.c
 
 void comment(Context *CONTEXT_PTR)
 {
@@ -3819,7 +3688,6 @@ void comment(Context *CONTEXT_PTR)
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
     }
 }
-// THIS IS FROM lisp/read/pathString.c
 
 void pathString(Context *CONTEXT_PTR, any x, char *p)
 {
@@ -3843,7 +3711,6 @@ void pathString(Context *CONTEXT_PTR, any x, char *p)
         while (*p++ = getByte(CONTEXT_PTR, &i, &w, &x));
     }
 }
-// THIS IS FROM lisp/read/skip.c
 
 int skip(Context *CONTEXT_PTR)
 {
@@ -3869,7 +3736,6 @@ int skip(Context *CONTEXT_PTR)
         comment(CONTEXT_PTR);
     }
 }
-// THIS IS FROM lisp/init/setupBuiltinFunctions.c
 
 #define AddFunc(M, N, F) \
     { \
@@ -4015,7 +3881,6 @@ void setupBuiltinFunctions(any * Mem)
     }
 #endif
 }
-// THIS IS FROM lisp/init/addString.c
 
 any addString(any *Mem, any m, char *s)
 {
@@ -4049,7 +3914,6 @@ any addString(any *Mem, any m, char *s)
 
     return m + 1;
 }
-// THIS IS FROM lisp/init/initializeContext.c
 
 void initialize_context(Context *CONTEXT_PTR)
 {
@@ -4068,7 +3932,6 @@ void initialize_context(Context *CONTEXT_PTR)
       }
    }
 }
-// THIS IS FROM lisp/list/consIntern.c
 
 any consIntern(Context *CONTEXT_PTR, any x, any y)
 {
@@ -4081,7 +3944,6 @@ any consIntern(Context *CONTEXT_PTR, any x, any y)
 
     return r;
 }
-// THIS IS FROM lisp/list/consSym.c
 
 any consSym(Context *CONTEXT_PTR, any val, any w)
 {
@@ -4104,7 +3966,6 @@ any consSym(Context *CONTEXT_PTR, any val, any w)
     car(p) = (any)w;
     return p;
 }
-// THIS IS FROM lisp/list/cons.c
 
 int CONSCTR;
 any cons(Context *CONTEXT_PTR, any x, any y)
@@ -4132,7 +3993,6 @@ any cons(Context *CONTEXT_PTR, any x, any y)
 
     return p;
 }
-// THIS IS FROM lisp/list/consName.c
 
 any consName(Context *CONTEXT_PTR, uword w, any n)
 {
@@ -4153,7 +4013,6 @@ any consName(Context *CONTEXT_PTR, uword w, any n)
    setCARType(p, PTR_CELL);
    return p;
 }
-// THIS IS FROM lisp/list/length.c
 
 uword length(Context *CONTEXT_PTR, any x)
 {
@@ -4165,37 +4024,31 @@ uword length(Context *CONTEXT_PTR, any x)
    for (n = 0; !isNil(x); x = cdr(x)) ++n;
    return n;
 }
-// THIS IS FROM lisp/error/varError.c
 
 void varError(any ex, any x)
 {
     err(ex, x, "Variable expected");
 }
-// THIS IS FROM lisp/error/undefined.c
 
 void undefined(any x, any ex)
 {
     err(ex, x, "Undefined");
 }
-// THIS IS FROM lisp/error/makeError.c
 
 void makeError(any ex)
 {
     err(ex, NULL, "Not making");
 }
-// THIS IS FROM lisp/error/numError.c
 
 void numError(any ex, any x)
 {
     err(ex, x, "Number expected");
 }
-// THIS IS FROM lisp/error/eofErr.c
 
 void eofErr(void)
 {
     err(NULL, NULL, "EOF Overrun");
 }
-// THIS IS FROM lisp/error/err.c
 
 void err(any ex, any x, char *fmt, ...)
 {
@@ -4205,25 +4058,21 @@ void err(any ex, any x, char *fmt, ...)
     if (fmt == NULL) bye(1);
 }
 
-// THIS IS FROM lisp/error/atomError.c
 
 void atomError(any ex, any x)
 {
     err(ex, x, "Atom expected");
 }
-// THIS IS FROM lisp/error/lstError.c
 
 void lstError(any ex, any x)
 {
     err(ex, x, "List expected");
 }
-// THIS IS FROM lisp/error/openErr.c
 
 void openErr(any ex, char *s)
 {
     err(ex, NULL, "%s open: %s", s, strerror(errno));
 }
-// THIS IS FROM lisp/main.c
 
 int MEMS;
 any Mem;
@@ -4261,7 +4110,6 @@ int main(int argc, char *av[])
 
     return 0;
 }
-// THIS IS FROM lisp/debug.c
 
 void debugIndent(Context *CONTEXT_PTR)
 {
@@ -4286,7 +4134,6 @@ void debugLogAny(Context *CONTEXT_PTR, char *message, any x)
     print(CONTEXT_PTR, x);
     printf("\n");
 }
-// THIS IS FROM lisp/builtin/thread/copyHeap.c
 
 
 void RestoreStack(Context *From, Context *To)
@@ -4422,7 +4269,6 @@ void copyHeap(Context *From, Context *To)
     //dumpMem(From, "DEBUG_HEAP2.txt");
     //dumpMem(To, "DEBUG_COPY2.txt");
 }
-// THIS IS FROM lisp/builtin/thread/copyBackupCell.c
 
 void copyBackupCell(cell *fromCell, cell * toCell)
 {
@@ -4431,7 +4277,6 @@ void copyBackupCell(cell *fromCell, cell * toCell)
     temp[1] = (uword)toCell;
     fromCell->cdr = (any)temp;
 }
-// THIS IS FROM lisp/builtin/thread/copyFixupCell.c
 
 void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
 {
@@ -4472,7 +4317,6 @@ void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
         toCell->cdr = setPtrType((any)temp2[1], type);
     }
 }
-// THIS IS FROM lisp/builtin/thread/copyRestoreCell.c
 
 void copyRestoreCell(Context *From, Context *To, cell *fromCell, cell *toCell)
 {
@@ -4505,7 +4349,6 @@ void copyRestoreCell(Context *From, Context *To, cell *fromCell, cell *toCell)
     fromCell->cdr = (any)temp[0];
     free(temp);
 }
-// THIS IS FROM lisp/builtin/thread/doThread.c
 
 extern int CONSCTR;
 
@@ -4585,7 +4428,6 @@ any doThread(Context *CONTEXT_PTR_ORIG, any x)
     CONTEXT_PTR = CONTEXT_PTR_ORIG;
     return Nil;
 }
-// THIS IS FROM lisp/builtin/thread/doSleep.c
 
 any doSleep(Context *CONTEXT_PTR, any ex)
 {
@@ -4601,13 +4443,11 @@ any doSleep(Context *CONTEXT_PTR, any ex)
 
     return y;
 }
-// THIS IS FROM lisp/builtin/thread/doTid.c
 
 any doTid(Context *CONTEXT_PTR, any ex)
 {
     return pltGetThreadId(CONTEXT_PTR);
 }
-// THIS IS FROM lisp/builtin/net/doBind.c
 
 any doBind(Context *CONTEXT_PTR, any ex)
 {
@@ -4621,13 +4461,11 @@ any doBind(Context *CONTEXT_PTR, any ex)
 
     return pltBind(CONTEXT_PTR, n);
 }
-// THIS IS FROM lisp/builtin/net/doConnect.c
 
 any doConnect(Context *CONTEXT_PTR, any ex)
 {
     return pltConnect(CONTEXT_PTR, ex);
 }
-// THIS IS FROM lisp/builtin/net/doListen.c
 
 any doListen(Context *CONTEXT_PTR, any ex)
 {
@@ -4642,25 +4480,21 @@ any doListen(Context *CONTEXT_PTR, any ex)
 
     return pltListen(CONTEXT_PTR, n);
 }
-// THIS IS FROM lisp/builtin/net/doSocket.c
 
 any doSocket(Context *CONTEXT_PTR, any ex)
 {
     return pltSocket(CONTEXT_PTR, ex);
 }
-// THIS IS FROM lisp/builtin/net/releaseSocket.c
 
 void releaseSocket(struct _external* obj)
 {
     pltClose(obj);
 }
-// THIS IS FROM lisp/builtin/net/copySocket.c
 
 external * copySocket(Context *CONTEXT_PTR, external *ext)
 {
     return ext;
 }
-// THIS IS FROM lisp/builtin/net/equalSocket.c
 
 int equalSocket(Context *CONTEXT_PTR, external*x, external*y)
 {
@@ -4678,7 +4512,6 @@ int equalSocket(Context *CONTEXT_PTR, external*x, external*y)
 
     return x == y;
 }
-// THIS IS FROM lisp/builtin/net/printSocket.c
 
 char * printSocket(Context *CONTEXT_PTR, struct _external* obj)
 {

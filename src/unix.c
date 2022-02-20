@@ -59,7 +59,6 @@ void plt_sleep(int ms);
 any pltGetThreadId(Context *CONTEXT_PTR);
 
 #endif
-// THIS IS FROM lisp/builtin/net/unix/putStdoutNet.c
 
 void putStdoutNet(Context *CONTEXT_PTR, int c)
 {
@@ -69,7 +68,6 @@ void putStdoutNet(Context *CONTEXT_PTR, int c)
 
     send(current_client, buf, 1, 0);
 }
-// THIS IS FROM lisp/builtin/net/unix/pltSocket.c
 
 any pltSocket(Context *CONTEXT_PTR, any ex)
 {
@@ -99,7 +97,6 @@ any pltSocket(Context *CONTEXT_PTR, any ex)
     car(y) = NULL;
     return Nil;
 }
-// THIS IS FROM lisp/builtin/net/unix/getStdinNet.c
 
 void getStdinNet(Context *CONTEXT_PTR)
 {
@@ -110,7 +107,6 @@ void getStdinNet(Context *CONTEXT_PTR)
     read(current_client, buf, 1);
     CONTEXT_PTR->Chr = buf[0];
 }
-// THIS IS FROM lisp/builtin/net/unix/pltListen.c
 
 any pltListen(Context *CONTEXT_PTR, word n)
 {
@@ -140,7 +136,6 @@ any pltListen(Context *CONTEXT_PTR, word n)
 
     return r;
 }
-// THIS IS FROM lisp/builtin/net/unix/pltBind.c
 
 any pltBind(Context *CONTEXT_PTR, word n)
 {
@@ -185,7 +180,6 @@ any pltBind(Context *CONTEXT_PTR, word n)
 
     return r;
 }
-// THIS IS FROM lisp/builtin/net/unix/pltClose.c
 
 void pltClose(struct _external* obj)
 {
@@ -198,7 +192,6 @@ void pltClose(struct _external* obj)
     close((uword)obj->pointer);
     free(obj);
 }
-// THIS IS FROM lisp/builtin/net/unix/popIOFilesNet.c
 
 void popIOFilesNet(Context *CONTEXT_PTR)
 {
@@ -210,7 +203,6 @@ void popIOFilesNet(Context *CONTEXT_PTR)
     CONTEXT_PTR->Env.put = CONTEXT_PTR->Env.outFrames->put;
     CONTEXT_PTR->OutFile = (CONTEXT_PTR->Env.outFrames = CONTEXT_PTR->Env.outFrames->link)? CONTEXT_PTR->Env.outFrames->fp : stdout;
 }
-// THIS IS FROM lisp/builtin/net/unix/pushIOFilesNet.c
 
 void pushIOFilesNet(Context *CONTEXT_PTR, inFrame *f, outFrame *fo)
 {
@@ -223,7 +215,6 @@ void pushIOFilesNet(Context *CONTEXT_PTR, inFrame *f, outFrame *fo)
     fo->put = CONTEXT_PTR->Env.put,  CONTEXT_PTR->Env.put = putStdoutNet;
     fo->link = CONTEXT_PTR->Env.outFrames,  CONTEXT_PTR->Env.outFrames = fo;
 }
-// THIS IS FROM lisp/builtin/net/unix/pltConnect.c
 
 any pltConnect(Context *CONTEXT_PTR, any ex)
 {
@@ -289,7 +280,6 @@ any pltConnect(Context *CONTEXT_PTR, any ex)
 
     return r;
 }
-// THIS IS FROM lisp/builtin/thread/unix/thread.c
 
 #define handle_error_en(en, msg) \
     do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
@@ -341,7 +331,6 @@ word GetThreadID()
 {
     return (word)pthread_self();
 }
-// THIS IS FROM lisp/builtin/thread/unix/sleep.c
 
 int nanosleep(const struct timespec *req, struct timespec *rem);
 

@@ -54,7 +54,6 @@ void plt_sleep(int ms);
 any pltGetThreadId(Context *CONTEXT_PTR);
 
 #endif
-// THIS IS FROM lisp/builtin/net/windows/putStdoutNet.c
 
 void putStdoutNet(Context *CONTEXT_PTR, int c)
 {
@@ -64,7 +63,6 @@ void putStdoutNet(Context *CONTEXT_PTR, int c)
 
     send(current_client,buf,1,0);
 }
-// THIS IS FROM lisp/builtin/net/windows/pltClose.c
 
 void pltClose(struct _external* obj)
 {
@@ -76,7 +74,6 @@ void pltClose(struct _external* obj)
     closesocket((uword)obj->pointer);
     free(obj);
 }
-// THIS IS FROM lisp/builtin/net/windows/pltBind.c
 
 void initializeWindowsSockets();
 
@@ -116,7 +113,6 @@ any pltBind(Context *CONTEXT_PTR, word n)
 
     return r;
 }
-// THIS IS FROM lisp/builtin/net/windows/pltListen.c
 
 any pltListen(Context *CONTEXT_PTR, word n)
 {
@@ -149,7 +145,6 @@ any pltListen(Context *CONTEXT_PTR, word n)
 
     return r;
 }
-// THIS IS FROM lisp/builtin/net/windows/getStdinNet.c
 
 void getStdinNet(Context *CONTEXT_PTR)
 {
@@ -160,7 +155,6 @@ void getStdinNet(Context *CONTEXT_PTR)
     int res = recv(current_client,buf,1,0);
     CONTEXT_PTR->Chr = buf[0];
 }
-// THIS IS FROM lisp/builtin/net/windows/pltSocket.c
 
 any pltSocket(Context *CONTEXT_PTR, any ex)
 {
@@ -188,7 +182,6 @@ any pltSocket(Context *CONTEXT_PTR, any ex)
     car(y) = NULL; // TODO -> this has to be understood more
     return Nil;
 }
-// THIS IS FROM lisp/builtin/net/windows/initializeWindowsSockets.c
 
 static WSADATA wsaData;
 void initializeWindowsSockets()
@@ -207,7 +200,6 @@ void initializeWindowsSockets()
     }
 }
 
-// THIS IS FROM lisp/builtin/net/windows/pltConnect.c
 
 any pltConnect(Context *CONTEXT_PTR, any ex)
 {
@@ -268,7 +260,6 @@ any pltConnect(Context *CONTEXT_PTR, any ex)
 
     return r;
 }
-// THIS IS FROM lisp/builtin/net/windows/popIOFilesNet.c
 
 void popIOFilesNet(Context *CONTEXT_PTR)
 {
@@ -280,7 +271,6 @@ void popIOFilesNet(Context *CONTEXT_PTR)
     CONTEXT_PTR->Env.put = CONTEXT_PTR->Env.outFrames->put;
     CONTEXT_PTR->OutFile = (CONTEXT_PTR->Env.outFrames = CONTEXT_PTR->Env.outFrames->link)? CONTEXT_PTR->Env.outFrames->fp : stdout;
 }
-// THIS IS FROM lisp/builtin/net/windows/pushIOFilesNet.c
 
 void pushIOFilesNet(Context *CONTEXT_PTR, inFrame *f, outFrame *fo)
 {
@@ -293,7 +283,6 @@ void pushIOFilesNet(Context *CONTEXT_PTR, inFrame *f, outFrame *fo)
     fo->put = CONTEXT_PTR->Env.put,  CONTEXT_PTR->Env.put = putStdoutNet;
     fo->link = CONTEXT_PTR->Env.outFrames,  CONTEXT_PTR->Env.outFrames = fo;
 }
-// THIS IS FROM lisp/builtin/thread/windows/thread.c
 
 typedef void * (*thread_func_t)(void *);
 void plt_thread_start(Context *CONTEXT_PTR, thread_func_t FUNC, int wait);
@@ -345,7 +334,6 @@ word GetThreadID()
 {
     return (word)GetCurrentThreadId();
 }
-// THIS IS FROM lisp/builtin/thread/windows/sleep.c
 
 int nanosleep(const struct timespec *req, struct timespec *rem);
 
