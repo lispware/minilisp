@@ -3064,6 +3064,7 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
 
 any doRd(Context *CONTEXT_PTR, any ex)
 {
+    int EndReached = 0;
     mp_err _mp_error;
     any params = cdr(ex);
     any p1 = car(params);
@@ -3084,7 +3085,11 @@ any doRd(Context *CONTEXT_PTR, any ex)
     for(int i = 0;i < count; i++)
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
-        if (CONTEXT_PTR->Chr < 0 ) break;
+        if (CONTEXT_PTR->Chr < 0 )
+        {
+            EndReached = 1;
+            break;
+        }
         buf[i] = CONTEXT_PTR->Chr;
     }
 
@@ -3109,7 +3114,9 @@ any doRd(Context *CONTEXT_PTR, any ex)
     free(buf);
 
     NewNumber(ext, n, r);
-    return r;
+    any rr = cons(CONTEXT_PTR, r, cons(CONTEXT_PTR, EndReached? Nil: T, Nil));
+
+    return rr;
 }
 
 any doWr(Context *CONTEXT_PTR, any ex)
