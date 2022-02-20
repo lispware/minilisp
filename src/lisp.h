@@ -161,15 +161,6 @@ typedef struct stkEnv
 }
 stkEnv;
 
-typedef struct catchFrame
-{
-   struct catchFrame *link;
-   any tag, fin;
-   stkEnv env;
-   jmp_buf rst;
-}
-catchFrame;
-
 typedef struct
 {
         any sym; any val;
@@ -193,7 +184,6 @@ typedef struct _Context
     heap *Heaps;
     cell *Avail;
     stkEnv Env;
-    catchFrame *CatchPtr;
     FILE *InFile, *OutFile;
     any Intern[2], Transient[2];
     any ApplyArgs, ApplyBody;
