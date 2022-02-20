@@ -3088,6 +3088,7 @@ any doRd(Context *CONTEXT_PTR, any ex)
         if (CONTEXT_PTR->Chr < 0 )
         {
             EndReached = 1;
+            count = i;
             break;
         }
         buf[i] = CONTEXT_PTR->Chr;
@@ -4108,7 +4109,7 @@ int main(int argc, char *av[])
 
 
     //fprintf(stderr, "main thread id = %p\n", pthread_self());
-    fprintf(stderr, "Env->stack=%p\n", CONTEXT_PTR->Env.stack);
+    //fprintf(stderr, "Env->stack=%p\n", CONTEXT_PTR->Env.stack);
 
     loadAll(CONTEXT_PTR, NULL);
     while (!feof(stdin))

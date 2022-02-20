@@ -19,7 +19,7 @@ ALL_SOURCES=$(SOURCES) \
 OBJECTS=$(ALL_SOURCES:.c=.obj) libtommath/libtommath.a
 	
 single: lisp.c unix.c libtommath/libtommath.a
-	$(CC) -I libtommath  lisp.c unix.c libtommath/libtommath.a -lpthread -o lisp.exe
+	$(CC) -g3 -I libtommath  lisp.c unix.c libtommath/libtommath.a -lpthread -o lisp.exe
 
 
 all: $(OBJECTS)
