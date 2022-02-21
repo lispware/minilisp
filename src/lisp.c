@@ -261,6 +261,9 @@ any run(Context *CONTEXT_PTR, any x)
    return y;
 }
 
+/******************************************************************************
+Helper functions to print out the symbol tree
+******************************************************************************/
 static void p(Context *CONTEXT_PTR, any nm)
 {
     int i, c;
@@ -311,6 +314,7 @@ void printTree(Context *CONTEXT_PTR, any r, int tab, int t)
     printTree(CONTEXT_PTR, car(r), tab + 1, 1);
     printTree(CONTEXT_PTR, cdr(r), tab + 1, 2);
 }
+/******************************************************************************/
 
 any mkStr(Context *CONTEXT_PTR, char *s)
 {
