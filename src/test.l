@@ -1,6 +1,10 @@
+(setq PASS_COUNT 0)
+(setq FAIL_COUNT 0)
+
 (de TEST (N Expected Actual)
     (let (V (= Expected Actual)
           M (if (not V) (pack N " => Expected: " Expected "; but got: " Actual)))
+        (if V (setq PASS_COUNT (+ PASS_COUNT 1)) (setq FAIL_COUNT (+ FAIL_COUNT 1)))
         (prinl (if V "PASSED" "FAILED") ": " (if V N M))))
 
 ################################################################################
@@ -206,6 +210,10 @@
 (TEST "(cmp 2 1)" 1 (cmp 2 1))
 (TEST "(cmp \"a\" \"a\")" 0 (cmp "a" "a"))
 (TEST "(cmp \"b\" \"a\")" 1 (cmp "b" "a"))
+(TEST "(cmp \"ab\" \"a\")" 1 (cmp "ab" "a"))
+(TEST "(cmp \"ab\" \"b\")" -1 (cmp "ab" "b"))
+(TEST "(cmp \"abcdef\" \"b\")" -1 (cmp "abcdef" "b"))
+(TEST "(cmp \"abcdefghij\" \"b\")" -1 (cmp "abcdefghij" "b"))
 (TEST "(cmp \"aaaaaaaaaaaaaaaa\" (pack (make (do 16 (link \"a\")))))" 0 (cmp "aaaaaaaaaaaaaaaa" (pack (make (do 16 (link "a"))))))
 (TEST "(cmp () ())" 0 (cmp () ()))
 (TEST "(cmp (1 2 3) (1 2 3))" 0 (cmp (1 2 3) (1 2 3)))
@@ -346,4 +354,5 @@
 ################################################################################
 
 (hs)
+(prinl "PASS_COUNT = " PASS_COUNT ", FAIL_COUNT = " FAIL_COUNT);
 (bye)

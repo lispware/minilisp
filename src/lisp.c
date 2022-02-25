@@ -1098,20 +1098,23 @@ int equal(Context *CONTEXT_PTR, any v, any v2)
     }
     else if (isSym(v2))
     {
-        any p1 = car(v);
-        any p2 = car(v2);
-        do
-        {
-            if (car(p1) != car(p2))
-            {
-                return ((uword)car(p2) > (uword)car(p1)) ? -1 : 1;
-            }
-            p1 = cdr(p1);
-            p2 = cdr(p2);
-        }
-        while (!isNil(p1));
+        word i, j;
+        word w1, w2;
 
-        return isNil(p2)? 0 : 1;
+        word c = getByte1(CONTEXT_PTR, &i, &w1, &v);
+        word d = getByte1(CONTEXT_PTR, &j, &w2, &v2);
+
+        if (c == d)
+        {
+            while (c == d)
+            {
+                if (c == 0) return 0;
+                c = getByte(CONTEXT_PTR, &i, &w1, &v);
+                d = getByte(CONTEXT_PTR, &j, &w2, &v2);
+            }
+        }
+
+        return (c - d) < 0 ? -1 : 1;
     }
     else if (isCell(v2))
     {
