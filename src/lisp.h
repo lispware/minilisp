@@ -439,6 +439,7 @@ any doListen(Context *CONTEXT_PTR, any ex);
 any doSocket(Context *CONTEXT_PTR, any ex);
 any doConnect(Context *CONTEXT_PTR, any ex);
 any doTid(Context *CONTEXT_PTR, any ex);
+any doOs(Context *CONTEXT_PTR, any ex);
 
 extern int MEMS;
 extern any Mem;

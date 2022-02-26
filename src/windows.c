@@ -341,3 +341,8 @@ void plt_sleep(int milliseconds)
 {
     Sleep(milliseconds);
 }
+
+any doOs(Context *CONTEXT_PTR, any ex)
+{
+    return mkStr(CONTEXT_PTR, "Windows");
+}

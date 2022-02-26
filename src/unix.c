@@ -338,3 +338,8 @@ void plt_sleep(int milliseconds)
 {
     usleep(milliseconds*1000);
 }
+
+any doOs(Context *CONTEXT_PTR, any ex)
+{
+    return mkStr(CONTEXT_PTR, "Unix");
+}

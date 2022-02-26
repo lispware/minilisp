@@ -3880,6 +3880,7 @@ void setupBuiltinFunctions(any * Mem)
     AddFunc(memCell, "connect", doConnect);
     AddFunc(memCell, "tid", doTid);
     AddFunc(memCell, "cmp", doCmp);
+    AddFunc(memCell, "os", doOs);
     
     WORD_TYPE end = (WORD_TYPE)memCell;
     WORD_TYPE start = (WORD_TYPE)*Mem;
