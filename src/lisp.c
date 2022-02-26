@@ -1098,7 +1098,7 @@ int equal(Context *CONTEXT_PTR, any v, any v2)
     }
     else if (isSym(v2))
     {
-        word i, j;
+        int i, j;
         word w1, w2;
 
         word c = getByte1(CONTEXT_PTR, &i, &w1, &v);
