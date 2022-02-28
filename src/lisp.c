@@ -1,5 +1,4 @@
 #include "lisp.h"
-
 #ifndef __NET_H__
 #define __NET_H__
 void getStdinNet(Context *CONTEXT_PTR);
@@ -740,6 +739,61 @@ static int INDEX;
 
 extern int CONSCTR;
 
+char *ExtTypeString(any cell, char*buf)
+{
+    external *e = car(cell);
+    int len;
+    mp_err _mp_error;
+
+    switch(e->type)
+    {
+        case EXT_NUM:
+            _mp_error = mp_radix_size((mp_int*)car(cell), 10, &len);
+            _mp_error = mp_to_radix(num(cell), buf, len, NULL, 10);
+            return "EXT_NUM";
+        case EXT_SOCKET: return "EXT_SOCKET";
+        default: return "UNKNOWN";
+    }
+}
+
+char *TypeString(any cell, char *buf)
+{
+    int type = GetType(cell);
+    switch(type)
+    {
+        case FUNC: return "FUNC";
+        case PTR_CELL: return "PTR_CELL";
+        case BIN: return "BIN";
+        case EXT: return ExtTypeString(cell, buf);
+        default: return "UNKNOWN";
+    }
+}
+
+void printCell(FILE *fp, any cell)
+{
+    if (BIN == GetType(cell))
+    {
+        char buf[100];
+        int bufctr=0;
+        char *ptr = (char*)cell;
+        for(int i = 0 ; i < BITS; i+=8)
+        {
+            if (*ptr) buf[bufctr++]=*ptr;
+            ptr++;
+        }
+        buf[bufctr++] = 0;
+        
+        fprintf(fp, "%018p %018p %018p [%c] %s %s\n", &cell->car, cell->car, cell->cdr, cell->mark?'m':' ', TypeString(cell, NULL), buf);
+    }
+    else
+    {
+        char numbuf[100];
+        numbuf[0]=0;
+        char *p = TypeString(cell, numbuf);
+        fprintf(fp, "%018p %018p %018p [%c] %s %s\n", &cell->car, cell->car, cell->cdr, cell->mark?'m':' ', p, numbuf);
+    }
+}
+
 static void dumpHeap(heap *h, FILE *fp)
 {
     if(!h) return;
@@ -749,14 +803,14 @@ static void dumpHeap(heap *h, FILE *fp)
     for(int i=0; i < CELLS; i++)
     {
         any c = &(h->cells[i]);
-        fprintf(fp, "%p %p %p\n", &c->car, c->car, c->cdr);
+        printCell(fp, c);
     }
 }
 
 void dumpMemory(Context *CONTEXT_PTR, char *name)
 {
 #if 0
-    //if (name[0] != 't' || name[1] != 'h') return;
+    if (name[0] != 'g' || name[1] != 'c') return;
     //if (CONSCTR < 1000) return;
 
     //if (THETHREAD != pthread_self() || name[0]!='t' || name[1] != '0') return;
@@ -769,7 +823,7 @@ void dumpMemory(Context *CONTEXT_PTR, char *name)
     for (int i = 0; i < MEMS; i++)
     {
         any cell = (any)(CONTEXT_PTR->Mem + i);
-        fprintf(fp, "%014p %014p %014p\n", &cell->car, cell->car, cell->cdr);
+        printCell(fp, cell);
     }
 
     fprintf(fp, "---------------------------\n");
@@ -785,11 +839,13 @@ void setMark(any cell, int m)
     //makeptr(cell)->meta.type.parts[3] = m;
     if (m)
     {
-        cdr(cell) = ((any)((((uword)cdr(cell))) | 4));
+        //cdr(cell) = ((any)((((uword)cdr(cell))) | 4));
+        makeptr(cell)->mark = 1;
     }
     else
     {
-        cdr(cell) = ((any)((((uword)cdr(cell))) & ~4));
+        //cdr(cell) = ((any)((((uword)cdr(cell))) & ~4));
+        makeptr(cell)->mark= 0;
     }
 }
 
@@ -828,7 +884,8 @@ void markAll(Context *CONTEXT_PTR)
 int getMark(any cell)
 {
     //return makeptr(cell)->meta.type.parts[3];
-    if((uword)((any)((((uword)cdr(cell))) & ~4)))
+    //if((uword)((any)((((uword)cdr(cell))) & ~4)))
+    if(makeptr(cell)->mark)
     {
         return 1;
     }
@@ -853,6 +910,10 @@ void gc(Context *CONTEXT_PTR, word c)
     dump("gc2");
 
     /* Sweep */
+    for (int i = 0; i < MEMS; i ++)
+    {
+        setMark((any)(CONTEXT_PTR->Mem + i), 0);
+    }
     CONTEXT_PTR->Avail = NULL;
     h = CONTEXT_PTR->Heaps;
     if (c)
@@ -864,6 +925,9 @@ void gc(Context *CONTEXT_PTR, word c)
             {
                 if (!getMark(p))
                 {
+                    FILE *fp = fopen("freemem.dump", "a");
+                    //printCell(fp, p);
+                    fclose(fp);
                     if (GetType(p) == EXT)
                     {
                         external *e = (external*)car(p);
@@ -941,29 +1005,23 @@ void mark(Context *CONTEXT_PTR, any x)
         mark(CONTEXT_PTR, cdr(x));
 
         x = car(x);
-        while(x && !isNil(x))
+        while(!isNil(x))
         {
-            mark(CONTEXT_PTR, x);
+            setMark(x, 1);
             x=cdr(x);
         }
         return;
     }
 
-    if (isCell(x)) mark(CONTEXT_PTR, car(x));
-
-    while (1)
+    if (isCell(x))
     {
+        mark(CONTEXT_PTR, car(x));
         x = cdr(x);
-        if (!x) break;
-        if (isNil(x)) break;
-        if (getMark(x)) break;
-        setMark(x, 1);
-        if (isSym(x))
+        do
         {
-            setMark(x, 0);
             mark(CONTEXT_PTR, x);
-        }
-        if (isCell(x)) mark(CONTEXT_PTR, car(x));
+            x = cdr(x);
+        } while (!getMark(x));
     }
 }
 
@@ -3122,7 +3180,11 @@ any doRd(Context *CONTEXT_PTR, any ex)
     free(buf);
 
     NewNumber(ext, n, r);
-    any rr = cons(CONTEXT_PTR, r, cons(CONTEXT_PTR, EndReached? Nil: T, Nil));
+    cell c1, c2;
+    Push(c1, r);
+    Push(c2, cons(CONTEXT_PTR, EndReached? Nil: T, Nil));
+    any rr = cons(CONTEXT_PTR, r, data(c2));
+    drop(c1);
 
     return rr;
 }
