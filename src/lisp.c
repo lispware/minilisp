@@ -823,7 +823,7 @@ void dumpStack(Context *CONTEXT_PTR, FILE *fp)
 
 void dumpMemory(Context *CONTEXT_PTR, char *name)
 {
-#if 1
+#if 0
     if ((name[0] != 't') || (name[1] != 'h')) return;
     //if ((name[0] != 't' && name[0] != 'g') || (name[1] != 'h' && name[1] != 'c')) return;
     //if (CONSCTR < 1000) return;
@@ -942,9 +942,11 @@ void gc(Context *CONTEXT_PTR, word c)
             {
                 if (!getMark(p))
                 {
+#if 0
                     FILE *fp = fopen("freemem.dump", "a");
                     printCell(fp, p);
                     fclose(fp);
+#endif
                     if (GetType(p) == EXT)
                     {
                         external *e = (external*)car(p);
