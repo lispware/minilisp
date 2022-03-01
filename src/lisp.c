@@ -845,20 +845,8 @@ void dumpMemory(Context *CONTEXT_PTR, char *name)
 #endif
 }
 
-void setMark(any cell, int m)
-{
-    //makeptr(cell)->meta.type.parts[3] = m;
-    if (m)
-    {
-        //cdr(cell) = ((any)((((uword)cdr(cell))) | 4));
-        makeptr(cell)->mark = 1;
-    }
-    else
-    {
-        //cdr(cell) = ((any)((((uword)cdr(cell))) & ~4));
-        makeptr(cell)->mark= 0;
-    }
-}
+#define setMark(cell, m) makeptr(cell)->mark = m
+#define getMark(cell) (makeptr(cell)->mark)
 
 void markAll(Context *CONTEXT_PTR)
 {
@@ -890,20 +878,6 @@ void markAll(Context *CONTEXT_PTR)
          mark(CONTEXT_PTR, ((bindFrame*)p)->bnd[i].val);
       }
    }
-}
-
-int getMark(any cell)
-{
-    //return makeptr(cell)->meta.type.parts[3];
-    //if((uword)((any)((((uword)cdr(cell))) & ~4)))
-    if(makeptr(cell)->mark)
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
 }
 
 static int CTR;
