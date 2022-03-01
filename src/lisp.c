@@ -783,7 +783,7 @@ void printCell(FILE *fp, any cell)
             ptr++;
         }
         buf[bufctr++] = 0;
-        
+
         fprintf(fp, "%018p %018p %018p [%c] %s %s\n", &cell->car, cell->car, cell->cdr, cell->mark?'m':' ', TypeString(cell, NULL), buf);
     }
     else
@@ -823,13 +823,7 @@ void dumpStack(Context *CONTEXT_PTR, FILE *fp)
 
 void dumpMemory(Context *CONTEXT_PTR, char *name)
 {
-#if 0
-    if ((name[0] != 't') || (name[1] != 'h')) return;
-    //if ((name[0] != 't' && name[0] != 'g') || (name[1] != 'h' && name[1] != 'c')) return;
-    //if (CONSCTR < 1000) return;
-
-    //if (THETHREAD != pthread_self() || name[0]!='t' || name[1] != '0') return;
-
+#ifdef DEBUG
     char fileName[40];
     sprintf(fileName, "%05d_%s_%d.dump",INDEX++, name, CONTEXT_PTR->THREAD_COUNT);
     FILE *fp = fopen(fileName, "w");
@@ -942,7 +936,7 @@ void gc(Context *CONTEXT_PTR, word c)
             {
                 if (!getMark(p))
                 {
-#if 0
+#ifdef DEBUG
                     FILE *fp = fopen("freemem.dump", "a");
                     printCell(fp, p);
                     fclose(fp);
