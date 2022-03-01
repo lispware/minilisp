@@ -91,11 +91,6 @@ typedef struct _cell
    struct _cell *cdr;
    unsigned char type;
    unsigned char mark;
-   //struct
-   //{
-   //     int type:8;
-   //     int mark:1;
-   //} ctrl;
 }
 cell, *any;
 

@@ -2486,7 +2486,6 @@ any doLink(Context *CONTEXT_PTR, any x)
         y = EVAL(CONTEXT_PTR, car(x));
         any c = cons(CONTEXT_PTR, y, Nil);
 
-        //c = setPtrType(c, PTR_CELL);
         c->type = PTR_CELL;
 
         *CONTEXT_PTR->Env.make = c;
