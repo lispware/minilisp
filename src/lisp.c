@@ -741,7 +741,7 @@ extern int CONSCTR;
 
 char *ExtTypeString(any cell, char*buf)
 {
-    external *e = car(cell);
+    external *e = (external *)car(cell);
     int len;
     mp_err _mp_error;
 
