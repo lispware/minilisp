@@ -89,6 +89,8 @@ typedef struct _cell
 {
    struct _cell *car;
    struct _cell *cdr;
+   unsigned char type;
+   unsigned char mark;
 }
 cell, *any;
 
@@ -98,6 +100,7 @@ typedef any (*FunPtr)(struct _Context *, any);
 
 typedef enum
 {
+    UNDEFINED,
     FUNC, // this needs to be at 0; look at copyFixup where its used
     PTR_CELL,
     BIN,
@@ -216,9 +219,9 @@ typedef struct _external
 } external;
 
 
-#if 0
-#define GetType(x) (((any)(x))->meta.type.parts[0])
-#define setCARType(C, V) ((C)->meta.type.parts[0] = V)
+#if 1
+#define GetType(x) (((any)(x))->type)
+#define setCARType(C, V) ((C)->type = V)
 #define setPtrType(x, T)  x
 #else
 #define setPtrType(x, T) ((any)((((uword)x) & ~3) | T))
@@ -444,6 +447,8 @@ any doOs(Context *CONTEXT_PTR, any ex);
 extern int MEMS;
 extern any Mem;
 
+
+#undef DEBUG
 
 /******************************************************************************/
 

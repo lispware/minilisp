@@ -1,5 +1,4 @@
 #include "lisp.h"
-
 #ifndef __NET_H__
 #define __NET_H__
 void getStdinNet(Context *CONTEXT_PTR);
@@ -740,6 +739,62 @@ static int INDEX;
 
 extern int CONSCTR;
 
+char *ExtTypeString(any cell, char*buf)
+{
+    external *e = (external *)car(cell);
+    int len;
+    mp_err _mp_error;
+
+    if (!e) return "NULL";
+    switch(e->type)
+    {
+        case EXT_NUM:
+            _mp_error = mp_radix_size((mp_int*)car(cell), 10, &len);
+            _mp_error = mp_to_radix(num(cell), buf, len, NULL, 10);
+            return "EXT_NUM";
+        case EXT_SOCKET: return "EXT_SOCKET";
+        default: return "UNKNOWN";
+    }
+}
+
+char *TypeString(any cell, char *buf)
+{
+    int type = GetType(cell);
+    switch(type)
+    {
+        case FUNC: return "FUNC";
+        case PTR_CELL: return "PTR_CELL";
+        case BIN: return "BIN";
+        case EXT: return ExtTypeString(cell, buf);
+        default: return "UNKNOWN";
+    }
+}
+
+void printCell(FILE *fp, any cell)
+{
+    if (BIN == GetType(cell))
+    {
+        char buf[100];
+        int bufctr=0;
+        char *ptr = (char*)cell;
+        for(int i = 0 ; i < BITS; i+=8)
+        {
+            if (*ptr) buf[bufctr++]=*ptr;
+            ptr++;
+        }
+        buf[bufctr++] = 0;
+
+        fprintf(fp, "%018p %018p %018p [%c] %s %s\n", &cell->car, cell->car, cell->cdr, cell->mark?'m':' ', TypeString(cell, NULL), buf);
+    }
+    else
+    {
+        char numbuf[100];
+        numbuf[0]=0;
+        char *p = TypeString(cell, numbuf);
+        fprintf(fp, "%018p %018p %018p [%c] %s %s\n", &cell->car, cell->car, cell->cdr, cell->mark?'m':' ', p, numbuf);
+    }
+}
+
 static void dumpHeap(heap *h, FILE *fp)
 {
     if(!h) return;
@@ -749,49 +804,49 @@ static void dumpHeap(heap *h, FILE *fp)
     for(int i=0; i < CELLS; i++)
     {
         any c = &(h->cells[i]);
-        fprintf(fp, "%p %p %p\n", &c->car, c->car, c->cdr);
+        printCell(fp, c);
+    }
+}
+
+void dumpStack(Context *CONTEXT_PTR, FILE *fp)
+{
+    any stackptr = CONTEXT_PTR->Env.stack;
+
+    fprintf(fp, "STACK\n");
+    while (stackptr)
+    {
+        any cell = car(stackptr);
+        printCell(fp, cell);
+        stackptr=cdr(stackptr);
     }
 }
 
 void dumpMemory(Context *CONTEXT_PTR, char *name)
 {
-#if 0
-    //if (name[0] != 't' || name[1] != 'h') return;
-    //if (CONSCTR < 1000) return;
-
-    //if (THETHREAD != pthread_self() || name[0]!='t' || name[1] != '0') return;
-
+#ifdef DEBUG
     char fileName[40];
     sprintf(fileName, "%05d_%s_%d.dump",INDEX++, name, CONTEXT_PTR->THREAD_COUNT);
     FILE *fp = fopen(fileName, "w");
-    fprintf(fp, "MEM %p\n", CONTEXT_PTR->Avail);
+    fprintf(fp, "MEM %018p\n", CONTEXT_PTR->Avail);
 
     for (int i = 0; i < MEMS; i++)
     {
         any cell = (any)(CONTEXT_PTR->Mem + i);
-        fprintf(fp, "%014p %014p %014p\n", &cell->car, cell->car, cell->cdr);
+        printCell(fp, cell);
     }
 
     fprintf(fp, "---------------------------\n");
 
     dumpHeap(CONTEXT_PTR->Heaps, fp);
 
+    dumpStack(CONTEXT_PTR, fp);
+
     fclose(fp);
 #endif
 }
 
-void setMark(any cell, int m)
-{
-    //makeptr(cell)->meta.type.parts[3] = m;
-    if (m)
-    {
-        cdr(cell) = ((any)((((uword)cdr(cell))) | 4));
-    }
-    else
-    {
-        cdr(cell) = ((any)((((uword)cdr(cell))) & ~4));
-    }
-}
+#define setMark(cell, m) makeptr(cell)->mark = m
+#define getMark(cell) (makeptr(cell)->mark)
 
 void markAll(Context *CONTEXT_PTR)
 {
@@ -825,19 +880,6 @@ void markAll(Context *CONTEXT_PTR)
    }
 }
 
-int getMark(any cell)
-{
-    //return makeptr(cell)->meta.type.parts[3];
-    if((uword)((any)((((uword)cdr(cell))) & ~4)))
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
 static int CTR;
 
 void gc(Context *CONTEXT_PTR, word c)
@@ -853,6 +895,10 @@ void gc(Context *CONTEXT_PTR, word c)
     dump("gc2");
 
     /* Sweep */
+    for (int i = 0; i < MEMS; i ++)
+    {
+        setMark((any)(CONTEXT_PTR->Mem + i), 0);
+    }
     CONTEXT_PTR->Avail = NULL;
     h = CONTEXT_PTR->Heaps;
     if (c)
@@ -864,6 +910,11 @@ void gc(Context *CONTEXT_PTR, word c)
             {
                 if (!getMark(p))
                 {
+#ifdef DEBUG
+                    FILE *fp = fopen("freemem.dump", "a");
+                    printCell(fp, p);
+                    fclose(fp);
+#endif
                     if (GetType(p) == EXT)
                     {
                         external *e = (external*)car(p);
@@ -941,29 +992,23 @@ void mark(Context *CONTEXT_PTR, any x)
         mark(CONTEXT_PTR, cdr(x));
 
         x = car(x);
-        while(x && !isNil(x))
+        while(!isNil(x))
         {
-            mark(CONTEXT_PTR, x);
+            setMark(x, 1);
             x=cdr(x);
         }
         return;
     }
 
-    if (isCell(x)) mark(CONTEXT_PTR, car(x));
-
-    while (1)
+    if (isCell(x))
     {
+        mark(CONTEXT_PTR, car(x));
         x = cdr(x);
-        if (!x) break;
-        if (isNil(x)) break;
-        if (getMark(x)) break;
-        setMark(x, 1);
-        if (isSym(x))
+        do
         {
-            setMark(x, 0);
             mark(CONTEXT_PTR, x);
-        }
-        if (isCell(x)) mark(CONTEXT_PTR, car(x));
+            x = cdr(x);
+        } while (!getMark(x));
     }
 }
 
@@ -2441,7 +2486,7 @@ any doLink(Context *CONTEXT_PTR, any x)
         y = EVAL(CONTEXT_PTR, car(x));
         any c = cons(CONTEXT_PTR, y, Nil);
 
-        c = setPtrType(c, PTR_CELL);
+        c->type = PTR_CELL;
 
         *CONTEXT_PTR->Env.make = c;
         
@@ -3122,7 +3167,11 @@ any doRd(Context *CONTEXT_PTR, any ex)
     free(buf);
 
     NewNumber(ext, n, r);
-    any rr = cons(CONTEXT_PTR, r, cons(CONTEXT_PTR, EndReached? Nil: T, Nil));
+    cell c1, c2;
+    Push(c1, r);
+    Push(c2, cons(CONTEXT_PTR, EndReached? Nil: T, Nil));
+    any rr = cons(CONTEXT_PTR, r, data(c2));
+    drop(c1);
 
     return rr;
 }
@@ -4164,10 +4213,9 @@ void RestoreStack(Context *From, Context *To)
         any fromCell = car(stackptr);
         any toCell = car(tostackptr) = (any)calloc(sizeof(cell), 1);
 
-        uword *temp23 = (uword*)fromCell->cdr;
         uword *temp = (uword*)cdr(fromCell);
         any cdrOfFromCell = (any)temp[0];
-        CellPartType type = temp[0] & 3;
+        CellPartType type = fromCell->type;
 
         any c = car(fromCell);
         if (c)
@@ -4176,9 +4224,13 @@ void RestoreStack(Context *From, Context *To)
             toCell->car = (any)temp2[1];
         }
 
-        any x = makeptr(cdrOfFromCell);
-        uword *temp2 = (uword*)x->cdr;
-        toCell->cdr = setPtrType((any)temp2[1], type);
+        toCell->type = type;
+        if (cdrOfFromCell != 0)
+        {
+            any x = makeptr(cdrOfFromCell);
+            uword *temp2 = (uword*)x->cdr;
+            toCell->cdr = (any)temp2[1];
+        }
 
 
         stackptr = cdr(stackptr);
@@ -4288,9 +4340,10 @@ void copyHeap(Context *From, Context *To)
 
 void copyBackupCell(cell *fromCell, cell * toCell)
 {
-    uword  *temp = (uword*)calloc(sizeof(uword*) * 2, 1);
+    uword  *temp = (uword*)calloc(sizeof(uword*) * 3, 1);
     temp[0] = (uword)fromCell->cdr;
     temp[1] = (uword)toCell;
+    temp[2] = (uword)(fromCell->type);
     fromCell->cdr = (any)temp;
 }
 
@@ -4298,39 +4351,37 @@ void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
 {
     uword *temp = (uword*)fromCell->cdr;
     any cdrOfFromCell = (any)temp[0];
-    CellPartType type = temp[0] & 3;
+    CellPartType type = temp[2];
 
     if (type == EXT)
     {
         external *e = (external*)fromCell->car;
         if (e) toCell->car = (any)e->copy(From, e);
         else toCell->car = fromCell->car;
+        toCell->type = EXT;
     }
     else if (!cdrOfFromCell)
     {
-        //any c = fromCell->car;
-        //if (c)
-        //{
-        //    uword *temp2 = makeptr(c)->cdr;
-        //    toCell->car = (any)temp2[1];
-        //}
         toCell->car = NULL;
+        toCell->type = type;
     }
     else if (type == FUNC || type == BIN)
     {
         toCell->car = fromCell->car;
+        toCell->type = type;
     }
     else // PTR_CELL
     {
         uword *temp2 = (uword*)makeptr(fromCell->car)->cdr;
         toCell->car = (any)temp2[1];
+        toCell->type = PTR_CELL;
     }
 
     if (cdrOfFromCell != 0)
     {
         any x = makeptr(cdrOfFromCell);
         uword *temp2 = (uword*)x->cdr;
-        toCell->cdr = setPtrType((any)temp2[1], type);
+        toCell->cdr = (any)temp2[1];
     }
 }
 
@@ -4410,11 +4461,11 @@ any doThread(Context *CONTEXT_PTR_ORIG, any x)
     CONTEXT_PTR->THREAD_COUNT = 1;
     CONTEXT_PTR->THREAD_ID = GetThreadID();
 
-    dumpMemory(CONTEXT_PTR_ORIG, "t0");
+    dumpMemory(CONTEXT_PTR_ORIG, "th0");
 
     copyHeap(CONTEXT_PTR_ORIG, CONTEXT_PTR);
 
-    dumpMemory(CONTEXT_PTR_ORIG, "t0");
+    dumpMemory(CONTEXT_PTR_ORIG, "th1");
 
     CONTEXT_PTR->Mem[0].car = CONTEXT_PTR->Mem[0].cdr; // TODO - should find a better place for this
     if (!CONTEXT_PTR_ORIG->Avail)
@@ -4426,7 +4477,7 @@ any doThread(Context *CONTEXT_PTR_ORIG, any x)
         CONTEXT_PTR->Avail->car = 0;
     }
 
-    dumpMemory(CONTEXT_PTR, "t0");
+    dumpMemory(CONTEXT_PTR, "th2");
 
 
     // Clear out the items that need to be moved to the new thread
