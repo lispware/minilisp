@@ -318,7 +318,7 @@ any evList(Context *, any);
 any evList2(Context *CONTEXT_PTR, any foo, any ex);
 any EVAL(Context *CONTEXT_PTR, any x);
 void err(any ex, any x, char *fmt, ...);
-void undefined(any x, any ex);
+any undefined(Context *CONTEXT_PTR,any x, any ex);
 void varError(any ex, any x);
 void makeError(any ex);
 void atomError(any ex, any x);

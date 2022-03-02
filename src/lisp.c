@@ -201,7 +201,7 @@ any evList(Context *CONTEXT_PTR, any ex)
     for (;;)
     {
         if (isNil(val(foo)))
-            undefined(foo,ex);
+            return undefined(CONTEXT_PTR, foo, ex);
         if (isNum(foo = val(foo)))
             return foo;
         if (isFunc(foo))
@@ -227,7 +227,7 @@ any evList2(Context *CONTEXT_PTR, any foo, any ex)
     for (;;)
     {
         if (isNil(val(foo)))
-            undefined(foo,ex);
+            return undefined(CONTEXT_PTR, foo, ex);
 
         if (isFunc(foo = val(foo)))
         {
@@ -2739,7 +2739,7 @@ any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p)
       }
 
       if (isNil(val(foo)) || foo == val(foo))
-         undefined(foo,ex);
+         return undefined(CONTEXT_PTR, foo, ex);
       foo = val(foo);
    }
    if (--n < 0)
@@ -4095,9 +4095,11 @@ void varError(any ex, any x)
     err(ex, x, "Variable expected");
 }
 
-void undefined(any x, any ex)
+any undefined(Context *CONTEXT_PTR, any x, any ex)
 {
-    err(ex, x, "Undefined");
+    print(CONTEXT_PTR, x);
+    printf("is undefined\n");
+    return Nil;
 }
 
 void makeError(any ex)
