@@ -1006,7 +1006,8 @@ void mark(Context *CONTEXT_PTR, any x)
         x = cdr(x);
         do
         {
-            mark(CONTEXT_PTR, x);
+            mark(CONTEXT_PTR, car(x));
+            setMark(x, 1);
             x = cdr(x);
         } while (!getMark(x));
     }
