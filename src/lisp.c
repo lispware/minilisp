@@ -4485,13 +4485,17 @@ any doThread(Context *CONTEXT_PTR_ORIG, any x)
 
     // Clear out the items that need to be moved to the new thread
     x = cadr(x);
-    any m = EVAL(CONTEXT_PTR_ORIG, car(x));
-    while (GetType(m) == EXT)
+    x = EVAL(CONTEXT_PTR_ORIG, x);
+    do
     {
-        car(m) = NULL;
+        any m = EVAL(CONTEXT_PTR_ORIG, car(x));
+        if (GetType(m) == EXT)
+        {
+            car(m) = NULL;
+        }
         x = cdr(x);
-        m = EVAL(CONTEXT_PTR_ORIG, car(x));
     }
+    while(x != (&(CONTEXT_PTR_ORIG->Mem[0])));
 
     plt_thread_start(CONTEXT_PTR, thread_func, 0); //TODO - passing nowait seems to not work
 
