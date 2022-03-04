@@ -2,17 +2,19 @@ PARALLEL=-j6
 OPT=-g3
 MATH_OPT=-o3
 
-64: lisp.c unix.c libtommath64.a
-	$(CC) $(OPT) -I libtommath  lisp.c unix.c libtommath64.a -lpthread -o lisp.exe
+SOURCES=main.c lisp.c unix.c 
 
-32: lisp.c unix.c libtommath32.a
-	$(CC) -m32 $(OPT) -I libtommath  lisp.c unix.c libtommath32.a -lpthread -o lisp.exe
+64: $(SOURCES) libtommath64.a
+	$(CC) $(OPT) -I libtommath $(SOURCES) libtommath64.a -lpthread -o lisp.exe
 
-leak64: lisp.c unix.c libtommath_sanitize64.a
-	$(CC) -fsanitize=address $(OPT) -I libtommath  lisp.c unix.c libtommath_sanitize64.a -lpthread -o lisp.exe
+32: $(SOURCES) libtommath32.a
+	$(CC) -m32 $(OPT) -I libtommath $(SOURCES) libtommath32.a -lpthread -o lisp.exe
 
-leak32: lisp.c unix.c libtommath_sanitize32.a
-	$(CC) -fsanitize=address -m32 $(OPT) -I libtommath  lisp.c unix.c libtommath_sanitize32.a -lpthread -o lisp.exe
+leak64: $(SOURCES) libtommath_sanitize64.a
+	$(CC) -fsanitize=address $(OPT) -I libtommath $(SOURCES) libtommath_sanitize64.a -lpthread -o lisp.exe
+
+leak32: $(SOURCES) libtommath_sanitize32.a
+	$(CC) -fsanitize=address -m32 $(OPT) -I libtommath $(SOURCES) libtommath_sanitize32.a -lpthread -o lisp.exe
 
 libtommath64.a:
 	cd libtommath && make -j16 clean
