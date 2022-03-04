@@ -3,18 +3,19 @@ OPT=-g3
 MATH_OPT=-o3
 
 SOURCES=main.c lisp.c unix.c 
+EXE=lisp
 
 64: $(SOURCES) libtommath64.a
-	$(CC) $(OPT) -I libtommath $(SOURCES) libtommath64.a -lpthread -o lisp.exe
+	$(CC) $(OPT) -I libtommath $(SOURCES) libtommath64.a -lpthread -o $(EXE)
 
 32: $(SOURCES) libtommath32.a
-	$(CC) -m32 $(OPT) -I libtommath $(SOURCES) libtommath32.a -lpthread -o lisp.exe
+	$(CC) -m32 $(OPT) -I libtommath $(SOURCES) libtommath32.a -lpthread -o $(EXE)
 
 leak64: $(SOURCES) libtommath_sanitize64.a
-	$(CC) -fsanitize=address $(OPT) -I libtommath $(SOURCES) libtommath_sanitize64.a -lpthread -o lisp.exe
+	$(CC) -fsanitize=address $(OPT) -I libtommath $(SOURCES) libtommath_sanitize64.a -lpthread -o $(EXE)
 
 leak32: $(SOURCES) libtommath_sanitize32.a
-	$(CC) -fsanitize=address -m32 $(OPT) -I libtommath $(SOURCES) libtommath_sanitize32.a -lpthread -o lisp.exe
+	$(CC) -fsanitize=address -m32 $(OPT) -I libtommath $(SOURCES) libtommath_sanitize32.a -lpthread -o $(EXE)
 
 libtommath64.a:
 	cd libtommath && make -j16 clean
