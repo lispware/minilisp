@@ -1,19 +1,7 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 
-#define SCREEN_SIZE 500
-
-typedef struct
-{
-    int width;
-    int height;
-    unsigned char *pixels;
-} INTEROP;
-
-typedef int (*RENDERER_TYPE)(INTEROP*);
-
-RENDERER_TYPE RENDERER;
-
+#define SCREEN_SIZE 1000
 
 Uint32 timerFunc(Uint32 interval, void *param)
 {
@@ -34,6 +22,29 @@ Uint32 timerFunc(Uint32 interval, void *param)
 
     SDL_PushEvent(&event);
     return(interval);
+}
+
+void drawPixel (SDL_Surface *surface, int x, int y, SDL_Color color) {
+    // map color to screen color
+    Uint32 screenColor = SDL_MapRGB(surface->format, color.r,
+            color.g, color.b);
+    // Calculate location of pixel
+    char *pPixelAddress = (char *)surface->pixels
+        + x * surface->format->BytesPerPixel
+        + y *surface->pitch ;
+    // check and the lock the surface
+    if (SDL_MUSTLOCK(surface)) {
+        int retValue = SDL_LockSurface(surface);
+        if (retValue == -1) {
+            printf("Count not lock surface. %d", SDL_GetError());
+            exit(1);
+        }
+    }
+    // copy directly to memory
+    memcpy(pPixelAddress, &screenColor, surface->format->BytesPerPixel);
+    if (SDL_MUSTLOCK(surface)) {
+        SDL_UnlockSurface(surface);
+    }
 }
 
 int main(int argc, char* args[])
@@ -61,21 +72,14 @@ int main(int argc, char* args[])
         return 1;
     }
 
-    surface = SDL_GetWindowSurface(window);
-    SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0xFF, 0x00, 0x00, 0x00));
-    INTEROP interop;
-    interop.pixels = surface->pixels;
-    interop.width = SCREEN_SIZE;
-    interop.height = SCREEN_SIZE;
+    //surface = SDL_GetWindowSurface(window);
+    //SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0xFF, 0x00, 0x00, 0x00));
     
-    //RENDERER = loadRenderer();
-
     Uint32 delay = (33 / 10) * 10;  /* To round it down to the nearest 10 ms */
     SDL_TimerID my_timer_id = SDL_AddTimer(delay, timerFunc, NULL);
     
     SDL_Event event;
-    //while(RENDERER(&interop))
-    while(1)
+    for(;;)
     {
         while( SDL_PollEvent( &event ) )
         {
@@ -98,8 +102,17 @@ int main(int argc, char* args[])
                     break;
             }
         }
-        printf("HERE\n");
-        getchar();
+
+        // generate random a screen position
+        int x = rand() % SCREEN_SIZE;
+        int y = rand() % SCREEN_SIZE;
+        // generate a random screen color
+        SDL_Color color;
+        color.r = rand() % 255;
+        color.g = rand() % 255;
+        color.b = rand() % 255;
+        surface = SDL_GetWindowSurface(window);
+        drawPixel (surface, x, y, color);
     }
 
     SDL_DestroyWindow(window);
