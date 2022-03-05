@@ -12,13 +12,17 @@
 (de LISP  @ 
     (let (CMD  (if IS_WINDOS "lisp.exe" "./lisp")
           CMD_AND_ARGS (pack (make (link CMD) (while (args) (link " ") (link (next))))))
-        (prinl CMD_AND_ARGS)
         CMD_AND_ARGS))
 
 (let CMD (LISP "'(out \"TESTFILE\" (prinl \"HELLO WORLD\"))'" "-bye") 
     (out "TESTFILE")
     (call CMD)
     (TEST CMD (pack "HELLO WORLD" (char 10)) (slurp "TESTFILE")))
+
+(let CMD (LISP "'(do 1 (out \"TESTFILE\" (prinl (argv))) (bye))'" "-" 1 2 "ABCD") 
+    (out "TESTFILE")
+    (call CMD)
+    (TEST CMD (pack "12ABCD" (char 10)) (slurp "TESTFILE")))
 
 (hs)
 (prinl "PASS_COUNT = " PASS_COUNT ", FAIL_COUNT = " FAIL_COUNT);

@@ -24,6 +24,7 @@ void pltClose(struct _external* obj);
 any parse(Context *CONTEXT_PTR, any x, bool skp);
 void getParse(Context *CONTEXT_PTR);
 any rdList(Context *CONTEXT_PTR);
+any doArgv(Context *CONTEXT_PTR, any ex);
 
 word GetThreadID();
 
@@ -1267,6 +1268,48 @@ any doRun(Context *CONTEXT_PTR, any x)
          data(c1) = run(CONTEXT_PTR, data(c1));
    }
    return Pop(c1);
+}
+
+any doArgv(Context *CONTEXT_PTR, any ex)
+{
+    any x, y;
+    char **p;
+    cell c1;
+
+    if (*(p = CONTEXT_PTR->AV) && strcmp(*p,"-") == 0)
+        ++p;
+    if (isNil(x = cdr(ex)))
+    {
+        if (!*p)
+        {
+            return Nil;
+        }
+        Push(c1, x = cons(CONTEXT_PTR, mkStr(CONTEXT_PTR, *p++), Nil));
+        while (*p)
+        {
+            x = cdr(x) = cons(CONTEXT_PTR, mkStr(CONTEXT_PTR, *p++), Nil);
+        }
+        return Pop(c1);
+    }
+    do
+    {
+        if (!isCell(x))
+        {
+            if (!*p)
+            {
+                return val(x) = Nil;
+            }
+            Push(c1, y = cons(CONTEXT_PTR, mkStr(CONTEXT_PTR, *p++), Nil));
+            while (*p)
+            {
+                y = cdr(y) = cons(CONTEXT_PTR, mkStr(CONTEXT_PTR, *p++), Nil);
+            }
+            return val(x) = Pop(c1);
+        }
+        y = car(x);
+        val(y) = *p? mkStr(CONTEXT_PTR, *p++) : Nil;
+    } while (!isNil(x = cdr(x)));
+    return val(y);
 }
 
 // (args) -> flg
@@ -3972,6 +4015,7 @@ void setupBuiltinFunctions(any * Mem)
     AddFunc(memCell, "tid", doTid);
     AddFunc(memCell, "cmp", doCmp);
     AddFunc(memCell, "os", doOs);
+    AddFunc(memCell, "argv", doArgv);
     
     WORD_TYPE end = (WORD_TYPE)memCell;
     WORD_TYPE start = (WORD_TYPE)*Mem;
