@@ -1246,10 +1246,6 @@ void sym2str(Context *CONTEXT_PTR, any nm, char *buf)
     c = getByte1(CONTEXT_PTR, &i, &w, &nm);
     do
     {
-        if (c == '"'  ||  c == '\\')
-        {
-            buf[ctr++]=c;
-        }
         buf[ctr++]=c;
     }
     while (c = getByte(CONTEXT_PTR, &i, &w, &nm));
@@ -2812,7 +2808,9 @@ any parse(Context *CONTEXT_PTR, any x, bool skp)
    Push(c1, CONTEXT_PTR->Env.parser->sym);
    CONTEXT_PTR->Chr = getByte1(CONTEXT_PTR, &parser.i, &parser.w, &parser.nm);
    if (skp)
+   {
       getParse(CONTEXT_PTR);
+   }
    x = rdList(CONTEXT_PTR);
    drop(c1);
    CONTEXT_PTR->Chr = c,  CONTEXT_PTR->Env.get = getSave,  CONTEXT_PTR->Env.parser = save;
@@ -2825,12 +2823,18 @@ any load(Context *CONTEXT_PTR, any ex, int pr, any x)
     inFrame f;
 
     // Handle command line arguments to execute function
-    if (isSym(x) && firstByte(CONTEXT_PTR, x) == '-')
+    
+    if (isSym(x))
     {
-        Push(c1, parse(CONTEXT_PTR, x,YES));
-        x = evList(CONTEXT_PTR, data(c1));
-        drop(c1);
-        return x;
+        word c = firstByte(CONTEXT_PTR, x);
+
+        if (c == '-' || c == '(')
+        {
+            Push(c1, parse(CONTEXT_PTR, x, YES));
+            x = evList(CONTEXT_PTR, data(c1));
+            drop(c1);
+            return x;
+        }
     }
 
     rdOpen(CONTEXT_PTR, ex, x, &f);
