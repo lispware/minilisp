@@ -21,6 +21,9 @@ char *printSocket(Context *CONTEXT_PTR, struct _external* obj);
 external * copySocket(Context *CONTEXT_PTR, external *ext);
 int equalSocket(Context *CONTEXT_PTR, external*x, external*y);
 void pltClose(struct _external* obj);
+any parse(Context *CONTEXT_PTR, any x, bool skp);
+void getParse(Context *CONTEXT_PTR);
+any rdList(Context *CONTEXT_PTR);
 
 word GetThreadID();
 
@@ -2788,12 +2791,47 @@ void wrOpen(Context *CONTEXT_PTR, any ex, any x, outFrame *f)
    }
 }
 
+void getParse(Context *CONTEXT_PTR)
+{
+   if ((CONTEXT_PTR->Chr = getByte(CONTEXT_PTR, &CONTEXT_PTR->Env.parser->i, &CONTEXT_PTR->Env.parser->w, &CONTEXT_PTR->Env.parser->nm)) == 0)
+      CONTEXT_PTR->Chr = ']';
+}
+
+
+any parse(Context *CONTEXT_PTR, any x, bool skp)
+{
+   int c;
+   parseFrame *save, parser;
+   void (*getSave)(void);
+   cell c1;
+
+   save = CONTEXT_PTR->Env.parser;
+   CONTEXT_PTR->Env.parser = &parser;
+   parser.nm = parser.sym = x;
+   getSave = CONTEXT_PTR->Env.get, CONTEXT_PTR->Env.get = getParse,  c = CONTEXT_PTR->Chr;
+   Push(c1, CONTEXT_PTR->Env.parser->sym);
+   CONTEXT_PTR->Chr = getByte1(CONTEXT_PTR, &parser.i, &parser.w, &parser.nm);
+   if (skp)
+      getParse(CONTEXT_PTR);
+   x = rdList(CONTEXT_PTR);
+   drop(c1);
+   CONTEXT_PTR->Chr = c,  CONTEXT_PTR->Env.get = getSave,  CONTEXT_PTR->Env.parser = save;
+   return x;
+}
+
 any load(Context *CONTEXT_PTR, any ex, int pr, any x)
 {
     cell c1, c2;
     inFrame f;
 
-    // TODO - get back function execution from command line if (isSymb(x) && firstByte(x) == '-')
+    // Handle command line arguments to execute function
+    if (isSym(x) && firstByte(CONTEXT_PTR, x) == '-')
+    {
+        Push(c1, parse(CONTEXT_PTR, x,YES));
+        x = evList(CONTEXT_PTR, data(c1));
+        drop(c1);
+        return x;
+    }
 
     rdOpen(CONTEXT_PTR, ex, x, &f);
     pushInFiles(CONTEXT_PTR, &f);
@@ -2900,7 +2938,6 @@ void pushOutFiles(Context *CONTEXT_PTR, outFrame *f)
 
 void rdOpen(Context *CONTEXT_PTR, any ex, any x, inFrame *f)
 {
-    //NeedSymb(ex,x); // TODO WHAT IS THIS ABOUT?
     if (isNil(x))
     {
         f->fp = stdin;
@@ -4099,7 +4136,7 @@ void varError(any ex, any x)
 any undefined(Context *CONTEXT_PTR, any x, any ex)
 {
     print(CONTEXT_PTR, x);
-    printf("is undefined\n");
+    printf(" is undefined\n");
     return Nil;
 }
 
