@@ -1,3 +1,4 @@
+#include <lisp.h>
 #include <SDL2/SDL.h>
 #include <stdio.h>
 
@@ -47,8 +48,47 @@ void drawPixel (SDL_Surface *surface, int x, int y, SDL_Color color) {
     }
 }
 
-int main(int argc, char* args[])
+Context LISP_CONTEXT;
+
+#if 0
+#include "lisp.h"
+
+Context LISP_CONTEXT;
+
+int main(int argc, char *av[])
 {
+    Context *CONTEXT_PTR = &LISP_CONTEXT;
+    setupBuiltinFunctions(&CONTEXT_PTR->Mem);
+    initialize_context(CONTEXT_PTR);
+    av++;
+    CONTEXT_PTR->AV = av;
+
+    CONTEXT_PTR->InFile = stdin, CONTEXT_PTR->Env.get = getStdin;
+    CONTEXT_PTR->OutFile = stdout, CONTEXT_PTR->Env.put = putStdout;
+    CONTEXT_PTR->ApplyArgs = Nil;
+    CONTEXT_PTR->ApplyBody = Nil;
+
+    loadAll(CONTEXT_PTR, NULL);
+    while (!feof(stdin))
+        load(CONTEXT_PTR, NULL, ':', Nil);
+
+    return 0;
+}
+#endif
+
+int main(int argc, char* av[])
+{
+    Context *CONTEXT_PTR = &LISP_CONTEXT;
+    setupBuiltinFunctions(&CONTEXT_PTR->Mem);
+    initialize_context(CONTEXT_PTR);
+    av++;
+    CONTEXT_PTR->AV = av;
+
+    CONTEXT_PTR->InFile = stdin, CONTEXT_PTR->Env.get = getStdin;
+    CONTEXT_PTR->OutFile = stdout, CONTEXT_PTR->Env.put = putStdout;
+    CONTEXT_PTR->ApplyArgs = Nil;
+    CONTEXT_PTR->ApplyBody = Nil;
+
     SDL_Window* window = NULL;
     SDL_Surface* surface = NULL;
 
