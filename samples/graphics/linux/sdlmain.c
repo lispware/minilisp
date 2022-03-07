@@ -124,12 +124,8 @@ int main(int argc, char* av[])
     Uint32 delay = (33 / 10) * 10;  /* To round it down to the nearest 10 ms */
     SDL_TimerID my_timer_id = SDL_AddTimer(delay, timerFunc, NULL);
 
-
-
     char *xx;
-    
 
-    //SDL_StartTextInput();
     SDL_Event event;
     for(;;)
     {
@@ -166,7 +162,7 @@ int main(int argc, char* av[])
                     }
                     break;
                 case SDL_KEYDOWN:
-				    if (event.key.keysym.sym == SDLK_RETURN)
+				    if (i && event.key.keysym.sym == SDLK_RETURN)
                     {
                         printf("You enered ENTERED: ");
                         any y = popSym(CONTEXT_PTR, i, w, p, &c1);
@@ -174,15 +170,7 @@ int main(int argc, char* av[])
                         printf("\n");
                         i = 0;
                         load(CONTEXT_PTR, NULL, 0, y);
-
-
-                        // Push(c1, parse(CONTEXT_PTR, y, YES));
-                        // x = evList(CONTEXT_PTR, data(c1));
-                        // drop(c1);
-
-                        // putByte0(&i, &w, &p);
                     }
-                    //SDL_StartTextInput();
                     break;
             }
         }
