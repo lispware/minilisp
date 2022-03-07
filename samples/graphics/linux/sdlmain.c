@@ -78,6 +78,12 @@ int main(int argc, char *av[])
 
 int main(int argc, char* av[])
 {
+
+    int i=0;
+    uword w;
+    any x, y;
+    cell c1, *p;
+
     Context *CONTEXT_PTR = &LISP_CONTEXT;
     setupBuiltinFunctions(&CONTEXT_PTR->Mem);
     initialize_context(CONTEXT_PTR);
@@ -117,7 +123,13 @@ int main(int argc, char* av[])
     
     Uint32 delay = (33 / 10) * 10;  /* To round it down to the nearest 10 ms */
     SDL_TimerID my_timer_id = SDL_AddTimer(delay, timerFunc, NULL);
+
+
+
+    char *xx;
     
+
+    //SDL_StartTextInput();
     SDL_Event event;
     for(;;)
     {
@@ -139,6 +151,38 @@ int main(int argc, char* av[])
                 case SDL_USEREVENT:
                     SDL_UpdateWindowSurface(window);
                     //RENDERER = loadRenderer();
+                    break;
+
+                case SDL_TEXTINPUT:
+                    xx = event.text.text;
+                    CONTEXT_PTR->Chr = xx[0];
+                    if (i == 0)
+                    {
+                        putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
+                    }
+                    else
+                    {
+                        putByte(CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &p, &c1);
+                    }
+                    break;
+                case SDL_KEYDOWN:
+				    if (event.key.keysym.sym == SDLK_RETURN)
+                    {
+                        printf("You enered ENTERED: ");
+                        any y = popSym(CONTEXT_PTR, i, w, p, &c1);
+                        print(CONTEXT_PTR, y);
+                        printf("\n");
+                        i = 0;
+                        load(CONTEXT_PTR, NULL, 0, y);
+
+
+                        // Push(c1, parse(CONTEXT_PTR, y, YES));
+                        // x = evList(CONTEXT_PTR, data(c1));
+                        // drop(c1);
+
+                        // putByte0(&i, &w, &p);
+                    }
+                    //SDL_StartTextInput();
                     break;
             }
         }
