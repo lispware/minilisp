@@ -50,32 +50,6 @@ void drawPixel (SDL_Surface *surface, int x, int y, SDL_Color color) {
 
 Context LISP_CONTEXT;
 
-#if 0
-#include "lisp.h"
-
-Context LISP_CONTEXT;
-
-int main(int argc, char *av[])
-{
-    Context *CONTEXT_PTR = &LISP_CONTEXT;
-    setupBuiltinFunctions(&CONTEXT_PTR->Mem);
-    initialize_context(CONTEXT_PTR);
-    av++;
-    CONTEXT_PTR->AV = av;
-
-    CONTEXT_PTR->InFile = stdin, CONTEXT_PTR->Env.get = getStdin;
-    CONTEXT_PTR->OutFile = stdout, CONTEXT_PTR->Env.put = putStdout;
-    CONTEXT_PTR->ApplyArgs = Nil;
-    CONTEXT_PTR->ApplyBody = Nil;
-
-    loadAll(CONTEXT_PTR, NULL);
-    while (!feof(stdin))
-        load(CONTEXT_PTR, NULL, ':', Nil);
-
-    return 0;
-}
-#endif
-
 int main(int argc, char* av[])
 {
 
@@ -106,10 +80,10 @@ int main(int argc, char* av[])
 
     window = SDL_CreateWindow
         (
-            "Graphics Demo",
-            SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-            SCREEN_SIZE, SCREEN_SIZE,
-            SDL_WINDOW_SHOWN
+         "Graphics Demo",
+         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+         SCREEN_SIZE, SCREEN_SIZE,
+         SDL_WINDOW_SHOWN
         );
 
     if (window == NULL)
@@ -120,11 +94,11 @@ int main(int argc, char* av[])
 
     //surface = SDL_GetWindowSurface(window);
     //SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0xFF, 0x00, 0x00, 0x00));
-    
+
     Uint32 delay = (33 / 10) * 10;  /* To round it down to the nearest 10 ms */
     SDL_TimerID my_timer_id = SDL_AddTimer(delay, timerFunc, NULL);
 
-    char *xx;
+    SDL_StartTextInput();
 
     SDL_Event event;
     for(;;)
@@ -150,8 +124,7 @@ int main(int argc, char* av[])
                     break;
 
                 case SDL_TEXTINPUT:
-                    xx = event.text.text;
-                    CONTEXT_PTR->Chr = xx[0];
+                    CONTEXT_PTR->Chr = ((char *)event.text.text)[0];
                     if (i == 0)
                     {
                         putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
@@ -162,7 +135,7 @@ int main(int argc, char* av[])
                     }
                     break;
                 case SDL_KEYDOWN:
-				    if (i && event.key.keysym.sym == SDLK_RETURN)
+                    if (i && event.key.keysym.sym == SDLK_RETURN)
                     {
                         printf("You enered ENTERED: ");
                         any y = popSym(CONTEXT_PTR, i, w, p, &c1);
@@ -171,6 +144,8 @@ int main(int argc, char* av[])
                         i = 0;
                         load(CONTEXT_PTR, NULL, 0, y);
                     }
+                    break;
+                case SDL_KEYUP:
                     break;
             }
         }
