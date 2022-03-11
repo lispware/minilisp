@@ -16,7 +16,7 @@ PicoLisp is [powerful](https://picolisp.com/wiki/?pros-and-cons) and as [Paul Gr
 
 #### Non criteria
 
-* **Static vs Dynamic typing**
+##### **Static vs Dynamic typing**
 One argument that supports Static typing is that it helps in proving correctness. The argument against it is that one can only prove that the types line up - whether the program is correct from the programmer intention point of view is questionable. Second, it is argued that static types help with refactoring. Again, to the extent of types aligning. Remember that the following is correct Haskell code - as in it compiles :)
 ```haskell
 sum = foldr (-) 0
