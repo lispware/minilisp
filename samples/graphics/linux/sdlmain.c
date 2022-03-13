@@ -1,8 +1,15 @@
 #include <lisp.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 
 #define SCREEN_SIZE 1000
+
+TTF_Font* font;
+SDL_Texture *texture, *text;
+SDL_Renderer* renderer;
+
+
 
 Uint32 timerFunc(Uint32 interval, void *param)
 {
@@ -57,8 +64,12 @@ int main(int argc, char* av[])
     uword w;
     any x, y;
     cell c1, *p;
+    int bufPTR=0;
+    char buf[1024]={0};
+
 
     Context *CONTEXT_PTR = &LISP_CONTEXT;
+    y = Nil;
     setupBuiltinFunctions(&CONTEXT_PTR->Mem);
     initialize_context(CONTEXT_PTR);
     av++;
@@ -72,11 +83,18 @@ int main(int argc, char* av[])
     SDL_Window* window = NULL;
     SDL_Surface* surface = NULL;
 
+
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         fprintf(stderr, "%s\n", SDL_GetError());
         return 1;
     }
+
+	if ( TTF_Init() < 0 )
+    {
+        printf("Could not initialize font\n");
+	}
+
 
     window = SDL_CreateWindow
         (
@@ -90,6 +108,18 @@ int main(int argc, char* av[])
     {
         fprintf(stderr, "%s\n", SDL_GetError());
         return 1;
+    }
+
+	renderer = SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED );
+
+	font = TTF_OpenFont("font.ttf", 20);
+
+	if ( !font ) {
+		printf("Error loading font1: %d\n", TTF_GetError());
+	}
+    else
+    {
+		printf("Error loading font2: %d\n", TTF_GetError());
     }
 
     //surface = SDL_GetWindowSurface(window);
@@ -128,21 +158,27 @@ int main(int argc, char* av[])
                     if (i == 0)
                     {
                         putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
+                        buf[bufPTR++]=CONTEXT_PTR->Chr;
                     }
                     else
                     {
                         putByte(CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &p, &c1);
+                        buf[bufPTR++]=CONTEXT_PTR->Chr;
                     }
                     break;
                 case SDL_KEYDOWN:
                     if (i && event.key.keysym.sym == SDLK_RETURN)
                     {
                         printf("You enered ENTERED: ");
-                        any y = popSym(CONTEXT_PTR, i, w, p, &c1);
+                        y = popSym(CONTEXT_PTR, i, w, p, &c1);
                         print(CONTEXT_PTR, y);
                         printf("\n");
                         i = 0;
                         load(CONTEXT_PTR, NULL, 0, y);
+                        bufPTR=0;
+                        for(int i = 0 ; i < 1024; i++) buf[i]=0;
+                        SDL_RenderClear( renderer );
+
                     }
                     break;
                 case SDL_KEYUP:
@@ -150,20 +186,55 @@ int main(int argc, char* av[])
             }
         }
 
-        // generate random a screen position
-        int x = rand() % SCREEN_SIZE;
-        int y = rand() % SCREEN_SIZE;
-        // generate a random screen color
-        SDL_Color color;
-        color.r = rand() % 255;
-        color.g = rand() % 255;
-        color.b = rand() % 255;
-        surface = SDL_GetWindowSurface(window);
-        drawPixel (surface, x, y, color);
+        // RENDER TEXT
+        //
+        if (bufPTR)
+        {
+            renderText(buf);
+        }
+        else
+        {
+            renderText("____________________________________");
+        }
+        ////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+        // // generate random a screen position
+        // int x = rand() % SCREEN_SIZE;
+        // int y = rand() % SCREEN_SIZE;
+        // // generate a random screen color
+        // SDL_Color color;
+        // color.r = rand() % 255;
+        // color.g = rand() % 255;
+        // color.b = rand() % 255;
+        // surface = SDL_GetWindowSurface(window);
+        // drawPixel (surface, x, y, color);
     }
 
     SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
+}
+
+
+void renderText(char *buf)
+{
+    SDL_Rect dest;
+    SDL_Color foreground = { 0xff, 0xff, 0xff };
+    SDL_Surface* text_surf = TTF_RenderText_Solid(font, buf, foreground);
+    text = SDL_CreateTextureFromSurface(renderer, text_surf);
+
+    dest.x = 10;
+    dest.y = 100;
+    dest.w = text_surf->w;
+    dest.h = text_surf->h;
+    SDL_RenderCopy(renderer, text, NULL, &dest);
+
+    SDL_DestroyTexture(text);
+    SDL_FreeSurface(text_surf);
+
+    SDL_RenderPresent( renderer );
 }
 
