@@ -21,6 +21,10 @@ char *printSocket(Context *CONTEXT_PTR, struct _external* obj);
 external * copySocket(Context *CONTEXT_PTR, external *ext);
 int equalSocket(Context *CONTEXT_PTR, external*x, external*y);
 void pltClose(struct _external* obj);
+any parse(Context *CONTEXT_PTR, any x, bool skp);
+void getParse(Context *CONTEXT_PTR);
+any rdList(Context *CONTEXT_PTR);
+any doArgv(Context *CONTEXT_PTR, any ex);
 
 word GetThreadID();
 
@@ -1243,10 +1247,6 @@ void sym2str(Context *CONTEXT_PTR, any nm, char *buf)
     c = getByte1(CONTEXT_PTR, &i, &w, &nm);
     do
     {
-        if (c == '"'  ||  c == '\\')
-        {
-            buf[ctr++]=c;
-        }
         buf[ctr++]=c;
     }
     while (c = getByte(CONTEXT_PTR, &i, &w, &nm));
@@ -1268,6 +1268,48 @@ any doRun(Context *CONTEXT_PTR, any x)
          data(c1) = run(CONTEXT_PTR, data(c1));
    }
    return Pop(c1);
+}
+
+any doArgv(Context *CONTEXT_PTR, any ex)
+{
+    any x, y;
+    char **p;
+    cell c1;
+
+    if (*(p = CONTEXT_PTR->AV) && strcmp(*p,"-") == 0)
+        ++p;
+    if (isNil(x = cdr(ex)))
+    {
+        if (!*p)
+        {
+            return Nil;
+        }
+        Push(c1, x = cons(CONTEXT_PTR, mkStr(CONTEXT_PTR, *p++), Nil));
+        while (*p)
+        {
+            x = cdr(x) = cons(CONTEXT_PTR, mkStr(CONTEXT_PTR, *p++), Nil);
+        }
+        return Pop(c1);
+    }
+    do
+    {
+        if (!isCell(x))
+        {
+            if (!*p)
+            {
+                return val(x) = Nil;
+            }
+            Push(c1, y = cons(CONTEXT_PTR, mkStr(CONTEXT_PTR, *p++), Nil));
+            while (*p)
+            {
+                y = cdr(y) = cons(CONTEXT_PTR, mkStr(CONTEXT_PTR, *p++), Nil);
+            }
+            return val(x) = Pop(c1);
+        }
+        y = car(x);
+        val(y) = *p? mkStr(CONTEXT_PTR, *p++) : Nil;
+    } while (!isNil(x = cdr(x)));
+    return val(y);
 }
 
 // (args) -> flg
@@ -2788,12 +2830,55 @@ void wrOpen(Context *CONTEXT_PTR, any ex, any x, outFrame *f)
    }
 }
 
+void getParse(Context *CONTEXT_PTR)
+{
+   if ((CONTEXT_PTR->Chr = getByte(CONTEXT_PTR, &CONTEXT_PTR->Env.parser->i, &CONTEXT_PTR->Env.parser->w, &CONTEXT_PTR->Env.parser->nm)) == 0)
+      CONTEXT_PTR->Chr = ']';
+}
+
+
+any parse(Context *CONTEXT_PTR, any x, bool skp)
+{
+   int c;
+   parseFrame *save, parser;
+   void (*getSave)(void);
+   cell c1;
+
+   save = CONTEXT_PTR->Env.parser;
+   CONTEXT_PTR->Env.parser = &parser;
+   parser.nm = parser.sym = x;
+   getSave = CONTEXT_PTR->Env.get, CONTEXT_PTR->Env.get = getParse,  c = CONTEXT_PTR->Chr;
+   Push(c1, CONTEXT_PTR->Env.parser->sym);
+   CONTEXT_PTR->Chr = getByte1(CONTEXT_PTR, &parser.i, &parser.w, &parser.nm);
+   if (skp)
+   {
+      getParse(CONTEXT_PTR);
+   }
+   x = rdList(CONTEXT_PTR);
+   drop(c1);
+   CONTEXT_PTR->Chr = c,  CONTEXT_PTR->Env.get = getSave,  CONTEXT_PTR->Env.parser = save;
+   return x;
+}
+
 any load(Context *CONTEXT_PTR, any ex, int pr, any x)
 {
     cell c1, c2;
     inFrame f;
 
-    // TODO - get back function execution from command line if (isSymb(x) && firstByte(x) == '-')
+    // Handle command line arguments to execute function
+    
+    if (isSym(x))
+    {
+        word c = firstByte(CONTEXT_PTR, x);
+
+        if (c == '-' || c == '(')
+        {
+            Push(c1, parse(CONTEXT_PTR, x, YES));
+            x = evList(CONTEXT_PTR, data(c1));
+            drop(c1);
+            return x;
+        }
+    }
 
     rdOpen(CONTEXT_PTR, ex, x, &f);
     pushInFiles(CONTEXT_PTR, &f);
@@ -2900,7 +2985,6 @@ void pushOutFiles(Context *CONTEXT_PTR, outFrame *f)
 
 void rdOpen(Context *CONTEXT_PTR, any ex, any x, inFrame *f)
 {
-    //NeedSymb(ex,x); // TODO WHAT IS THIS ABOUT?
     if (isNil(x))
     {
         f->fp = stdin;
@@ -3931,6 +4015,7 @@ void setupBuiltinFunctions(any * Mem)
     AddFunc(memCell, "tid", doTid);
     AddFunc(memCell, "cmp", doCmp);
     AddFunc(memCell, "os", doOs);
+    AddFunc(memCell, "argv", doArgv);
     
     WORD_TYPE end = (WORD_TYPE)memCell;
     WORD_TYPE start = (WORD_TYPE)*Mem;
@@ -4099,7 +4184,7 @@ void varError(any ex, any x)
 any undefined(Context *CONTEXT_PTR, any x, any ex)
 {
     print(CONTEXT_PTR, x);
-    printf("is undefined\n");
+    printf(" is undefined\n");
     return Nil;
 }
 
