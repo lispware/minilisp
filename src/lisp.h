@@ -347,6 +347,7 @@ any addKeyVal2(any m, char *s);
 any addKeyVal3(any m, char *s, void *v);
 any addKeyVal4(any m, char *s, WORD_TYPE num);
 void setupBuiltinFunctions(any *);
+void addBuiltinFunction(any * Mem, char *fn, FunPtr fptr);
 void setMark(any cell, int m);
 int getMark(any cell);
 void markAll(Context *CONTEXT_PTR);

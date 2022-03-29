@@ -3919,7 +3919,6 @@ void setupBuiltinFunctions(any * Mem)
 
     car(memCell) = *Mem;
     cdr(memCell) = *Mem;
-    //memCell->meta.ptr = (any)(PTR_CELL | PTR_CELL << 8);
     setCARType(memCell, PTR_CELL);
 
     memCell++;
@@ -4021,16 +4020,23 @@ void setupBuiltinFunctions(any * Mem)
     WORD_TYPE start = (WORD_TYPE)*Mem;
     MEMS = (end - start)/sizeof(cell);
 
-    if (MEMS > MEM_SIZE_GUESS)
-    {
-        fprintf(stderr, "MEM_SIZE_GUESS is %d; It should be atleast %d\n", MEM_SIZE_GUESS, MEMS);
-    }
-#if 0 // TODO - is this needed
-    if (MEMS < MEM_SIZE_GUESS)
-    {
-        fprintf(stderr, "MEM_SIZE_GUESS is %d; %d is sufficient\n", MEM_SIZE_GUESS, MEMS);
-    }
-#endif
+    *Mem = (any)realloc(*Mem, sizeof(cell) * MEMS);
+}
+
+void addBuiltinFunction(any * Mem, char *fn, FunPtr fptr)
+{
+    int MEM_SIZE_GUESS = 300;
+
+    *Mem = (any)realloc(*Mem, sizeof(cell) * (MEMS + MEM_SIZE_GUESS));
+
+    any memCell = &((*Mem)[MEMS]);
+
+    AddFunc(memCell, fn, fptr);
+    
+    WORD_TYPE end = (WORD_TYPE)memCell;
+    WORD_TYPE start = (WORD_TYPE)*Mem;
+    MEMS = (end - start)/sizeof(cell);
+    *Mem = (any)realloc(*Mem, sizeof(cell) * MEMS);
 }
 
 any addString(any *Mem, any m, char *s)
