@@ -3,10 +3,15 @@
         (for I L
             (setq R (cons I R)))
     R))
-            
+
+           
 (loop 
     (while (sdlpoll)
         (let X (sdlistextinput)
-            (if X (prinl (setq R (cons (char X) R))))
-        (if (sdisenterpressed) (prinl "ENTER PRESSED: " (pack (reverse R))))
+            (if X (prinl (reverse (setq R (cons (char X) R)))) )
+
+
+        (if (sdisbackspacepressed) (do 1 (setq R (cdr R)) (prinl (reverse R))))
+
+        (if (sdisenterpressed) (do 1 (prinl "ENTER PRESSED: "  (load (pack (reverse R)))) (setq R Nil) ))
         (if (sdlisclose) (sdlclose) ))))

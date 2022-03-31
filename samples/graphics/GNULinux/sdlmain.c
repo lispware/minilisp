@@ -41,6 +41,7 @@ void drawPixel (SDL_Surface *surface, int x, int y, SDL_Color color) {
         + x * surface->format->BytesPerPixel
         + y *surface->pitch ;
     // check and the lock the surface
+    printf("Drawing a pixel at %d %d \n", x, y);
     if (SDL_MUSTLOCK(surface)) {
         int retValue = SDL_LockSurface(surface);
         if (retValue == -1) {
@@ -60,6 +61,8 @@ Context LISP_CONTEXT;
 SDL_Event LISP_SDL_EVENT;
 
 SDL_Window* LISP_SDL_WINDOW = NULL;
+
+SDL_Surface* LISP_SDL_SURFACE = NULL;
 
 any sdlGetEvent(Context *CONTEXT_PTR, any x)
 {
@@ -123,6 +126,54 @@ any sdlIsEnterPressed(Context *CONTEXT_PTR, any x)
     }
 }
 
+any sdlIsBackspacePressed(Context *CONTEXT_PTR, any x)
+{
+    if (LISP_SDL_EVENT.type == SDL_KEYDOWN && LISP_SDL_EVENT.key.keysym.sym == SDLK_BACKSPACE)
+    {
+        return T;
+    }
+    else
+    {
+        return Nil;
+    }
+}
+
+any sdlPutPixel(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    any p1 = car(ex);
+    ex = cdr(ex);
+    any p2 = car(ex);
+    ex = cdr(ex);
+    any p3 = car(ex);
+    ex = cdr(ex);
+    any p4 = car(ex);
+    ex = cdr(ex);
+    any p5 = car(ex);
+
+    int x, y, r, g, b;
+
+#define GetNumberParam(p, r) p = EVAL(CONTEXT_PTR, (p)); if (isNum(p)) r = mp_get_i32(num((p))); else r = 0;
+    GetNumberParam(p1, x);
+    GetNumberParam(p2, y);
+    GetNumberParam(p3, r);
+    GetNumberParam(p4, g);
+    GetNumberParam(p5, b);
+
+    SDL_Color color;
+    color.r = r;
+    color.g = g;
+    color.b = b;
+
+    printf ("WINDOW = %p\n", LISP_SDL_WINDOW);
+    LISP_SDL_SURFACE = SDL_GetWindowSurface(LISP_SDL_WINDOW);
+    printf ("SURFACE = %p\n", LISP_SDL_SURFACE);
+    drawPixel (LISP_SDL_SURFACE, x, y, color);
+    SDL_UpdateWindowSurface(LISP_SDL_WINDOW);
+
+    return Nil;
+}
+
 int main(int argc, char* av[])
 {
 
@@ -142,6 +193,8 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlclose", sdlCloseWindow);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlistextinput", sdlIsTextInput);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdisenterpressed", sdlIsEnterPressed);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdisbackspacepressed", sdlIsBackspacePressed);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlputpixel", sdlPutPixel);
 
 
     initialize_context(CONTEXT_PTR);
@@ -152,10 +205,6 @@ int main(int argc, char* av[])
     CONTEXT_PTR->OutFile = stdout, CONTEXT_PTR->Env.put = putStdout;
     CONTEXT_PTR->ApplyArgs = Nil;
     CONTEXT_PTR->ApplyBody = Nil;
-
-    SDL_Window* LISP_SDL_WINDOW = NULL;
-    SDL_Surface* surface = NULL;
-
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
@@ -191,11 +240,13 @@ int main(int argc, char* av[])
 		printf("Error loading font1: %d\n", TTF_GetError());
 	}
 
-    //surface = SDL_GetWindowSurface(LISP_SDL_WINDOW);
-    //SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0xFF, 0x00, 0x00, 0x00));
+    LISP_SDL_SURFACE = SDL_GetWindowSurface(LISP_SDL_WINDOW);
+
+    SDL_FillRect(LISP_SDL_SURFACE, NULL, SDL_MapRGBA(LISP_SDL_SURFACE->format, 0x00, 0x00, 0x00, 0x00));
+                    SDL_UpdateWindowSurface(LISP_SDL_WINDOW);
 
     Uint32 delay = (33 / 10) * 10;  /* To round it down to the nearest 10 ms */
-    SDL_TimerID my_timer_id = SDL_AddTimer(delay, timerFunc, NULL);
+    //SDL_TimerID my_timer_id = SDL_AddTimer(delay, timerFunc, NULL);
 
     SDL_StartTextInput();
 
@@ -275,16 +326,17 @@ int main(int argc, char* av[])
 
 
 
-        // // generate random a screen position
-        // int x = rand() % SCREEN_SIZE;
-        // int y = rand() % SCREEN_SIZE;
-        // // generate a random screen color
-        // SDL_Color color;
-        // color.r = rand() % 255;
-        // color.g = rand() % 255;
-        // color.b = rand() % 255;
-        // surface = SDL_GetWindowSurface(LISP_SDL_WINDOW);
-        // drawPixel (surface, x, y, color);
+        // generate random a screen position
+        int x = rand() % SCREEN_SIZE;
+        int y = rand() % SCREEN_SIZE;
+        // generate a random screen color
+        SDL_Color color;
+        color.r = rand() % 255;
+        color.g = rand() % 255;
+        color.b = rand() % 255;
+        LISP_SDL_SURFACE = SDL_GetWindowSurface(LISP_SDL_WINDOW);
+        drawPixel (LISP_SDL_SURFACE, x, y, color);
+                    SDL_UpdateWindowSurface(LISP_SDL_WINDOW);
     }
 #endif
 
