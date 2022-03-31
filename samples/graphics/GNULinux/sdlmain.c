@@ -57,19 +57,13 @@ void drawPixel (SDL_Surface *surface, int x, int y, SDL_Color color) {
 
 Context LISP_CONTEXT;
 
-SDL_Event SDLEVENT;
-any getEvent(Context *CONTEXT_PTR, any x)
-{
-    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-    mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
-    mp_set(n, 1);
+SDL_Event LISP_SDL_EVENT;
 
-    SDL_PollEvent( &SDLEVENT );
-}
+SDL_Window* LISP_SDL_WINDOW = NULL;
 
-any isCloseEvent(Context *CONTEXT_PTR, any x)
+any sdlGetEvent(Context *CONTEXT_PTR, any x)
 {
-    if (SDLEVENT.type == SDL_WINDOWEVENT && SDLEVENT.window.event == SDL_WINDOWEVENT_CLOSE)
+    if (SDL_PollEvent( &LISP_SDL_EVENT ))
     {
         return T;
     }
@@ -79,7 +73,55 @@ any isCloseEvent(Context *CONTEXT_PTR, any x)
     }
 }
 
+any sdlIsCloseEvent(Context *CONTEXT_PTR, any x)
+{
+    if (LISP_SDL_EVENT.type == SDL_WINDOWEVENT && LISP_SDL_EVENT.window.event == SDL_WINDOWEVENT_CLOSE)
+    {
+        return T;
+    }
+    else
+    {
+        return Nil;
+    }
+}
 
+any sdlIsTextInput(Context *CONTEXT_PTR, any x)
+{
+    if (LISP_SDL_EVENT.type == SDL_TEXTINPUT)
+    {
+        int x =  ((char *)LISP_SDL_EVENT.text.text)[0];
+        mp_int *n = (mp_int*)malloc(sizeof(mp_int));
+        mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
+        mp_set(n, x);
+
+        NewNumber(ext, n, r);
+
+        return r;
+    }
+    else
+    {
+        return Nil;
+    }
+}
+
+any sdlCloseWindow(Context *CONTEXT_PTR, any x)
+{
+    SDL_DestroyWindow(LISP_SDL_WINDOW);
+    SDL_Quit();
+    return Nil;
+}
+
+any sdlIsEnterPressed(Context *CONTEXT_PTR, any x)
+{
+    if (LISP_SDL_EVENT.type == SDL_KEYDOWN && LISP_SDL_EVENT.key.keysym.sym == SDLK_RETURN)
+    {
+        return T;
+    }
+    else
+    {
+        return Nil;
+    }
+}
 
 int main(int argc, char* av[])
 {
@@ -95,8 +137,11 @@ int main(int argc, char* av[])
     Context *CONTEXT_PTR = &LISP_CONTEXT;
     y = Nil;
     setupBuiltinFunctions(&CONTEXT_PTR->Mem);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlpoll", getEvent);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlisclose", isCloseEvent);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlpoll", sdlGetEvent);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlisclose", sdlIsCloseEvent);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlclose", sdlCloseWindow);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlistextinput", sdlIsTextInput);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdisenterpressed", sdlIsEnterPressed);
 
 
     initialize_context(CONTEXT_PTR);
@@ -108,7 +153,7 @@ int main(int argc, char* av[])
     CONTEXT_PTR->ApplyArgs = Nil;
     CONTEXT_PTR->ApplyBody = Nil;
 
-    SDL_Window* window = NULL;
+    SDL_Window* LISP_SDL_WINDOW = NULL;
     SDL_Surface* surface = NULL;
 
 
@@ -124,7 +169,7 @@ int main(int argc, char* av[])
 	}
 
 
-    window = SDL_CreateWindow
+    LISP_SDL_WINDOW = SDL_CreateWindow
         (
          "Graphics Demo",
          SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -132,13 +177,13 @@ int main(int argc, char* av[])
          SDL_WINDOW_SHOWN
         );
 
-    if (window == NULL)
+    if (LISP_SDL_WINDOW == NULL)
     {
         fprintf(stderr, "%s\n", SDL_GetError());
         return 1;
     }
 
-	renderer = SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED );
+	renderer = SDL_CreateRenderer( LISP_SDL_WINDOW, -1, SDL_RENDERER_ACCELERATED );
 
 	font = TTF_OpenFont("font.ttf", 20);
 
@@ -146,7 +191,7 @@ int main(int argc, char* av[])
 		printf("Error loading font1: %d\n", TTF_GetError());
 	}
 
-    //surface = SDL_GetWindowSurface(window);
+    //surface = SDL_GetWindowSurface(LISP_SDL_WINDOW);
     //SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0xFF, 0x00, 0x00, 0x00));
 
     Uint32 delay = (33 / 10) * 10;  /* To round it down to the nearest 10 ms */
@@ -169,7 +214,7 @@ int main(int argc, char* av[])
                     switch (event.window.event)
                     {
                         case SDL_WINDOWEVENT_CLOSE:
-                            SDL_DestroyWindow(window);
+                            SDL_DestroyWindow(LISP_SDL_WINDOW);
                             SDL_Quit();
                             return 0;
                         default:
@@ -177,11 +222,12 @@ int main(int argc, char* av[])
                     }
                     break;
                 case SDL_USEREVENT:
-                    SDL_UpdateWindowSurface(window);
+                    SDL_UpdateWindowSurface(LISP_SDL_WINDOW);
                     //RENDERER = loadRenderer();
                     break;
 
                 case SDL_TEXTINPUT:
+                    printf("AA\n");
                     CONTEXT_PTR->Chr = ((char *)event.text.text)[0];
                     if (i == 0)
                     {
@@ -237,12 +283,12 @@ int main(int argc, char* av[])
         // color.r = rand() % 255;
         // color.g = rand() % 255;
         // color.b = rand() % 255;
-        // surface = SDL_GetWindowSurface(window);
+        // surface = SDL_GetWindowSurface(LISP_SDL_WINDOW);
         // drawPixel (surface, x, y, color);
     }
 #endif
 
-    SDL_DestroyWindow(window);
+    SDL_DestroyWindow(LISP_SDL_WINDOW);
     SDL_Quit();
     return 0;
 }
