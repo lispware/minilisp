@@ -57,6 +57,30 @@ void drawPixel (SDL_Surface *surface, int x, int y, SDL_Color color) {
 
 Context LISP_CONTEXT;
 
+SDL_Event SDLEVENT;
+any getEvent(Context *CONTEXT_PTR, any x)
+{
+    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
+    mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
+    mp_set(n, 1);
+
+    SDL_PollEvent( &SDLEVENT );
+}
+
+any isCloseEvent(Context *CONTEXT_PTR, any x)
+{
+    if (SDLEVENT.type == SDL_WINDOWEVENT && SDLEVENT.window.event == SDL_WINDOWEVENT_CLOSE)
+    {
+        return T;
+    }
+    else
+    {
+        return Nil;
+    }
+}
+
+
+
 int main(int argc, char* av[])
 {
 
@@ -71,6 +95,10 @@ int main(int argc, char* av[])
     Context *CONTEXT_PTR = &LISP_CONTEXT;
     y = Nil;
     setupBuiltinFunctions(&CONTEXT_PTR->Mem);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlpoll", getEvent);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlisclose", isCloseEvent);
+
+
     initialize_context(CONTEXT_PTR);
     av++;
     CONTEXT_PTR->AV = av;
@@ -117,10 +145,6 @@ int main(int argc, char* av[])
 	if ( !font ) {
 		printf("Error loading font1: %d\n", TTF_GetError());
 	}
-    else
-    {
-		printf("Error loading font2: %d\n", TTF_GetError());
-    }
 
     //surface = SDL_GetWindowSurface(window);
     //SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 0xFF, 0x00, 0x00, 0x00));
@@ -130,6 +154,10 @@ int main(int argc, char* av[])
 
     SDL_StartTextInput();
 
+    loadAll(CONTEXT_PTR, NULL);
+
+
+#if 0
     SDL_Event event;
     for(;;)
     {
@@ -212,6 +240,7 @@ int main(int argc, char* av[])
         // surface = SDL_GetWindowSurface(window);
         // drawPixel (surface, x, y, color);
     }
+#endif
 
     SDL_DestroyWindow(window);
     SDL_Quit();
