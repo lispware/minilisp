@@ -4,6 +4,16 @@
             (setq R (cons I R)))
     R))
 
+
+(de box (X Y S)
+    (for I S
+        (sdlputpixel (- (+ X I) 1)  Y 255 255 255)
+        (sdlputpixel (- (+ X I) 1) (+ Y S) 255 255 255)
+        
+        (sdlputpixel X (- (+ Y I) 1) 255 255 255)
+        (sdlputpixel (+ X S) (- (+ Y I) 1) 255 255 255))
+    (sdlupdatewindow)
+    )
            
 (loop 
     (while (sdlpoll)

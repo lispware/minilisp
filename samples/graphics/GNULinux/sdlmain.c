@@ -41,7 +41,6 @@ void drawPixel (SDL_Surface *surface, int x, int y, SDL_Color color) {
         + x * surface->format->BytesPerPixel
         + y *surface->pitch ;
     // check and the lock the surface
-    printf("Drawing a pixel at %d %d \n", x, y);
     if (SDL_MUSTLOCK(surface)) {
         int retValue = SDL_LockSurface(surface);
         if (retValue == -1) {
@@ -165,13 +164,17 @@ any sdlPutPixel(Context *CONTEXT_PTR, any ex)
     color.g = g;
     color.b = b;
 
-    printf ("WINDOW = %p\n", LISP_SDL_WINDOW);
     LISP_SDL_SURFACE = SDL_GetWindowSurface(LISP_SDL_WINDOW);
-    printf ("SURFACE = %p\n", LISP_SDL_SURFACE);
     drawPixel (LISP_SDL_SURFACE, x, y, color);
-    SDL_UpdateWindowSurface(LISP_SDL_WINDOW);
+    //SDL_UpdateWindowSurface(LISP_SDL_WINDOW);
 
     return Nil;
+}
+
+any sdlUpdateWindow(Context *CONTEXT_PTR, any ex)
+{
+    SDL_UpdateWindowSurface(LISP_SDL_WINDOW);
+    return T;
 }
 
 int main(int argc, char* av[])
@@ -195,6 +198,7 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdisenterpressed", sdlIsEnterPressed);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdisbackspacepressed", sdlIsBackspacePressed);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlputpixel", sdlPutPixel);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlupdatewindow", sdlUpdateWindow);
 
 
     initialize_context(CONTEXT_PTR);
