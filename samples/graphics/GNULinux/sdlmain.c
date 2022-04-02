@@ -1,6 +1,6 @@
 #include <lisp.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+#include <SDL.h>
+#include <SDL_ttf.h>
 #include <stdio.h>
 
 #define SCREEN_SIZE 1000
