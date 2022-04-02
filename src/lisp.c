@@ -4030,6 +4030,7 @@ void addBuiltinFunction(any * Mem, char *fn, FunPtr fptr)
     *Mem = (any)realloc(*Mem, sizeof(cell) * (MEMS + MEM_SIZE_GUESS));
 
     any memCell = &((*Mem)[MEMS]);
+    memset(memCell, 0, MEM_SIZE_GUESS * sizeof(cell));
 
     AddFunc(memCell, fn, fptr);
     
