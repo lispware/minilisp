@@ -1,11 +1,11 @@
 #include <lisp.h>
 #include <SDL.h>
-#include <SDL_ttf.h>
+//#include <SDL_ttf.h>
 #include <stdio.h>
 
 #define SCREEN_SIZE 1000
 
-TTF_Font* font;
+//TTF_Font* font;
 SDL_Texture *texture, *text;
 SDL_Renderer* renderer;
 
@@ -216,10 +216,10 @@ int main(int argc, char* av[])
         return 1;
     }
 
-	if ( TTF_Init() < 0 )
-    {
-        printf("Could not initialize font\n");
-	}
+	//if ( TTF_Init() < 0 )
+    //{
+    //    printf("Could not initialize font\n");
+	//}
 
 
     LISP_SDL_WINDOW = SDL_CreateWindow
@@ -238,11 +238,11 @@ int main(int argc, char* av[])
 
 	renderer = SDL_CreateRenderer( LISP_SDL_WINDOW, -1, SDL_RENDERER_ACCELERATED );
 
-	font = TTF_OpenFont("font.ttf", 20);
+	//font = TTF_OpenFont("font.ttf", 20);
 
-	if ( !font ) {
-		printf("Error loading font1: %d\n", TTF_GetError());
-	}
+	//if ( !font ) {
+	//	printf("Error loading font1: %d\n", TTF_GetError());
+	//}
 
     LISP_SDL_SURFACE = SDL_GetWindowSurface(LISP_SDL_WINDOW);
 
@@ -350,6 +350,7 @@ int main(int argc, char* av[])
 }
 
 
+#if 0
 void renderText(char *buf)
 {
     SDL_Rect dest;
@@ -368,4 +369,5 @@ void renderText(char *buf)
 
     SDL_RenderPresent( renderer );
 }
+#endif
 
