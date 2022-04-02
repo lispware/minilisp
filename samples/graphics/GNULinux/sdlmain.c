@@ -177,6 +177,7 @@ any sdlUpdateWindow(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
+#undef main
 int main(int argc, char* av[])
 {
 
