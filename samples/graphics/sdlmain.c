@@ -4,7 +4,7 @@
 
 #define SCREEN_SIZE 1000
 
-#define GetNumberParam(p, r) p = EVAL(CONTEXT_PTR, (p)); if (isNum(p)) r = mp_get_i32(num((p))); else r = 0;
+#define GetNumberParam(p, r) if (isNum(p)) r = mp_get_i32(num((p))); else r = 0;
 
 SDL_Texture *texture, *text;
 
@@ -115,16 +115,22 @@ any lispsdlIsBackspacePressed(Context *CONTEXT_PTR, any x)
 
 any lispsdlPutPixel(Context *CONTEXT_PTR, any ex)
 {
+    cell c1, c2, c3, c4, c5;
     ex = cdr(ex);
     any p1 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c1, p1);
     ex = cdr(ex);
     any p2 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c2, p2);
     ex = cdr(ex);
     any p3 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c3, p3);
     ex = cdr(ex);
     any p4 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c4, p4);
     ex = cdr(ex);
     any p5 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c5, p5);
 
     int x, y, r, g, b;
 
@@ -133,6 +139,7 @@ any lispsdlPutPixel(Context *CONTEXT_PTR, any ex)
     GetNumberParam(p3, r);
     GetNumberParam(p4, g);
     GetNumberParam(p5, b);
+    drop(c1);
 
     SDL_Color color;
     color.r = r;
@@ -153,14 +160,19 @@ any lispsdlUpdateWindow(Context *CONTEXT_PTR, any ex)
 
 any lispsdlCreateWindow(Context *CONTEXT_PTR, any ex)
 {
+    cell c1, c2, c3;
     ex = cdr(ex);
     any p1 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c1, p1);
 
     ex = cdr(ex);
     any p2 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c2, p2);
 
     ex = cdr(ex);
     any p3 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c3, p3);
+
 
     int ps = pathSize(CONTEXT_PTR, p1);
     char *nm = (char*)malloc(ps);
@@ -169,6 +181,7 @@ any lispsdlCreateWindow(Context *CONTEXT_PTR, any ex)
     int x, y;
     GetNumberParam(p2, x);
     GetNumberParam(p3, y);
+    drop(c1);
 
     LISP_SDL_WINDOW = SDL_CreateWindow
         (
