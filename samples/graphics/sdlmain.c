@@ -160,7 +160,7 @@ any lispsdlUpdateWindow(Context *CONTEXT_PTR, any ex)
 
 any lispsdlCreateWindow(Context *CONTEXT_PTR, any ex)
 {
-    cell c1, c2, c3;
+    cell c1, c2, c3, c4, c5, c6;
     ex = cdr(ex);
     any p1 = EVAL(CONTEXT_PTR, car(ex));
     Push(c1, p1);
@@ -173,14 +173,28 @@ any lispsdlCreateWindow(Context *CONTEXT_PTR, any ex)
     any p3 = EVAL(CONTEXT_PTR, car(ex));
     Push(c3, p3);
 
+    ex = cdr(ex);
+    any p4 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c4, p4);
+
+    ex = cdr(ex);
+    any p5 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c5, p5);
+
+    ex = cdr(ex);
+    any p6 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c6, p6);
 
     int ps = pathSize(CONTEXT_PTR, p1);
     char *nm = (char*)malloc(ps);
     pathString(CONTEXT_PTR, p1, nm);
 
-    int x, y;
+    int x, y, r, g, b;
     GetNumberParam(p2, x);
     GetNumberParam(p3, y);
+    GetNumberParam(p4, r);
+    GetNumberParam(p5, g);
+    GetNumberParam(p6, b);
     drop(c1);
 
     LISP_SDL_WINDOW = SDL_CreateWindow
@@ -198,6 +212,8 @@ any lispsdlCreateWindow(Context *CONTEXT_PTR, any ex)
     }
 
     LISP_SDL_SURFACE = SDL_GetWindowSurface(LISP_SDL_WINDOW);
+    SDL_FillRect(LISP_SDL_SURFACE, NULL, SDL_MapRGBA(LISP_SDL_SURFACE->format, r, g, b, 0xff));
+    SDL_UpdateWindowSurface(LISP_SDL_WINDOW);
 
     SDL_StartTextInput();
 }
