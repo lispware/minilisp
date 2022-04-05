@@ -158,6 +158,33 @@ any lispsdlUpdateWindow(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
+any lispsdlClearWindow(Context *CONTEXT_PTR, any ex)
+{
+    cell c1, c2, c3;
+    ex = cdr(ex);
+    any p1 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c1, p1);
+
+    ex = cdr(ex);
+    any p2 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c2, p2);
+
+    ex = cdr(ex);
+    any p3 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c3, p3);
+
+    int r, g, b;
+    GetNumberParam(p1, r);
+    GetNumberParam(p2, g);
+    GetNumberParam(p3, b);
+    drop(c1);
+
+    SDL_FillRect(LISP_SDL_SURFACE, NULL, SDL_MapRGBA(LISP_SDL_SURFACE->format, r, g, b, 0xff));
+
+    return Nil;
+}
+
+
 any lispsdlCreateWindow(Context *CONTEXT_PTR, any ex)
 {
     cell c1, c2, c3, c4, c5, c6;
@@ -232,6 +259,7 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdisbackspacepressed", lispsdlIsBackspacePressed);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlputpixel", lispsdlPutPixel);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlupdatewindow", lispsdlUpdateWindow);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlclearwindow", lispsdlClearWindow);
     initialize_context(CONTEXT_PTR);
     av++;
     CONTEXT_PTR->AV = av;

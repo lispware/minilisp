@@ -1,4 +1,4 @@
-(sdlCreateWindow "HELLO" 500 500 255 0 0)
+(sdlCreateWindow "HELLO" 800 600 255 0 0)
 
 (de reverse (L)
     (let R Nil
@@ -16,6 +16,10 @@
         (sdlputpixel (+ X S) (- (+ Y I) 1) 255 255 255))
     (sdlupdatewindow)
     )
+
+(de clear (R G B)
+    (sdlclearwindow R G B)
+    (sdlupdatewindow))
 
 (loop
     (while (sdlpoll)
