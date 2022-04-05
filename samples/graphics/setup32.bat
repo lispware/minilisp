@@ -1,1 +1,2 @@
 powershell -executionpolicy bypass -file setup.ps1
+copy WindowsSDL2\SDL2-2.0.20\lib\x64\SDL2.dll
