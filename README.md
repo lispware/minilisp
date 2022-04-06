@@ -6,7 +6,7 @@ This is an adaptation of [miniPicoLisp](https://picolisp.com/wiki/?embedded), a 
 
 This is really not "another language" - it's essentially PicoLisp. 
 
-## What is great about PicoLisp?
+## What is so great about PicoLisp?
 
 PicoLisp is the closest to perfection. Perfection as in "Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away". A somewhat unique quality of PicoLisp is that it is ["finished software"](http://www.beneroth.ch/pil/picolisp-is-finished.html). Has been so for over 3 decades! This may be surprising to you, that a programming language could be "finished" so long ago; even though, we have "new features" being added to the prevailing popular programming languages all the time. 
 

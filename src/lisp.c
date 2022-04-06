@@ -450,7 +450,6 @@ any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
     any nm, x, y, z;
     word n;
 
-    dump("internBin1");
     x = tree[1];
 
     if (isNil(x))
@@ -473,37 +472,24 @@ any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
 
         if (isNil(cdr(x)))
         {
-            dump("internBin1");
             if (n < 0)
             {
-                dump("internBin2");
                 any xx = consIntern(CONTEXT_PTR, sym, Nil);
-                dump("internBin3");
                 setCARType(xx, PTR_CELL);
-                dump("internBin4");
                 xx = consIntern(CONTEXT_PTR, xx, Nil);
-                dump("internBin5");
                 setCARType(xx, PTR_CELL);
-                dump("internBin6");
                 cdr(x) = xx;
                 setCARType(x, PTR_CELL);
-                dump("internBin7");
                 return sym;
             }
             else
             {
-                dump("internBin8");
                 any xx = consIntern(CONTEXT_PTR, sym, Nil);
-                dump("internBin9");
                 setCARType(xx, PTR_CELL);
-                dump("internBina");
                 xx = consIntern(CONTEXT_PTR, Nil, xx);
-                dump("internBinb");
                 setCARType(xx, PTR_CELL);
-                dump("internBinc");
                 cdr(x) = xx;
                 setCARType(x, PTR_CELL);
-                dump("internBind");
                 return sym;
             }
 
@@ -4019,25 +4005,17 @@ void setupBuiltinFunctions(any * Mem)
     WORD_TYPE end = (WORD_TYPE)memCell;
     WORD_TYPE start = (WORD_TYPE)*Mem;
     MEMS = (end - start)/sizeof(cell);
-
-    *Mem = (any)realloc(*Mem, sizeof(cell) * MEMS);
 }
 
 void addBuiltinFunction(any * Mem, char *fn, FunPtr fptr)
 {
-    int MEM_SIZE_GUESS = 300;
-
-    *Mem = (any)realloc(*Mem, sizeof(cell) * (MEMS + MEM_SIZE_GUESS));
-
     any memCell = &((*Mem)[MEMS]);
-    memset(memCell, 0, MEM_SIZE_GUESS * sizeof(cell));
 
     AddFunc(memCell, fn, fptr);
     
     WORD_TYPE end = (WORD_TYPE)memCell;
     WORD_TYPE start = (WORD_TYPE)*Mem;
     MEMS = (end - start)/sizeof(cell);
-    *Mem = (any)realloc(*Mem, sizeof(cell) * MEMS);
 }
 
 any addString(any *Mem, any m, char *s)
