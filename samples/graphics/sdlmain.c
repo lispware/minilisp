@@ -38,6 +38,7 @@ Context LISP_CONTEXT;
 SDL_Event LISP_SDL_EVENT;
 SDL_Window* LISP_SDL_WINDOW = NULL;
 SDL_Surface* LISP_SDL_SURFACE = NULL;
+SDL_Renderer* LISP_SDL_RENDERER = NULL;
 
 any lispsdlGetEvent(Context *CONTEXT_PTR, any x)
 {
@@ -113,73 +114,62 @@ any lispsdlIsBackspacePressed(Context *CONTEXT_PTR, any x)
     }
 }
 
-any lispsdlPutPixel(Context *CONTEXT_PTR, any ex)
+any lispsdlDrawLine(Context *CONTEXT_PTR, any ex)
 {
-    cell c1, c2, c3, c4, c5;
+    int x1, y1, x2, y2, r, g, b;
     ex = cdr(ex);
-    any p1 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c1, p1);
+    any px1 = EVAL(CONTEXT_PTR, car(ex));
+    GetNumberParam(px1, x1);
     ex = cdr(ex);
-    any p2 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c2, p2);
+    any py1 = EVAL(CONTEXT_PTR, car(ex));
+    GetNumberParam(py1, y1);
     ex = cdr(ex);
-    any p3 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c3, p3);
+    any px2 = EVAL(CONTEXT_PTR, car(ex));
+    GetNumberParam(px2, x2);
     ex = cdr(ex);
-    any p4 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c4, p4);
+    any py2 = EVAL(CONTEXT_PTR, car(ex));
+    GetNumberParam(py2, y2);
     ex = cdr(ex);
-    any p5 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c5, p5);
+    any pr = EVAL(CONTEXT_PTR, car(ex));
+    GetNumberParam(pr, r);
+    ex = cdr(ex);
+    any pg = EVAL(CONTEXT_PTR, car(ex));
+    GetNumberParam(pg, g);
+    ex = cdr(ex);
+    any pb = EVAL(CONTEXT_PTR, car(ex));
+    GetNumberParam(pb, b);
 
-    int x, y, r, g, b;
+    SDL_SetRenderDrawColor(LISP_SDL_RENDERER, r, g, b, SDL_ALPHA_OPAQUE);
+    SDL_RenderDrawLine(LISP_SDL_RENDERER,  x1, y1, x2, y2);
 
-    GetNumberParam(p1, x);
-    GetNumberParam(p2, y);
-    GetNumberParam(p3, r);
-    GetNumberParam(p4, g);
-    GetNumberParam(p5, b);
-    drop(c1);
-
-    SDL_Color color;
-    color.r = r;
-    color.g = g;
-    color.b = b;
-
-    LISP_SDL_SURFACE = SDL_GetWindowSurface(LISP_SDL_WINDOW);
-    drawPixel (LISP_SDL_SURFACE, x, y, color);
-
-    return Nil;
+    return T;
 }
 
-any lispsdlUpdateWindow(Context *CONTEXT_PTR, any ex)
+any lispsdlPresentRenderer(Context *CONTEXT_PTR, any ex)
 {
-    SDL_UpdateWindowSurface(LISP_SDL_WINDOW);
+    SDL_RenderPresent(LISP_SDL_RENDERER);
     return T;
 }
 
 any lispsdlClearWindow(Context *CONTEXT_PTR, any ex)
 {
     cell c1, c2, c3;
+    int r, g, b;
     ex = cdr(ex);
     any p1 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c1, p1);
+    GetNumberParam(p1, r);
 
     ex = cdr(ex);
     any p2 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c2, p2);
+    GetNumberParam(p2, g);
 
     ex = cdr(ex);
     any p3 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c3, p3);
-
-    int r, g, b;
-    GetNumberParam(p1, r);
-    GetNumberParam(p2, g);
     GetNumberParam(p3, b);
-    drop(c1);
 
-    SDL_FillRect(LISP_SDL_SURFACE, NULL, SDL_MapRGBA(LISP_SDL_SURFACE->format, r, g, b, 0xff));
+    //SDL_FillRect(LISP_SDL_SURFACE, NULL, SDL_MapRGBA(LISP_SDL_SURFACE->format, r, g, b, 0xff));
+    SDL_SetRenderDrawColor(LISP_SDL_RENDERER, r, g, b, SDL_ALPHA_OPAQUE);
+    SDL_RenderClear(LISP_SDL_RENDERER);
 
     return Nil;
 }
@@ -238,9 +228,20 @@ any lispsdlCreateWindow(Context *CONTEXT_PTR, any ex)
         return Nil;
     }
 
+    LISP_SDL_RENDERER = SDL_CreateRenderer(LISP_SDL_WINDOW, -1, 0);
+
+    if (LISP_SDL_RENDERER == NULL)
+    {
+        fprintf(stderr, "%s\n", SDL_GetError());
+        return Nil;
+    }
+
     LISP_SDL_SURFACE = SDL_GetWindowSurface(LISP_SDL_WINDOW);
-    SDL_FillRect(LISP_SDL_SURFACE, NULL, SDL_MapRGBA(LISP_SDL_SURFACE->format, r, g, b, 0xff));
-    SDL_UpdateWindowSurface(LISP_SDL_WINDOW);
+    //SDL_FillRect(LISP_SDL_SURFACE, NULL, SDL_MapRGBA(LISP_SDL_SURFACE->format, r, g, b, 0xff));
+    //SDL_UpdateWindowSurface(LISP_SDL_WINDOW);
+    SDL_SetRenderDrawColor(LISP_SDL_RENDERER, r, g, b, SDL_ALPHA_OPAQUE);
+    SDL_RenderClear(LISP_SDL_RENDERER);
+    SDL_RenderPresent(LISP_SDL_RENDERER);
 
     SDL_StartTextInput();
 
@@ -253,15 +254,15 @@ int main(int argc, char* av[])
     Context *CONTEXT_PTR = &LISP_CONTEXT;
     setupBuiltinFunctions(&CONTEXT_PTR->Mem);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlCreateWindow", lispsdlCreateWindow);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlpoll", lispsdlGetEvent);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlisclose", lispsdlIsCloseEvent);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlclose", lispsdlCloseWindow);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlistextinput", lispsdlIsTextInput);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdisenterpressed", lispsdlIsEnterPressed);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdisbackspacepressed", lispsdlIsBackspacePressed);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlputpixel", lispsdlPutPixel);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlupdatewindow", lispsdlUpdateWindow);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlclearwindow", lispsdlClearWindow);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlPoll", lispsdlGetEvent);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlIsClose", lispsdlIsCloseEvent);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlClose", lispsdlCloseWindow);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlIsTextInput", lispsdlIsTextInput);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdIsEnterPressed", lispsdlIsEnterPressed);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdIsBackspacePressed", lispsdlIsBackspacePressed);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlPresentRenderer", lispsdlPresentRenderer);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlClearWindow", lispsdlClearWindow);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlDrawLine", lispsdlDrawLine);
     initialize_context(CONTEXT_PTR);
     av++;
     CONTEXT_PTR->AV = av;
