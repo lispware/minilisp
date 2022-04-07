@@ -10,6 +10,10 @@
 (de putPixel (X Y R G B)
     (sdlDrawLine  X Y X Y R G B))
 
+(de line (X1 Y1 X2 Y2 R G B)
+    (let CF '((C) (if C C 255))
+        (sdlDrawLine X1 Y1 X2 Y2 (CF R) (CF G) (CF B))))
+
 (de box (X Y S R G B)
     (sdlDrawLine X Y (+ X S) Y  R G B)
     (sdlDrawLine X Y X (+ Y S)  R G B)
