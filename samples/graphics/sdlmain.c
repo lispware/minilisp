@@ -22,7 +22,7 @@ void drawPixel(SDL_Surface *surface, int x, int y, SDL_Color color)
         int retValue = SDL_LockSurface(surface);
         if (retValue == -1)
         {
-            printf("Count not lock surface. %d", SDL_GetError());
+            printf("Count not lock surface. %s\n", SDL_GetError());
             exit(1);
         }
     }
@@ -235,7 +235,7 @@ any lispsdlCreateWindow(Context *CONTEXT_PTR, any ex)
     if (LISP_SDL_WINDOW == NULL)
     {
         fprintf(stderr, "%s\n", SDL_GetError());
-        return 1;
+        return Nil;
     }
 
     LISP_SDL_SURFACE = SDL_GetWindowSurface(LISP_SDL_WINDOW);
@@ -243,6 +243,8 @@ any lispsdlCreateWindow(Context *CONTEXT_PTR, any ex)
     SDL_UpdateWindowSurface(LISP_SDL_WINDOW);
 
     SDL_StartTextInput();
+
+    return T;
 }
 
 #undef main
