@@ -2827,7 +2827,7 @@ any parse(Context *CONTEXT_PTR, any x, bool skp)
 {
    int c;
    parseFrame *save, parser;
-   void (*getSave)(void);
+   void (*getSave)(Context*);
    cell c1;
 
    save = CONTEXT_PTR->Env.parser;
@@ -3895,11 +3895,11 @@ void printIndex(char *name, void *_MemStart, void *_Mem)
 #endif
 }
 
+#define MEM_SIZE 300
 void setupBuiltinFunctions(any * Mem)
 {
-    int MEM_SIZE_GUESS = 300;
 
-    *Mem = (any)calloc(sizeof(cell), MEM_SIZE_GUESS);
+    *Mem = (any)calloc(sizeof(cell), MEM_SIZE);
 
     any memCell = *Mem, tempCell;
 
@@ -4005,6 +4005,12 @@ void setupBuiltinFunctions(any * Mem)
     WORD_TYPE end = (WORD_TYPE)memCell;
     WORD_TYPE start = (WORD_TYPE)*Mem;
     MEMS = (end - start)/sizeof(cell);
+
+    if (MEMS > MEM_SIZE)
+    {
+        printf("Not enough memory for builtin functions\n");
+        exit(0);
+    }
 }
 
 void addBuiltinFunction(any * Mem, char *fn, FunPtr fptr)
@@ -4016,6 +4022,12 @@ void addBuiltinFunction(any * Mem, char *fn, FunPtr fptr)
     WORD_TYPE end = (WORD_TYPE)memCell;
     WORD_TYPE start = (WORD_TYPE)*Mem;
     MEMS = (end - start)/sizeof(cell);
+
+    if (MEMS > MEM_SIZE)
+    {
+        printf("Not enough memory for builtin functions\n");
+        exit(0);
+    }
 }
 
 any addString(any *Mem, any m, char *s)
