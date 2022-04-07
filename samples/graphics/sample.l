@@ -1,4 +1,4 @@
-(sdlCreateWindow "HELLO" 2000 1000 255 0 0)
+(sdlCreateWindow "HELLO" 1000 1000 255 0 0)
 
 (de reverse (L)
     (let R Nil
