@@ -116,28 +116,39 @@ any lispsdlIsBackspacePressed(Context *CONTEXT_PTR, any x)
 
 any lispsdlDrawLine(Context *CONTEXT_PTR, any ex)
 {
+    cell cx1, cy1, cx2, cy2, cr, cg, cb;
     int x1, y1, x2, y2, r, g, b;
+
     ex = cdr(ex);
     any px1 = EVAL(CONTEXT_PTR, car(ex));
+    Push(cx1, px1);
     GetNumberParam(px1, x1);
     ex = cdr(ex);
     any py1 = EVAL(CONTEXT_PTR, car(ex));
+    Push(cy1, py1);
     GetNumberParam(py1, y1);
     ex = cdr(ex);
     any px2 = EVAL(CONTEXT_PTR, car(ex));
+    Push(cx2, px2);
     GetNumberParam(px2, x2);
     ex = cdr(ex);
     any py2 = EVAL(CONTEXT_PTR, car(ex));
+    Push(cy2, py2);
     GetNumberParam(py2, y2);
     ex = cdr(ex);
     any pr = EVAL(CONTEXT_PTR, car(ex));
+    Push(cr, pr);
     GetNumberParam(pr, r);
     ex = cdr(ex);
     any pg = EVAL(CONTEXT_PTR, car(ex));
+    Push(cg, pg);
     GetNumberParam(pg, g);
     ex = cdr(ex);
     any pb = EVAL(CONTEXT_PTR, car(ex));
+    Push(cb, pb);
     GetNumberParam(pb, b);
+
+    drop(cx1);
 
     SDL_SetRenderDrawColor(LISP_SDL_RENDERER, r, g, b, SDL_ALPHA_OPAQUE);
     SDL_RenderDrawLine(LISP_SDL_RENDERER,  x1, y1, x2, y2);
@@ -157,15 +168,20 @@ any lispsdlClearWindow(Context *CONTEXT_PTR, any ex)
     int r, g, b;
     ex = cdr(ex);
     any p1 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c1, p1);
     GetNumberParam(p1, r);
 
     ex = cdr(ex);
     any p2 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c2, p2);
     GetNumberParam(p2, g);
 
     ex = cdr(ex);
     any p3 = EVAL(CONTEXT_PTR, car(ex));
+    Push(c3, p3);
     GetNumberParam(p3, b);
+
+    drop(c1);
 
     //SDL_FillRect(LISP_SDL_SURFACE, NULL, SDL_MapRGBA(LISP_SDL_SURFACE->format, r, g, b, 0xff));
     SDL_SetRenderDrawColor(LISP_SDL_RENDERER, r, g, b, SDL_ALPHA_OPAQUE);
