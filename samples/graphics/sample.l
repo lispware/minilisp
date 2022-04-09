@@ -30,6 +30,19 @@
 
 (de update () (sdlPresentRenderer))
 
+(de demo ()
+    (box 100 100 200 255 0 0)
+    (sdlPresentRenderer)
+    (sdlDelay 200)
+    (box 100 100 200 0 255 0)
+    (sdlPresentRenderer)
+    (sdlDelay 200)
+    (box 100 100 200 0 0 255)
+    (sdlPresentRenderer)
+    (sdlDelay 200)
+    )
+
+
 (loop
     (while (sdlPoll)
         (let X (sdlIsTextInput)
