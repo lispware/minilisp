@@ -229,6 +229,7 @@ any lispsdlCreateWindow(Context *CONTEXT_PTR, any ex)
     Push(c6, p6);
 
     int ps = pathSize(CONTEXT_PTR, p1);
+
     char *nm = (char*)malloc(ps);
     pathString(CONTEXT_PTR, p1, nm);
 
@@ -5398,6 +5399,7 @@ static const unsigned char fontdata_10x18[] =
 };
 
 
+int FontWidth = 10;
 void writeChar(int x, int y, int fr, int fg, int fb, int br, int bg, int bb, int c, int magnification)
 {
     int fontIndex = c * (2 * 18);
@@ -5449,6 +5451,8 @@ any lispsdlWriteString(Context *CONTEXT_PTR, any ex)
     NumberParam(cbg, car(ex), bg);
     ex = cdr(ex);
     NumberParam(cbb, car(ex), bb);
+    ex = cdr(ex);
+    NumberParam(cm, car(ex), m);
 
     ex = cdr(ex);
     any pt = EVAL(CONTEXT_PTR, car(ex));
@@ -5462,9 +5466,8 @@ any lispsdlWriteString(Context *CONTEXT_PTR, any ex)
     int c;
     while(c = *nm++)
     {
-        writeChar(x, y, fr, fg, fb, br, bg, bb, c, 2);
-        x+=24;
-        printf("%c\n", c);
+        writeChar(x, y, fr, fg, fb, br, bg, bb, c, m);
+        x+=(FontWidth*m);
     }
     free(nmBak);
 
