@@ -4,6 +4,10 @@
 
 #define GetNumberParam(p, r) if (isNum(p)) r = mp_get_i32(num((p))); else r = 0;
 
+#define NumberParam(c, p, r) cell c; int r; Push(c, EVAL(CONTEXT_PTR, p)); if (isNum(data(c))) r = mp_get_i32(num((data(c)))); else r = 0;
+#define StringParam(p, r) int r; if (isNum(p)) r = mp_get_i32(num((p))); else r = 0;
+
+
 void drawPixel(SDL_Surface *surface, int x, int y, SDL_Color color)
 {
     // map color to screen color
@@ -5394,7 +5398,7 @@ static const unsigned char fontdata_10x18[] =
 };
 
 
-void writeChar(int x, int y, int c, int magnification)
+void writeChar(int x, int y, int fr, int fg, int fb, int br, int bg, int bb, int c, int magnification)
 {
     int fontIndex = c * (2 * 18);
 
@@ -5411,11 +5415,11 @@ void writeChar(int x, int y, int c, int magnification)
             {
                 if (byte & 0x80)
                 {
-                    SDL_SetRenderDrawColor(LISP_SDL_RENDERER, 255, 255, 255, SDL_ALPHA_OPAQUE);
+                    SDL_SetRenderDrawColor(LISP_SDL_RENDERER, fr, fg, fb, SDL_ALPHA_OPAQUE);
                 }
                 else
                 {
-                    SDL_SetRenderDrawColor(LISP_SDL_RENDERER, 255, 0, 0, SDL_ALPHA_OPAQUE);
+                    SDL_SetRenderDrawColor(LISP_SDL_RENDERER, br, bg, bb, SDL_ALPHA_OPAQUE);
                 }
                 SDL_RenderDrawPoint(LISP_SDL_RENDERER,  x+(j*magnification)+k, y+(i*magnification)+k);
             }
@@ -5427,17 +5431,25 @@ void writeChar(int x, int y, int c, int magnification)
 
 any lispsdlWriteString(Context *CONTEXT_PTR, any ex)
 {
-    cell cx, cy, ct, cfr, cfg, cfb, cbr, cbg, cbb;
-    int x, y, fr, fg, fb, br, bg, bb;
+    cell ct;
 
     ex = cdr(ex);
-    any px = EVAL(CONTEXT_PTR, car(ex));
-    Push(cx, px);
-    GetNumberParam(px, x);
+    NumberParam(cx, car(ex), x);
     ex = cdr(ex);
-    any py = EVAL(CONTEXT_PTR, car(ex));
-    Push(cy, py);
-    GetNumberParam(py, y);
+    NumberParam(cy, car(ex), y);
+    ex = cdr(ex);
+    NumberParam(cfr, car(ex), fr);
+    ex = cdr(ex);
+    NumberParam(cfg, car(ex), fg);
+    ex = cdr(ex);
+    NumberParam(cfb, car(ex), fb);
+    ex = cdr(ex);
+    NumberParam(cbr, car(ex), br);
+    ex = cdr(ex);
+    NumberParam(cbg, car(ex), bg);
+    ex = cdr(ex);
+    NumberParam(cbb, car(ex), bb);
+
     ex = cdr(ex);
     any pt = EVAL(CONTEXT_PTR, car(ex));
     int ps = pathSize(CONTEXT_PTR, pt);
@@ -5445,10 +5457,12 @@ any lispsdlWriteString(Context *CONTEXT_PTR, any ex)
     char *nmBak = nm;
     pathString(CONTEXT_PTR, pt, nm);
 
+    drop(cx);
+
     int c;
     while(c = *nm++)
     {
-        writeChar(x, y, c, 2);
+        writeChar(x, y, fr, fg, fb, br, bg, bb, c, 2);
         x+=24;
         printf("%c\n", c);
     }

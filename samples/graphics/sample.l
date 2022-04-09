@@ -42,6 +42,9 @@
     (sdlDelay 200)
     )
 
+(de write (X Y S)
+    (sdlWriteString X Y 255 255 255 0 0 255 S))
+
 
 (loop
     (while (sdlPoll)
