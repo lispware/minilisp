@@ -5428,7 +5428,6 @@ void writeChar(int x, int y, int fr, int fg, int fb, int br, int bg, int bb, int
             byte = byte << 1;
         }
     }
-
 }
 
 any lispsdlWriteString(Context *CONTEXT_PTR, any ex)

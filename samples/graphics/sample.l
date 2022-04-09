@@ -1,5 +1,10 @@
 (setq HEIGHT 1000)
 (setq WIDTH 1000)
+(setq FONT_WIDTH 10)
+(setq FONT_HEIGHT 18)
+(setq MAGNIFICATION 2)
+(setq EDITOR_Y (- HEIGHT (* MAGNIFICATION FONT_HEIGHT)))
+(setq OUTPUT_Y (- HEIGHT (* 3 MAGNIFICATION FONT_HEIGHT)))
 
 (sdlCreateWindow "HELLO" WIDTH HEIGHT 0 0 0)
 
@@ -44,19 +49,22 @@
     (sdlDelay 200)
     (box 100 100 200 0 0 255)
     (sdlPresentRenderer)
-    (sdlDelay 200)
-    )
+    (sdlDelay 200))
 
 (de write (X Y S)
-    (sdlWriteString X Y 255 255 255 0 0 255 2 S))
-
+    (sdlWriteString X Y 255 255 255 0 0 255 MAGNIFICATION S))
 
 (de updateLine (X)
-    (write 10 800 SPACES)
-    (if X (write 10 800 (pack X)))
+    (write 0 EDITOR_Y SPACES)
+    (if X (write 0 EDITOR_Y (pack X)))
     (sdlPresentRenderer))
 
-(write 10 800 SPACES)
+(de updateOutput (X)
+    (write 0 OUTPUT_Y SPACES)
+    (if X (write 0 OUTPUT_Y (pack X)))
+    (sdlPresentRenderer))
+
+(write 0 EDITOR_Y SPACES)
 
 (loop
     (while (sdlPoll)
@@ -66,5 +74,6 @@
 
         (if (sdIsBackspacePressed) (do 1 (setq R (cdr R)) (updateLine (reverse R))))
 
-        (if (sdIsEnterPressed) (do 1 (if R (prinl "ENTER PRESSED: "  (load (pack (reverse R))))) (setq R Nil) (sdlPresentRenderer) ))
+        #(if (sdIsEnterPressed) (do 1 (if R (prinl "ENTER PRESSED: "  (load (pack (reverse R))))) (setq R Nil) (sdlPresentRenderer) ))
+        (if (sdIsEnterPressed) (do 1 (if R (updateOutput (pack (load (pack (reverse R)))))) (setq R Nil) (sdlPresentRenderer) ))
         (if (sdlIsClose) (sdlClose) ))))
