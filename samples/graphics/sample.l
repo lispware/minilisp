@@ -1,14 +1,14 @@
 (setq HEIGHT 1000)
-(setq WIDTH 1000)
+(setq WIDTH 1500)
 (setq FONT_WIDTH 10)
 (setq FONT_HEIGHT 18)
-(setq MAGNIFICATION 2)
+(setq MAGNIFICATION 4)
 (setq EDITOR_Y (- HEIGHT (* MAGNIFICATION FONT_HEIGHT)))
 (setq OUTPUT_Y (- HEIGHT (* 3 MAGNIFICATION FONT_HEIGHT)))
 
 (sdlCreateWindow "HELLO" WIDTH HEIGHT 0 0 0)
 
-(setq SPACES "                                                                                ")
+(setq SPACES (pack (make (do (car (/ WIDTH FONT_WIDTH)) (link " ")))))
 
 (de reverse (L)
     (let R Nil
