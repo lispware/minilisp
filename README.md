@@ -31,7 +31,7 @@ make
 
 Assuming that you have run vcvars64.bat or vcvars32.bat to ensure that Micrsoft C compiler is set in the PATH.
 ```bash
-nmake -f makefile
+nmake -f nmakefile
 ```
 
 #### GNULinux and MacOS / OS X
