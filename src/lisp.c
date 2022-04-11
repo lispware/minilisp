@@ -450,7 +450,6 @@ any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
     any nm, x, y, z;
     word n;
 
-    dump("internBin1");
     x = tree[1];
 
     if (isNil(x))
@@ -473,37 +472,24 @@ any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
 
         if (isNil(cdr(x)))
         {
-            dump("internBin1");
             if (n < 0)
             {
-                dump("internBin2");
                 any xx = consIntern(CONTEXT_PTR, sym, Nil);
-                dump("internBin3");
                 setCARType(xx, PTR_CELL);
-                dump("internBin4");
                 xx = consIntern(CONTEXT_PTR, xx, Nil);
-                dump("internBin5");
                 setCARType(xx, PTR_CELL);
-                dump("internBin6");
                 cdr(x) = xx;
                 setCARType(x, PTR_CELL);
-                dump("internBin7");
                 return sym;
             }
             else
             {
-                dump("internBin8");
                 any xx = consIntern(CONTEXT_PTR, sym, Nil);
-                dump("internBin9");
                 setCARType(xx, PTR_CELL);
-                dump("internBina");
                 xx = consIntern(CONTEXT_PTR, Nil, xx);
-                dump("internBinb");
                 setCARType(xx, PTR_CELL);
-                dump("internBinc");
                 cdr(x) = xx;
                 setCARType(x, PTR_CELL);
-                dump("internBind");
                 return sym;
             }
 
@@ -2841,7 +2827,7 @@ any parse(Context *CONTEXT_PTR, any x, bool skp)
 {
    int c;
    parseFrame *save, parser;
-   void (*getSave)(void);
+   void (*getSave)(Context*);
    cell c1;
 
    save = CONTEXT_PTR->Env.parser;
@@ -3909,17 +3895,16 @@ void printIndex(char *name, void *_MemStart, void *_Mem)
 #endif
 }
 
+#define MEM_SIZE 300
 void setupBuiltinFunctions(any * Mem)
 {
-    int MEM_SIZE_GUESS = 300;
 
-    *Mem = (any)calloc(sizeof(cell), MEM_SIZE_GUESS);
+    *Mem = (any)calloc(sizeof(cell), MEM_SIZE);
 
     any memCell = *Mem, tempCell;
 
     car(memCell) = *Mem;
     cdr(memCell) = *Mem;
-    //memCell->meta.ptr = (any)(PTR_CELL | PTR_CELL << 8);
     setCARType(memCell, PTR_CELL);
 
     memCell++;
@@ -4021,16 +4006,28 @@ void setupBuiltinFunctions(any * Mem)
     WORD_TYPE start = (WORD_TYPE)*Mem;
     MEMS = (end - start)/sizeof(cell);
 
-    if (MEMS > MEM_SIZE_GUESS)
+    if (MEMS > MEM_SIZE)
     {
-        fprintf(stderr, "MEM_SIZE_GUESS is %d; It should be atleast %d\n", MEM_SIZE_GUESS, MEMS);
+        printf("Not enough memory for builtin functions\n");
+        exit(0);
     }
-#if 0 // TODO - is this needed
-    if (MEMS < MEM_SIZE_GUESS)
+}
+
+void addBuiltinFunction(any * Mem, char *fn, FunPtr fptr)
+{
+    any memCell = &((*Mem)[MEMS]);
+
+    AddFunc(memCell, fn, fptr);
+    
+    WORD_TYPE end = (WORD_TYPE)memCell;
+    WORD_TYPE start = (WORD_TYPE)*Mem;
+    MEMS = (end - start)/sizeof(cell);
+
+    if (MEMS > MEM_SIZE)
     {
-        fprintf(stderr, "MEM_SIZE_GUESS is %d; %d is sufficient\n", MEM_SIZE_GUESS, MEMS);
+        printf("Not enough memory for builtin functions\n");
+        exit(0);
     }
-#endif
 }
 
 any addString(any *Mem, any m, char *s)

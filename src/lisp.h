@@ -35,7 +35,6 @@ DEFINITONS
 #define cddddr(x)       (cdr(cdr(cdr(cdr(x)))))
 
 extern int PUSH_POP;
-//void ppp(Context *, char*);
 
 #define data(c)         ((c).car)
 #define Save(c)         (PUSH_POP++, (c).cdr=CONTEXT_PTR->Env.stack, CONTEXT_PTR->Env.stack=&(c), ppp(CONTEXT_PTR, "save\n", c))
@@ -218,6 +217,7 @@ typedef struct _external
     struct _external *(*copy)(Context *, struct _external *);
 } external;
 
+void ppp(Context *, char*, cell);
 
 #if 1
 #define GetType(x) (((any)(x))->type)
@@ -347,6 +347,7 @@ any addKeyVal2(any m, char *s);
 any addKeyVal3(any m, char *s, void *v);
 any addKeyVal4(any m, char *s, WORD_TYPE num);
 void setupBuiltinFunctions(any *);
+void addBuiltinFunction(any * Mem, char *fn, FunPtr fptr);
 void setMark(any cell, int m);
 int getMark(any cell);
 void markAll(Context *CONTEXT_PTR);
