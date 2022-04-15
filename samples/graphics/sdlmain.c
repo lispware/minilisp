@@ -49,15 +49,55 @@ any LISP_SDL_PollEvent(Context *CONTEXT_PTR, any x)
     SDL_Event *event = &LISP_SDL_EVENT;
     if (SDL_PollEvent( event ))
     {
-        //cell c1;
+        cell c1, c2;
 
-        //mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-        //mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
-        //mp_set(n, event->type);
-        //NewNumber(ext, n, r);
-        //Push(c1, r);
+        mp_int *n = (mp_int*)malloc(sizeof(mp_int));
+        mp_err _mp_error = mp_init(n);
+        mp_set(n, event->type);
+        NewNumber(n, r1);
+        Push(c1, r1);
 
-        return T;
+        if (event->type == SDL_WINDOWEVENT)
+        {
+            n = (mp_int*)malloc(sizeof(mp_int));
+            _mp_error = mp_init(n);
+            mp_set(n, event->window.event);
+            NewNumber(n, r2);
+            Push(c2, r2);
+
+            any result = cons(CONTEXT_PTR, data(c1), cons(CONTEXT_PTR, data(c2), Nil));
+            drop(c1);
+            return result;
+        }
+        else if (event->type == SDL_TEXTINPUT)
+        {
+            n = (mp_int*)malloc(sizeof(mp_int));
+            _mp_error = mp_init(n); // TODO handle the errors appropriately
+            mp_set(n, ((char *)event->text.text)[0]);
+            NewNumber(n, r2);
+            Push(c2, r2);
+
+            any result = cons(CONTEXT_PTR, data(c1), cons(CONTEXT_PTR, data(c2), Nil));
+            drop(c1);
+            return result;
+        }
+        else if (event->type == SDL_KEYDOWN || event->type == SDL_KEYUP)
+        {
+            n = (mp_int*)malloc(sizeof(mp_int));
+            _mp_error = mp_init(n);
+            mp_set(n, event->key.keysym.sym);
+            NewNumber(n, r2);
+            Push(c2, r2);
+
+            any result = cons(CONTEXT_PTR, data(c1), cons(CONTEXT_PTR, data(c2), Nil));
+            drop(c1);
+            return result;
+        }
+
+        any result = cons(CONTEXT_PTR, data(c1), Nil);
+
+        drop(c1);
+        return result;
     }
     else
     {
