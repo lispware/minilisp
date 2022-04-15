@@ -10,7 +10,9 @@
 (setq EDITOR_Y (- HEIGHT (* MAGNIFICATION FONT_HEIGHT)))
 (setq OUTPUT_Y (- HEIGHT (* 3 MAGNIFICATION FONT_HEIGHT)))
 
-(SDL_CreateWindow "HELLO" WIDTH HEIGHT 0 0 0)
+(setq WIN (SDL_CreateWindow "HELLO" WIDTH HEIGHT 0 0 0))
+
+(SDL_GetSurface WIN)
 
 (setq SPACES (pack (make (do (car (/ WIDTH FONT_WIDTH)) (link " ")))))
 

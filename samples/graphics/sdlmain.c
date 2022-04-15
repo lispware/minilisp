@@ -5,6 +5,7 @@
 #define GetNumberParam(p, r) if (isNum(p)) r = mp_get_i32(num((p))); else r = 0;
 
 #define NumberParam32(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mp_get_i32(num((P))); }
+#define NumberParam64(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mp_get_i64(num((P))); }
 #define StringParam(P, R) char *R; { any __p = EVAL(CONTEXT_PTR, P); R = (char*)malloc(pathSize(CONTEXT_PTR, __p )); pathString(CONTEXT_PTR, __p, R);}
 
 void drawPixel(SDL_Surface *surface, int x, int y, SDL_Color color)
@@ -236,6 +237,26 @@ any LISP_SDL_CreateWindow(Context *CONTEXT_PTR, any ex)
     SDL_RenderPresent(LISP_SDL_RENDERER);
 
     SDL_StartTextInput();
+    
+    mp_int *id = (mp_int*)malloc(sizeof(mp_int));
+    mp_err _mp_error = mp_init(id);
+    mp_set_i64(id, LISP_SDL_WINDOW);
+
+    cell c1;
+    NewNumber(ext, id, idr);
+    Push(c1, idr);
+
+
+    return idr;
+}
+
+any LISP_SDL_GetSurface(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam64(word, WIN, car(ex));
+
+    printf("WIN = %p\n", WIN);
+    printf("HND = %p\n", LISP_SDL_WINDOW);
 
     return T;
 }
@@ -5462,6 +5483,7 @@ int main(int argc, char* av[])
     setupBuiltinFunctions(&CONTEXT_PTR->Mem);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_Init", LISP_SDL_Init);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_CreateWindow", LISP_SDL_CreateWindow);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_GetSurface", LISP_SDL_GetSurface);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_PollEvent", LISP_SDL_PollEvent);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlIsClose", lispsdlIsCloseEvent);
