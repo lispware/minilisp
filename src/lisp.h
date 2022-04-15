@@ -53,7 +53,7 @@ extern int PUSH_POP;
 #define doQuote_D (&(CONTEXT_PTR->Mem[11]))
 
 #ifndef CELLS
-#define CELLS (1024)
+#define CELLS (1)
 #endif
 
 #if INTPTR_MAX == INT32_MAX
@@ -236,16 +236,16 @@ void ppp(Context *, char*, cell);
 #define isSym(x)        ((GetType(x) == PTR_CELL) && GetType(car(x)) == BIN)
 #define isNum(x)        ((GetType(x) == EXT) && (((external*)(((any)car(x))))->type == EXT_NUM))
 
-#define NewNumber(EXTRA_PARAM, MATH_NUM, R)  external *EXTRA_PARAM = (external *)malloc(sizeof(external));\
+#define NewNumber(MATH_NUM, R)  any R;{external *EXTRA_PARAM = (external *)malloc(sizeof(external));\
                                 EXTRA_PARAM->type = EXT_NUM;\
                                 EXTRA_PARAM->release = releaseExtNum;\
                                 EXTRA_PARAM->print = printExtNum;\
                                 EXTRA_PARAM->copy = copyExtNum;\
                                 EXTRA_PARAM->equal = equalExtNum;\
                                 EXTRA_PARAM->pointer = (void*)(MATH_NUM);\
-                                any R = cons(CONTEXT_PTR, Nil, Nil);\
+                                R = cons(CONTEXT_PTR, Nil, Nil);\
                                 car(R) = (any)EXTRA_PARAM;\
-                                setCARType(R, EXT);
+                                setCARType(R, EXT);}
 
 
 /* Error checking */
