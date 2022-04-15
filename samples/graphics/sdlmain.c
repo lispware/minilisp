@@ -2,11 +2,15 @@
 #include <SDL.h>
 #include <stdio.h>
 
-#define GetNumberParam(p, r) if (isNum(p)) r = mp_get_i32(num((p))); else r = 0;
-
-#define NumberParam32(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mp_get_i32(num((P))); }
-#define NumberParam64(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mp_get_i64(num((P))); }
+#if INTPTR_MAX == INT32_MAX
+#define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mp_get_i32(num((P))); }
+#elif INTPTR_MAX == INT64_MAX
+#define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mp_get_i64(num((P))); }
+#else
+    #error "Unsupported bit width"
+#endif
 #define StringParam(P, R) char *R; { any __p = EVAL(CONTEXT_PTR, P); R = (char*)malloc(pathSize(CONTEXT_PTR, __p )); pathString(CONTEXT_PTR, __p, R);}
+#define GetNumberParam(p, r) if (isNum(p)) r = mp_get_i32(num((p))); else r = 0;
 
 void drawPixel(SDL_Surface *surface, int x, int y, SDL_Color color)
 {
@@ -116,39 +120,21 @@ any lispsdlIsBackspacePressed(Context *CONTEXT_PTR, any x)
 
 any lispsdlDrawLine(Context *CONTEXT_PTR, any ex)
 {
-    cell cx1, cy1, cx2, cy2, cr, cg, cb;
-    int x1, y1, x2, y2, r, g, b;
+    ex = cdr(ex);
+    NumberParam(word, x1, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, y1, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, x2, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, y2, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, r, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, g, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, b, car(ex));
 
-    ex = cdr(ex);
-    any px1 = EVAL(CONTEXT_PTR, car(ex));
-    Push(cx1, px1);
-    GetNumberParam(px1, x1);
-    ex = cdr(ex);
-    any py1 = EVAL(CONTEXT_PTR, car(ex));
-    Push(cy1, py1);
-    GetNumberParam(py1, y1);
-    ex = cdr(ex);
-    any px2 = EVAL(CONTEXT_PTR, car(ex));
-    Push(cx2, px2);
-    GetNumberParam(px2, x2);
-    ex = cdr(ex);
-    any py2 = EVAL(CONTEXT_PTR, car(ex));
-    Push(cy2, py2);
-    GetNumberParam(py2, y2);
-    ex = cdr(ex);
-    any pr = EVAL(CONTEXT_PTR, car(ex));
-    Push(cr, pr);
-    GetNumberParam(pr, r);
-    ex = cdr(ex);
-    any pg = EVAL(CONTEXT_PTR, car(ex));
-    Push(cg, pg);
-    GetNumberParam(pg, g);
-    ex = cdr(ex);
-    any pb = EVAL(CONTEXT_PTR, car(ex));
-    Push(cb, pb);
-    GetNumberParam(pb, b);
-
-    drop(cx1);
 
     SDL_SetRenderDrawColor(LISP_SDL_RENDERER, r, g, b, SDL_ALPHA_OPAQUE);
     SDL_RenderDrawLine(LISP_SDL_RENDERER,  x1, y1, x2, y2);
@@ -205,9 +191,9 @@ any LISP_SDL_CreateWindow(Context *CONTEXT_PTR, any ex)
     ex = cdr(ex);
     StringParam(car(ex), title);
     ex = cdr(ex);
-    NumberParam32(int, x, car(ex));
+    NumberParam(word, x, car(ex));
     ex = cdr(ex);
-    NumberParam32(int, y, car(ex));
+    NumberParam(word, y, car(ex));
 
     LISP_SDL_WINDOW = SDL_CreateWindow
         (
@@ -253,7 +239,7 @@ any LISP_SDL_CreateWindow(Context *CONTEXT_PTR, any ex)
 any LISP_SDL_GetSurface(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
-    NumberParam64(word, WIN, car(ex));
+    NumberParam(word, WIN, car(ex));
 
     printf("WIN = %p\n", WIN);
     printf("HND = %p\n", LISP_SDL_WINDOW);
@@ -5423,23 +5409,23 @@ void writeChar(int x, int y, int fr, int fg, int fb, int br, int bg, int bb, int
 any LISP_WriteString(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
-    NumberParam32(int, x, car(ex));
+    NumberParam(int, x, car(ex));
     ex = cdr(ex);
-    NumberParam32(int, y, car(ex));
+    NumberParam(int, y, car(ex));
     ex = cdr(ex);
-    NumberParam32(int, fr, car(ex));
+    NumberParam(int, fr, car(ex));
     ex = cdr(ex);
-    NumberParam32(int, fg, car(ex));
+    NumberParam(int, fg, car(ex));
     ex = cdr(ex);
-    NumberParam32(int, fb, car(ex));
+    NumberParam(int, fb, car(ex));
     ex = cdr(ex);
-    NumberParam32(int, br, car(ex));
+    NumberParam(int, br, car(ex));
     ex = cdr(ex);
-    NumberParam32(int, bg, car(ex));
+    NumberParam(int, bg, car(ex));
     ex = cdr(ex);
-    NumberParam32(int, bb, car(ex));
+    NumberParam(int, bb, car(ex));
     ex = cdr(ex);
-    NumberParam32(int, m, car(ex));
+    NumberParam(int, m, car(ex));
 
     ex = cdr(ex);
     StringParam(car(ex), nm);
@@ -5466,7 +5452,7 @@ any LISP_WriteString(Context *CONTEXT_PTR, any ex)
 any LISP_SDL_Init(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
-    NumberParam32(int, mode, car(ex));
+    NumberParam(int, mode, car(ex));
     if (SDL_Init(mode) < 0)
     {
         fprintf(stderr, "%s\n", SDL_GetError());
