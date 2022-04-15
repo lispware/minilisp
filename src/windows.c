@@ -326,7 +326,7 @@ any pltGetThreadId(Context *CONTEXT_PTR)
     mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
     mp_set(n, GetCurrentThreadId());
 
-    NewNumber(ext, n, r);
+    NewNumber( n, r);
     return r;
 }
 

@@ -652,7 +652,7 @@ any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
     _mp_error = mp_read_radix(BIGNUM, str, base);
     free(str);
 
-    NewNumber(ext, BIGNUM, r);
+    NewNumber( BIGNUM, r);
     return r;
 
 returnNULL:
@@ -1208,7 +1208,7 @@ any doCmp(Context *CONTEXT_PTR, any x)
             mp_int *id = (mp_int*)malloc(sizeof(mp_int));
             _mp_error = mp_init(id); // TODO handle the errors appropriately
             mp_set_i32(id, r);
-            NewNumber(ext, id, idr);
+            NewNumber( id, idr);
             return idr;
         }
 
@@ -1221,7 +1221,7 @@ any doCmp(Context *CONTEXT_PTR, any x)
     _mp_error = mp_init(id); // TODO handle the errors appropriately
     mp_set_i32(id, 0);
 
-    NewNumber(ext, id, idr);
+    NewNumber( id, idr);
     return idr;
 }
 
@@ -1534,7 +1534,7 @@ any mkNum(Context *CONTEXT_PTR, word n)
     _mp_error = mp_init(BIGNUM);
     mp_set(BIGNUM, n);
 
-    NewNumber(ext, BIGNUM, r);
+    NewNumber( BIGNUM, r);
     return r;
 }
 
@@ -1666,7 +1666,7 @@ any doFor(Context *CONTEXT_PTR, any x)
                 _mp_error = mp_copy(num(f->bnd[0].sym->cdr), n);
                 _mp_error = mp_incr(n);
 
-                NewNumber(ext, n, r);
+                NewNumber( n, r);
                 f->bnd[0].sym->cdr  = r;
                 setCARType(f->bnd[0].sym, PTR_CELL);
             }
@@ -1842,7 +1842,7 @@ any doSub(Context *CONTEXT_PTR, any ex)
         _mp_error = mp_init(id); // TODO handle the errors appropriately
         mp_set_i32(id, 0);
 
-        NewNumber(ext, id, idr);
+        NewNumber( id, idr);
         return idr;
     }
 
@@ -1852,7 +1852,7 @@ any doSub(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_init(n); // TODO handle the errors appropriately
     _mp_error = mp_copy(num(data(c1)), n);
 
-    NewNumber(ext, n, r);
+    NewNumber( n, r);
     Push(c1, r);
 
     while (!isNil(x = cdr(x)))
@@ -1906,10 +1906,10 @@ any doDiv(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_init(d);
     _mp_error = mp_div(num(data(c1)), num(data(c2)), c, d);
 
-    NewNumber(ext1, c, r1);
+    NewNumber( c, r1);
     data(c1) = r1;
 
-    NewNumber(ext2, d, r2);
+    NewNumber( d, r2);
     data(c2) = r2;
 
     any result = cons(CONTEXT_PTR, data(c1), cons(CONTEXT_PTR, data(c2), Nil));
@@ -1930,7 +1930,7 @@ any doMul(Context *CONTEXT_PTR, any ex)
         mp_int *id = (mp_int*)malloc(sizeof(mp_int));
         _mp_error = mp_init(id); // TODO handle the errors appropriately
         mp_set_i32(id, 1);
-        NewNumber(ext, id, idr);
+        NewNumber( id, idr);
         return idr;
     }
 
@@ -1940,7 +1940,7 @@ any doMul(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_init(n); // TODO handle the errors appropriately
     _mp_error = mp_copy(num(data(c1)), n);
 
-    NewNumber(ext, n, r);
+    NewNumber( n, r);
     Push(c1, r);
 
     while (!isNil(x = cdr(x)))
@@ -1988,7 +1988,7 @@ any doPow(Context *CONTEXT_PTR, any ex)
 
     }
 
-    NewNumber(ext, n, r);
+    NewNumber( n, r);
     return r;
 }
 
@@ -2022,7 +2022,7 @@ any doMod(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_init(c);
     _mp_error = mp_div(num(data(c1)), num(data(c2)), NULL, c);
 
-    NewNumber(ext, c, r1);
+    NewNumber( c, r1);
     data(c1) = r1;
 
     return Pop(c1);
@@ -2045,7 +2045,7 @@ any doBinNot(Context *CONTEXT_PTR, any ex)
 
     _mp_error = mp_complement(n, n);
 
-    NewNumber(ext, n, r);
+    NewNumber( n, r);
     return r;
 }
 
@@ -2074,7 +2074,7 @@ any doBinAnd(Context *CONTEXT_PTR, any ex)
 
     }
 
-    NewNumber(ext, n, r);
+    NewNumber( n, r);
     return r;
 }
 
@@ -2103,7 +2103,7 @@ any doBinOr(Context *CONTEXT_PTR, any ex)
 
     }
 
-    NewNumber(ext, n, r);
+    NewNumber( n, r);
     return r;
 }
 
@@ -2132,7 +2132,7 @@ any doBinXor(Context *CONTEXT_PTR, any ex)
 
     }
 
-    NewNumber(ext, n, r);
+    NewNumber( n, r);
     return r;
 }
 
@@ -2167,7 +2167,7 @@ any doBinRShift(Context *CONTEXT_PTR, any ex)
         _mp_error = mp_mul_2d(num(p2), s, m);
     }
 
-    NewNumber(ext, m, r);
+    NewNumber( m, r);
 
     return r;
 }
@@ -2258,7 +2258,7 @@ any doAdd(Context *CONTEXT_PTR, any ex)
         mp_int *id = (mp_int*)malloc(sizeof(mp_int));
         _mp_error = mp_init(id); // TODO handle the errors appropriately
         mp_set_i32(id, 0);
-        NewNumber(ext, id, idr);
+        NewNumber( id, idr);
         return idr;
     }
 
@@ -2268,7 +2268,7 @@ any doAdd(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_init(n); // TODO handle the errors appropriately
     _mp_error = mp_copy(num(data(c1)), n);
 
-    NewNumber(ext, n, r);
+    NewNumber( n, r);
     Push(c1, r);
 
     while (!isNil(x = cdr(x)))
@@ -2307,7 +2307,7 @@ any doInc(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_init(n); // TODO handle the errors appropriately
     _mp_error = mp_add_d(num(data(c1)), 1, n);
 
-    NewNumber(ext, n, r);
+    NewNumber( n, r);
 
     return r;
 }
@@ -2329,7 +2329,7 @@ any doDec(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_init(n); // TODO handle the errors appropriately
     _mp_error = mp_sub_d(num(data(c1)), 1, n);
 
-    NewNumber(ext, n, r);
+    NewNumber( n, r);
 
     return r;
 }
@@ -2351,7 +2351,7 @@ any doRandom(Context *CONTEXT_PTR, any ex)
 
     _mp_error = mp_rand(n, s);
 
-    NewNumber(ext, n, r);
+    NewNumber( n, r);
     return r;
 }
 
@@ -2365,7 +2365,7 @@ any copyNum(Context *CONTEXT_PTR, any n)
     _mp_error = mp_init(BIGNUM);
     _mp_error = mp_copy(num(n), BIGNUM);
 
-    NewNumber(ext, BIGNUM, r);
+    NewNumber( BIGNUM, r);
     return r;
 }
 
@@ -2464,7 +2464,7 @@ any indx(Context *CONTEXT_PTR, any x, any y)
     {
         if (0 == equal(CONTEXT_PTR, x, car(y)))
         {
-            NewNumber(ext, n, r);
+            NewNumber( n, r);
             return r;
         }
         _mp_error = mp_incr(n);
@@ -2591,7 +2591,7 @@ any doLength(Context *CONTEXT_PTR, any x)
         return Nil;
     }
 
-    NewNumber(ext, r, l);
+    NewNumber( r, l);
     return l;
 }
 
@@ -3134,7 +3134,7 @@ any doChar(Context *CONTEXT_PTR, any ex)
         mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
         mp_set(n, firstByte(CONTEXT_PTR, x));
 
-        NewNumber(ext, n, r);
+        NewNumber( n, r);
         return r;
     }
     return Nil;
@@ -3177,7 +3177,7 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
         _mp_error = mp_read_radix(BIGNUM, str, base);
         free(str);
 
-        NewNumber(ext, BIGNUM, r);
+        NewNumber( BIGNUM, r);
         return r;
     }
 
@@ -3237,7 +3237,7 @@ any doRd(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_unpack(n, count, order, 1, endianess, 0, (const void *)buf);
     free(buf);
 
-    NewNumber(ext, n, r);
+    NewNumber( n, r);
     cell c1, c2;
     Push(c1, r);
     Push(c2, cons(CONTEXT_PTR, EndReached? Nil: T, Nil));
@@ -3266,7 +3266,7 @@ any doWr(Context *CONTEXT_PTR, any ex)
         _mp_error = mp_init(n); // TODO handle the errors appropriately
         mp_set(n, 1);
 
-        NewNumber(ext, n, r);
+        NewNumber( n, r);
         return r;
     }
 
@@ -3299,7 +3299,7 @@ any doWr(Context *CONTEXT_PTR, any ex)
     _mp_error = mp_init(n); // TODO handle the errors appropriately
     mp_set(n, written);
 
-    NewNumber(ext, n, r);
+    NewNumber( n, r);
     return r;
 }
 
@@ -3392,7 +3392,7 @@ any doCall(Context *CONTEXT_PTR, any ex)
     mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
     mp_set_i32(n, ret);
 
-    NewNumber(e, n, r);
+    NewNumber( n, r);
 
     return r;
 }
@@ -3895,7 +3895,7 @@ void printIndex(char *name, void *_MemStart, void *_Mem)
 #endif
 }
 
-#define MEM_SIZE 300
+#define MEM_SIZE 500
 void setupBuiltinFunctions(any * Mem)
 {
 

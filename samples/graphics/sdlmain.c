@@ -46,8 +46,17 @@ SDL_Renderer* LISP_SDL_RENDERER = NULL;
 
 any LISP_SDL_PollEvent(Context *CONTEXT_PTR, any x)
 {
-    if (SDL_PollEvent( &LISP_SDL_EVENT ))
+    SDL_Event *event = &LISP_SDL_EVENT;
+    if (SDL_PollEvent( event ))
     {
+        //cell c1;
+
+        //mp_int *n = (mp_int*)malloc(sizeof(mp_int));
+        //mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
+        //mp_set(n, event->type);
+        //NewNumber(ext, n, r);
+        //Push(c1, r);
+
         return T;
     }
     else
@@ -77,7 +86,7 @@ any lispsdlIsTextInput(Context *CONTEXT_PTR, any x)
         mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
         mp_set(n, x);
 
-        NewNumber(ext, n, r);
+        NewNumber(n, r);
 
         return r;
     }
@@ -229,7 +238,7 @@ any LISP_SDL_CreateWindow(Context *CONTEXT_PTR, any ex)
     mp_set_i64(id, LISP_SDL_WINDOW);
 
     cell c1;
-    NewNumber(ext, id, idr);
+    NewNumber(id, idr);
     Push(c1, idr);
 
 
@@ -240,9 +249,6 @@ any LISP_SDL_GetSurface(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
     NumberParam(word, WIN, car(ex));
-
-    printf("WIN = %p\n", WIN);
-    printf("HND = %p\n", LISP_SDL_WINDOW);
 
     return T;
 }
