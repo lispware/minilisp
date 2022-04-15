@@ -4,9 +4,8 @@
 
 #define GetNumberParam(p, r) if (isNum(p)) r = mp_get_i32(num((p))); else r = 0;
 
-#define NumberParam(c, p, r) cell c; int r; Push(c, EVAL(CONTEXT_PTR, p)); if (isNum(data(c))) r = mp_get_i32(num((data(c)))); else r = 0;
-#define StringParam(p, r) int r; if (isNum(p)) r = mp_get_i32(num((p))); else r = 0;
-
+#define NumberParam32(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mp_get_i32(num((P))); }
+#define StringParam(P, R) char *R; { any __p = EVAL(CONTEXT_PTR, P); R = (char*)malloc(pathSize(CONTEXT_PTR, __p )); pathString(CONTEXT_PTR, __p, R);}
 
 void drawPixel(SDL_Surface *surface, int x, int y, SDL_Color color)
 {
@@ -40,7 +39,7 @@ SDL_Window* LISP_SDL_WINDOW = NULL;
 SDL_Surface* LISP_SDL_SURFACE = NULL;
 SDL_Renderer* LISP_SDL_RENDERER = NULL;
 
-any lispsdlGetEvent(Context *CONTEXT_PTR, any x)
+any LISP_SDL_PollEvent(Context *CONTEXT_PTR, any x)
 {
     if (SDL_PollEvent( &LISP_SDL_EVENT ))
     {
@@ -200,49 +199,18 @@ any lispsdlClearWindow(Context *CONTEXT_PTR, any ex)
     return Nil;
 }
 
-any lispsdlCreateWindow(Context *CONTEXT_PTR, any ex)
+any LISP_SDL_CreateWindow(Context *CONTEXT_PTR, any ex)
 {
-    cell c1, c2, c3, c4, c5, c6;
     ex = cdr(ex);
-    any p1 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c1, p1);
-
+    StringParam(car(ex), title);
     ex = cdr(ex);
-    any p2 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c2, p2);
-
+    NumberParam32(int, x, car(ex));
     ex = cdr(ex);
-    any p3 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c3, p3);
-
-    ex = cdr(ex);
-    any p4 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c4, p4);
-
-    ex = cdr(ex);
-    any p5 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c5, p5);
-
-    ex = cdr(ex);
-    any p6 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c6, p6);
-
-    int ps = pathSize(CONTEXT_PTR, p1);
-
-    char *nm = (char*)malloc(ps);
-    pathString(CONTEXT_PTR, p1, nm);
-
-    int x, y, r, g, b;
-    GetNumberParam(p2, x);
-    GetNumberParam(p3, y);
-    GetNumberParam(p4, r);
-    GetNumberParam(p5, g);
-    GetNumberParam(p6, b);
-    drop(c1);
+    NumberParam32(int, y, car(ex));
 
     LISP_SDL_WINDOW = SDL_CreateWindow
         (
-         nm,
+         title,
          SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
          x, y,
          SDL_WINDOW_SHOWN
@@ -263,7 +231,7 @@ any lispsdlCreateWindow(Context *CONTEXT_PTR, any ex)
     }
 
     LISP_SDL_SURFACE = SDL_GetWindowSurface(LISP_SDL_WINDOW);
-    SDL_SetRenderDrawColor(LISP_SDL_RENDERER, r, g, b, SDL_ALPHA_OPAQUE);
+    SDL_SetRenderDrawColor(LISP_SDL_RENDERER, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(LISP_SDL_RENDERER);
     SDL_RenderPresent(LISP_SDL_RENDERER);
 
@@ -5431,37 +5399,35 @@ void writeChar(int x, int y, int fr, int fg, int fb, int br, int bg, int bb, int
     }
 }
 
-any lispsdlWriteString(Context *CONTEXT_PTR, any ex)
+any LISP_WriteString(Context *CONTEXT_PTR, any ex)
 {
-    cell ct;
+    ex = cdr(ex);
+    NumberParam32(int, x, car(ex));
+    ex = cdr(ex);
+    NumberParam32(int, y, car(ex));
+    ex = cdr(ex);
+    NumberParam32(int, fr, car(ex));
+    ex = cdr(ex);
+    NumberParam32(int, fg, car(ex));
+    ex = cdr(ex);
+    NumberParam32(int, fb, car(ex));
+    ex = cdr(ex);
+    NumberParam32(int, br, car(ex));
+    ex = cdr(ex);
+    NumberParam32(int, bg, car(ex));
+    ex = cdr(ex);
+    NumberParam32(int, bb, car(ex));
+    ex = cdr(ex);
+    NumberParam32(int, m, car(ex));
 
     ex = cdr(ex);
-    NumberParam(cx, car(ex), x);
-    ex = cdr(ex);
-    NumberParam(cy, car(ex), y);
-    ex = cdr(ex);
-    NumberParam(cfr, car(ex), fr);
-    ex = cdr(ex);
-    NumberParam(cfg, car(ex), fg);
-    ex = cdr(ex);
-    NumberParam(cfb, car(ex), fb);
-    ex = cdr(ex);
-    NumberParam(cbr, car(ex), br);
-    ex = cdr(ex);
-    NumberParam(cbg, car(ex), bg);
-    ex = cdr(ex);
-    NumberParam(cbb, car(ex), bb);
-    ex = cdr(ex);
-    NumberParam(cm, car(ex), m);
-
-    ex = cdr(ex);
-    any pt = EVAL(CONTEXT_PTR, car(ex));
-    int ps = pathSize(CONTEXT_PTR, pt);
-    char *nm = (char*)malloc(ps);
+    StringParam(car(ex), nm);
     char *nmBak = nm;
-    pathString(CONTEXT_PTR, pt, nm);
 
-    drop(cx);
+    //any pt = EVAL(CONTEXT_PTR, car(ex));
+    //int ps = pathSize(CONTEXT_PTR, pt);
+    //char *nm = (char*)malloc(ps);
+    //pathString(CONTEXT_PTR, pt, nm);
 
     int c;
     while(c = *nm++)
@@ -5476,13 +5442,28 @@ any lispsdlWriteString(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
+any LISP_SDL_Init(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam32(int, mode, car(ex));
+    if (SDL_Init(mode) < 0)
+    {
+        fprintf(stderr, "%s\n", SDL_GetError());
+        return Nil;
+    }
+
+    return T;
+}
+
 #undef main
 int main(int argc, char* av[])
 {
     Context *CONTEXT_PTR = &LISP_CONTEXT;
     setupBuiltinFunctions(&CONTEXT_PTR->Mem);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlCreateWindow", lispsdlCreateWindow);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlPoll", lispsdlGetEvent);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_Init", LISP_SDL_Init);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_CreateWindow", LISP_SDL_CreateWindow);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_PollEvent", LISP_SDL_PollEvent);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlIsClose", lispsdlIsCloseEvent);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlClose", lispsdlCloseWindow);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlIsTextInput", lispsdlIsTextInput);
@@ -5492,7 +5473,7 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlClearWindow", lispsdlClearWindow);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlDrawLine", lispsdlDrawLine);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlDelay", lispsdlDelay);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlWriteString", lispsdlWriteString);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlWriteString", LISP_WriteString);
 
     initialize_context(CONTEXT_PTR);
     av++;
@@ -5501,12 +5482,6 @@ int main(int argc, char* av[])
     CONTEXT_PTR->OutFile = stdout, CONTEXT_PTR->Env.put = putStdout;
     CONTEXT_PTR->ApplyArgs = Nil;
     CONTEXT_PTR->ApplyBody = Nil;
-
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
-    {
-        fprintf(stderr, "%s\n", SDL_GetError());
-        return 1;
-    }
 
     loadAll(CONTEXT_PTR, NULL);
 

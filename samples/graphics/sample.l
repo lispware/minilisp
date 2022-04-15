@@ -1,3 +1,7 @@
+(load "SDL.l")
+
+(SDL_Init -1)
+
 (setq HEIGHT 1000)
 (setq WIDTH 1500)
 (setq FONT_WIDTH 10)
@@ -6,7 +10,7 @@
 (setq EDITOR_Y (- HEIGHT (* MAGNIFICATION FONT_HEIGHT)))
 (setq OUTPUT_Y (- HEIGHT (* 3 MAGNIFICATION FONT_HEIGHT)))
 
-(sdlCreateWindow "HELLO" WIDTH HEIGHT 0 0 0)
+(SDL_CreateWindow "HELLO" WIDTH HEIGHT 0 0 0)
 
 (setq SPACES (pack (make (do (car (/ WIDTH FONT_WIDTH)) (link " ")))))
 
@@ -67,7 +71,7 @@
 (write 0 EDITOR_Y SPACES)
 
 (loop
-    (while (sdlPoll)
+    (while (SDL_PollEvent)
         (let X (sdlIsTextInput)
             (if X (updateLine (reverse (setq R (cons (char X) R)))) )
 
