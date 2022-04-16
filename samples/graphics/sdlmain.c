@@ -5472,11 +5472,6 @@ any LISP_WriteString(Context *CONTEXT_PTR, any ex)
     StringParam(car(ex), nm);
     char *nmBak = nm;
 
-    //any pt = EVAL(CONTEXT_PTR, car(ex));
-    //int ps = pathSize(CONTEXT_PTR, pt);
-    //char *nm = (char*)malloc(ps);
-    //pathString(CONTEXT_PTR, pt, nm);
-
     int c;
     while(c = *nm++)
     {
