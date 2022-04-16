@@ -4540,15 +4540,15 @@ any doThread(Context *CONTEXT_PTR_ORIG, any x)
 
     // Clear out the items that need to be moved to the new thread
     x = cadr(x);
-    x = EVAL(CONTEXT_PTR_ORIG, x);
+    any m = EVAL(CONTEXT_PTR_ORIG, car(x));
     do
     {
-        any m = EVAL(CONTEXT_PTR_ORIG, car(x));
         if (GetType(m) == EXT)
         {
             car(m) = NULL;
         }
         x = cdr(x);
+        m = EVAL(CONTEXT_PTR_ORIG, car(x));
     }
     while(x != (&(CONTEXT_PTR_ORIG->Mem[0])));
 
