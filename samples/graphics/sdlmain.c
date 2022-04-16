@@ -119,6 +119,29 @@ any LISP_SDL_Quit(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
+any LISP_SDL_RenderDrawLine(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, x1, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, y1, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, x2, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, y2, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, r, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, g, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, b, car(ex));
+
+    SDL_RenderDrawLine(renderer,  x1, y1, x2, y2);
+    return;
+}
+
 any lispsdlDrawLine(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
@@ -143,9 +166,11 @@ any lispsdlDrawLine(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
-any lispsdlPresentRenderer(Context *CONTEXT_PTR, any ex)
+any LISP_SDL_RendererPresent(Context *CONTEXT_PTR, any ex)
 {
-    SDL_RenderPresent(LISP_SDL_RENDERER);
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
+    SDL_RenderPresent(renderer);
     return T;
 }
 
@@ -5480,9 +5505,10 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_Quit", LISP_SDL_Quit);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_DestroyWindow", LISP_SDL_DestroyWindow);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_CreateRenderer", LISP_SDL_CreateRenderer);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RenderDrawLine", LISP_SDL_RenderDrawLine);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RendererPresent", LISP_SDL_RendererPresent);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
 
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlPresentRenderer", lispsdlPresentRenderer);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlClearWindow", lispsdlClearWindow);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlDrawLine", lispsdlDrawLine);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlDelay", lispsdlDelay);

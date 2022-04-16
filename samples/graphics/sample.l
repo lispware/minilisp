@@ -11,7 +11,7 @@
 (setq OUTPUT_Y (- HEIGHT (* 3 MAGNIFICATION FONT_HEIGHT)))
 
 (setq WIN (SDL_CreateWindow "HELLO" WIDTH HEIGHT 0 0 0))
-(SDL_CreateRenderer WIN -1 0)
+(setq RENDERER (SDL_CreateRenderer WIN -1 0))
 
 (SDL_GetSurface WIN)
 
@@ -43,15 +43,15 @@
 (de clear (R G B)
     (let CF '((C) (if C C 255))
      (sdlClearWindow (CF R) (CF G) (CF B)))
-    (sdlPresentRenderer))
+    (SDL_RendererPresent RENDERER))
 
-(de update () (sdlPresentRenderer))
+(de update () (SDL_RendererPresent RENDERER))
 
 (de demo ()
     (clear 0 0 255)
     (for I (list (255 0 0) (0 255 0) (255 255 255))
         (box 100 100 200 (car I) (car (cdr I)) (car (cdr (cdr I))))
-        (sdlPresentRenderer)
+        (SDL_RendererPresent RENDERER)
         (sdlDelay 400)))
 
 (de write (X Y S)
@@ -60,12 +60,12 @@
 (de updateLine (X)
     (write 0 EDITOR_Y SPACES)
     (if X (write 0 EDITOR_Y (pack X)))
-    (sdlPresentRenderer))
+    (SDL_RendererPresent RENDERER))
 
 (de updateOutput (X)
     (write 0 OUTPUT_Y SPACES)
     (if X (write 0 OUTPUT_Y (pack X)))
-    (sdlPresentRenderer))
+    (SDL_RendererPresent RENDERER))
 
 (write 0 EDITOR_Y SPACES)
 
@@ -83,7 +83,7 @@
     (if (= EVENT SDLK_BACKSPACE)
         (do 1 (setq R (cdr R)) (updateLine (reverse R))))
     (if (= EVENT SDLK_RETURN)
-        (do 1 (if R (updateOutput (pack (load (pack (reverse R)))))) (setq R Nil) (sdlPresentRenderer))))
+        (do 1 (if R (updateOutput (pack (load (pack (reverse R)))))) (setq R Nil) (SDL_RendererPresent RENDERER))))
 
 (loop
     (while (SDL_PollEvent)
