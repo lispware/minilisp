@@ -105,18 +105,6 @@ any LISP_SDL_PollEvent(Context *CONTEXT_PTR, any x)
     }
 }
 
-any lispsdlIsCloseEvent(Context *CONTEXT_PTR, any x)
-{
-    if (LISP_SDL_EVENT.type == SDL_WINDOWEVENT && LISP_SDL_EVENT.window.event == SDL_WINDOWEVENT_CLOSE)
-    {
-        return T;
-    }
-    else
-    {
-        return Nil;
-    }
-}
-
 any lispsdlIsTextInput(Context *CONTEXT_PTR, any x)
 {
     if (LISP_SDL_EVENT.type == SDL_TEXTINPUT)
@@ -5518,7 +5506,6 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_GetSurface", LISP_SDL_GetSurface);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_PollEvent", LISP_SDL_PollEvent);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlIsClose", lispsdlIsCloseEvent);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlClose", lispsdlCloseWindow);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlIsTextInput", lispsdlIsTextInput);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdIsEnterPressed", lispsdlIsEnterPressed);

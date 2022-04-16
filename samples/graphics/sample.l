@@ -74,12 +74,20 @@
 
 (loop
     (while (SDL_PollEvent)
-        (let X (sdlIsTextInput)
-            (if X (updateLine (reverse (setq R (cons (char X) R)))) )
+        (let (EVENT_TYPE (car @)
+              EVENT  (car (cdr @)))
+
+            (prinl EVENT_TYPE ", "  EVENT, SDL)
+
+            (if (= EVENT_TYPE SDL_WINDOWEVENT)
+                (if (= EVENT SDL_WINDOWEVENT_CLOSE) (sdlClose)))
 
 
-        (if (sdIsBackspacePressed) (do 1 (setq R (cdr R)) (updateLine (reverse R))))
+            (let X (sdlIsTextInput)
+                (if X (updateLine (reverse (setq R (cons (char X) R)))) )
 
-        #(if (sdIsEnterPressed) (do 1 (if R (prinl "ENTER PRESSED: "  (load (pack (reverse R))))) (setq R Nil) (sdlPresentRenderer) ))
-        (if (sdIsEnterPressed) (do 1 (if R (updateOutput (pack (load (pack (reverse R)))))) (setq R Nil) (sdlPresentRenderer) ))
-        (if (sdlIsClose) (sdlClose) ))))
+
+            (if (sdIsBackspacePressed) (do 1 (setq R (cdr R)) (updateLine (reverse R))))
+
+            (if (sdIsEnterPressed) (do 1 (if R (updateOutput (pack (load (pack (reverse R)))))) (setq R Nil) (sdlPresentRenderer) ))
+            ))))
