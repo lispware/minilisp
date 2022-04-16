@@ -42,7 +42,9 @@
 
 (de clear (R G B)
     (let CF '((C) (if C C 255))
-     (sdlClearWindow (CF R) (CF G) (CF B)))
+        (SDL_SetRenderDrawColor RENDERER (CF R) (CF G) (CF B)))
+
+    (SDL_RendererClear RENDERER)
     (SDL_RendererPresent RENDERER))
 
 (de update () (SDL_RendererPresent RENDERER))

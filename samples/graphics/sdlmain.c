@@ -166,6 +166,29 @@ any lispsdlDrawLine(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
+any LISP_SDL_SetRenderDrawColor(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, r, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, g, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, b, car(ex));
+    SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE);
+
+    return T;
+}
+
+any LISP_SDL_RenderClear(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
+    SDL_RenderClear(renderer);
+    return T;
+}
+
 any LISP_SDL_RendererPresent(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
@@ -183,33 +206,6 @@ any lispsdlDelay(Context *CONTEXT_PTR, any ex)
     SDL_Delay(d);
 
     return T;
-}
-
-any lispsdlClearWindow(Context *CONTEXT_PTR, any ex)
-{
-    cell c1, c2, c3;
-    int r, g, b;
-    ex = cdr(ex);
-    any p1 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c1, p1);
-    GetNumberParam(p1, r);
-
-    ex = cdr(ex);
-    any p2 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c2, p2);
-    GetNumberParam(p2, g);
-
-    ex = cdr(ex);
-    any p3 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c3, p3);
-    GetNumberParam(p3, b);
-
-    drop(c1);
-
-    SDL_SetRenderDrawColor(LISP_SDL_RENDERER, r, g, b, SDL_ALPHA_OPAQUE);
-    SDL_RenderClear(LISP_SDL_RENDERER);
-
-    return Nil;
 }
 
 any LISP_SDL_CreateRenderer(Context *CONTEXT_PTR, any ex)
@@ -5507,9 +5503,12 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_CreateRenderer", LISP_SDL_CreateRenderer);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RenderDrawLine", LISP_SDL_RenderDrawLine);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RendererPresent", LISP_SDL_RendererPresent);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_SetRenderDrawColor", LISP_SDL_SetRenderDrawColor);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RendererClear", LISP_SDL_RenderClear);
+
+
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
 
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlClearWindow", lispsdlClearWindow);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlDrawLine", lispsdlDrawLine);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlDelay", lispsdlDelay);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlWriteString", LISP_WriteString);
