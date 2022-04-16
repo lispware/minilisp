@@ -83,7 +83,10 @@
     (updateLine (reverse (setq R (cons (char EVENT) R)))))
 
 (de processKeyDownEvent (EVENT WIN)
-    (if (= EVENT SDLK_BACKSPACE) (do 1 (setq R (cdr R)) (updateLine (reverse R)))))
+    (if (= EVENT SDLK_BACKSPACE)
+        (do 1 (setq R (cdr R)) (updateLine (reverse R))))
+    (if (= EVENT SDLK_RETURN)
+        (do 1 (if R (updateOutput (pack (load (pack (reverse R)))))) (setq R Nil) (sdlPresentRenderer))))
 
 (loop
     (while (SDL_PollEvent)
@@ -99,12 +102,4 @@
                 (processTextInput EVENT WIN))
 
             (if (= EVENT_TYPE SDL_KEYDOWN)
-                (processKeyDownEvent EVENT WIN))
-
-            #(let X (sdlIsTextInput)
-            #    (if X (updateLine (reverse (setq R (cons (char X) R)))) )
-
-            (if (sdIsBackspacePressed) (do 1 (setq R (cdr R)) (updateLine (reverse R))))
-
-            (if (sdIsEnterPressed) (do 1 (if R (updateOutput (pack (load (pack (reverse R)))))) (setq R Nil) (sdlPresentRenderer) ))
-            ))))
+                (processKeyDownEvent EVENT WIN)))))

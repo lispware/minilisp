@@ -105,25 +105,6 @@ any LISP_SDL_PollEvent(Context *CONTEXT_PTR, any x)
     }
 }
 
-any lispsdlIsTextInput(Context *CONTEXT_PTR, any x)
-{
-    if (LISP_SDL_EVENT.type == SDL_TEXTINPUT)
-    {
-        int x =  ((char *)LISP_SDL_EVENT.text.text)[0];
-        mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-        mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
-        mp_set(n, x);
-
-        NewNumber(n, r);
-
-        return r;
-    }
-    else
-    {
-        return Nil;
-    }
-}
-
 any LISP_SDL_DestroyWindow(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
@@ -5511,7 +5492,6 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_DestroyWindow", LISP_SDL_DestroyWindow);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
 
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlIsTextInput", lispsdlIsTextInput);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdIsEnterPressed", lispsdlIsEnterPressed);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdIsBackspacePressed", lispsdlIsBackspacePressed);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlPresentRenderer", lispsdlPresentRenderer);
