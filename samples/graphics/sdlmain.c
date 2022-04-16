@@ -6,6 +6,7 @@
 #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mp_get_i32(num((P))); }
 #elif INTPTR_MAX == INT64_MAX
 #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mp_get_i64(num((P))); }
+#define mp_set mp_set_i64
 #else
     #error "Unsupported bit width"
 #endif
@@ -41,7 +42,6 @@ void drawPixel(SDL_Surface *surface, int x, int y, SDL_Color color)
 Context LISP_CONTEXT;
 SDL_Event LISP_SDL_EVENT;
 SDL_Window* LISP_SDL_WINDOW = NULL;
-SDL_Surface* LISP_SDL_SURFACE = NULL;
 SDL_Renderer* LISP_SDL_RENDERER = NULL;
 
 any LISP_SDL_PollEvent(Context *CONTEXT_PTR, any x)
@@ -119,30 +119,6 @@ any LISP_SDL_Quit(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
-any lispsdlIsEnterPressed(Context *CONTEXT_PTR, any x)
-{
-    if (LISP_SDL_EVENT.type == SDL_KEYDOWN && LISP_SDL_EVENT.key.keysym.sym == SDLK_RETURN)
-    {
-        return T;
-    }
-    else
-    {
-        return Nil;
-    }
-}
-
-any lispsdlIsBackspacePressed(Context *CONTEXT_PTR, any x)
-{
-    if (LISP_SDL_EVENT.type == SDL_KEYDOWN && LISP_SDL_EVENT.key.keysym.sym == SDLK_BACKSPACE)
-    {
-        return T;
-    }
-    else
-    {
-        return Nil;
-    }
-}
-
 any lispsdlDrawLine(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
@@ -211,6 +187,32 @@ any lispsdlClearWindow(Context *CONTEXT_PTR, any ex)
     return Nil;
 }
 
+any LISP_SDL_CreateRenderer(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, win, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, index, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, flags, car(ex));
+
+    SDL_Renderer *renderer = SDL_CreateRenderer(win, index, flags);
+
+    if (renderer == NULL) return Nil;
+
+    LISP_SDL_RENDERER = renderer;
+
+    mp_int *id = (mp_int*)malloc(sizeof(mp_int));
+    mp_err _mp_error = mp_init(id);
+    mp_set(id, renderer);
+
+    printf("%p\n", renderer);
+
+    NewNumber(id, idr);
+
+    return idr;
+}
+
 any LISP_SDL_CreateWindow(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
@@ -234,24 +236,11 @@ any LISP_SDL_CreateWindow(Context *CONTEXT_PTR, any ex)
         return Nil;
     }
 
-    LISP_SDL_RENDERER = SDL_CreateRenderer(LISP_SDL_WINDOW, -1, 0);
-
-    if (LISP_SDL_RENDERER == NULL)
-    {
-        fprintf(stderr, "%s\n", SDL_GetError());
-        return Nil;
-    }
-
-    LISP_SDL_SURFACE = SDL_GetWindowSurface(LISP_SDL_WINDOW);
-    SDL_SetRenderDrawColor(LISP_SDL_RENDERER, 0, 0, 0, SDL_ALPHA_OPAQUE);
-    SDL_RenderClear(LISP_SDL_RENDERER);
-    SDL_RenderPresent(LISP_SDL_RENDERER);
-
     SDL_StartTextInput();
     
     mp_int *id = (mp_int*)malloc(sizeof(mp_int));
     mp_err _mp_error = mp_init(id);
-    mp_set_i64(id, LISP_SDL_WINDOW);
+    mp_set(id, LISP_SDL_WINDOW);
 
     cell c1;
     NewNumber(id, idr);
@@ -5490,10 +5479,9 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_PollEvent", LISP_SDL_PollEvent);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_Quit", LISP_SDL_Quit);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_DestroyWindow", LISP_SDL_DestroyWindow);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_CreateRenderer", LISP_SDL_CreateRenderer);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
 
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdIsEnterPressed", lispsdlIsEnterPressed);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdIsBackspacePressed", lispsdlIsBackspacePressed);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlPresentRenderer", lispsdlPresentRenderer);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlClearWindow", lispsdlClearWindow);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlDrawLine", lispsdlDrawLine);

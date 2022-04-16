@@ -11,6 +11,7 @@
 (setq OUTPUT_Y (- HEIGHT (* 3 MAGNIFICATION FONT_HEIGHT)))
 
 (setq WIN (SDL_CreateWindow "HELLO" WIDTH HEIGHT 0 0 0))
+(SDL_CreateRenderer WIN -1 0)
 
 (SDL_GetSurface WIN)
 
@@ -47,15 +48,11 @@
 (de update () (sdlPresentRenderer))
 
 (de demo ()
-    (box 100 100 200 255 0 0)
-    (sdlPresentRenderer)
-    (sdlDelay 200)
-    (box 100 100 200 0 255 0)
-    (sdlPresentRenderer)
-    (sdlDelay 200)
-    (box 100 100 200 0 0 255)
-    (sdlPresentRenderer)
-    (sdlDelay 200))
+    (clear 0 0 255)
+    (for I (list (255 0 0) (0 255 0) (255 255 255))
+        (box 100 100 200 (car I) (car (cdr I)) (car (cdr (cdr I))))
+        (sdlPresentRenderer)
+        (sdlDelay 400)))
 
 (de write (X Y S)
     (sdlWriteString X Y 255 255 255 0 0 255 MAGNIFICATION S))
