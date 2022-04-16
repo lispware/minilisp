@@ -72,20 +72,23 @@
 
 (write 0 EDITOR_Y SPACES)
 
+
+(de quitApp (W)
+    (SDL_DestroyWindow W)
+    (SDL_Quit))
+
 (loop
     (while (SDL_PollEvent)
         (let (EVENT_TYPE (car @)
               EVENT  (car (cdr @)))
 
-            (prinl EVENT_TYPE ", "  EVENT, SDL)
+            (prinl EVENT_TYPE ", "  EVENT)
 
             (if (= EVENT_TYPE SDL_WINDOWEVENT)
-                (if (= EVENT SDL_WINDOWEVENT_CLOSE) (sdlClose)))
-
+                (if (= EVENT SDL_WINDOWEVENT_CLOSE) (quitApp WIN)))
 
             (let X (sdlIsTextInput)
                 (if X (updateLine (reverse (setq R (cons (char X) R)))) )
-
 
             (if (sdIsBackspacePressed) (do 1 (setq R (cdr R)) (updateLine (reverse R))))
 

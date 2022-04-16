@@ -124,11 +124,18 @@ any lispsdlIsTextInput(Context *CONTEXT_PTR, any x)
     }
 }
 
-any lispsdlCloseWindow(Context *CONTEXT_PTR, any x)
+any LISP_SDL_DestroyWindow(Context *CONTEXT_PTR, any ex)
 {
-    SDL_DestroyWindow(LISP_SDL_WINDOW);
+    ex = cdr(ex);
+    NumberParam(word, WIN, car(ex));
+    SDL_DestroyWindow((SDL_Window*)WIN);
+    return T;
+}
+
+any LISP_SDL_Quit(Context *CONTEXT_PTR, any ex)
+{
     SDL_Quit();
-    return Nil;
+    return T;
 }
 
 any lispsdlIsEnterPressed(Context *CONTEXT_PTR, any x)
@@ -5505,8 +5512,10 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_CreateWindow", LISP_SDL_CreateWindow);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_GetSurface", LISP_SDL_GetSurface);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_PollEvent", LISP_SDL_PollEvent);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_Quit", LISP_SDL_Quit);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_DestroyWindow", LISP_SDL_DestroyWindow);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlClose", lispsdlCloseWindow);
+
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlIsTextInput", lispsdlIsTextInput);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdIsEnterPressed", lispsdlIsEnterPressed);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "sdIsBackspacePressed", lispsdlIsBackspacePressed);
