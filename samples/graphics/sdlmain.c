@@ -40,28 +40,25 @@ void drawPixel(SDL_Surface *surface, int x, int y, SDL_Color color)
 }
 
 Context LISP_CONTEXT;
-SDL_Event LISP_SDL_EVENT;
-SDL_Window* LISP_SDL_WINDOW = NULL;
-SDL_Renderer* LISP_SDL_RENDERER = NULL;
 
 any LISP_SDL_PollEvent(Context *CONTEXT_PTR, any x)
 {
-    SDL_Event *event = &LISP_SDL_EVENT;
-    if (SDL_PollEvent( event ))
+    SDL_Event event;
+    if (SDL_PollEvent( &event ))
     {
         cell c1, c2;
 
         mp_int *n = (mp_int*)malloc(sizeof(mp_int));
         mp_err _mp_error = mp_init(n);
-        mp_set(n, event->type);
+        mp_set(n, event.type);
         NewNumber(n, r1);
         Push(c1, r1);
 
-        if (event->type == SDL_WINDOWEVENT)
+        if (event.type == SDL_WINDOWEVENT)
         {
             n = (mp_int*)malloc(sizeof(mp_int));
             _mp_error = mp_init(n);
-            mp_set(n, event->window.event);
+            mp_set(n, event.window.event);
             NewNumber(n, r2);
             Push(c2, r2);
 
@@ -69,11 +66,11 @@ any LISP_SDL_PollEvent(Context *CONTEXT_PTR, any x)
             drop(c1);
             return result;
         }
-        else if (event->type == SDL_TEXTINPUT)
+        else if (event.type == SDL_TEXTINPUT)
         {
             n = (mp_int*)malloc(sizeof(mp_int));
             _mp_error = mp_init(n); // TODO handle the errors appropriately
-            mp_set(n, ((char *)event->text.text)[0]);
+            mp_set(n, ((char *)event.text.text)[0]);
             NewNumber(n, r2);
             Push(c2, r2);
 
@@ -81,11 +78,11 @@ any LISP_SDL_PollEvent(Context *CONTEXT_PTR, any x)
             drop(c1);
             return result;
         }
-        else if (event->type == SDL_KEYDOWN || event->type == SDL_KEYUP)
+        else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
         {
             n = (mp_int*)malloc(sizeof(mp_int));
             _mp_error = mp_init(n);
-            mp_set(n, event->key.keysym.sym);
+            mp_set(n, event.key.keysym.sym);
             NewNumber(n, r2);
             Push(c2, r2);
 
@@ -131,37 +128,8 @@ any LISP_SDL_RenderDrawLine(Context *CONTEXT_PTR, any ex)
     NumberParam(word, x2, car(ex));
     ex = cdr(ex);
     NumberParam(word, y2, car(ex));
-    ex = cdr(ex);
-    NumberParam(word, r, car(ex));
-    ex = cdr(ex);
-    NumberParam(word, g, car(ex));
-    ex = cdr(ex);
-    NumberParam(word, b, car(ex));
 
-    SDL_RenderDrawLine(renderer,  x1, y1, x2, y2);
-    return;
-}
-
-any lispsdlDrawLine(Context *CONTEXT_PTR, any ex)
-{
-    ex = cdr(ex);
-    NumberParam(word, x1, car(ex));
-    ex = cdr(ex);
-    NumberParam(word, y1, car(ex));
-    ex = cdr(ex);
-    NumberParam(word, x2, car(ex));
-    ex = cdr(ex);
-    NumberParam(word, y2, car(ex));
-    ex = cdr(ex);
-    NumberParam(word, r, car(ex));
-    ex = cdr(ex);
-    NumberParam(word, g, car(ex));
-    ex = cdr(ex);
-    NumberParam(word, b, car(ex));
-
-
-    SDL_SetRenderDrawColor(LISP_SDL_RENDERER, r, g, b, SDL_ALPHA_OPAQUE);
-    SDL_RenderDrawLine(LISP_SDL_RENDERER,  x1, y1, x2, y2);
+    SDL_RenderDrawLine((SDL_Renderer*)renderer, x1, y1, x2, y2);
 
     return T;
 }
@@ -176,7 +144,7 @@ any LISP_SDL_SetRenderDrawColor(Context *CONTEXT_PTR, any ex)
     NumberParam(word, g, car(ex));
     ex = cdr(ex);
     NumberParam(word, b, car(ex));
-    SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE);
+    SDL_SetRenderDrawColor((SDL_Renderer*)renderer, r, g, b, SDL_ALPHA_OPAQUE);
 
     return T;
 }
@@ -185,7 +153,7 @@ any LISP_SDL_RenderClear(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
     NumberParam(word, renderer, car(ex));
-    SDL_RenderClear(renderer);
+    SDL_RenderClear((SDL_Renderer*)renderer);
     return T;
 }
 
@@ -193,11 +161,11 @@ any LISP_SDL_RendererPresent(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
     NumberParam(word, renderer, car(ex));
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent((SDL_Renderer*)renderer);
     return T;
 }
 
-any lispsdlDelay(Context *CONTEXT_PTR, any ex)
+any LISP_SDL_Delay(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
     any p1 = EVAL(CONTEXT_PTR, car(ex));
@@ -217,17 +185,13 @@ any LISP_SDL_CreateRenderer(Context *CONTEXT_PTR, any ex)
     ex = cdr(ex);
     NumberParam(word, flags, car(ex));
 
-    SDL_Renderer *renderer = SDL_CreateRenderer(win, index, flags);
+    SDL_Renderer *renderer = SDL_CreateRenderer((SDL_Window*)win, index, flags);
 
     if (renderer == NULL) return Nil;
 
-    LISP_SDL_RENDERER = renderer;
-
     mp_int *id = (mp_int*)malloc(sizeof(mp_int));
     mp_err _mp_error = mp_init(id);
-    mp_set(id, renderer);
-
-    printf("%p\n", renderer);
+    mp_set(id, (word)renderer);
 
     NewNumber(id, idr);
 
@@ -243,7 +207,7 @@ any LISP_SDL_CreateWindow(Context *CONTEXT_PTR, any ex)
     ex = cdr(ex);
     NumberParam(word, y, car(ex));
 
-    LISP_SDL_WINDOW = SDL_CreateWindow
+    SDL_Window *window = SDL_CreateWindow
         (
          title,
          SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -251,7 +215,7 @@ any LISP_SDL_CreateWindow(Context *CONTEXT_PTR, any ex)
          SDL_WINDOW_SHOWN
         );
 
-    if (LISP_SDL_WINDOW == NULL)
+    if (window == NULL)
     {
         fprintf(stderr, "%s\n", SDL_GetError());
         return Nil;
@@ -261,7 +225,7 @@ any LISP_SDL_CreateWindow(Context *CONTEXT_PTR, any ex)
     
     mp_int *id = (mp_int*)malloc(sizeof(mp_int));
     mp_err _mp_error = mp_init(id);
-    mp_set(id, LISP_SDL_WINDOW);
+    mp_set(id, (word)window);
 
     cell c1;
     NewNumber(id, idr);
@@ -5405,7 +5369,7 @@ static const unsigned char fontdata[] =
 
 int FontWidth = 10;
 int FontHeight = 18;
-void writeChar(int x, int y, int fr, int fg, int fb, int br, int bg, int bb, int c, int magnification)
+void writeChar(SDL_Renderer *renderer, int x, int y, int fr, int fg, int fb, int br, int bg, int bb, int c, int magnification)
 {
     int fontIndex = c * (2 * 18);
 
@@ -5424,13 +5388,13 @@ void writeChar(int x, int y, int fr, int fg, int fb, int br, int bg, int bb, int
                 {
                     if (byte & 0x80)
                     {
-                        SDL_SetRenderDrawColor(LISP_SDL_RENDERER, fr, fg, fb, SDL_ALPHA_OPAQUE);
+                        SDL_SetRenderDrawColor(renderer, fr, fg, fb, SDL_ALPHA_OPAQUE);
                     }
                     else
                     {
-                        SDL_SetRenderDrawColor(LISP_SDL_RENDERER, br, bg, bb, SDL_ALPHA_OPAQUE);
+                        SDL_SetRenderDrawColor(renderer, br, bg, bb, SDL_ALPHA_OPAQUE);
                     }
-                    SDL_RenderDrawPoint(LISP_SDL_RENDERER,  x+(j*magnification)+k, y+(i*magnification)+l);
+                    SDL_RenderDrawPoint(renderer,  x+(j*magnification)+k, y+(i*magnification)+l);
                 }
             }
             byte = byte << 1;
@@ -5440,6 +5404,8 @@ void writeChar(int x, int y, int fr, int fg, int fb, int br, int bg, int bb, int
 
 any LISP_WriteString(Context *CONTEXT_PTR, any ex)
 {
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
     ex = cdr(ex);
     NumberParam(int, x, car(ex));
     ex = cdr(ex);
@@ -5466,12 +5432,12 @@ any LISP_WriteString(Context *CONTEXT_PTR, any ex)
     int c;
     while(c = *nm++)
     {
-        writeChar(x, y, fr, fg, fb, br, bg, bb, c, m);
+        writeChar((SDL_Renderer*)renderer, x, y, fr, fg, fb, br, bg, bb, c, m);
         x+=(FontWidth*m);
     }
     free(nmBak);
 
-    SDL_RenderPresent(LISP_SDL_RENDERER);
+    SDL_RenderPresent((SDL_Renderer*)renderer);
 
     return T;
 }
@@ -5509,9 +5475,8 @@ int main(int argc, char* av[])
 
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
 
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlDrawLine", lispsdlDrawLine);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlDelay", lispsdlDelay);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlWriteString", LISP_WriteString);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RenderDrawLine", LISP_SDL_RenderDrawLine);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_Delay", LISP_SDL_Delay);
 
     initialize_context(CONTEXT_PTR);
     av++;
@@ -5523,7 +5488,5 @@ int main(int argc, char* av[])
 
     loadAll(CONTEXT_PTR, NULL);
 
-    SDL_DestroyWindow(LISP_SDL_WINDOW);
-    SDL_Quit();
     return 0;
 }

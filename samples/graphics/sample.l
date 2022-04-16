@@ -1,6 +1,6 @@
 (load "SDL.l")
 
-(SDL_Init -1)
+(SDL_Init SDL_INIT_VIDEO)
 
 (setq HEIGHT 1000)
 (setq WIDTH 1500)
@@ -24,21 +24,22 @@
     R))
 
 (de putPixel (X Y R G B)
-    (sdlDrawLine  X Y X Y R G B))
+    (SDL_RenderDrawLine RENDERER  X Y X Y R G B))
 
 (de line (X1 Y1 X2 Y2 R G B)
     (let CF '((C) (if C C 255))
-        (sdlDrawLine X1 Y1 X2 Y2 (CF R) (CF G) (CF B))))
+        (SDL_SetRenderDrawColor RENDERER (CF R) (CF G) (CF B))
+        (SDL_RenderDrawLine RENDERER X1 Y1 X2 Y2)))
 
 (de box (X Y S R1 G1 B1)
     (let (CF '((C) (if C C 255))
           R (CF R1)
           G (CF G1)
           B (CF B1))
-        (sdlDrawLine X Y (+ X S) Y  R G B)
-        (sdlDrawLine X Y X (+ Y S)  R G B)
-        (sdlDrawLine X (+ Y S) (+ X S) (+ Y S)  R G B)
-        (sdlDrawLine (+ X S) (+ Y S) (+ X S) Y  R G B)))
+        (SDL_RenderDrawLine RENDERER X Y (+ X S) Y  R G B)
+        (SDL_RenderDrawLine RENDERER X Y X (+ Y S)  R G B)
+        (SDL_RenderDrawLine RENDERER X (+ Y S) (+ X S) (+ Y S)  R G B)
+        (SDL_RenderDrawLine RENDERER (+ X S) (+ Y S) (+ X S) Y  R G B)))
 
 (de clear (R G B)
     (let CF '((C) (if C C 255))
@@ -57,7 +58,7 @@
         (sdlDelay 400)))
 
 (de write (X Y S)
-    (sdlWriteString X Y 255 255 255 0 0 255 MAGNIFICATION S))
+    (WriteString RENDERER X Y 255 255 255 0 0 255 MAGNIFICATION S))
 
 (de updateLine (X)
     (write 0 EDITOR_Y SPACES)
@@ -91,8 +92,6 @@
     (while (SDL_PollEvent)
         (let (EVENT_TYPE (car @)
               EVENT  (car (cdr @)))
-
-            (prinl EVENT_TYPE ", "  EVENT)
 
             (if (= EVENT_TYPE SDL_WINDOWEVENT)
                 (processWindowEvent EVENT WIN))
