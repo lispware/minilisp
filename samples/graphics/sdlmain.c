@@ -135,6 +135,20 @@ any LISP_SDL_RenderDrawLine(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
+any LISP_SDL_RenderDrawPoint(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, x1, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, y1, car(ex));
+
+    SDL_RenderDrawPoint((SDL_Renderer*)renderer, x1, y1);
+
+    return T;
+}
+
 any LISP_SDL_SetRenderDrawColor(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
@@ -5495,6 +5509,41 @@ any LISP_SDL_UnlockMutex(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
+any LISP_SDL_LoadBMP(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    StringParam(car(ex), imagePath);
+
+    SDL_Surface* imageSurface = SDL_LoadBMP(imagePath);
+    free(imagePath);
+
+    mp_int *id = (mp_int*)malloc(sizeof(mp_int));
+    mp_err _mp_error = mp_init(id);
+    mp_set(id, (word)imageSurface);
+
+    NewNumber(id, idr);
+
+    return idr;
+}
+
+any LISP_SDL_CreateTextureFromSurface(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, surface, car(ex));
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface((SDL_Renderer*)renderer, (SDL_Surface*)surface);
+
+    mp_int *id = (mp_int*)malloc(sizeof(mp_int));
+    mp_err _mp_error = mp_init(id);
+    mp_set(id, (word)texture);
+
+    NewNumber(id, idr);
+
+    return idr;
+}
+
 #undef main
 int main(int argc, char* av[])
 {
@@ -5508,6 +5557,7 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_DestroyWindow", LISP_SDL_DestroyWindow);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_CreateRenderer", LISP_SDL_CreateRenderer);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RenderDrawLine", LISP_SDL_RenderDrawLine);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RenderDrawPoint", LISP_SDL_RenderDrawPoint);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RendererPresent", LISP_SDL_RendererPresent);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_SetRenderDrawColor", LISP_SDL_SetRenderDrawColor);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RendererClear", LISP_SDL_RenderClear);
