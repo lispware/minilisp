@@ -5561,7 +5561,57 @@ any LISP_SDL_RenderCopy(Context *CONTEXT_PTR, any ex)
     ex = cdr(ex);
     NumberParam(word, texture, car(ex));
 
-    if (!SDL_RenderCopy(renderer, texture, NULL, NULL))
+    SDL_Rect *src = NULL;
+    SDL_Rect src_mem;
+    SDL_Rect *dst = NULL;
+    SDL_Rect dst_mem;
+
+    ex = cdr(ex);
+    if (ex != Nil)
+    {
+        any r = EVAL(CONTEXT_PTR, car(ex));
+        if (r != Nil)
+        {
+            NumberParam(word, x, car(r));
+            r = cdr(r);
+            NumberParam(word, y, car(r));
+            r = cdr(r);
+            NumberParam(word, w, car(r));
+            r = cdr(r);
+            NumberParam(word, h, car(r));
+
+            src_mem.x = x;
+            src_mem.y = y;
+            src_mem.w = w;
+            src_mem.h = h;
+            src=&src_mem;
+        }
+    }
+
+    ex = cdr(ex);
+    if (ex != Nil)
+    {
+        any r = EVAL(CONTEXT_PTR, car(ex));
+        if (r != Nil)
+        {
+
+            NumberParam(word, x, car(r));
+            r = cdr(r);
+            NumberParam(word, y, car(r));
+            r = cdr(r);
+            NumberParam(word, w, car(r));
+            r = cdr(r);
+            NumberParam(word, h, car(r));
+
+            dst_mem.x = x;
+            dst_mem.y = y;
+            dst_mem.w = w;
+            dst_mem.h = h;
+            dst=&dst_mem;
+        }
+    }
+
+    if (!SDL_RenderCopy(renderer, texture, src, dst))
     {
         return T;
     }
