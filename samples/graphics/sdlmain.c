@@ -40,6 +40,7 @@ void drawPixel(SDL_Surface *surface, int x, int y, SDL_Color color)
 }
 
 Context LISP_CONTEXT;
+SDL_mutex *MUTEX;
 
 any LISP_SDL_PollEvent(Context *CONTEXT_PTR, any x)
 {
@@ -5455,6 +5456,45 @@ any LISP_SDL_Init(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
+any LISP_SDL_CreateMutex(Context *CONTEXT_PTR, any ex)
+{
+    SDL_mutex *mutex = SDL_CreateMutex();
+
+    if (!mutex) return Nil;
+
+    mp_int *id = (mp_int*)malloc(sizeof(mp_int));
+    mp_err _mp_error = mp_init(id);
+    mp_set(id, (word)mutex);
+
+    NewNumber(id, idr);
+
+    return idr;
+}
+
+any LISP_SDL_LockMutex(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, mutex, car(ex));
+
+    if (SDL_LockMutex((SDL_mutex*)mutex))
+    {
+        return T;
+    }
+    else
+    {
+        return Nil;
+    }
+}
+
+any LISP_SDL_UnlockMutex(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, mutex, car(ex));
+
+    SDL_UnlockMutex((SDL_mutex*)mutex);
+    return T;
+}
+
 #undef main
 int main(int argc, char* av[])
 {
@@ -5471,6 +5511,9 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RendererPresent", LISP_SDL_RendererPresent);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_SetRenderDrawColor", LISP_SDL_SetRenderDrawColor);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RendererClear", LISP_SDL_RenderClear);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_CreateMutex", LISP_SDL_CreateMutex);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_LockMutex", LISP_SDL_LockMutex);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_UnlockMutex", LISP_SDL_UnlockMutex);
 
 
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);

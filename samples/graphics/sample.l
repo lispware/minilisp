@@ -12,6 +12,7 @@
 
 (setq WIN (SDL_CreateWindow "HELLO" WIDTH HEIGHT 0 0 0))
 (setq RENDERER (SDL_CreateRenderer WIN -1 0))
+(setq MUTEX (SDL_CreateMutex))
 
 (SDL_GetSurface WIN)
 
@@ -51,11 +52,16 @@
 (de update () (SDL_RendererPresent RENDERER))
 
 (de demo ()
+    (SDL_LockMutex MUTEX)
     (clear 0 0 255)
+    (SDL_UnlockMutex MUTEX)
     (for I (list (255 0 0) (0 255 0) (255 255 255))
-        (box 100 100 200 (car I) (car (cdr I)) (car (cdr (cdr I))))
+        (SDL_LockMutex MUTEX)
+        (SDL_SetRenderDrawColor RENDERER (car I) (car (cdr I)) (car (cdr (cdr I))))
+        (box 100 100 200)
         (SDL_RendererPresent RENDERER)
-        (sdlDelay 400)))
+        (SDL_UnlockMutex MUTEX)
+        (SDL_Delay 400)))
 
 (de write (X Y S)
     (WriteString RENDERER X Y 255 255 255 0 0 255 MAGNIFICATION S))
@@ -80,13 +86,17 @@
     (if (= EVENT SDL_WINDOWEVENT_CLOSE) (quitApp WIN)))
 
 (de processTextInput (EVENT WIN)
-    (updateLine (reverse (setq R (cons (char EVENT) R)))))
+    (SDL_LockMutex MUTEX)
+    (updateLine (reverse (setq R (cons (char EVENT) R))))
+    (SDL_UnlockMutex MUTEX))
 
 (de processKeyDownEvent (EVENT WIN)
+    (SDL_LockMutex MUTEX)
     (if (= EVENT SDLK_BACKSPACE)
         (do 1 (setq R (cdr R)) (updateLine (reverse R))))
     (if (= EVENT SDLK_RETURN)
-        (do 1 (if R (updateOutput (pack (load (pack (reverse R)))))) (setq R Nil) (SDL_RendererPresent RENDERER))))
+        (do 1 (if R (updateOutput (pack (load (pack (reverse R)))))) (setq R Nil) (SDL_RendererPresent RENDERER)))
+    (SDL_UnlockMutex MUTEX))
 
 (loop
     (while (SDL_PollEvent)
