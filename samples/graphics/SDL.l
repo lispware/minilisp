@@ -1,4 +1,5 @@
 # include/SDL_events.h
+(setq SDL_INIT_AUDIO      16)
 (setq SDL_INIT_VIDEO      32)
 (setq SDL_WINDOWEVENT     (sb "200" 16))
 (setq SDL_KEYDOWN         (sb "300" 16))

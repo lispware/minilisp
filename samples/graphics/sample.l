@@ -1,6 +1,6 @@
 (load "SDL.l")
 
-(SDL_Init SDL_INIT_VIDEO)
+(SDL_Init (or SDL_INIT_VIDEO SDL_INIT_AUDIO))
 
 (setq HEIGHT 1000)
 (setq WIDTH 1500)
@@ -13,6 +13,11 @@
 (setq WIN (SDL_CreateWindow "HELLO" WIDTH HEIGHT 0 0 0))
 (setq RENDERER (SDL_CreateRenderer WIN -1 0))
 (setq MUTEX (SDL_CreateMutex))
+
+
+(setq IMAGE_SURFACE (SDL_LoadBMP "kong.bmp"))
+(setq TEXTURE (SDL_CreateTextureFromSurface RENDERER IMAGE_SURFACE))
+(SDL_FreeSurface IMAGE_SURFACE)
 
 (SDL_GetSurface WIN)
 
@@ -55,6 +60,11 @@
     (SDL_RendererPresent RENDERER))
 
 (de update () (SDL_RendererPresent RENDERER))
+
+(de dd ()
+    (SDL_RenderCopy RENDERER TEXTURE Nil (100 100 400 400)))
+    #(SDL_RenderCopy RENDERER TEXTURE (100 100 200 200) (100 100 100 100)))
+
 
 (de demo ()
     (SDL_LockMutex MUTEX)
