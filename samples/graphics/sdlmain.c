@@ -5544,6 +5544,31 @@ any LISP_SDL_CreateTextureFromSurface(Context *CONTEXT_PTR, any ex)
     return idr;
 }
 
+any LISP_SDL_FreeSurface(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, surface, car(ex));
+
+    SDL_FreeSurface((SDL_Surface*)surface);
+
+    return T;
+}
+
+any LISP_SDL_RenderCopy(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, texture, car(ex));
+
+    if (!SDL_RenderCopy(renderer, texture, NULL, NULL))
+    {
+        return T;
+    }
+
+    return Nil;
+}
+
 #undef main
 int main(int argc, char* av[])
 {
@@ -5564,6 +5589,10 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_CreateMutex", LISP_SDL_CreateMutex);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_LockMutex", LISP_SDL_LockMutex);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_UnlockMutex", LISP_SDL_UnlockMutex);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_LoadBMP", LISP_SDL_LoadBMP);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_CreateTextureFromSurface", LISP_SDL_CreateTextureFromSurface);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_FreeSurface", LISP_SDL_FreeSurface);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RenderCopy", LISP_SDL_RenderCopy);
 
 
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);

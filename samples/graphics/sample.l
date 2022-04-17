@@ -32,6 +32,11 @@
         (SDL_SetRenderDrawColor RENDERER (CF R) (CF G) (CF B))
         (SDL_RenderDrawLine RENDERER X1 Y1 X2 Y2)))
 
+(de point (X1 Y1 R G B)
+    (let CF '((C) (if C C 255))
+        (SDL_SetRenderDrawColor RENDERER (CF R) (CF G) (CF B))
+        (SDL_RenderDrawPoint RENDERER X1 Y1)))
+
 (de box (X Y S R1 G1 B1)
     (let (CF '((C) (if C C 255))
           R (CF R1)
@@ -98,10 +103,19 @@
         (do 1 (if R (updateOutput (pack (load (pack (reverse R)))))) (setq R Nil) (SDL_RendererPresent RENDERER)))
     (SDL_UnlockMutex MUTEX))
 
+
+(de EVENT_NAME (E)
+    (let R (if (= E WINDOW_EVENT) "WINDOW_EVENT" Nil)
+        (if (= E SDL_KEYDOWN) (setq R "KEY_DOWN"))
+        R))
+
+
 (loop
     (while (SDL_PollEvent)
         (let (EVENT_TYPE (car @)
               EVENT  (car (cdr @)))
+
+            (prinl "TYPE = " (EVENT_NAME EVENT_TYPE) ", EVENT = " EVENT)
 
             (if (= EVENT_TYPE SDL_WINDOWEVENT)
                 (processWindowEvent EVENT WIN))
