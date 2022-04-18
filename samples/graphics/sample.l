@@ -14,8 +14,6 @@
 (setq RENDERER (SDL_CreateRenderer WIN -1 0))
 (setq MUTEX (SDL_CreateMutex))
 
-(setq AD (SDL_OpenAudioDevice))
-(LoadWAV "collide.wav")
 
 
 (setq IMAGE_SURFACE (SDL_LoadBMP "kong.bmp"))
@@ -68,6 +66,15 @@
     (SDL_RenderCopy RENDERER TEXTURE Nil (100 100 400 400)))
     #(SDL_RenderCopy RENDERER TEXTURE (100 100 200 200) (100 100 100 100)))
 
+
+(de audioSetup ()
+    (setq AD (SDL_OpenAudioDevice))
+    (LoadWAV "collide.wav"))
+(de audioDemo (N)
+    #(do 1 (for I N (do 1 (SDL_LockMutex MUTEX) (PlayWAV AD) (SDL_UnlockMutex)))) (sleep 3000) )
+    (thread () (do 1 (for I N (do 1 (PlayWAV AD))))  ))
+(de audioStop ()
+    (SDL_ClearQueuedAudio AD))
 
 (de demo ()
     (SDL_LockMutex MUTEX)

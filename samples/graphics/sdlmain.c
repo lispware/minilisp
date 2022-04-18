@@ -5683,6 +5683,16 @@ any PlayWAV(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
+any LISP_SDL_ClearQueuedAudio(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, deviceId, car(ex));
+
+    SDL_ClearQueuedAudio(deviceId);
+
+    return T;
+}
+
 #undef main
 int main(int argc, char* av[])
 {
@@ -5709,6 +5719,7 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_SetRenderDrawColor", LISP_SDL_SetRenderDrawColor);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_UnlockMutex", LISP_SDL_UnlockMutex);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_OpenAudioDevice", LISP_SDL_OpenAudionDevice);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_ClearQueuedAudio", LISP_SDL_ClearQueuedAudio);
 
 
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
