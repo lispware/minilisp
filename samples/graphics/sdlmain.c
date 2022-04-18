@@ -5629,7 +5629,7 @@ any LISP_SDL_OpenAudionDevice(Context *CONTEXT_PTR, any ex)
     spec.samples = 4096;
     spec.callback = NULL;
 
-    word deviceId = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+    word deviceId = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
 
     if (!deviceId)
     {
@@ -5678,6 +5678,7 @@ any PlayWAV(Context *CONTEXT_PTR, any ex)
     NumberParam(word, deviceId, car(ex));
 
     int status = SDL_QueueAudio(deviceId, buffer, bufferLength);
+    printf("status = %d\n", status);
     SDL_PauseAudioDevice(deviceId,0);
     return T;
 }

@@ -14,6 +14,9 @@
 (setq RENDERER (SDL_CreateRenderer WIN -1 0))
 (setq MUTEX (SDL_CreateMutex))
 
+(setq AD (SDL_OpenAudioDevice))
+(LoadWAV "collide.wav")
+
 
 (setq IMAGE_SURFACE (SDL_LoadBMP "kong.bmp"))
 (setq TEXTURE (SDL_CreateTextureFromSurface RENDERER IMAGE_SURFACE))
