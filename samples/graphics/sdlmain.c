@@ -5463,7 +5463,7 @@ any LISP_SDL_Init(Context *CONTEXT_PTR, any ex)
     NumberParam(int, mode, car(ex));
     if (SDL_Init(mode) < 0)
     {
-        fprintf(stderr, "%s\n", SDL_GetError());
+        fprintf(stderr, "ERROR %s\n", SDL_GetError());
         return Nil;
     }
 
@@ -5622,25 +5622,19 @@ any LISP_SDL_RenderCopy(Context *CONTEXT_PTR, any ex)
 any LISP_SDL_OpenAudionDevice(Context *CONTEXT_PTR, any ex)
 {
     SDL_AudioSpec spec;
-    byte *buffer;
-    int bufferLength;
 
-    //if(SDL_LoadWAV(filepath.c_str(), &spec, &buffer, &bufferLength))
-    if(SDL_LoadWAV("collide.wav", &spec, &buffer, &bufferLength) == NULL)
-    {
-        fprintf(stderr, "Could not open test.wav: %s\n", SDL_GetError());
-    }
+    spec.freq = 22050;
+    spec.format = 32784;
+    spec.channels = 1;
+    spec.samples = 4096;
+    spec.callback = NULL;
+
     word deviceId = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
 
     if (!deviceId)
     {
         return Nil;
     }
-
-
-
-    int status = SDL_QueueAudio(deviceId, buffer, bufferLength);
-    SDL_PauseAudioDevice(deviceId,0);
 
     mp_int *id = (mp_int*)malloc(sizeof(mp_int));
     mp_err _mp_error = mp_init(id);
@@ -5649,6 +5643,43 @@ any LISP_SDL_OpenAudionDevice(Context *CONTEXT_PTR, any ex)
     NewNumber(id, idr);
 
     return idr;
+}
+
+byte *buffer;
+int bufferLength;
+
+any LoadWAV(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    StringParam(car(ex), wavPath);
+
+    SDL_AudioSpec spec;
+    //byte *buffer;
+    //int bufferLength;
+
+    if (SDL_LoadWAV(wavPath, &spec, &buffer, &bufferLength) == NULL)
+    {
+        fprintf(stderr, "Could not open test.wav: %s\n", SDL_GetError());
+    }
+
+    //mp_int *id = (mp_int*)malloc(sizeof(mp_int));
+    //mp_err _mp_error = mp_init(id);
+    //mp_set(id, deviceId);
+
+    //NewNumber(id, idr);
+
+    //return idr;
+    return T;
+}
+
+any PlayWAV(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, deviceId, car(ex));
+
+    int status = SDL_QueueAudio(deviceId, buffer, bufferLength);
+    SDL_PauseAudioDevice(deviceId,0);
+    return T;
 }
 
 #undef main
@@ -5680,6 +5711,8 @@ int main(int argc, char* av[])
 
 
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "LoadWAV", LoadWAV);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "PlayWAV", PlayWAV);
 
 
     initialize_context(CONTEXT_PTR);
