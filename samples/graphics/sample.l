@@ -1,6 +1,6 @@
 (load "SDL.l")
 
-(SDL_Init (or SDL_INIT_VIDEO SDL_INIT_AUDIO))
+(SDL_Init (| SDL_INIT_VIDEO SDL_INIT_AUDIO))
 
 (setq HEIGHT 1000)
 (setq WIDTH 1500)
@@ -121,6 +121,7 @@
 
 
 (loop
+
     (while (SDL_PollEvent)
         (let (EVENT_TYPE (car @)
               EVENT  (car (cdr @)))
