@@ -69,12 +69,15 @@
 
 (de audioSetup ()
     (setq AD (SDL_OpenAudioDevice))
-    (LoadWAV "collide.wav"))
+    #(LoadWAV "collide.wav"))
+    (LoadWAV "C4.wav"))
 (de audioDemo (N)
     #(do 1 (for I N (do 1 (SDL_LockMutex MUTEX) (PlayWAV AD) (SDL_UnlockMutex)))) (sleep 3000) )
     (thread () (do 1 (for I N (do 1 (PlayWAV AD))))  ))
 (de audioStop ()
     (SDL_ClearQueuedAudio AD))
+
+(audioSetup)
 
 (de demo ()
     (SDL_LockMutex MUTEX)
@@ -92,6 +95,7 @@
     (WriteString RENDERER X Y 255 255 255 0 0 255 MAGNIFICATION S))
 
 (de updateLine (X)
+    (PlayWAV AD)
     (write 0 EDITOR_Y SPACES)
     (if X (write 0 EDITOR_Y (pack X)))
     (SDL_RendererPresent RENDERER))

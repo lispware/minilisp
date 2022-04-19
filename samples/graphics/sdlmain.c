@@ -5619,15 +5619,42 @@ any LISP_SDL_RenderCopy(Context *CONTEXT_PTR, any ex)
     return Nil;
 }
 
+byte *buffer;
+int bufferLength;
+byte *bufferBAK;
+int bufferLengthBAK;
+
+void my_audio_callback(void *userdata, Uint8 *stream, int len)
+{
+    char *bb = buffer;
+
+    if (bufferLength == 0) return; 
+    printf("buffer length = %d\n", bufferLength);
+
+    SDL_LockAudioDevice(2);
+    len = (len > bufferLength) ? bufferLength : len;
+
+    SDL_memcpy (stream, buffer, len);
+    buffer += len;
+    bufferLength -= len;
+    SDL_UnlockAudioDevice(2);
+}
+
+
 any LISP_SDL_OpenAudionDevice(Context *CONTEXT_PTR, any ex)
 {
     SDL_AudioSpec spec;
 
-    spec.freq = 22050;
+    //spec.freq = 22050;
+    //spec.format = 32784;
+    //spec.channels = 2;
+    //spec.samples = 4096;
+
+    spec.freq = 44100;
     spec.format = 32784;
-    spec.channels = 1;
+    spec.channels = 2;
     spec.samples = 4096;
-    spec.callback = NULL;
+    spec.callback = my_audio_callback;
 
     word deviceId = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
 
@@ -5645,8 +5672,6 @@ any LISP_SDL_OpenAudionDevice(Context *CONTEXT_PTR, any ex)
     return idr;
 }
 
-byte *buffer;
-int bufferLength;
 
 any LoadWAV(Context *CONTEXT_PTR, any ex)
 {
@@ -5654,13 +5679,19 @@ any LoadWAV(Context *CONTEXT_PTR, any ex)
     StringParam(car(ex), wavPath);
 
     SDL_AudioSpec spec;
-    //byte *buffer;
-    //int bufferLength;
 
     if (SDL_LoadWAV(wavPath, &spec, &buffer, &bufferLength) == NULL)
     {
         fprintf(stderr, "Could not open test.wav: %s\n", SDL_GetError());
     }
+
+    bufferBAK = buffer;
+    bufferLengthBAK = bufferLength;
+
+    printf("spec.freq %d\n", spec.freq);
+    printf("spec.format = %d\n", spec.format);
+    printf("spec.channels = %d\n", spec.channels);
+    printf("spec.samples = %d\n", spec.samples);
 
     //mp_int *id = (mp_int*)malloc(sizeof(mp_int));
     //mp_err _mp_error = mp_init(id);
@@ -5672,13 +5703,15 @@ any LoadWAV(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
+
+
 any PlayWAV(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
     NumberParam(word, deviceId, car(ex));
 
     int status = SDL_QueueAudio(deviceId, buffer, bufferLength);
-    printf("status = %d\n", status);
+
     SDL_PauseAudioDevice(deviceId,0);
     return T;
 }
@@ -5690,6 +5723,17 @@ any LISP_SDL_ClearQueuedAudio(Context *CONTEXT_PTR, any ex)
 
     SDL_ClearQueuedAudio(deviceId);
 
+    return T;
+}
+
+any PING(Context *CONTEXT_PTR, any ex)
+{
+    SDL_LockAudioDevice(2);
+
+    buffer=bufferBAK;
+    bufferLength = bufferLengthBAK;
+
+    SDL_UnlockAudioDevice(2);
     return T;
 }
 
@@ -5725,6 +5769,7 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "LoadWAV", LoadWAV);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "PlayWAV", PlayWAV);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "PING", PING);
 
 
     initialize_context(CONTEXT_PTR);
