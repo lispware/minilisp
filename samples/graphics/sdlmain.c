@@ -5619,42 +5619,114 @@ any LISP_SDL_RenderCopy(Context *CONTEXT_PTR, any ex)
     return Nil;
 }
 
-byte *buffer;
-int bufferLength;
-byte *bufferBAK;
-int bufferLengthBAK;
+
+typedef struct _userdata
+{
+    byte *buffer;
+    int bufferLength
+} UserData;
+
+UserData UD;
+
+
+
 
 void my_audio_callback(void *userdata, Uint8 *stream, int len)
 {
-    char *bb = buffer;
-
-    if (bufferLength == 0) return; 
-    printf("buffer length = %d\n", bufferLength);
+    UserData *ud = (UserData*)userdata;
+    printf("%d %d\n", len, ud->bufferLength);
+    if (ud->bufferLength == 0) return; 
 
     SDL_LockAudioDevice(2);
-    len = (len > bufferLength) ? bufferLength : len;
+    len = (len > ud->bufferLength) ? ud->bufferLength : len;
 
-    SDL_memcpy (stream, buffer, len);
-    buffer += len;
-    bufferLength -= len;
+    SDL_memcpy (stream, ud->buffer, len);
+    ud->buffer += len;
+    ud->bufferLength -= len;
     SDL_UnlockAudioDevice(2);
+}
+
+any LoadWAV(Context *CONTEXT_PTR, any ex)
+{
+    char *buffer;
+    int bufferLength;
+
+    ex = cdr(ex);
+    StringParam(car(ex), wavPath);
+
+    SDL_AudioSpec spec;
+
+    if (SDL_LoadWAV(wavPath, &spec, &buffer, &bufferLength) == NULL)
+    {
+        fprintf(stderr, "Could not open test.wav: %s\n", SDL_GetError());
+    }
+
+    cell c1, c2, c3, c4, c5, c6;
+    mp_int *n1 = (mp_int*)malloc(sizeof(mp_int));
+    mp_err _mp_error = mp_init(n1);
+    mp_set(n1, (word)buffer);
+    NewNumber(n1, b);
+    Push(c1, b);
+
+    mp_int *n2 = (mp_int*)malloc(sizeof(mp_int));
+    _mp_error = mp_init(n2);
+    mp_set(n2, (word)bufferLength);
+    NewNumber(n2, l);
+    Push(c2, l);
+
+    mp_int *freq = (mp_int*)malloc(sizeof(mp_int));
+    _mp_error = mp_init(freq);
+    mp_set(freq, (word)spec.freq);
+    NewNumber(freq, freqL);
+    Push(c3, freqL);
+
+    mp_int *format = (mp_int*)malloc(sizeof(mp_int));
+    _mp_error = mp_init(format);
+    mp_set(format, (word)spec.format);
+    NewNumber(format, formatL);
+    Push(c4, formatL);
+
+    mp_int *channels = (mp_int*)malloc(sizeof(mp_int));
+    _mp_error = mp_init(channels);
+    mp_set(channels, (word)spec.channels);
+    NewNumber(channels, channelsL);
+    Push(c5, channelsL);
+
+    mp_int *samples = (mp_int*)malloc(sizeof(mp_int));
+    _mp_error = mp_init(samples);
+    mp_set(samples, (word)spec.samples);
+    NewNumber(samples, samplesL);
+    Push(c6, samplesL);
+
+    any r = cons(CONTEXT_PTR, data(c1), cons(CONTEXT_PTR, data(c2), cons(CONTEXT_PTR, data(c3), cons(CONTEXT_PTR, data(c4), cons(CONTEXT_PTR, data(c5), cons(CONTEXT_PTR, data(c6), Nil))))));
+
+    drop(c1);
+    return r;
 }
 
 
 any LISP_SDL_OpenAudionDevice(Context *CONTEXT_PTR, any ex)
 {
+    ex = cdr(ex);
+    NumberParam(word, freq, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, format, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, channels, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, samples, car(ex));
+
     SDL_AudioSpec spec;
 
-    //spec.freq = 22050;
-    //spec.format = 32784;
-    //spec.channels = 2;
-    //spec.samples = 4096;
+    UD.buffer = NULL;
+    UD.bufferLength = 0;
 
-    spec.freq = 44100;
-    spec.format = 32784;
-    spec.channels = 2;
-    spec.samples = 4096;
+    spec.freq = freq;
+    spec.format = format;
+    spec.channels = channels;
+    spec.samples = samples;
     spec.callback = my_audio_callback;
+    spec.userdata = &UD;
 
     word deviceId = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
 
@@ -5672,45 +5744,12 @@ any LISP_SDL_OpenAudionDevice(Context *CONTEXT_PTR, any ex)
     return idr;
 }
 
-
-any LoadWAV(Context *CONTEXT_PTR, any ex)
-{
-    ex = cdr(ex);
-    StringParam(car(ex), wavPath);
-
-    SDL_AudioSpec spec;
-
-    if (SDL_LoadWAV(wavPath, &spec, &buffer, &bufferLength) == NULL)
-    {
-        fprintf(stderr, "Could not open test.wav: %s\n", SDL_GetError());
-    }
-
-    bufferBAK = buffer;
-    bufferLengthBAK = bufferLength;
-
-    printf("spec.freq %d\n", spec.freq);
-    printf("spec.format = %d\n", spec.format);
-    printf("spec.channels = %d\n", spec.channels);
-    printf("spec.samples = %d\n", spec.samples);
-
-    //mp_int *id = (mp_int*)malloc(sizeof(mp_int));
-    //mp_err _mp_error = mp_init(id);
-    //mp_set(id, deviceId);
-
-    //NewNumber(id, idr);
-
-    //return idr;
-    return T;
-}
-
-
-
 any PlayWAV(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
     NumberParam(word, deviceId, car(ex));
 
-    int status = SDL_QueueAudio(deviceId, buffer, bufferLength);
+    //int status = SDL_QueueAudio(deviceId, buffer, bufferLength);
 
     SDL_PauseAudioDevice(deviceId,0);
     return T;
@@ -5728,10 +5767,15 @@ any LISP_SDL_ClearQueuedAudio(Context *CONTEXT_PTR, any ex)
 
 any PING(Context *CONTEXT_PTR, any ex)
 {
-    SDL_LockAudioDevice(2);
+    ex = cdr(ex);
+    NumberParam(word, buffer, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, bufferLength, car(ex));
 
-    buffer=bufferBAK;
-    bufferLength = bufferLengthBAK;
+    SDL_LockAudioDevice(2);
+    
+    UD.buffer = buffer;
+    UD.bufferLength = bufferLength;
 
     SDL_UnlockAudioDevice(2);
     return T;
