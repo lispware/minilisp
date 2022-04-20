@@ -68,9 +68,24 @@
 
 
 (de audioSetup ()
-    (setq AD (SDL_OpenAudioDevice))
-    #(LoadWAV "collide.wav"))
-    (LoadWAV "C4.wav"))
+    (let (
+        X (LoadWAV "C4.wav")
+        BUF (car X)
+        X (cdr X)
+        BUFLEN (car X)
+        X (cdr X)
+        FREQ (car X)
+        X (cdr X)
+        FORMAT (car X)
+        X (cdr X)
+        CHANNELS (car X)
+        X (cdr X)
+        SAMPLES (car X)
+        )
+    (setq BUFFER BUF)
+    (setq BUFFER_LENGTH BUFLEN)
+    (setq AD (SDL_OpenAudioDevice FREQ FORMAT CHANNELS SAMPLES))))
+
 (de audioDemo (N)
     #(do 1 (for I N (do 1 (SDL_LockMutex MUTEX) (PlayWAV AD) (SDL_UnlockMutex)))) (sleep 3000) )
     (thread () (do 1 (for I N (do 1 (PlayWAV AD))))  ))
