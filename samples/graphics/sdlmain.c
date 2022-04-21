@@ -5623,7 +5623,7 @@ any LISP_SDL_RenderCopy(Context *CONTEXT_PTR, any ex)
 typedef struct _userdata
 {
     byte *buffer;
-    int bufferLength
+    int bufferLength;
 } UserData;
 
 UserData UD;
