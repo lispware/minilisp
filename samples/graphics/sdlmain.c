@@ -5825,6 +5825,8 @@ int main(int argc, char* av[])
     CONTEXT_PTR->ApplyBody = Nil;
 
     loadAll(CONTEXT_PTR, NULL);
+    while (!feof(stdin))
+        load(CONTEXT_PTR, NULL, ':', Nil);
 
     return 0;
 }
