@@ -5765,6 +5765,21 @@ any LISP_SDL_ClearQueuedAudio(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
+any LISP_SDL_SetWindowSize(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, window, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, w, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, h, car(ex));
+
+    printf("Setting the window size to %d %d\n", w, h);
+    SDL_SetWindowSize((SDL_Window*)window, w, h);
+
+    return T;
+}
+
 any PING(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
@@ -5808,6 +5823,7 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_UnlockMutex", LISP_SDL_UnlockMutex);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_OpenAudioDevice", LISP_SDL_OpenAudionDevice);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_ClearQueuedAudio", LISP_SDL_ClearQueuedAudio);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_SetWindowSize", LISP_SDL_SetWindowSize);
 
 
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
