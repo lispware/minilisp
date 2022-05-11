@@ -20,8 +20,6 @@
 (setq TEXTURE (SDL_CreateTextureFromSurface RENDERER IMAGE_SURFACE))
 (SDL_FreeSurface IMAGE_SURFACE)
 
-(SDL_GetSurface WIN)
-
 (setq SPACES (pack (make (do (car (/ WIDTH FONT_WIDTH)) (link " ")))))
 
 (de reverse (L)

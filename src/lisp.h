@@ -59,9 +59,12 @@ extern int PUSH_POP;
 #if INTPTR_MAX == INT32_MAX
     #define WORD_TYPE uint32_t
     #define SIGNED_WORD_TYPE int32_t
+    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mp_get_i32(num((P))); }
 #elif INTPTR_MAX == INT64_MAX
     #define WORD_TYPE uint64_t
     #define SIGNED_WORD_TYPE int64_t
+    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mp_get_i64(num((P))); }
+    #define mp_set mp_set_i64
 #else
     #error "Unsupported bit width"
 #endif
@@ -205,6 +208,7 @@ typedef enum
 {
     EXT_SOCKET,
     EXT_NUM,
+    EXT_MALLOC,
 } EXT_TYPE;
 
 typedef struct _external
@@ -444,6 +448,8 @@ any doSocket(Context *CONTEXT_PTR, any ex);
 any doConnect(Context *CONTEXT_PTR, any ex);
 any doTid(Context *CONTEXT_PTR, any ex);
 any doOs(Context *CONTEXT_PTR, any ex);
+any doAlloc(Context *CONTEXT_PTR, word size, void (*destructor)(external*));
+external *allocateMemBlock(Context *CONTEXT_PTR, word size, void (*destructor)(external*));
 
 extern int MEMS;
 extern any Mem;

@@ -2,14 +2,6 @@
 #include <SDL.h>
 #include <stdio.h>
 
-#if INTPTR_MAX == INT32_MAX
-#define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mp_get_i32(num((P))); }
-#elif INTPTR_MAX == INT64_MAX
-#define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mp_get_i64(num((P))); }
-#define mp_set mp_set_i64
-#else
-    #error "Unsupported bit width"
-#endif
 #define StringParam(P, R) char *R; { any __p = EVAL(CONTEXT_PTR, P); R = (char*)malloc(pathSize(CONTEXT_PTR, __p )); pathString(CONTEXT_PTR, __p, R);}
 #define GetNumberParam(p, r) if (isNum(p)) r = mp_get_i32(num((p))); else r = 0;
 
@@ -5774,7 +5766,6 @@ any LISP_SDL_SetWindowSize(Context *CONTEXT_PTR, any ex)
     ex = cdr(ex);
     NumberParam(word, h, car(ex));
 
-    printf("Setting the window size to %d %d\n", w, h);
     SDL_SetWindowSize((SDL_Window*)window, w, h);
 
     return T;
@@ -5794,6 +5785,45 @@ any PING(Context *CONTEXT_PTR, any ex)
 
     SDL_UnlockAudioDevice(2);
     return T;
+}
+
+void SurfaceDestructor(external *ptr)
+{
+    printf("DEST CA\n");
+    word *wptr = ptr->pointer;
+    SDL_Surface* imageSurface = wptr[1];
+    SDL_FreeSurface(imageSurface);
+    printf("FREE %p\n", imageSurface);
+}
+
+any LISP_SDL_LoadBMP2(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    StringParam(car(ex), imagePath);
+
+    SDL_Surface* imageSurface = SDL_LoadBMP(imagePath);
+    free(imagePath);
+
+
+
+
+    printf("POINTER1 = adfadds DESTRUCT = %p\n ", SurfaceDestructor);
+    external *ptr = allocateMemBlock(CONTEXT_PTR, 100, SurfaceDestructor);
+
+    printf("POINTER2 = adfadds\n");
+    printf("POINTER3 = %p\n", ptr->pointer);
+    word *_ptr = (word*)ptr->pointer;
+
+    _ptr[1] = imageSurface;
+    printf("ImageSurface = %p\n", imageSurface);
+
+    any R = cons(CONTEXT_PTR, Nil, Nil);
+    car(R) = (any)ptr;
+    setCARType(R, EXT);
+
+    return R;
+   
+
 }
 
 #undef main
@@ -5824,6 +5854,8 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_OpenAudioDevice", LISP_SDL_OpenAudionDevice);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_ClearQueuedAudio", LISP_SDL_ClearQueuedAudio);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_SetWindowSize", LISP_SDL_SetWindowSize);
+
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_LoadBMP2", LISP_SDL_LoadBMP2);
 
 
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
