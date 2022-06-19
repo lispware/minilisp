@@ -4622,33 +4622,27 @@ void releaseSocket(struct _external* obj)
 
 void releaseMalloc(external *ext)
 {
-    printf("RELEASING MEM\n");
     word *ptr = ext->pointer;
-    void (*fp)(external *) = *ptr;
-
-    printf("DESTRUCTOR = %p\n", fp);
-    fp(ext);
-
+    void (*destructor)(external *) = *ptr;
+    destructor(ext);
     free(ext->pointer);
     free(ext);
 }
 
 char * printMalloc(Context *CONTEXT_PTR, external* ext)
 {
-    printf("PRINT MEM\n");
-    char *mem=(char*)malloc(100);
-    strcpy(mem, "ABCD");
+    char *mem=(char*)malloc(7);
+    strcpy(mem, "MALLOC");
     return mem;
 }
 
 int equalMalloc(Context *CONTEXT_PTR, external *ext1, external *ext2)
 {
-    printf("EQUAL MEM\n");
+    return 0;
 }
 
 external *copyMalloc(Context *CONTEXT_PTR, external *ext)
 {
-    printf("COPY MEM\n");
     return ext;
 }
 
@@ -4663,7 +4657,7 @@ external *allocateMemBlock(Context *CONTEXT_PTR, word size, void (*destructor)(e
     ptr->pointer = (void*)malloc(size);
 
     word *dest = ptr->pointer;
-    *dest = destructor;
+    *dest = (word)destructor;
 
     return ptr;
 }

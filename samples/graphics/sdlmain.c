@@ -5523,7 +5523,12 @@ any LISP_SDL_CreateTextureFromSurface(Context *CONTEXT_PTR, any ex)
     ex = cdr(ex);
     NumberParam(word, renderer, car(ex));
     ex = cdr(ex);
-    NumberParam(word, surface, car(ex));
+
+    any P = EVAL(CONTEXT_PTR, car(ex));
+    external *ptr = car(P);
+    word *_ptr = (word*)ptr->pointer;
+
+    SDL_Surface *surface = (SDL_Surface*)_ptr[1];
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface((SDL_Renderer*)renderer, (SDL_Surface*)surface);
 
@@ -5534,16 +5539,6 @@ any LISP_SDL_CreateTextureFromSurface(Context *CONTEXT_PTR, any ex)
     NewNumber(id, idr);
 
     return idr;
-}
-
-any LISP_SDL_FreeSurface(Context *CONTEXT_PTR, any ex)
-{
-    ex = cdr(ex);
-    NumberParam(word, surface, car(ex));
-
-    SDL_FreeSurface((SDL_Surface*)surface);
-
-    return T;
 }
 
 any LISP_SDL_RenderCopy(Context *CONTEXT_PTR, any ex)
@@ -5789,11 +5784,9 @@ any PING(Context *CONTEXT_PTR, any ex)
 
 void SurfaceDestructor(external *ptr)
 {
-    printf("DEST CA\n");
     word *wptr = ptr->pointer;
     SDL_Surface* imageSurface = wptr[1];
     SDL_FreeSurface(imageSurface);
-    printf("FREE %p\n", imageSurface);
 }
 
 any LISP_SDL_LoadBMP2(Context *CONTEXT_PTR, any ex)
@@ -5803,8 +5796,6 @@ any LISP_SDL_LoadBMP2(Context *CONTEXT_PTR, any ex)
 
     SDL_Surface* imageSurface = SDL_LoadBMP(imagePath);
     free(imagePath);
-
-
 
 
     printf("POINTER1 = adfadds DESTRUCT = %p\n ", SurfaceDestructor);
@@ -5837,7 +5828,6 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_CreateWindow", LISP_SDL_CreateWindow);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_Delay", LISP_SDL_Delay);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_DestroyWindow", LISP_SDL_DestroyWindow);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_FreeSurface", LISP_SDL_FreeSurface);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_GetSurface", LISP_SDL_GetSurface);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_Init", LISP_SDL_Init);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_LoadBMP", LISP_SDL_LoadBMP);

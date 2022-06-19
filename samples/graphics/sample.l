@@ -16,9 +16,8 @@
 
 
 
-(setq IMAGE_SURFACE (SDL_LoadBMP "kong.bmp"))
-(setq TEXTURE (SDL_CreateTextureFromSurface RENDERER IMAGE_SURFACE))
-(SDL_FreeSurface IMAGE_SURFACE)
+(let IMAGE_SURFACE (SDL_LoadBMP2 "kong.bmp")
+    (setq TEXTURE (SDL_CreateTextureFromSurface RENDERER IMAGE_SURFACE)))
 
 (setq SPACES (pack (make (do (car (/ WIDTH FONT_WIDTH)) (link " ")))))
 
