@@ -5501,23 +5501,6 @@ any LISP_SDL_UnlockMutex(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
-any LISP_SDL_LoadBMP(Context *CONTEXT_PTR, any ex)
-{
-    ex = cdr(ex);
-    StringParam(car(ex), imagePath);
-
-    SDL_Surface* imageSurface = SDL_LoadBMP(imagePath);
-    free(imagePath);
-
-    mp_int *id = (mp_int*)malloc(sizeof(mp_int));
-    mp_err _mp_error = mp_init(id);
-    mp_set(id, (word)imageSurface);
-
-    NewNumber(id, idr);
-
-    return idr;
-}
-
 any LISP_SDL_CreateTextureFromSurface(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
@@ -5830,7 +5813,6 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_DestroyWindow", LISP_SDL_DestroyWindow);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_GetSurface", LISP_SDL_GetSurface);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_Init", LISP_SDL_Init);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_LoadBMP", LISP_SDL_LoadBMP);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_LockMutex", LISP_SDL_LockMutex);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_PollEvent", LISP_SDL_PollEvent);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_Quit", LISP_SDL_Quit);
