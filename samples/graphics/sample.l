@@ -83,6 +83,9 @@
     (setq BUFFER_LENGTH BUFLEN)
     (setq AD (SDL_OpenAudioDevice FREQ FORMAT CHANNELS SAMPLES))))
 
+
+# UD.buffer and UD.bufferLength in LISP_SDL_OpenAudionDevice needs to 
+# be fixed for the audio to work
 (de audioDemo (N)
     #(do 1 (for I N (do 1 (SDL_LockMutex MUTEX) (PlayWAV AD) (SDL_UnlockMutex)))) (sleep 3000) )
     (thread () (do 1 (for I N (do 1 (PlayWAV AD))))  ))
