@@ -2,8 +2,8 @@
 
 (SDL_Init (| SDL_INIT_VIDEO SDL_INIT_AUDIO))
 
-(setq HEIGHT 1000)
-(setq WIDTH 1500)
+(setq HEIGHT 1200)
+(setq WIDTH 1200)
 (setq FONT_WIDTH 10)
 (setq FONT_HEIGHT 18)
 (setq MAGNIFICATION 1)
@@ -15,8 +15,7 @@
 (setq MUTEX (SDL_CreateMutex))
 
 
-
-(let IMAGE_SURFACE (SDL_LoadBMP2 "kong.bmp")
+(let IMAGE_SURFACE (SDL_LoadBMP "background.bmp")
     (setq TEXTURE (SDL_CreateTextureFromSurface RENDERER IMAGE_SURFACE)))
 
 (setq SPACES (pack (make (do (car (/ WIDTH FONT_WIDTH)) (link " ")))))
@@ -60,8 +59,7 @@
 (de update () (SDL_RendererPresent RENDERER))
 
 (de dd ()
-    (SDL_RenderCopy RENDERER TEXTURE Nil (100 100 400 400)))
-    #(SDL_RenderCopy RENDERER TEXTURE (100 100 200 200) (100 100 100 100)))
+    (SDL_RenderCopy RENDERER TEXTURE Nil (100 100 1000 1000)))
 
 
 (de audioSetup ()

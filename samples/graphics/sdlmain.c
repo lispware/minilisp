@@ -5772,7 +5772,7 @@ void SurfaceDestructor(external *ptr)
     SDL_FreeSurface(imageSurface);
 }
 
-any LISP_SDL_LoadBMP2(Context *CONTEXT_PTR, any ex)
+any LISP_SDL_LoadBMP(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
     StringParam(car(ex), imagePath);
@@ -5780,24 +5780,17 @@ any LISP_SDL_LoadBMP2(Context *CONTEXT_PTR, any ex)
     SDL_Surface* imageSurface = SDL_LoadBMP(imagePath);
     free(imagePath);
 
-
-    printf("POINTER1 = adfadds DESTRUCT = %p\n ", SurfaceDestructor);
     external *ptr = allocateMemBlock(CONTEXT_PTR, 100, SurfaceDestructor);
 
-    printf("POINTER2 = adfadds\n");
-    printf("POINTER3 = %p\n", ptr->pointer);
     word *_ptr = (word*)ptr->pointer;
 
     _ptr[1] = imageSurface;
-    printf("ImageSurface = %p\n", imageSurface);
 
     any R = cons(CONTEXT_PTR, Nil, Nil);
     car(R) = (any)ptr;
     setCARType(R, EXT);
 
     return R;
-   
-
 }
 
 #undef main
@@ -5827,7 +5820,7 @@ int main(int argc, char* av[])
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_ClearQueuedAudio", LISP_SDL_ClearQueuedAudio);
     addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_SetWindowSize", LISP_SDL_SetWindowSize);
 
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_LoadBMP2", LISP_SDL_LoadBMP2);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_LoadBMP", LISP_SDL_LoadBMP);
 
 
     addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
