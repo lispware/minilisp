@@ -2,11 +2,11 @@ PARALLEL=-j6
 OPT=-g3
 MATH_OPT=-o3
 
-SOURCES=main.c lisp.c unix.c 
+SOURCES=main.c lisp.c unix.c gmp.c
 EXE=lisp
 
 64: $(SOURCES) libtommath64.a
-	$(CC) $(OPT) -I libtommath $(SOURCES) libtommath64.a -lpthread -o $(EXE)
+	$(CC) $(OPT) -I libtommath -I . $(SOURCES) libtommath64.a -lpthread -o $(EXE)
 
 32: $(SOURCES) libtommath32.a
 	$(CC) -m32 $(OPT) -I libtommath $(SOURCES) libtommath32.a -lpthread -o $(EXE)
