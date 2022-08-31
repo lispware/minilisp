@@ -6,7 +6,7 @@ SOURCES=main.c lisp.c unix.c gmp.c
 EXE=lisp
 
 64: $(SOURCES) libtommath64.a
-	$(CC) $(OPT) -I libtommath -I . $(SOURCES) libtommath64.a -lpthread -o $(EXE)
+	$(CC) $(OPT) -DB64 -I libtommath -I . $(SOURCES) libtommath64.a -lpthread -o $(EXE)
 
 32: $(SOURCES) libtommath32.a
 	$(CC) -m32 $(OPT) -I libtommath $(SOURCES) libtommath32.a -lpthread -o $(EXE)

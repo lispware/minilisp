@@ -647,12 +647,11 @@ any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
         else if ((c -= '0') > 9) goto returnNULL;
     }
 
-    mp_int *BIGNUM = (mp_int*)malloc(sizeof(mp_int));
-    mp_err _mp_error = mp_init(BIGNUM); // TODO handle the error appropriately
-    _mp_error = mp_read_radix(BIGNUM, str, base);
-    free(str);
 
-    NewNumber( BIGNUM, r);
+    MP_INT *BIGNUM = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init_set_str(BIGNUM, str, base);
+    free(str);
+    NewNumber(BIGNUM, r);
     return r;
 
 returnNULL:
@@ -1528,12 +1527,9 @@ any doQuote(Context *CONTEXT_PTR, any x)
 
 any mkNum(Context *CONTEXT_PTR, word n)
 {
-    mp_err _mp_error;
-
-    mp_int *BIGNUM = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(BIGNUM);
-    mp_set(BIGNUM, n);
-
+    MP_INT *BIGNUM = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(BIGNUM);
+    mpz_set(BIGNUM, n);
     NewNumber( BIGNUM, r);
     return r;
 }
@@ -2426,11 +2422,7 @@ int equalExtNum(Context *CONTEXT_PTR, external*x, external*y)
 
 char * printExtNum(Context *CONTEXT_PTR, struct _external* obj)
 {
-    int len;
-    mp_err _mp_error = mp_radix_size((mp_int*)obj->pointer, 10, &len);
-    char *buf = (char*)malloc(len);
-    _mp_error = mp_to_radix((mp_int*)obj->pointer, buf, len, NULL, 10);
-    return buf;
+    return mpz_get_str(NULL, 10, (MP_INT*)obj->pointer);
 }
 
 // (++ var) -> any
