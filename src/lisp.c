@@ -2251,18 +2251,18 @@ any doAdd(Context *CONTEXT_PTR, any ex)
     x = cdr(ex);
     if (isNil(data(c1) = EVAL(CONTEXT_PTR, car(x))))
     {
-        mp_int *id = (mp_int*)malloc(sizeof(mp_int));
-        _mp_error = mp_init(id); // TODO handle the errors appropriately
-        mp_set_i32(id, 0);
-        NewNumber( id, idr);
+        MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
+        mpz_init(id);
+        mpz_set_ui(id, 0);
+        NewNumber(id, idr);
         return idr;
     }
 
     NeedNum(ex, data(c1));
 
-    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(n); // TODO handle the errors appropriately
-    _mp_error = mp_copy(num(data(c1)), n);
+    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(n);
+    mpz_set(n, num(data(c1)));
 
     NewNumber( n, r);
     Push(c1, r);
@@ -2277,8 +2277,8 @@ any doAdd(Context *CONTEXT_PTR, any ex)
         }
 
         NeedNum(ex,data(c2));
-        mp_int *m = num(data(c2));
-        _mp_error = mp_add(n, m, n);
+        MP_INT *m = num(data(c2));
+        mpz_add(n, m, n);
 
         drop(c2);
     }
