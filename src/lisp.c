@@ -2215,26 +2215,26 @@ any doNumGt(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(n);
-    _mp_error = mp_copy(num(y), n);
+    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(n);
+    mpz_set(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        mp_int *m = num(y);
-        if (MP_GT != mp_cmp(n, m))
+        MP_INT *m = num(y);
+        if (mpz_cmp(n, m) <= 0)
         {
-            mp_clear(n);
+            mpz_clear(n);
             free(n);
             return Nil;
         }
 
     }
 
-    mp_clear(n);
+    mpz_clear(n);
     free(n);
     return T;
 }
@@ -2246,7 +2246,6 @@ any doAdd(Context *CONTEXT_PTR, any ex)
 {
     any x;
     cell c1, c2;
-    mp_err _mp_error;
 
     x = cdr(ex);
     if (isNil(data(c1) = EVAL(CONTEXT_PTR, car(x))))
@@ -2291,7 +2290,6 @@ any doInc(Context *CONTEXT_PTR, any ex)
 {
     any x;
     cell c1, c2;
-    mp_err _mp_error;
 
     x = cdr(ex);
     if (isNil(data(c1) = EVAL(CONTEXT_PTR, car(x))))
@@ -2299,9 +2297,10 @@ any doInc(Context *CONTEXT_PTR, any ex)
 
     NeedNum(ex, data(c1));
 
-    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(n); // TODO handle the errors appropriately
-    _mp_error = mp_add_d(num(data(c1)), 1, n);
+    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(n); // TODO handle the errors appropriately
+    mpz_add_ui(n, num(data(c1)), 1);
+
 
     NewNumber( n, r);
 
