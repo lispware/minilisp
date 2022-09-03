@@ -1204,9 +1204,9 @@ any doCmp(Context *CONTEXT_PTR, any x)
         {
             drop(c1);
 
-            mp_int *id = (mp_int*)malloc(sizeof(mp_int));
-            _mp_error = mp_init(id); // TODO handle the errors appropriately
-            mp_set_i32(id, r);
+            MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
+            mpz_init(id);
+            mpz_set_si(id, r);
             NewNumber( id, idr);
             return idr;
         }
@@ -1216,9 +1216,9 @@ any doCmp(Context *CONTEXT_PTR, any x)
 
     drop(c1);
 
-    mp_int *id = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(id); // TODO handle the errors appropriately
-    mp_set_i32(id, 0);
+    MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(id);
+    mpz_set_ui(id, 0);
 
     NewNumber( id, idr);
     return idr;
@@ -2411,7 +2411,7 @@ int equalExtNum(Context *CONTEXT_PTR, external*x, external*y)
         return 1;
     }
 
-    return mp_cmp((mp_int*)x->pointer, (mp_int*)y->pointer);
+    return mpz_cmp((MP_INT*)x->pointer, (MP_INT*)y->pointer);
 }
 
 char * printExtNum(Context *CONTEXT_PTR, struct _external* obj)
