@@ -2144,10 +2144,9 @@ any doBinRShift(Context *CONTEXT_PTR, any ex)
     return r;
 }
 
-// (+ 'num ..) -> num
+// (< 'num ..) -> num
 any doNumLt(Context *CONTEXT_PTR, any ex)
 {
-    mp_err _mp_error;
     any x, y;
 
     x = cdr(ex);
@@ -2155,9 +2154,9 @@ any doNumLt(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(n);
-    _mp_error = mp_copy(num(y), n);
+    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(n);
+    mpz_set(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
@@ -2165,7 +2164,7 @@ any doNumLt(Context *CONTEXT_PTR, any ex)
             return Nil;
         NeedNum(ex,y);
         mp_int *m = num(y);
-        if (MP_LT != mp_cmp(n, m))
+        if (mpz_cmp(n, m) > 0)
         {
             mp_clear(n);
             free(n);
@@ -2183,7 +2182,6 @@ any doNumLt(Context *CONTEXT_PTR, any ex)
 // (+ 'num ..) -> num
 any doNumGt(Context *CONTEXT_PTR, any ex)
 {
-    mp_err _mp_error;
     any x, y;
 
     x = cdr(ex);
@@ -2200,17 +2198,17 @@ any doNumGt(Context *CONTEXT_PTR, any ex)
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        MP_INT *m = num(y);
-        if (mpz_cmp(n, m) <= 0)
+        mp_int *m = num(y);
+        if (mpz_cmp(n, m) < 0)
         {
-            mpz_clear(n);
+            mp_clear(n);
             free(n);
             return Nil;
         }
 
     }
 
-    mpz_clear(n);
+    mp_clear(n);
     free(n);
     return T;
 }
