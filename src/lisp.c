@@ -1408,7 +1408,6 @@ void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp)
 {
     int c, j;
     uword w;
-    mp_err _mp_error;
 
     if (!isNil(x) && isCell(x))
     {
@@ -1427,15 +1426,13 @@ void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp)
     }
     if (isNum(x))
     {
-        int len;
-        _mp_error = mp_radix_size(num(x), 10, &len);
-        char *buf = (char*)malloc(len);
-
-        _mp_error = mp_to_radix(num(x), buf, len, NULL, 10);
+        char *buf = mpz_get_str(NULL, 10, num(x));
         char *b = buf;
 
         do
+        {
             putByte(CONTEXT_PTR, *b++, i, p, q, cp);
+        }
         while (*b);
         free(buf);
     }
