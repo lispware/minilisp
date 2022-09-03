@@ -2029,7 +2029,6 @@ any doBinNot(Context *CONTEXT_PTR, any ex)
 any doBinAnd(Context *CONTEXT_PTR, any ex)
 {
     any x, y;
-    mp_err _mp_error;
 
     x = cdr(ex);
     if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
@@ -2058,7 +2057,6 @@ any doBinAnd(Context *CONTEXT_PTR, any ex)
 any doBinOr(Context *CONTEXT_PTR, any ex)
 {
     any x, y;
-    mp_err _mp_error;
 
     x = cdr(ex);
     if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
@@ -2086,7 +2084,6 @@ any doBinOr(Context *CONTEXT_PTR, any ex)
 // (x| 'num ..) -> num
 any doBinXor(Context *CONTEXT_PTR, any ex)
 {
-    mp_err _mp_error;
     any x, y;
 
     x = cdr(ex);
@@ -2094,17 +2091,17 @@ any doBinXor(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(n);
-    _mp_error = mp_copy(num(y), n);
+    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(n);
+    mpz_set(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        mp_int *m = num(y);
-        _mp_error = mp_xor(n, m, n);
+        MP_INT *m = num(y);
+        mpz_xor(n, m, n);
 
     }
 
@@ -2115,7 +2112,6 @@ any doBinXor(Context *CONTEXT_PTR, any ex)
 // (>> 'num ..) -> num
 any doBinRShift(Context *CONTEXT_PTR, any ex)
 {
-    mp_err _mp_error;
     any x, y;
     word s = 1;
 
@@ -2124,23 +2120,23 @@ any doBinRShift(Context *CONTEXT_PTR, any ex)
 
     if (isNil(p1) || !isNum(p1)) return Nil;
 
-    s = mp_get_i32(num(p1));
+    s = mpz_get_si(num(p1));
 
     x = cdr(x);
     any p2 = EVAL(CONTEXT_PTR, car(x));
 
     if (isNil(p2) || !isNum(p2)) return Nil;
 
-    mp_int *m = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(m);
+    MP_INT *m = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(m);
     if (s >= 0)
     {
-        _mp_error = mp_div_2d(num(p2), s, m, NULL);
+        mpz_div_2exp(m, num(p2), s);
     }
     else
     {
         s *= -1;
-        _mp_error = mp_mul_2d(num(p2), s, m);
+        mpz_mul_2exp(m, num(p2), s);
     }
 
     NewNumber( m, r);
