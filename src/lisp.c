@@ -1871,7 +1871,6 @@ any doSub(Context *CONTEXT_PTR, any ex)
 // (/ 'num ..) -> num
 any doDiv(Context *CONTEXT_PTR, any ex)
 {
-    mp_err _mp_error;
     cell c1, c2;
     any x, y, z;
 
@@ -1894,11 +1893,11 @@ any doDiv(Context *CONTEXT_PTR, any ex)
     NeedNum(ex, data(c2));
 
     data(c2) = copyNum(CONTEXT_PTR, data(c2));
-    mp_int *c = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(c);
-    mp_int *d = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(d);
-    _mp_error = mp_div(num(data(c1)), num(data(c2)), c, d);
+    MP_INT *c = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(c);
+    MP_INT *d = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(d);
+    mpz_divmod(c, d, num(data(c1)), num(data(c2)));
 
     NewNumber( c, r1);
     data(c1) = r1;
