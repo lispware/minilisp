@@ -1447,36 +1447,37 @@ void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp)
 
 any doDo(Context *CONTEXT_PTR, any x)
 {
-    mp_err _mp_error;
     any f, y, z, a;
-    mp_int CTR, ONE;
-    _mp_error = mp_init(&ONE);
-    _mp_error = mp_init(&CTR);
+    MP_INT CTR, ONE;
+    mpz_init(&ONE);
+    mpz_init(&CTR);
 
-    mp_set(&ONE, 1); // TODO - Free the ints
+    mpz_set_ui(&ONE, 1);
 
     x = cdr(x);
     if (isNil(f = EVAL(CONTEXT_PTR, car(x))))
     {
-        mp_clear_multi(&ONE, &CTR, NULL);
+        mpz_clear(&CTR);
+        mpz_clear(&ONE);
         return Nil;
     }
     else
     {
-        _mp_error = mp_copy(num(f), &CTR);
+        mpz_set(&CTR, num(f));
     }
 
     x = cdr(x),  z = Nil;
     for (;;)
     {
-        int cmp = mp_cmp(&CTR, &ONE); 
+        int cmp = mpz_cmp(&CTR, &ONE); 
         if (cmp >= 0)
         {
-            _mp_error = mp_decr(&CTR);
+            mpz_sub_ui(&CTR, &CTR, 1);
         }
         else
         {
-            mp_clear_multi(&ONE, &CTR, NULL);
+            mpz_clear(&CTR);
+            mpz_clear(&ONE);
             return z;
         }
         y = x;
@@ -1489,7 +1490,8 @@ any doDo(Context *CONTEXT_PTR, any x)
                     z = cdr(z);
                     if (isNil(a = EVAL(CONTEXT_PTR, car(z))))
                     {
-                        mp_clear_multi(&ONE, &CTR, NULL);
+                        mpz_clear(&CTR);
+                        mpz_clear(&ONE);
                         return prog(CONTEXT_PTR, cdr(z));
                     }
                     val(At) = a;
@@ -1501,7 +1503,8 @@ any doDo(Context *CONTEXT_PTR, any x)
                     if (!isNil(a = EVAL(CONTEXT_PTR, car(z))))
                     {
                         val(At) = a;
-                        mp_clear_multi(&ONE, &CTR, NULL);
+                        mpz_clear(&CTR);
+                        mpz_clear(&ONE);
                         return prog(CONTEXT_PTR, cdr(z));
                     }
                     z = Nil;
