@@ -1957,7 +1957,6 @@ any doMul(Context *CONTEXT_PTR, any ex)
 // (** 'num ..) -> num
 any doPow(Context *CONTEXT_PTR, any ex)
 {
-    mp_err _mp_error;
     any x, y;
 
     x = cdr(ex);
@@ -1965,9 +1964,9 @@ any doPow(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(n);
-    _mp_error = mp_copy(num(y), n);
+    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(n);
+    mpz_set(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
@@ -1975,8 +1974,8 @@ any doPow(Context *CONTEXT_PTR, any ex)
             return Nil;
         NeedNum(ex,y);
 
-        int m = mp_get_i32(num(y));
-        _mp_error = mp_expt_u32(n, m, n);
+        int m = mpz_get_ui(num(y));
+        mpz_pow_ui(n, n, m);
 
     }
 
