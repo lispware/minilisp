@@ -3115,11 +3115,11 @@ any doChar(Context *CONTEXT_PTR, any ex)
     if (isSym(x))
     {
 
-        mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-        mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
-        mp_set(n, firstByte(CONTEXT_PTR, x));
+        MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+        mpz_init(n);
+        mpz_set_ui(n, firstByte(CONTEXT_PTR, x));
 
-        NewNumber( n, r);
+        NewNumber(n, r);
         return r;
     }
     return Nil;
@@ -3137,15 +3137,12 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
     p2 = EVAL(CONTEXT_PTR, p2);
     if (isNum(p2))
     {
-        base = mp_get_i32(num(p2));
+        base = mpz_get_ui(num(p2));
     }
 
     if (isNum(p1))
     {
-        int len;
-        mp_err _mp_error = mp_radix_size(num(p1), base, &len);
-        char *buf = (char*)malloc(len);
-        _mp_error = mp_to_radix(num(p1), buf, len, NULL, base);
+        char *buf = mpz_get_str(NULL, base, num(p1));
         any r = mkSym(CONTEXT_PTR, (byte*)buf);
         free(buf);
         return r;
@@ -3157,9 +3154,9 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
         char *str = (char *)calloc(LEN, 1);
         sym2str(CONTEXT_PTR, p1, str);
 
-        mp_int *BIGNUM = (mp_int*)malloc(sizeof(mp_int));
-        mp_err _mp_error = mp_init(BIGNUM); // TODO handle the error appropriately
-        _mp_error = mp_read_radix(BIGNUM, str, base);
+        MP_INT *BIGNUM = (MP_INT*)malloc(sizeof(MP_INT));
+        mpz_init(BIGNUM);
+        mpz_init_set_str(BIGNUM, str, base);
         free(str);
 
         NewNumber( BIGNUM, r);
