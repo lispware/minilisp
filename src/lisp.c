@@ -2442,9 +2442,9 @@ any indx(Context *CONTEXT_PTR, any x, any y)
 {
     any z = y;
 
-    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-    mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
-    mp_set(n, 1);
+    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(n);
+    mpz_set_ui(n, 1);
 
     while (!isNil(y))
     {
@@ -2453,7 +2453,7 @@ any indx(Context *CONTEXT_PTR, any x, any y)
             NewNumber( n, r);
             return r;
         }
-        _mp_error = mp_incr(n);
+        mpz_add_ui(n, n, 1);
         if (z == (y = cdr(y)))
             return Nil;
     }
@@ -2518,24 +2518,23 @@ any doLength(Context *CONTEXT_PTR, any x)
     uword w;
     int n, c;
     any y;
-    mp_err _mp_error;
     int lengthBiggerThanZero=0;
 
     x = EVAL(CONTEXT_PTR, cadr(x));
     CellPartType t = GetType(x);
-    mp_int *r = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(r); // TODO handle the errors appropriately
-    mp_set_i32(r, 0);
+    MP_INT *r = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(r); // TODO handle the errors appropriately
+    mpz_set_ui(r, 0);
 
     if (isNil(x))
     {
-        mp_clear(r);
+        mpz_clear(r);
         free(r);
         return Nil;
     }
     if (isNum(x))
     {
-        mp_clear(r);
+        mpz_clear(r);
         free(r);
         return x;
     }
@@ -2548,7 +2547,7 @@ any doLength(Context *CONTEXT_PTR, any x)
             if (w) lengthBiggerThanZero = 1;
             while (w)
             {
-                _mp_error = mp_incr(r);
+                mpz_add_ui(r, r, 1);
                 w >>= 8;
             }
             x = x->cdr;
@@ -2559,20 +2558,20 @@ any doLength(Context *CONTEXT_PTR, any x)
         lengthBiggerThanZero = 1;
         while (!isNil(x))
         {
-            _mp_error = mp_incr(r);
+            mpz_add_ui(r, r, 1);
             x = cdr(x);
         }
     }
     else
     {
-        mp_clear(r);
+        mpz_clear(r);
         free(r);
         return Nil;
     }
 
     if (!lengthBiggerThanZero)
     {
-        mp_clear(r);
+        mpz_clear(r);
         free(r);
         return Nil;
     }
