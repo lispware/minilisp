@@ -2021,22 +2021,8 @@ any doMod(Context *CONTEXT_PTR, any ex)
 // (& 'num ..) -> num
 any doBinNot(Context *CONTEXT_PTR, any ex)
 {
-    mp_err _mp_error;
-    any x, y;
-
-    x = cdr(ex);
-    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
-        return Nil;
-    NeedNum(ex,y);
-
-    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(n);
-    _mp_error = mp_copy(num(y), n);
-
-    _mp_error = mp_complement(n, n);
-
-    NewNumber( n, r);
-    return r;
+    // TODO REVISIT
+    return Nil;
 }
 
 // (& 'num ..) -> num
@@ -2050,17 +2036,17 @@ any doBinAnd(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(n);
-    _mp_error = mp_copy(num(y), n);
+    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(n);
+    mpz_set(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        mp_int *m = num(y);
-        _mp_error = mp_and(n, m, n);
+        MP_INT *m = num(y);
+        mpz_and(n, m, n);
 
     }
 
@@ -2079,17 +2065,17 @@ any doBinOr(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(n);
-    _mp_error = mp_copy(num(y), n);
+    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(n);
+    mpz_set(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        mp_int *m = num(y);
-        _mp_error = mp_or(n, m, n);
+        MP_INT *m = num(y);
+        mpz_or(n, m, n);
 
     }
 
