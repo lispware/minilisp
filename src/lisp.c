@@ -3170,23 +3170,29 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
 any doRd(Context *CONTEXT_PTR, any ex)
 {
     int EndReached = 0;
-    mp_err _mp_error;
     any params = cdr(ex);
     any p1 = car(params);
     any p2 = cadr(params);
-    any p3 = caddr(params);
 
     p1 = EVAL(CONTEXT_PTR, p1);
     if (!isNum(p1)) return Nil;
-    size_t count = mp_get_i32(num(p1));
+    size_t count = mpz_get_ui(num(p1));
 
-    unsigned char *buf = (char *)malloc(count);
-    //if (fread(buf, 1, count, CONTEXT_PTR->InFile) == 0)
-    //{
-    //    // TODO - EOF probably or some other error
-    //    return Nil;
-    //}
 
+    mp_order order = MP_LSB_FIRST;
+    p2 = EVAL(CONTEXT_PTR, p2);
+    if (isNum(p2))
+    {
+        if (mpz_get_ui(num(p2)) == 1) order = MP_MSB_FIRST;
+    }
+
+
+    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(n);
+
+    MP_INT *temp = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(temp);
+    // TODO use bignum instead of int for count?
     for(int i = 0;i < count; i++)
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
@@ -3196,30 +3202,34 @@ any doRd(Context *CONTEXT_PTR, any ex)
             count = i;
             break;
         }
-        buf[i] = CONTEXT_PTR->Chr;
+
+        if (i == 0)
+        {
+            mpz_set_ui(n, CONTEXT_PTR->Chr);
+        }
+        else
+        {
+            if (order == 1)
+            {
+                mpz_mul_ui(n, n, 256);
+                mpz_add_ui(n, n, CONTEXT_PTR->Chr);
+            }
+            else
+            {
+                mpz_set_ui(temp, CONTEXT_PTR->Chr);
+                for (int j = 0; j < i; j++)
+                {
+                    mpz_mul_ui(temp, temp, 256);
+                }
+                mpz_add(n, n, temp);
+            }
+        }
     }
+    mpz_clear(temp);
+    free(temp);
 
-    mp_order order = MP_LSB_FIRST;
-    p2 = EVAL(CONTEXT_PTR, p2);
-    if (isNum(p2))
-    {
-        if (mp_get_i32(num(p2)) == 1) order = MP_MSB_FIRST;
-    }
 
-    mp_endian endianess = MP_BIG_ENDIAN;
-    p3 = EVAL(CONTEXT_PTR, p3);
-    if (isNum(p3))
-    {
-        if (mp_get_i32(num(p3)) == 1) endianess = MP_LITTLE_ENDIAN;
-    }
-
-    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(n); // TODO handle the errors appropriately
-
-    _mp_error = mp_unpack(n, count, order, 1, endianess, 0, (const void *)buf);
-    free(buf);
-
-    NewNumber( n, r);
+    NewNumber(n, r);
     cell c1, c2;
     Push(c1, r);
     Push(c2, cons(CONTEXT_PTR, EndReached? Nil: T, Nil));
