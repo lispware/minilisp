@@ -1529,7 +1529,7 @@ any mkNum(Context *CONTEXT_PTR, word n)
 {
     MP_INT *BIGNUM = (MP_INT*)malloc(sizeof(MP_INT));
     mpz_init(BIGNUM);
-    mpz_set(BIGNUM, n);
+    mpz_set_ui(BIGNUM, n);
     NewNumber( BIGNUM, r);
     return r;
 }
@@ -1605,7 +1605,6 @@ any doDe(Context *CONTEXT_PTR, any ex)
 // (for (sym|(sym2 . sym) 'any1 'any2 [. prg]) ['any | (NIL 'any . prg) | (T 'any . prg) ..]) -> any
 any doFor(Context *CONTEXT_PTR, any x)
 {
-    mp_err _mp_error;
     any y, body, cond, a;
     cell c1;
     // struct {  // bindFrame
@@ -1653,14 +1652,14 @@ any doFor(Context *CONTEXT_PTR, any x)
         {
             if (isNum(data(c1)))
             {
-                if (! mp_cmp(num(f->bnd[0].sym->cdr), num(data(c1))))
+                if (! mpz_cmp(num(f->bnd[0].sym->cdr), num(data(c1))))
                     break;
 
-                mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-                _mp_error = mp_init(n); // TODO handle the errors appropriately
+                MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+                mpz_init(n);
 
-                _mp_error = mp_copy(num(f->bnd[0].sym->cdr), n);
-                _mp_error = mp_incr(n);
+                mpz_set(n, num(f->bnd[0].sym->cdr));
+                mpz_add_ui(n, n, 1);
 
                 NewNumber( n, r);
                 f->bnd[0].sym->cdr  = r;
@@ -3429,9 +3428,7 @@ void prin(Context *CONTEXT_PTR, any x)
 void outNum(Context *CONTEXT_PTR, any n)
 {
     int len;
-    mp_err _mp_error = mp_radix_size((mp_int*)car(n), 10, &len);
-    char *buf = (char*)malloc(len);
-    _mp_error = mp_to_radix(num(n), buf, len, NULL, 10);
+    char *buf = mpz_get_str(NULL, 10, num(n));
     outString(CONTEXT_PTR, buf);
     free(buf);
 }
