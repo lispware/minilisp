@@ -239,7 +239,7 @@ any pltConnect(Context *CONTEXT_PTR, any ex)
     y = EVAL(CONTEXT_PTR, car(x));
 
     NeedNum(ex,y);
-    n = mp_get_i32(num(y));
+    n = mpz_get_ui(num(y));
 
     cell c1;
 
@@ -319,9 +319,9 @@ void plt_thread_start(Context *CONTEXT_PTR, thread_func_t FUNC, int wait)
 
 any pltGetThreadId(Context *CONTEXT_PTR)
 {
-    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-    mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
-    mp_set(n, pthread_self());
+    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(n);
+    mpz_set_ui(n, pthread_self());
 
     NewNumber( n, r);
     return r;

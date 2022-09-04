@@ -3216,7 +3216,6 @@ any doRd(Context *CONTEXT_PTR, any ex)
 
 any doWr(Context *CONTEXT_PTR, any ex)
 {
-    mp_err _mp_error;
     any params = cdr(ex);
     any p1 = car(params);
     any p2 = cadr(params);
