@@ -1,7 +1,4 @@
 SOURCES=main.c lisp.c windows.c gmp.c
 
 all: $(SOURCES) libtommath/tommath.lib
-	cl /nologo /I libtommath /Zi ws2_32.lib advapi32.lib libtommath/tommath.lib $(SOURCES) /Felisp.exe
-
-libtommath/tommath.lib:
-	cd libtommath && nmake -f makefile.msvc
+	cl /nologo /I . /Zi ws2_32.lib advapi32.lib  $(SOURCES) /Felisp.exe
