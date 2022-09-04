@@ -2163,7 +2163,7 @@ any doNumLt(Context *CONTEXT_PTR, any ex)
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        mp_int *m = num(y);
+        MP_INT *m = num(y);
         if (mpz_cmp(n, m) > 0)
         {
             mp_clear(n);
@@ -2198,7 +2198,7 @@ any doNumGt(Context *CONTEXT_PTR, any ex)
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        mp_int *m = num(y);
+        MP_INT *m = num(y);
         if (mpz_cmp(n, m) < 0)
         {
             mp_clear(n);
@@ -3083,7 +3083,7 @@ any doChar(Context *CONTEXT_PTR, any ex)
 
     if (isNum(x))
     {
-        return mkChar(CONTEXT_PTR, mp_get_i32(num(x)));
+        return mkChar(CONTEXT_PTR, mpz_get_ui(num(x)));
     }
 
     if (isSym(x))
