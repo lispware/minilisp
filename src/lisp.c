@@ -2164,16 +2164,16 @@ any doNumLt(Context *CONTEXT_PTR, any ex)
             return Nil;
         NeedNum(ex,y);
         MP_INT *m = num(y);
-        if (mpz_cmp(n, m) > 0)
+        if (mpz_cmp(n, m) >= 0)
         {
-            mp_clear(n);
+            mpz_clear(n);
             free(n);
             return Nil;
         }
 
     }
 
-    mp_clear(n);
+    mpz_clear(n);
     free(n);
     return T;
 }
@@ -2199,16 +2199,16 @@ any doNumGt(Context *CONTEXT_PTR, any ex)
             return Nil;
         NeedNum(ex,y);
         MP_INT *m = num(y);
-        if (mpz_cmp(n, m) < 0)
+        if (mpz_cmp(n, m) <= 0)
         {
-            mp_clear(n);
+            mpz_clear(n);
             free(n);
             return Nil;
         }
 
     }
 
-    mp_clear(n);
+    mpz_clear(n);
     free(n);
     return T;
 }
@@ -3354,9 +3354,9 @@ any doCall(Context *CONTEXT_PTR, any ex)
     int ret = system(buf);
     free(buf);
 
-    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-    mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
-    mp_set_i32(n, ret);
+    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(n);
+    mpz_set_ui(n, ret);
 
     NewNumber( n, r);
 
@@ -4550,7 +4550,7 @@ any doBind(Context *CONTEXT_PTR, any ex)
     if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
         return Nil;
     NeedNum(ex,y);
-    n = mp_get_i32(num(y));
+    n = mpz_get_ui(num(y));
 
     return pltBind(CONTEXT_PTR, n);
 }
