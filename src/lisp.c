@@ -1194,7 +1194,6 @@ any doEq(Context *CONTEXT_PTR, any x)
 // (cmp 'any ..) -> flg
 any doCmp(Context *CONTEXT_PTR, any x)
 {
-    mp_err _mp_error;
     cell c1;
 
     x = cdr(x),  Push(c1, EVAL(CONTEXT_PTR, car(x)));
@@ -2345,7 +2344,7 @@ void releaseExtNum(external *p)
         exit(0);
     }
 
-    mpz_clear((mp_int*)p->pointer);
+    mpz_clear((MP_INT*)p->pointer);
     free(p->pointer);
     free(p);
 }
@@ -4532,7 +4531,7 @@ any doSleep(Context *CONTEXT_PTR, any ex)
     if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
         return Nil;
     NeedNum(ex,y);
-    n = mp_get_i32(num(y));
+    n = mpz_get_ui(num(y));
 
     plt_sleep(n);
 
