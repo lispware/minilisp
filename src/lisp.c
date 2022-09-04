@@ -732,14 +732,16 @@ char *ExtTypeString(any cell, char*buf)
 {
     external *e = (external *)car(cell);
     int len;
-    mp_err _mp_error;
+    char *b;
 
     if (!e) return "NULL";
     switch(e->type)
     {
         case EXT_NUM:
-            _mp_error = mp_radix_size((mp_int*)car(cell), 10, &len);
-            _mp_error = mp_to_radix(num(cell), buf, len, NULL, 10);
+            b = mpz_get_str(NULL, 10, (MP_INT*)num(cell));
+            len = strlen(b);
+            sprintf(buf, "%s", b);
+            free(b);
             return "EXT_NUM";
         case EXT_SOCKET: return "EXT_SOCKET";
         default: return "UNKNOWN";
