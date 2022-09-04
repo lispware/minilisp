@@ -3154,11 +3154,11 @@ any doRd(Context *CONTEXT_PTR, any ex)
     size_t count = mpz_get_ui(num(p1));
 
 
-    mp_order order = MP_LSB_FIRST;
+    int order = 0;
     p2 = EVAL(CONTEXT_PTR, p2);
     if (isNum(p2))
     {
-        if (mpz_get_ui(num(p2)) == 1) order = MP_MSB_FIRST;
+        order = mpz_get_ui(num(p2));
     }
 
 
