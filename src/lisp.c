@@ -3224,37 +3224,50 @@ any doWr(Context *CONTEXT_PTR, any ex)
 
     p1 = EVAL(CONTEXT_PTR, p1);
     if (!isNum(p1)) return Nil;
-    size_t count = mp_pack_count(num(p1), 0, 1 );
+    
 
-    if (count == 0)
+    char *buf = (char*)malloc(1024);
+    int count = 0;
+    int bufSize=1024;
+
+
+    MP_INT temp, twofivefive, data;
+    mpz_init(&temp);
+    mpz_init(&data);
+    mpz_init(&twofivefive);
+    mpz_set_ui(&twofivefive, 255);
+    mpz_set(&data, num(p1));
+
+    if(!mpz_cmp_ui(&data, 0))
     {
         CONTEXT_PTR->Env.put(CONTEXT_PTR, 0);
-        mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-        _mp_error = mp_init(n); // TODO handle the errors appropriately
-        mp_set(n, 1);
+        MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+        mpz_init(n);
+        mpz_set_ui(n, 1);
 
         NewNumber( n, r);
         return r;
     }
 
+    while(mpz_cmp_ui(&data, 0))
+    {
+        mpz_and(&temp, &data, &twofivefive);
+        buf[count++] = mpz_get_ui(&temp);
+        mpz_div_2exp(&data, &data, 8);
 
-    mp_order order = MP_LSB_FIRST;
+        if (count == bufSize)
+        {
+            bufSize *= 2;
+            buf=(char*)realloc(buf, bufSize);
+        }
+    }
+
+    int order = 0;
     p2 = EVAL(CONTEXT_PTR, p2);
     if (isNum(p2))
     {
-        if (mp_get_i32(num(p2)) == 1) order = MP_MSB_FIRST;
+        order = mpz_get_ui(num(p2));
     }
-
-    mp_endian endianess = MP_BIG_ENDIAN;
-    p3 = EVAL(CONTEXT_PTR, p3);
-    if (isNum(p3))
-    {
-        if (mp_get_i32(num(p3)) == 1) endianess = MP_LITTLE_ENDIAN;
-    }
-
-    size_t written;
-    unsigned char *buf = (char *)malloc(count);
-    _mp_error = mp_pack((void *)buf, count, &written, order, 1, endianess, 0, num(p1));
 
     for (int i = 0; i < count; i++)
     {
@@ -3262,9 +3275,10 @@ any doWr(Context *CONTEXT_PTR, any ex)
     }
     free(buf);
 
-    mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-    _mp_error = mp_init(n); // TODO handle the errors appropriately
-    mp_set(n, written);
+
+    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(n);
+    mpz_set_ui(n, count);
 
     NewNumber( n, r);
     return r;
