@@ -84,6 +84,7 @@
 
 # UD.buffer and UD.bufferLength in LISP_SDL_OpenAudionDevice needs to 
 # be fixed for the audio to work
+# (PING BUFFER BUFFER_LENGTH) should work
 (de audioDemo (N)
     #(do 1 (for I N (do 1 (SDL_LockMutex MUTEX) (PlayWAV AD) (SDL_UnlockMutex)))) (sleep 3000) )
     (thread () (do 1 (for I N (do 1 (PlayWAV AD))))  ))
