@@ -1,4 +1,0 @@
-[submodule "src/libtommath"]
-	path = src/libtommath
-	url = https://github.com/libtom/libtommath.git
-	branch = master

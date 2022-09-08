@@ -167,22 +167,12 @@
 
 (TEST "(char 65)" "A" (char 65))
 
-(out "TESTFILE" (let X (sb "12abcdef" 16) (wr X)))
-(TEST "read 4 bytes" (sb (sb "12abcdef" 16)) (in "TESTFILE" (sb (car (rd 4)) 10 )))
-(let BYTES_WRITTEN (out "TESTFILE" (let X (sb "aabbccddeeffaabb" 16) (wr X)))
-(TEST (pack "read " BYTES_WRITTEN " bytes") (sb (sb "aabbccddeeffaabb" 16)) (in "TESTFILE" (sb (car (rd BYTES_WRITTEN)) 10 ))))
-(out "TESTFILE" (wr 256))
-(TEST "rd 100 when there are only 2" 256 (in "TESTFILE" (car (rd 100))))
-(out "TESTFILE" (prinl "ABCDEF"))
-(TEST "slurp using rd" (pack "ABCDEF" (char 10)) (in "TESTFILE" (pack (make (let Y (rd 1) (while (car (cdr Y)) (link (char (car Y))) (setq Y (rd 1))))))))
-
-
 ################################################################################
 # sb - switch base for numbers
 ################################################################################
 (TEST "(sb)" Nil (sb))
-(TEST "(sb 10)" "A" (sb 10 16))
-(TEST "(sb 10 16)" "A" (sb 10 16))
+(TEST "(sb 10)" "a" (sb 10 16))
+(TEST "(sb 10 16)" "a" (sb 10 16))
 (TEST "(sb 10 2)" "1010" (sb 10 2))
 (TEST "(sb \"123\" 10)" 123 (sb "123" 10))
 (TEST "(sb \"A\" 16)" 10 (sb "A" 16))
@@ -282,6 +272,18 @@
 
 (TEST "(chop)" Nil (chop))
 (TEST "chop" '("A" "B" "C") (chop "ABC"))
+
+
+
+(out "TESTFILE" (let X (sb "12abcdef" 16) (wr X)))
+(TEST "read 4 bytes" (sb (sb "12abcdef" 16)) (in "TESTFILE" (sb (car (rd 4)) 10 )))
+(let BYTES_WRITTEN (out "TESTFILE" (let X (sb "aabbccddeeffaabb" 16) (wr X)))
+(TEST (pack "read " BYTES_WRITTEN " bytes") (sb (sb "aabbccddeeffaabb" 16)) (in "TESTFILE" (sb (car (rd BYTES_WRITTEN)) 10 ))))
+(out "TESTFILE" (wr 256))
+(TEST "rd 100 when there are only 2" 256 (in "TESTFILE" (car (rd 100))))
+(out "TESTFILE" (prinl "ABCDEF"))
+(TEST "slurp using rd" (pack "ABCDEF" (char 10)) (in "TESTFILE" (pack (make (let Y (rd 1) (while (car (cdr Y)) (link (char (car Y))) (setq Y (rd 1))))))))
+
 
 ################################################################################
 # thread / sleep /tid

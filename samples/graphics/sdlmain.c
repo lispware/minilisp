@@ -2,11 +2,8 @@
 #include <SDL.h>
 #include <stdio.h>
 
-#define GetNumberParam(p, r) if (isNum(p)) r = mp_get_i32(num((p))); else r = 0;
-
-#define NumberParam(c, p, r) cell c; int r; Push(c, EVAL(CONTEXT_PTR, p)); if (isNum(data(c))) r = mp_get_i32(num((data(c)))); else r = 0;
-#define StringParam(p, r) int r; if (isNum(p)) r = mp_get_i32(num((p))); else r = 0;
-
+#define StringParam(P, R) char *R; { any __p = EVAL(CONTEXT_PTR, P); R = (char*)malloc(pathSize(CONTEXT_PTR, __p )); pathString(CONTEXT_PTR, __p, R);}
+#define GetNumberParam(p, r) if (isNum(p)) r = mpz_get_si(num((p))); else r = 0;
 
 void drawPixel(SDL_Surface *surface, int x, int y, SDL_Color color)
 {
@@ -35,16 +32,62 @@ void drawPixel(SDL_Surface *surface, int x, int y, SDL_Color color)
 }
 
 Context LISP_CONTEXT;
-SDL_Event LISP_SDL_EVENT;
-SDL_Window* LISP_SDL_WINDOW = NULL;
-SDL_Surface* LISP_SDL_SURFACE = NULL;
-SDL_Renderer* LISP_SDL_RENDERER = NULL;
+SDL_mutex *MUTEX;
 
-any lispsdlGetEvent(Context *CONTEXT_PTR, any x)
+any LISP_SDL_PollEvent(Context *CONTEXT_PTR, any x)
 {
-    if (SDL_PollEvent( &LISP_SDL_EVENT ))
+    SDL_Event event;
+    if (SDL_PollEvent( &event ))
     {
-        return T;
+        cell c1, c2;
+
+        MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
+        mpz_init(n);
+        mpz_set_ui(n, event.type);
+        NewNumber(n, r1);
+        Push(c1, r1);
+
+        if (event.type == SDL_WINDOWEVENT)
+        {
+            n = (MP_INT*)malloc(sizeof(MP_INT));
+            mpz_init(n);
+            mpz_set_ui(n, event.window.event);
+            NewNumber(n, r2);
+            Push(c2, r2);
+
+            any result = cons(CONTEXT_PTR, data(c1), cons(CONTEXT_PTR, data(c2), Nil));
+            drop(c1);
+            return result;
+        }
+        else if (event.type == SDL_TEXTINPUT)
+        {
+            n = (MP_INT*)malloc(sizeof(MP_INT));
+            mpz_init(n);
+            mpz_set_ui(n, ((char *)event.text.text)[0]);
+            NewNumber(n, r2);
+            Push(c2, r2);
+
+            any result = cons(CONTEXT_PTR, data(c1), cons(CONTEXT_PTR, data(c2), Nil));
+            drop(c1);
+            return result;
+        }
+        else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
+        {
+            n = (MP_INT*)malloc(sizeof(MP_INT));
+            mpz_init(n);
+            mpz_set_ui(n, event.key.keysym.sym);
+            NewNumber(n, r2);
+            Push(c2, r2);
+
+            any result = cons(CONTEXT_PTR, data(c1), cons(CONTEXT_PTR, data(c2), Nil));
+            drop(c1);
+            return result;
+        }
+
+        any result = cons(CONTEXT_PTR, data(c1), Nil);
+
+        drop(c1);
+        return result;
     }
     else
     {
@@ -52,117 +95,84 @@ any lispsdlGetEvent(Context *CONTEXT_PTR, any x)
     }
 }
 
-any lispsdlIsCloseEvent(Context *CONTEXT_PTR, any x)
+any LISP_SDL_DestroyWindow(Context *CONTEXT_PTR, any ex)
 {
-    if (LISP_SDL_EVENT.type == SDL_WINDOWEVENT && LISP_SDL_EVENT.window.event == SDL_WINDOWEVENT_CLOSE)
-    {
-        return T;
-    }
-    else
-    {
-        return Nil;
-    }
+    ex = cdr(ex);
+    NumberParam(word, WIN, car(ex));
+    SDL_DestroyWindow((SDL_Window*)WIN);
+    return T;
 }
 
-any lispsdlIsTextInput(Context *CONTEXT_PTR, any x)
+any LISP_SDL_Quit(Context *CONTEXT_PTR, any ex)
 {
-    if (LISP_SDL_EVENT.type == SDL_TEXTINPUT)
-    {
-        int x =  ((char *)LISP_SDL_EVENT.text.text)[0];
-        mp_int *n = (mp_int*)malloc(sizeof(mp_int));
-        mp_err _mp_error = mp_init(n); // TODO handle the errors appropriately
-        mp_set(n, x);
-
-        NewNumber(ext, n, r);
-
-        return r;
-    }
-    else
-    {
-        return Nil;
-    }
-}
-
-any lispsdlCloseWindow(Context *CONTEXT_PTR, any x)
-{
-    SDL_DestroyWindow(LISP_SDL_WINDOW);
     SDL_Quit();
-    return Nil;
+    return T;
 }
 
-any lispsdlIsEnterPressed(Context *CONTEXT_PTR, any x)
+any LISP_SDL_RenderDrawLine(Context *CONTEXT_PTR, any ex)
 {
-    if (LISP_SDL_EVENT.type == SDL_KEYDOWN && LISP_SDL_EVENT.key.keysym.sym == SDLK_RETURN)
-    {
-        return T;
-    }
-    else
-    {
-        return Nil;
-    }
-}
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, x1, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, y1, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, x2, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, y2, car(ex));
 
-any lispsdlIsBackspacePressed(Context *CONTEXT_PTR, any x)
-{
-    if (LISP_SDL_EVENT.type == SDL_KEYDOWN && LISP_SDL_EVENT.key.keysym.sym == SDLK_BACKSPACE)
-    {
-        return T;
-    }
-    else
-    {
-        return Nil;
-    }
-}
-
-any lispsdlDrawLine(Context *CONTEXT_PTR, any ex)
-{
-    cell cx1, cy1, cx2, cy2, cr, cg, cb;
-    int x1, y1, x2, y2, r, g, b;
-
-    ex = cdr(ex);
-    any px1 = EVAL(CONTEXT_PTR, car(ex));
-    Push(cx1, px1);
-    GetNumberParam(px1, x1);
-    ex = cdr(ex);
-    any py1 = EVAL(CONTEXT_PTR, car(ex));
-    Push(cy1, py1);
-    GetNumberParam(py1, y1);
-    ex = cdr(ex);
-    any px2 = EVAL(CONTEXT_PTR, car(ex));
-    Push(cx2, px2);
-    GetNumberParam(px2, x2);
-    ex = cdr(ex);
-    any py2 = EVAL(CONTEXT_PTR, car(ex));
-    Push(cy2, py2);
-    GetNumberParam(py2, y2);
-    ex = cdr(ex);
-    any pr = EVAL(CONTEXT_PTR, car(ex));
-    Push(cr, pr);
-    GetNumberParam(pr, r);
-    ex = cdr(ex);
-    any pg = EVAL(CONTEXT_PTR, car(ex));
-    Push(cg, pg);
-    GetNumberParam(pg, g);
-    ex = cdr(ex);
-    any pb = EVAL(CONTEXT_PTR, car(ex));
-    Push(cb, pb);
-    GetNumberParam(pb, b);
-
-    drop(cx1);
-
-    SDL_SetRenderDrawColor(LISP_SDL_RENDERER, r, g, b, SDL_ALPHA_OPAQUE);
-    SDL_RenderDrawLine(LISP_SDL_RENDERER,  x1, y1, x2, y2);
+    SDL_RenderDrawLine((SDL_Renderer*)renderer, x1, y1, x2, y2);
 
     return T;
 }
 
-any lispsdlPresentRenderer(Context *CONTEXT_PTR, any ex)
+any LISP_SDL_RenderDrawPoint(Context *CONTEXT_PTR, any ex)
 {
-    SDL_RenderPresent(LISP_SDL_RENDERER);
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, x1, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, y1, car(ex));
+
+    SDL_RenderDrawPoint((SDL_Renderer*)renderer, x1, y1);
+
     return T;
 }
 
-any lispsdlDelay(Context *CONTEXT_PTR, any ex)
+any LISP_SDL_SetRenderDrawColor(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, r, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, g, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, b, car(ex));
+    SDL_SetRenderDrawColor((SDL_Renderer*)renderer, r, g, b, SDL_ALPHA_OPAQUE);
+
+    return T;
+}
+
+any LISP_SDL_RenderClear(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
+    SDL_RenderClear((SDL_Renderer*)renderer);
+    return T;
+}
+
+any LISP_SDL_RendererPresent(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
+    SDL_RenderPresent((SDL_Renderer*)renderer);
+    return T;
+}
+
+any LISP_SDL_Delay(Context *CONTEXT_PTR, any ex)
 {
     ex = cdr(ex);
     any p1 = EVAL(CONTEXT_PTR, car(ex));
@@ -173,101 +183,72 @@ any lispsdlDelay(Context *CONTEXT_PTR, any ex)
     return T;
 }
 
-any lispsdlClearWindow(Context *CONTEXT_PTR, any ex)
+any LISP_SDL_CreateRenderer(Context *CONTEXT_PTR, any ex)
 {
-    cell c1, c2, c3;
-    int r, g, b;
     ex = cdr(ex);
-    any p1 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c1, p1);
-    GetNumberParam(p1, r);
-
+    NumberParam(word, win, car(ex));
     ex = cdr(ex);
-    any p2 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c2, p2);
-    GetNumberParam(p2, g);
-
+    NumberParam(word, index, car(ex));
     ex = cdr(ex);
-    any p3 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c3, p3);
-    GetNumberParam(p3, b);
+    NumberParam(word, flags, car(ex));
 
-    drop(c1);
+    SDL_Renderer *renderer = SDL_CreateRenderer((SDL_Window*)win, index, flags);
 
-    SDL_SetRenderDrawColor(LISP_SDL_RENDERER, r, g, b, SDL_ALPHA_OPAQUE);
-    SDL_RenderClear(LISP_SDL_RENDERER);
+    if (renderer == NULL) return Nil;
 
-    return Nil;
+    MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(id);
+    mpz_set_ui(id, (word)renderer);
+
+    NewNumber(id, idr);
+
+    return idr;
 }
 
-any lispsdlCreateWindow(Context *CONTEXT_PTR, any ex)
+any LISP_SDL_CreateWindow(Context *CONTEXT_PTR, any ex)
 {
-    cell c1, c2, c3, c4, c5, c6;
     ex = cdr(ex);
-    any p1 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c1, p1);
-
+    StringParam(car(ex), title);
     ex = cdr(ex);
-    any p2 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c2, p2);
-
+    NumberParam(word, x, car(ex));
     ex = cdr(ex);
-    any p3 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c3, p3);
+    NumberParam(word, y, car(ex));
 
-    ex = cdr(ex);
-    any p4 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c4, p4);
-
-    ex = cdr(ex);
-    any p5 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c5, p5);
-
-    ex = cdr(ex);
-    any p6 = EVAL(CONTEXT_PTR, car(ex));
-    Push(c6, p6);
-
-    int ps = pathSize(CONTEXT_PTR, p1);
-
-    char *nm = (char*)malloc(ps);
-    pathString(CONTEXT_PTR, p1, nm);
-
-    int x, y, r, g, b;
-    GetNumberParam(p2, x);
-    GetNumberParam(p3, y);
-    GetNumberParam(p4, r);
-    GetNumberParam(p5, g);
-    GetNumberParam(p6, b);
-    drop(c1);
-
-    LISP_SDL_WINDOW = SDL_CreateWindow
+    SDL_Window *window = SDL_CreateWindow
         (
-         nm,
+         title,
          SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
          x, y,
          SDL_WINDOW_SHOWN
         );
 
-    if (LISP_SDL_WINDOW == NULL)
+
+    long xx = (long)window;
+
+    if (window == NULL)
     {
         fprintf(stderr, "%s\n", SDL_GetError());
         return Nil;
     }
-
-    LISP_SDL_RENDERER = SDL_CreateRenderer(LISP_SDL_WINDOW, -1, 0);
-
-    if (LISP_SDL_RENDERER == NULL)
-    {
-        fprintf(stderr, "%s\n", SDL_GetError());
-        return Nil;
-    }
-
-    LISP_SDL_SURFACE = SDL_GetWindowSurface(LISP_SDL_WINDOW);
-    SDL_SetRenderDrawColor(LISP_SDL_RENDERER, r, g, b, SDL_ALPHA_OPAQUE);
-    SDL_RenderClear(LISP_SDL_RENDERER);
-    SDL_RenderPresent(LISP_SDL_RENDERER);
 
     SDL_StartTextInput();
+    
+    MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(id);
+    mpz_set_ui(id, window);
+
+    cell c1;
+    NewNumber(id, idr);
+    Push(c1, idr);
+
+
+    return idr;
+}
+
+any LISP_SDL_GetSurface(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, WIN, car(ex));
 
     return T;
 }
@@ -5398,7 +5379,7 @@ static const unsigned char fontdata[] =
 
 int FontWidth = 10;
 int FontHeight = 18;
-void writeChar(int x, int y, int fr, int fg, int fb, int br, int bg, int bb, int c, int magnification)
+void writeChar(SDL_Renderer *renderer, int x, int y, int fr, int fg, int fb, int br, int bg, int bb, int c, int magnification)
 {
     int fontIndex = c * (2 * 18);
 
@@ -5417,13 +5398,13 @@ void writeChar(int x, int y, int fr, int fg, int fb, int br, int bg, int bb, int
                 {
                     if (byte & 0x80)
                     {
-                        SDL_SetRenderDrawColor(LISP_SDL_RENDERER, fr, fg, fb, SDL_ALPHA_OPAQUE);
+                        SDL_SetRenderDrawColor(renderer, fr, fg, fb, SDL_ALPHA_OPAQUE);
                     }
                     else
                     {
-                        SDL_SetRenderDrawColor(LISP_SDL_RENDERER, br, bg, bb, SDL_ALPHA_OPAQUE);
+                        SDL_SetRenderDrawColor(renderer, br, bg, bb, SDL_ALPHA_OPAQUE);
                     }
-                    SDL_RenderDrawPoint(LISP_SDL_RENDERER,  x+(j*magnification)+k, y+(i*magnification)+l);
+                    SDL_RenderDrawPoint(renderer,  x+(j*magnification)+k, y+(i*magnification)+l);
                 }
             }
             byte = byte << 1;
@@ -5431,49 +5412,388 @@ void writeChar(int x, int y, int fr, int fg, int fb, int br, int bg, int bb, int
     }
 }
 
-any lispsdlWriteString(Context *CONTEXT_PTR, any ex)
+any LISP_WriteString(Context *CONTEXT_PTR, any ex)
 {
-    cell ct;
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
+    ex = cdr(ex);
+    NumberParam(int, x, car(ex));
+    ex = cdr(ex);
+    NumberParam(int, y, car(ex));
+    ex = cdr(ex);
+    NumberParam(int, fr, car(ex));
+    ex = cdr(ex);
+    NumberParam(int, fg, car(ex));
+    ex = cdr(ex);
+    NumberParam(int, fb, car(ex));
+    ex = cdr(ex);
+    NumberParam(int, br, car(ex));
+    ex = cdr(ex);
+    NumberParam(int, bg, car(ex));
+    ex = cdr(ex);
+    NumberParam(int, bb, car(ex));
+    ex = cdr(ex);
+    NumberParam(int, m, car(ex));
 
     ex = cdr(ex);
-    NumberParam(cx, car(ex), x);
-    ex = cdr(ex);
-    NumberParam(cy, car(ex), y);
-    ex = cdr(ex);
-    NumberParam(cfr, car(ex), fr);
-    ex = cdr(ex);
-    NumberParam(cfg, car(ex), fg);
-    ex = cdr(ex);
-    NumberParam(cfb, car(ex), fb);
-    ex = cdr(ex);
-    NumberParam(cbr, car(ex), br);
-    ex = cdr(ex);
-    NumberParam(cbg, car(ex), bg);
-    ex = cdr(ex);
-    NumberParam(cbb, car(ex), bb);
-    ex = cdr(ex);
-    NumberParam(cm, car(ex), m);
-
-    ex = cdr(ex);
-    any pt = EVAL(CONTEXT_PTR, car(ex));
-    int ps = pathSize(CONTEXT_PTR, pt);
-    char *nm = (char*)malloc(ps);
+    StringParam(car(ex), nm);
     char *nmBak = nm;
-    pathString(CONTEXT_PTR, pt, nm);
-
-    drop(cx);
 
     int c;
     while(c = *nm++)
     {
-        writeChar(x, y, fr, fg, fb, br, bg, bb, c, m);
+        writeChar((SDL_Renderer*)renderer, x, y, fr, fg, fb, br, bg, bb, c, m);
         x+=(FontWidth*m);
     }
     free(nmBak);
 
-    SDL_RenderPresent(LISP_SDL_RENDERER);
+    SDL_RenderPresent((SDL_Renderer*)renderer);
 
     return T;
+}
+
+any LISP_SDL_Init(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(int, mode, car(ex));
+    if (SDL_Init(mode) < 0)
+    {
+        fprintf(stderr, "ERROR %s\n", SDL_GetError());
+        return Nil;
+    }
+
+    return T;
+}
+
+any LISP_SDL_CreateMutex(Context *CONTEXT_PTR, any ex)
+{
+    SDL_mutex *mutex = SDL_CreateMutex();
+
+    if (!mutex) return Nil;
+
+    MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(id);
+    mpz_set_ui(id, (word)mutex);
+
+    NewNumber(id, idr);
+
+    return idr;
+}
+
+any LISP_SDL_LockMutex(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, mutex, car(ex));
+
+    if (SDL_LockMutex((SDL_mutex*)mutex))
+    {
+        return T;
+    }
+    else
+    {
+        return Nil;
+    }
+}
+
+any LISP_SDL_UnlockMutex(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, mutex, car(ex));
+
+    SDL_UnlockMutex((SDL_mutex*)mutex);
+    return T;
+}
+
+any LISP_SDL_CreateTextureFromSurface(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
+    ex = cdr(ex);
+
+    any P = EVAL(CONTEXT_PTR, car(ex));
+    external *ptr = car(P);
+    word *_ptr = (word*)ptr->pointer;
+
+    SDL_Surface *surface = (SDL_Surface*)_ptr[1];
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface((SDL_Renderer*)renderer, (SDL_Surface*)surface);
+
+    MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(id);
+    mpz_set_ui(id, (word)texture);
+
+    NewNumber(id, idr);
+
+    return idr;
+}
+
+any LISP_SDL_RenderCopy(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, renderer, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, texture, car(ex));
+
+    SDL_Rect *src = NULL;
+    SDL_Rect src_mem;
+    SDL_Rect *dst = NULL;
+    SDL_Rect dst_mem;
+
+    ex = cdr(ex);
+    if (ex != Nil)
+    {
+        any r = EVAL(CONTEXT_PTR, car(ex));
+        if (r != Nil)
+        {
+            NumberParam(word, x, car(r));
+            r = cdr(r);
+            NumberParam(word, y, car(r));
+            r = cdr(r);
+            NumberParam(word, w, car(r));
+            r = cdr(r);
+            NumberParam(word, h, car(r));
+
+            src_mem.x = x;
+            src_mem.y = y;
+            src_mem.w = w;
+            src_mem.h = h;
+            src=&src_mem;
+        }
+    }
+
+    ex = cdr(ex);
+    if (ex != Nil)
+    {
+        any r = EVAL(CONTEXT_PTR, car(ex));
+        if (r != Nil)
+        {
+
+            NumberParam(word, x, car(r));
+            r = cdr(r);
+            NumberParam(word, y, car(r));
+            r = cdr(r);
+            NumberParam(word, w, car(r));
+            r = cdr(r);
+            NumberParam(word, h, car(r));
+
+            dst_mem.x = x;
+            dst_mem.y = y;
+            dst_mem.w = w;
+            dst_mem.h = h;
+            dst=&dst_mem;
+        }
+    }
+
+    if (!SDL_RenderCopy(renderer, texture, src, dst))
+    {
+        return T;
+    }
+
+    return Nil;
+}
+
+
+typedef struct _userdata
+{
+    byte *buffer;
+    int bufferLength;
+} UserData;
+
+UserData UD;
+
+
+
+
+void my_audio_callback(void *userdata, Uint8 *stream, int len)
+{
+    UserData *ud = (UserData*)userdata;
+    printf("%d %d\n", len, ud->bufferLength);
+    if (ud->bufferLength == 0) return; 
+
+    SDL_LockAudioDevice(2);
+    len = (len > ud->bufferLength) ? ud->bufferLength : len;
+
+    SDL_memcpy (stream, ud->buffer, len);
+    ud->buffer += len;
+    ud->bufferLength -= len;
+    SDL_UnlockAudioDevice(2);
+}
+
+any LoadWAV(Context *CONTEXT_PTR, any ex)
+{
+    char *buffer;
+    int bufferLength;
+
+    ex = cdr(ex);
+    StringParam(car(ex), wavPath);
+
+    SDL_AudioSpec spec;
+
+    if (SDL_LoadWAV(wavPath, &spec, &buffer, &bufferLength) == NULL)
+    {
+        fprintf(stderr, "Could not open test.wav: %s\n", SDL_GetError());
+    }
+
+    cell c1, c2, c3, c4, c5, c6;
+    MP_INT *n1 = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(n1);
+    mpz_set_ui(n1, (word)buffer);
+    NewNumber(n1, b);
+    Push(c1, b);
+
+    MP_INT *n2 = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(n2);
+    mpz_set_ui(n2, (word)bufferLength);
+    NewNumber(n2, l);
+    Push(c2, l);
+
+    MP_INT *freq = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(freq);
+    mpz_set_ui(freq, (word)spec.freq);
+    NewNumber(freq, freqL);
+    Push(c3, freqL);
+
+    MP_INT *format = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(format);
+    mpz_set_ui(format, (word)spec.format);
+    NewNumber(format, formatL);
+    Push(c4, formatL);
+
+    MP_INT *channels = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(channels);
+    mpz_set_ui(channels, (word)spec.channels);
+    NewNumber(channels, channelsL);
+    Push(c5, channelsL);
+
+    MP_INT *samples = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(samples);
+    mpz_set_ui(samples, (word)spec.samples);
+    NewNumber(samples, samplesL);
+    Push(c6, samplesL);
+
+    any r = cons(CONTEXT_PTR, data(c1), cons(CONTEXT_PTR, data(c2), cons(CONTEXT_PTR, data(c3), cons(CONTEXT_PTR, data(c4), cons(CONTEXT_PTR, data(c5), cons(CONTEXT_PTR, data(c6), Nil))))));
+
+    drop(c1);
+    return r;
+}
+
+
+any LISP_SDL_OpenAudionDevice(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, freq, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, format, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, channels, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, samples, car(ex));
+
+    SDL_AudioSpec spec;
+
+    UD.buffer = NULL;
+    UD.bufferLength = 0;
+
+    spec.freq = freq;
+    spec.format = format;
+    spec.channels = channels;
+    spec.samples = samples;
+    spec.callback = my_audio_callback;
+    spec.userdata = &UD;
+
+    word deviceId = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
+
+    if (!deviceId)
+    {
+        return Nil;
+    }
+
+    MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
+    mpz_init(id);
+    mpz_set_ui(id, deviceId);
+
+    NewNumber(id, idr);
+
+    return idr;
+}
+
+any PlayWAV(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, deviceId, car(ex));
+
+    //int status = SDL_QueueAudio(deviceId, buffer, bufferLength);
+
+    SDL_PauseAudioDevice(deviceId,0);
+    return T;
+}
+
+any LISP_SDL_ClearQueuedAudio(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, deviceId, car(ex));
+
+    SDL_ClearQueuedAudio(deviceId);
+
+    return T;
+}
+
+any LISP_SDL_SetWindowSize(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, window, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, w, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, h, car(ex));
+
+    SDL_SetWindowSize((SDL_Window*)window, w, h);
+
+    return T;
+}
+
+any PING(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    NumberParam(word, buffer, car(ex));
+    ex = cdr(ex);
+    NumberParam(word, bufferLength, car(ex));
+
+    SDL_LockAudioDevice(2);
+    
+    UD.buffer = buffer;
+    UD.bufferLength = bufferLength;
+
+    SDL_UnlockAudioDevice(2);
+    return T;
+}
+
+void SurfaceDestructor(external *ptr)
+{
+    word *wptr = ptr->pointer;
+    SDL_Surface* imageSurface = wptr[1];
+    SDL_FreeSurface(imageSurface);
+}
+
+any LISP_SDL_LoadBMP(Context *CONTEXT_PTR, any ex)
+{
+    ex = cdr(ex);
+    StringParam(car(ex), imagePath);
+
+    SDL_Surface* imageSurface = SDL_LoadBMP(imagePath);
+    free(imagePath);
+
+    external *ptr = allocateMemBlock(CONTEXT_PTR, 100, SurfaceDestructor);
+
+    word *_ptr = (word*)ptr->pointer;
+
+    _ptr[1] = imageSurface;
+
+    any R = cons(CONTEXT_PTR, Nil, Nil);
+    car(R) = (any)ptr;
+    setCARType(R, EXT);
+
+    return R;
 }
 
 #undef main
@@ -5481,18 +5801,36 @@ int main(int argc, char* av[])
 {
     Context *CONTEXT_PTR = &LISP_CONTEXT;
     setupBuiltinFunctions(&CONTEXT_PTR->Mem);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlCreateWindow", lispsdlCreateWindow);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlPoll", lispsdlGetEvent);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlIsClose", lispsdlIsCloseEvent);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlClose", lispsdlCloseWindow);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlIsTextInput", lispsdlIsTextInput);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdIsEnterPressed", lispsdlIsEnterPressed);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdIsBackspacePressed", lispsdlIsBackspacePressed);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlPresentRenderer", lispsdlPresentRenderer);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlClearWindow", lispsdlClearWindow);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlDrawLine", lispsdlDrawLine);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlDelay", lispsdlDelay);
-    addBuiltinFunction(&CONTEXT_PTR->Mem, "sdlWriteString", lispsdlWriteString);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_CreateMutex", LISP_SDL_CreateMutex);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_CreateRenderer", LISP_SDL_CreateRenderer);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_CreateTextureFromSurface", LISP_SDL_CreateTextureFromSurface);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_CreateWindow", LISP_SDL_CreateWindow);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_Delay", LISP_SDL_Delay);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_DestroyWindow", LISP_SDL_DestroyWindow);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_GetSurface", LISP_SDL_GetSurface);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_Init", LISP_SDL_Init);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_LockMutex", LISP_SDL_LockMutex);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_PollEvent", LISP_SDL_PollEvent);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_Quit", LISP_SDL_Quit);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RenderCopy", LISP_SDL_RenderCopy);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RenderDrawLine", LISP_SDL_RenderDrawLine);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RenderDrawPoint", LISP_SDL_RenderDrawPoint);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RendererClear", LISP_SDL_RenderClear);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_RendererPresent", LISP_SDL_RendererPresent);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_SetRenderDrawColor", LISP_SDL_SetRenderDrawColor);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_UnlockMutex", LISP_SDL_UnlockMutex);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_OpenAudioDevice", LISP_SDL_OpenAudionDevice);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_ClearQueuedAudio", LISP_SDL_ClearQueuedAudio);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_SetWindowSize", LISP_SDL_SetWindowSize);
+
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "SDL_LoadBMP", LISP_SDL_LoadBMP);
+
+
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "WriteString", LISP_WriteString);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "LoadWAV", LoadWAV);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "PlayWAV", PlayWAV);
+    addBuiltinFunction(&CONTEXT_PTR->Mem, "PING", PING);
+
 
     initialize_context(CONTEXT_PTR);
     av++;
@@ -5502,15 +5840,9 @@ int main(int argc, char* av[])
     CONTEXT_PTR->ApplyArgs = Nil;
     CONTEXT_PTR->ApplyBody = Nil;
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
-    {
-        fprintf(stderr, "%s\n", SDL_GetError());
-        return 1;
-    }
-
     loadAll(CONTEXT_PTR, NULL);
+    while (!feof(stdin))
+        load(CONTEXT_PTR, NULL, ':', Nil);
 
-    SDL_DestroyWindow(LISP_SDL_WINDOW);
-    SDL_Quit();
     return 0;
 }

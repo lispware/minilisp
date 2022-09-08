@@ -8,7 +8,8 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
-#include <tommath.h>
+#include <gmp.h>
+#include <num.h>
 
 
 /*******************************************************************************
@@ -53,15 +54,17 @@ extern int PUSH_POP;
 #define doQuote_D (&(CONTEXT_PTR->Mem[11]))
 
 #ifndef CELLS
-#define CELLS (1024)
+#define CELLS (1)
 #endif
 
 #if INTPTR_MAX == INT32_MAX
     #define WORD_TYPE uint32_t
     #define SIGNED_WORD_TYPE int32_t
+    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mpz_get_si(num((P))); }
 #elif INTPTR_MAX == INT64_MAX
     #define WORD_TYPE uint64_t
     #define SIGNED_WORD_TYPE int64_t
+    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mpz_get_si(num((P))); }
 #else
     #error "Unsupported bit width"
 #endif
@@ -205,6 +208,7 @@ typedef enum
 {
     EXT_SOCKET,
     EXT_NUM,
+    EXT_MALLOC,
 } EXT_TYPE;
 
 typedef struct _external
@@ -236,16 +240,16 @@ void ppp(Context *, char*, cell);
 #define isSym(x)        ((GetType(x) == PTR_CELL) && GetType(car(x)) == BIN)
 #define isNum(x)        ((GetType(x) == EXT) && (((external*)(((any)car(x))))->type == EXT_NUM))
 
-#define NewNumber(EXTRA_PARAM, MATH_NUM, R)  external *EXTRA_PARAM = (external *)malloc(sizeof(external));\
+#define NewNumber(MATH_NUM, R)  any R;{external *EXTRA_PARAM = (external *)malloc(sizeof(external));\
                                 EXTRA_PARAM->type = EXT_NUM;\
                                 EXTRA_PARAM->release = releaseExtNum;\
                                 EXTRA_PARAM->print = printExtNum;\
                                 EXTRA_PARAM->copy = copyExtNum;\
                                 EXTRA_PARAM->equal = equalExtNum;\
                                 EXTRA_PARAM->pointer = (void*)(MATH_NUM);\
-                                any R = cons(CONTEXT_PTR, Nil, Nil);\
+                                R = cons(CONTEXT_PTR, Nil, Nil);\
                                 car(R) = (any)EXTRA_PARAM;\
-                                setCARType(R, EXT);
+                                setCARType(R, EXT);}
 
 
 /* Error checking */
@@ -256,7 +260,7 @@ void ppp(Context *, char*, cell);
 #define NeedLst(ex,x)   if (!isCell(x) && !isNil(x)) lstError(ex,x)
 #define NeedVar(ex,x)   if (isNum(x)) varError(ex,x)
 
-#define num(x)          ((mp_int*)(((external*)((any)car(x)))->pointer))
+#define num(x)          ((MP_INT*)(((external*)((any)car(x)))->pointer))
 #define tail(x)         (x)
 #define val(x)          (cdr(x))
 #define symPtr(x)       (x)
@@ -444,6 +448,8 @@ any doSocket(Context *CONTEXT_PTR, any ex);
 any doConnect(Context *CONTEXT_PTR, any ex);
 any doTid(Context *CONTEXT_PTR, any ex);
 any doOs(Context *CONTEXT_PTR, any ex);
+any doAlloc(Context *CONTEXT_PTR, word size, void (*destructor)(external*));
+external *allocateMemBlock(Context *CONTEXT_PTR, word size, void (*destructor)(external*));
 
 extern int MEMS;
 extern any Mem;
