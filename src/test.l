@@ -274,7 +274,6 @@
 (TEST "chop" '("A" "B" "C") (chop "ABC"))
 
 
-
 (out "TESTFILE" (let X (sb "12abcdef" 16) (wr X)))
 (TEST "read 4 bytes" (sb (sb "12abcdef" 16)) (in "TESTFILE" (sb (car (rd 4)) 10 )))
 (let BYTES_WRITTEN (out "TESTFILE" (let X (sb "aabbccddeeffaabb" 16) (wr X)))
@@ -283,22 +282,6 @@
 (TEST "rd 100 when there are only 2" 256 (in "TESTFILE" (car (rd 100))))
 (out "TESTFILE" (prinl "ABCDEF"))
 (TEST "slurp using rd" (pack "ABCDEF" (char 10)) (in "TESTFILE" (pack (make (let Y (rd 1) (while (car (cdr Y)) (link (char (car Y))) (setq Y (rd 1))))))))
-
-
-################################################################################
-# thread / sleep /tid
-################################################################################
-
-(out "TESTFILE") # empty out the file
-(let (A (thread () (out "TESTFILE" (prinl "HELLO")))
-      B (sleep 100)
-      C (in "TESTFILE" (pack (line))))
-    (TEST "write file in a thread" "HELLO" C))
-(TEST "tid" 1 (cmp (tid) 0))
-
-################################################################################
-# load
-################################################################################
 
 (setq F Nil)
 (setq G Nil)
@@ -309,51 +292,6 @@
 (load "TESTFILE")
 (TEST "load test #2" 10 (G 7 3))
 
-################################################################################
-# net
-################################################################################
-
-(setq TEST_PORT 8080)
-(de SRV (PORT)
-    (let (B (bind PORT)
-          S (listen B))
-        (socket S
-            (let L (line)
-                (prinl "ECHO: " L)))
-    )
-)
-
-
-(do 1
-    (thread () (SRV TEST_PORT))
-    (sleep 100)
-
-    (let (X Nil
-          S (connect "127.0.0.1" TEST_PORT))
-        (socket S
-            (prinl "HELLO")
-            (setq X (pack (line))))
-        (TEST "networking" "ECHO: HELLO" X))
-)
-
-(de SRV_BIN (PORT)
-    (let (B (bind PORT)
-          S (listen B))
-        (socket S (for I 256 (let X (car (rd 1))  (wr X))))))
-
-(do 1
-    (thread () (SRV_BIN 9090))
-    (sleep 100)
-
-    (let (X 0
-          S (connect "127.0.0.1" 9090))
-        (socket S (for I 256 (wr (- I 1)) (setq X  (+ X (car (rd 1)))) (out "+CLIENT" (prinl X)) ))
-        (TEST "networking binary" (let Y 0 (for I 255 (setq Y (+ I Y)))) X)))
-
-
-################################################################################
-# end of test
-################################################################################
 
 (hs)
 (prinl "PASS_COUNT = " PASS_COUNT ", FAIL_COUNT = " FAIL_COUNT);

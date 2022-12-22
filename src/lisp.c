@@ -3090,7 +3090,6 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
     }
     else if (isSym(p1))
     {
-        printf("IS SYM\n");
         int LEN = pathSize(CONTEXT_PTR, p1);
         int CTR = 0;
         char *str = (char *)calloc(LEN, 1);
@@ -3105,7 +3104,6 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
         return r;
     }
 
-        printf("IS Nither\n");
     return Nil;
 }
 
