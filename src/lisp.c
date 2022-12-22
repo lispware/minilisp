@@ -1,6 +1,7 @@
 #include "lisp.h"
 #ifndef __NET_H__
 #define __NET_H__
+void ppp(Context*CONTEXT_PTR, char *m, cell c);
 void getStdinNet(Context *CONTEXT_PTR);
 any pltBind(Context *CONTEXT_PTR, word n);
 any pltConnect(Context *CONTEXT_PTR, any ex);
@@ -53,7 +54,6 @@ any pltGetThreadId(Context *CONTEXT_PTR);
 
 #endif
 
-void ppp(Context*CONTEXT_PTR, char *m, cell c);
 
 any prog(Context *CONTEXT_PTR, any x)
 {
@@ -678,16 +678,37 @@ any mkChar(Context *CONTEXT_PTR, int c)
 
 any mkSym(Context *CONTEXT_PTR, byte *s)
 {
-    int i;
-    uword w;
-    cell c1, *p;
+    cell c1;
+    any q = cons(CONTEXT_PTR, Nil, Nil);
+    Push(c1, q);
 
-    putByte1(*s++, &i, &w, &p);
-    while (*s)
+    any p = q->car = cons(CONTEXT_PTR, Nil, Nil);
+    q->cdr = q;
+    q->type = PTR_CELL;
+
+    unsigned char b;
+    any curCell = p;
+    uword *ptr = (uword *)&(curCell->car);
+    int shift = 0;
+    p->type = BIN;
+    *ptr=0;
+
+    while (b = *s++)
     {
-        putByte(CONTEXT_PTR, *s++, &i, &w, &p, &c1);
+        *ptr |= (uword)b << shift;
+        shift += 8;
+        if (shift >= BITS)
+        {
+            shift = 0;
+            curCell->cdr = cons(CONTEXT_PTR, Nil, Nil);
+            curCell = curCell->cdr;
+            setCARType(curCell, BIN);
+            ptr = (uword *)&(curCell->car);
+            *ptr=0;
+        }
     }
-    return popSym(CONTEXT_PTR, i, w, p, &c1);
+
+    return Pop(c1);
 }
 
 any popSym(Context *CONTEXT_PTR, int i, uword n, any q, cell *cp)
@@ -3124,6 +3145,7 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
     }
     else if (isSym(p1))
     {
+        printf("IS SYM\n");
         int LEN = pathSize(CONTEXT_PTR, p1);
         int CTR = 0;
         char *str = (char *)calloc(LEN, 1);
@@ -3138,6 +3160,7 @@ any doSwitchBase(Context *CONTEXT_PTR, any ex)
         return r;
     }
 
+        printf("IS Nither\n");
     return Nil;
 }
 
@@ -3964,20 +3987,12 @@ void setupBuiltinFunctions(any * Mem)
     AddFunc(memCell, "chop", doChop);
     AddFunc(memCell, "args", doArgs);
     AddFunc(memCell, "next", doNext);
-    AddFunc(memCell, "thread", doThread);
-    AddFunc(memCell, "sleep", doSleep);
     AddFunc(memCell, "rd", doRd);
     AddFunc(memCell, "wr", doWr);
     AddFunc(memCell, "++", doPopq);
     AddFunc(memCell, "inc", doInc);
     AddFunc(memCell, "dec", doDec);
-    AddFunc(memCell, "bind", doBind);
-    AddFunc(memCell, "listen", doListen);
-    AddFunc(memCell, "socket", doSocket);
-    AddFunc(memCell, "connect", doConnect);
-    AddFunc(memCell, "tid", doTid);
     AddFunc(memCell, "cmp", doCmp);
-    AddFunc(memCell, "os", doOs);
     AddFunc(memCell, "argv", doArgv);
     
     WORD_TYPE end = (WORD_TYPE)memCell;
@@ -4206,11 +4221,6 @@ int MEMS;
 any Mem;
 
 int PUSH_POP=0;
-void ppp(Context*CONTEXT_PTR, char *m, cell c)
-{
-    //for (int i = 0; i < PUSH_POP; i++) printf(" ");
-    //printf("c.car=%p c.cdr=%p Env->stack=%p %s", (c).car, (c).cdr, CONTEXT_PTR->Env.stack, m);
-}
 
 void debugIndent(Context *CONTEXT_PTR)
 {
@@ -4236,436 +4246,8 @@ void debugLogAny(Context *CONTEXT_PTR, char *message, any x)
     printf("\n");
 }
 
-
-void RestoreStack(Context *From, Context *To)
+void ppp(Context*CONTEXT_PTR, char *m, cell c)
 {
-    any stackptr = From->Env.stack;
-    if (!stackptr) return;
-    To->Env.stack = (any)calloc(sizeof(cell), 1);
-    any tostackptr = To->Env.stack;
-
-    while (stackptr)
-    {
-        any fromCell = car(stackptr);
-        any toCell = car(tostackptr) = (any)calloc(sizeof(cell), 1);
-
-        uword *temp = (uword*)cdr(fromCell);
-        any cdrOfFromCell = (any)temp[0];
-        CellPartType type = fromCell->type;
-
-        any c = car(fromCell);
-        if (c)
-        {
-            uword *temp2 = (uword*)makeptr(c)->cdr;
-            toCell->car = (any)temp2[1];
-        }
-
-        toCell->type = type;
-        if (cdrOfFromCell != 0)
-        {
-            any x = makeptr(cdrOfFromCell);
-            uword *temp2 = (uword*)x->cdr;
-            toCell->cdr = (any)temp2[1];
-        }
-
-
-        stackptr = cdr(stackptr);
-        if (stackptr)
-        {
-            cdr(tostackptr) = (any)calloc(sizeof(cell), 1);
-            tostackptr = cdr(tostackptr);
-        }
-        else
-        {
-            cdr(tostackptr) = NULL;
-        }
-    }
+    //for (int i = 0; i < PUSH_POP; i++) printf(" ");
+    //printf("c.car=%p c.cdr=%p Env->stack=%p %s", (c).car, (c).cdr, CONTEXT_PTR->Env.stack, m);
 }
-
-void copyHeap(Context *From, Context *To)
-{
-    for (int i = 0;i < From->HeapCount; i++)
-    {
-        heapAlloc(To);
-    }
-    To->Mem=(any)calloc(1, sizeof(cell)*MEMS);
-
-    /////////////////////////////////////////////////////
-    //dumpMem(From, "DEBUG_HEAP0.txt");
-    //dumpMem(To, "DEBUG_COPY0.txt");
-    heap *from = From->Heaps;
-    heap *to = To->Heaps;
-    for(int i = 0; i < MEMS; i++)
-    {
-        any fromCell = &(From->Mem[i]);
-        any toCell = (any)(To->Mem + i);
-        copyBackupCell(fromCell, toCell);
-    }
-    while(from)
-    {
-        for(int j=0; j < CELLS; j++)
-        {
-            cell *fromCell = &from->cells[j];
-            cell *toCell = &to->cells[j];
-            copyBackupCell(fromCell, toCell);
-        }
-
-        from=from->next;
-        to=to->next;
-    }
-
-    dumpMemory(From, "t1");
-    dumpMemory(To, "t1");
-
-    /////////////////////////////////////////////////////
-    from = From->Heaps;
-    to = To->Heaps;
-    for(int i = 0; i < MEMS; i++)
-    {
-        cell *fromCell = From->Mem + i;
-        cell *toCell = To->Mem + i;
-        copyFixupCell(From, To, fromCell, toCell);
-    }
-    while(from)
-    {
-        for(int j=0; j < CELLS; j++)
-        {
-            any fromCell = &from->cells[j];
-            any toCell = &to->cells[j];
-            copyFixupCell(From, To, fromCell, toCell);
-
-        }
-
-        from=from->next;
-        to=to->next;
-    }
-
-    /////////////////////////////////////////////////////
-    
-
-
-    // COPY STACK
-    RestoreStack(From, To);
-
-
-    /////////////////////////////////////////////////////
-    from = From->Heaps;
-    to = To->Heaps;
-    for(int i = 0; i < MEMS; i++)
-    {
-        cell *fromCell = From->Mem + i;
-        cell *toCell = To->Mem + i;
-        copyRestoreCell(From, To, fromCell, toCell);
-    }
-    while(from)
-    {
-        for(int j=0; j < CELLS; j++)
-        {
-            any fromCell = &from->cells[j];
-            any toCell = &to->cells[j];
-            copyRestoreCell(From, To, fromCell, toCell);
-        }
-
-        from=from->next;
-        to=to->next;
-    }
-
-    //dumpMem(From, "DEBUG_HEAP2.txt");
-    //dumpMem(To, "DEBUG_COPY2.txt");
-}
-
-void copyBackupCell(cell *fromCell, cell * toCell)
-{
-    uword  *temp = (uword*)calloc(sizeof(uword*) * 3, 1);
-    temp[0] = (uword)fromCell->cdr;
-    temp[1] = (uword)toCell;
-    temp[2] = (uword)(fromCell->type);
-    fromCell->cdr = (any)temp;
-}
-
-void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
-{
-    uword *temp = (uword*)fromCell->cdr;
-    any cdrOfFromCell = (any)temp[0];
-    CellPartType type = temp[2];
-
-    if (type == EXT)
-    {
-        external *e = (external*)fromCell->car;
-        if (e) toCell->car = (any)e->copy(From, e);
-        else toCell->car = fromCell->car;
-        toCell->type = EXT;
-    }
-    else if (!cdrOfFromCell)
-    {
-        toCell->car = NULL;
-        toCell->type = type;
-    }
-    else if (type == FUNC || type == BIN)
-    {
-        toCell->car = fromCell->car;
-        toCell->type = type;
-    }
-    else // PTR_CELL
-    {
-        uword *temp2 = (uword*)makeptr(fromCell->car)->cdr;
-        toCell->car = (any)temp2[1];
-        toCell->type = PTR_CELL;
-    }
-
-    if (cdrOfFromCell != 0)
-    {
-        any x = makeptr(cdrOfFromCell);
-        uword *temp2 = (uword*)x->cdr;
-        toCell->cdr = (any)temp2[1];
-    }
-}
-
-void copyRestoreCell(Context *From, Context *To, cell *fromCell, cell *toCell)
-{
-    if (fromCell== From->Avail)
-    {
-        To->Avail = toCell;
-    }
-    if (fromCell== From->Intern[0])
-    {
-        To->Intern[0] = toCell;
-    }
-    if (fromCell== From->Intern[1])
-    {
-        To->Intern[1] = toCell;
-    }
-    if (fromCell== From->Transient[0])
-    {
-        To->Transient[0] = toCell;
-    }
-    if (fromCell== From->Transient[1])
-    {
-        To->Transient[1] = toCell;
-    }
-    if (fromCell== To->Code)
-    {
-        To->Code = toCell;
-    }
-
-    uword *temp = (uword*)fromCell->cdr;
-    fromCell->cdr = (any)temp[0];
-    free(temp);
-}
-
-extern int CONSCTR;
-
-void *thread_func(void *arg)
-{
-    Context *CONTEXT_PTR = arg;
-
-    dumpMemory(CONTEXT_PTR, "thIN");
-
-    CONSCTR=1000;
-    EVAL(CONTEXT_PTR, CONTEXT_PTR->Code);
-
-    gc(CONTEXT_PTR, CELLS);
-
-    heap *h = CONTEXT_PTR->Heaps;
-
-    while (h)
-    {
-        heap *x = h;
-        h = h->next;
-        free(x);
-    }
-
-    free(CONTEXT_PTR->Mem);
-    free(CONTEXT_PTR);
-    //TODO - Free the Env->Stack
-
-    return NULL;
-}
-
-any doThread(Context *CONTEXT_PTR_ORIG, any x)
-{
-    Context *CONTEXT_PTR = CONTEXT_PTR_ORIG;
-
-    CONTEXT_PTR = (Context*)calloc(1, sizeof(Context));
-    CONTEXT_PTR->InFile = stdin, CONTEXT_PTR->Env.get = getStdin;
-    CONTEXT_PTR->OutFile = stdout, CONTEXT_PTR->Env.put = putStdout;
-    CONTEXT_PTR->Code = caddr(x);
-    CONTEXT_PTR_ORIG->Code = CONTEXT_PTR->Code;
-
-    CONTEXT_PTR->ApplyArgs = Nil; //cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, 0), Nil), Nil);
-    CONTEXT_PTR->ApplyBody = Nil; //cons(CONTEXT_PTR, Nil, Nil);
-    CONTEXT_PTR->THREAD_COUNT = 1;
-    CONTEXT_PTR->THREAD_ID = GetThreadID();
-
-    dumpMemory(CONTEXT_PTR_ORIG, "th0");
-
-    copyHeap(CONTEXT_PTR_ORIG, CONTEXT_PTR);
-
-    dumpMemory(CONTEXT_PTR_ORIG, "th1");
-
-    CONTEXT_PTR->Mem[0].car = CONTEXT_PTR->Mem[0].cdr; // TODO - should find a better place for this
-    if (!CONTEXT_PTR_ORIG->Avail)
-    {
-        CONTEXT_PTR->Avail = 0;
-    }
-    else if (!CONTEXT_PTR_ORIG->Avail->car)
-    {
-        CONTEXT_PTR->Avail->car = 0;
-    }
-
-    dumpMemory(CONTEXT_PTR, "th2");
-
-
-    // Clear out the items that need to be moved to the new thread
-    x = cadr(x);
-    any m = EVAL(CONTEXT_PTR_ORIG, car(x));
-    do
-    {
-        if (GetType(m) == EXT)
-        {
-            car(m) = NULL;
-        }
-        x = cdr(x);
-        m = EVAL(CONTEXT_PTR_ORIG, car(x));
-    }
-    while(x != (&(CONTEXT_PTR_ORIG->Mem[0])));
-
-    plt_thread_start(CONTEXT_PTR, thread_func, 0); //TODO - passing nowait seems to not work
-
-    CONTEXT_PTR = CONTEXT_PTR_ORIG;
-    return Nil;
-}
-
-any doSleep(Context *CONTEXT_PTR, any ex)
-{
-    uword n;
-    any x,y;
-    x = cdr(ex);
-    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
-        return Nil;
-    NeedNum(ex,y);
-    n = mpz_get_ui(num(y));
-
-    plt_sleep(n);
-
-    return y;
-}
-
-any doTid(Context *CONTEXT_PTR, any ex)
-{
-    return pltGetThreadId(CONTEXT_PTR);
-}
-
-any doBind(Context *CONTEXT_PTR, any ex)
-{
-    uword n;
-    any x,y;
-    x = cdr(ex);
-    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
-        return Nil;
-    NeedNum(ex,y);
-    n = mpz_get_ui(num(y));
-
-    return pltBind(CONTEXT_PTR, n);
-}
-
-any doConnect(Context *CONTEXT_PTR, any ex)
-{
-    return pltConnect(CONTEXT_PTR, ex);
-}
-
-any doListen(Context *CONTEXT_PTR, any ex)
-{
-    uword n;
-    any x,y;
-    x = cdr(ex);
-    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
-        return Nil;
-
-    external *e = (external*)car(y);
-    n = (uword)e->pointer;
-
-    return pltListen(CONTEXT_PTR, n);
-}
-
-any doSocket(Context *CONTEXT_PTR, any ex)
-{
-    return pltSocket(CONTEXT_PTR, ex);
-}
-
-void releaseSocket(struct _external* obj)
-{
-    pltClose(obj);
-}
-
-void releaseMalloc(external *ext)
-{
-    word *ptr = ext->pointer;
-    void (*destructor)(external *) = *ptr;
-    destructor(ext);
-    free(ext->pointer);
-    free(ext);
-}
-
-char * printMalloc(Context *CONTEXT_PTR, external* ext)
-{
-    char *mem=(char*)malloc(7);
-    strcpy(mem, "MALLOC");
-    return mem;
-}
-
-int equalMalloc(Context *CONTEXT_PTR, external *ext1, external *ext2)
-{
-    return 0;
-}
-
-external *copyMalloc(Context *CONTEXT_PTR, external *ext)
-{
-    return ext;
-}
-
-external *allocateMemBlock(Context *CONTEXT_PTR, word size, void (*destructor)(external*))
-{
-    external *ptr = (external *)malloc(sizeof(external));
-    ptr->type = EXT_MALLOC;
-    ptr->release = releaseMalloc;
-    ptr->print = printMalloc;
-    ptr->equal = equalMalloc;
-    ptr->copy = copyMalloc;
-    ptr->pointer = (void*)malloc(size);
-
-    word *dest = ptr->pointer;
-    *dest = (word)destructor;
-
-    return ptr;
-}
-
-external * copySocket(Context *CONTEXT_PTR, external *ext)
-{
-    return ext;
-}
-
-int equalSocket(Context *CONTEXT_PTR, external*x, external*y)
-{
-    if (x->type != EXT_SOCKET)
-    {
-        fprintf(stderr, "LHS is not socket\n");
-        return 1;
-    }
-
-    if (y->type != EXT_SOCKET)
-    {
-        fprintf(stderr, "RHS is not socket\n");
-        return 1;
-    }
-
-    return x == y;
-}
-
-char * printSocket(Context *CONTEXT_PTR, struct _external* obj)
-{
-    char *buf=(char *)malloc(256);
-    sprintf(buf, "Socket %p\n", obj->pointer);
-    return buf;
-}
-
