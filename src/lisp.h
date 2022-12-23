@@ -335,7 +335,7 @@ void gc(Context *CONTEXT_PTR, word c);
 uword getHeapSize(Context *CONTEXT_PTR);
 int eqList(Context *CONTEXT_PTR, any v1, any v2);
 void sym2str(Context *CONTEXT_PTR, any nm, char *buf);
-void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp);
+any pack(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero);
 any name(any s);
 void bufNum(char *b, word n);
 void putByte0(int *i, uword *p, any *q);

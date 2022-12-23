@@ -1309,48 +1309,7 @@ any doHide(Context* CONTEXT_PTR, any ex)
    return Nil;
 }
 
-void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp)
-{
-    int c, j;
-    uword w;
-
-    if (!isNil(x) && isCell(x))
-    {
-        do
-        {
-            if (GetType(x) == PTR_CELL)
-            {
-                pack(CONTEXT_PTR, car(x), i, p, q, cp);
-            }
-            else
-            {
-                pack(CONTEXT_PTR, x, i, p, q, cp);
-            }
-        }
-        while (!isNil(x = cdr(x)));
-    }
-    if (isNum(x))
-    {
-        char *buf = mpz_get_str(NULL, 10, num(x));
-        char *b = buf;
-
-        do
-        {
-            putByte(CONTEXT_PTR, *b++, i, p, q, cp);
-        }
-        while (*b);
-        free(buf);
-    }
-    else if (!isNil(x))
-    {
-        for (x = x, c = getByte1(CONTEXT_PTR, &j, &w, &x); c; c = getByte(CONTEXT_PTR,&j, &w, &x))
-        {
-            putByte(CONTEXT_PTR, c, i, p, q, cp);
-        }
-    }
-}
-
-any pack2(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
+any pack(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
 {
     if (!isNil(x) && isCell(x))
     {
@@ -1358,11 +1317,11 @@ any pack2(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
         {
             if (GetType(x) == PTR_CELL)
             {
-                r = pack2(CONTEXT_PTR, r, car(x), shift, nonzero);
+                r = pack(CONTEXT_PTR, r, car(x), shift, nonzero);
             }
             else
             {
-                r = pack2(CONTEXT_PTR, r, x, shift, nonzero);
+                r = pack(CONTEXT_PTR, r, x, shift, nonzero);
             }
         } while (!isNil(x = cdr(x)));
     }
@@ -1387,6 +1346,7 @@ any pack2(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
                 setCARType(curCell, BIN);
                 ptr = (uword *)&(curCell->car);
                 *ptr = 0;
+                r = curCell;
             }
 
         } while (*b);
@@ -1412,6 +1372,7 @@ any pack2(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
                 setCARType(curCell, BIN);
                 ptr = (uword *)&(curCell->car);
                 *ptr = 0;
+                r = curCell;
             }
         }
     }
@@ -1443,7 +1404,7 @@ any doPack(Context *CONTEXT_PTR, any x)
    while (!isNil(x = cdr(x)))
    {
       data(c2) = EVAL(CONTEXT_PTR, car(x));
-      p = pack2(CONTEXT_PTR, p, data(c2), &shift, &nonzero);
+      p = pack(CONTEXT_PTR, p, data(c2), &shift, &nonzero);
    }
 
    if (nonzero)
@@ -1455,27 +1416,6 @@ any doPack(Context *CONTEXT_PTR, any x)
       drop(c1);
       return Nil;
    }
-}
-
-// (pack 'any ..) -> sym
-any doPack1(Context *CONTEXT_PTR, any x)
-{
-   int i;
-   uword w;
-   any y;
-   cell c1, c2;
-
-   x = cdr(x),  Push(c1, EVAL(CONTEXT_PTR, car(x)));
-   putByte0(&i, &w, &y);
-   pack(CONTEXT_PTR, data(c1), &i, &w, &y, &c2);
-   while (!isNil(x = cdr(x)))
-   {
-      pack(CONTEXT_PTR, data(c1) = EVAL(CONTEXT_PTR, car(x)), &i, &w, &y, &c2);
-   }
-   y = popSym(CONTEXT_PTR, i, w, y, &c2);
-   drop(c1);
-
-   return i? y : Nil;
 }
 
 // (chop 'any) -> lst
