@@ -607,10 +607,10 @@ returnNULL:
 
 any mkChar(Context *CONTEXT_PTR, int c)
 {
-    unsigned char b[2];
-    b[0] = (unsigned char)c;
+    byte b[2];
+    b[0] = (byte)c;
     b[1] = 0;
-    return mkSym(CONTEXT_PTR, &b);
+    return mkSym(CONTEXT_PTR, (byte*)&b);
 }
 
 any mkSym(Context *CONTEXT_PTR, byte *s)
@@ -623,7 +623,7 @@ any mkSym(Context *CONTEXT_PTR, byte *s)
     q->cdr = q;
     q->type = PTR_CELL;
 
-    unsigned char b;
+    byte b;
     any curCell = p;
     uword *ptr = (uword *)&(curCell->car);
     int shift = 0;
@@ -1324,6 +1324,8 @@ any pack(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
                 r = pack(CONTEXT_PTR, r, x, shift, nonzero);
             }
         } while (!isNil(x = cdr(x)));
+    
+        return r;
     }
 
     if (isNum(x))
@@ -1351,6 +1353,8 @@ any pack(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
 
         } while (*b);
         free(buf);
+
+        return r;
     }
     else if (!isNil(x))
     {
@@ -1375,9 +1379,9 @@ any pack(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
                 r = curCell;
             }
         }
-    }
 
-    return r;
+        return r;
+    }
 }
 
 // (pack 'any ..) -> sym
