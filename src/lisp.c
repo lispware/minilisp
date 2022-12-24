@@ -383,13 +383,6 @@ void putByte(Context *CONTEXT_PTR, int ch, int *bitCount, uword *acc, any *curCe
     *bitCount += d;
 }
 
-void putByte0(int *i, uword *p, any *q)
-{
-    *p = 0;
-    *i = 0;
-    *q = NULL;
-}
-
 any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
 {
     any nm, x, y, z;
@@ -613,6 +606,24 @@ any mkChar(Context *CONTEXT_PTR, int c)
     return mkSym(CONTEXT_PTR, (byte*)&b);
 }
 
+any putSymByte(Context *CONTEXT_PTR, any curCell, int *shift, byte b)
+{
+    uword *ptr = (uword *)&(curCell->car);
+    *ptr |= (uword)b << (*shift);
+    *shift += 8;
+    if (*shift >= BITS)
+    {
+        *shift = 0;
+        curCell->cdr = cons(CONTEXT_PTR, Nil, Nil);
+        curCell = curCell->cdr;
+        setCARType(curCell, BIN);
+        ptr = (uword *)&(curCell->car);
+        *ptr = 0;
+    }
+
+    return curCell;
+}
+
 any mkSym(Context *CONTEXT_PTR, byte *s)
 {
     cell c1;
@@ -632,17 +643,7 @@ any mkSym(Context *CONTEXT_PTR, byte *s)
 
     while (b = *s++)
     {
-        *ptr |= (uword)b << shift;
-        shift += 8;
-        if (shift >= BITS)
-        {
-            shift = 0;
-            curCell->cdr = cons(CONTEXT_PTR, Nil, Nil);
-            curCell = curCell->cdr;
-            setCARType(curCell, BIN);
-            ptr = (uword *)&(curCell->car);
-            *ptr=0;
-        }
+        curCell = putSymByte(CONTEXT_PTR, curCell, &shift, b);
     }
 
     return Pop(c1);
@@ -1338,19 +1339,7 @@ any pack(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
         do
         {
             *nonzero = 1;
-            *ptr |= (uword)(*b++) << *shift;
-            (*shift) += 8;
-            if (*shift >= BITS)
-            {
-                *shift = 0;
-                curCell->cdr = cons(CONTEXT_PTR, Nil, Nil);
-                curCell = curCell->cdr;
-                setCARType(curCell, BIN);
-                ptr = (uword *)&(curCell->car);
-                *ptr = 0;
-                r = curCell;
-            }
-
+            r = curCell = putSymByte(CONTEXT_PTR, curCell, shift, *b++);
         } while (*b);
         free(buf);
 
@@ -1365,19 +1354,7 @@ any pack(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
         for (c = getByte1(CONTEXT_PTR, &j, &w, &x); c; c = getByte(CONTEXT_PTR, &j, &w, &x))
         {
             *nonzero = 1;
-            // putByte(CONTEXT_PTR, c, i, p, q, cp);
-            *ptr |= (uword)c << *shift;
-            (*shift) += 8;
-            if (*shift >= BITS)
-            {
-                *shift = 0;
-                curCell->cdr = cons(CONTEXT_PTR, Nil, Nil);
-                curCell = curCell->cdr;
-                setCARType(curCell, BIN);
-                ptr = (uword *)&(curCell->car);
-                *ptr = 0;
-                r = curCell;
-            }
+            r = curCell = putSymByte(CONTEXT_PTR, curCell, shift, c);
         }
 
         return r;
