@@ -1086,6 +1086,14 @@ int equal(Context *CONTEXT_PTR, any v, any v2)
         return 1;
     }
 
+    if (isSym(v) || isSym(v2))
+    {
+        if (!(isSym(v) && isSym(v2)))
+        {
+            return 1;
+        }
+    }
+
     if (t == EXT)
     {
         external *e1 = (external*)car(v);
@@ -2987,25 +2995,44 @@ any doLine(Context *CONTEXT_PTR, any x)
    if (eol(CONTEXT_PTR))
       return Nil;
    x = cdr(x);
-   if (isNil(EVAL(CONTEXT_PTR, car(x)))) {
+   if (isNil(EVAL(CONTEXT_PTR, car(x))))
+   {
       Push(c1, cons(CONTEXT_PTR, mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr), Nil));
       y = data(c1);
-      for (;;) {
-         if (CONTEXT_PTR->Env.get(CONTEXT_PTR), eol(CONTEXT_PTR))
-            return Pop(c1);
-         any c = mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr);
-         cdr(y) = cons(CONTEXT_PTR, c, Nil);
-         setCARType(y, PTR_CELL);
-         y = cdr(y);
+      for (;;)
+      {
+            if (CONTEXT_PTR->Env.get(CONTEXT_PTR), eol(CONTEXT_PTR))
+                return Pop(c1);
+            any c = mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr);
+            cdr(y) = cons(CONTEXT_PTR, c, Nil);
+            setCARType(y, PTR_CELL);
+            y = cdr(y);
       }
    }
-   else {
-      putByte1(CONTEXT_PTR->Chr, &i, &w, &y);
-      for (;;) {
-         if (CONTEXT_PTR->Env.get(CONTEXT_PTR), eol(CONTEXT_PTR))
-            return popSym(CONTEXT_PTR, i, w, y, &c1);
-         putByte(CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &y, &c1);
-      }
+   else
+   {
+      cell c1;
+      any q = cons(CONTEXT_PTR, Nil, Nil);
+      Push(c1, q);
+
+      any p = q->car = cons(CONTEXT_PTR, Nil, Nil);
+      q->cdr = q;
+      q->type = PTR_CELL;
+
+      byte b;
+      any curCell = p;
+      uword *ptr = (uword *)&(curCell->car);
+      int shift = 0;
+      p->type = BIN;
+      *ptr = 0;
+
+      do
+      {
+         curCell = putSymByte(CONTEXT_PTR, curCell, &shift, CONTEXT_PTR->Chr);
+         CONTEXT_PTR->Env.get(CONTEXT_PTR);
+      } while (!eol(CONTEXT_PTR));
+
+      return Pop(c1);
    }
 }
 
