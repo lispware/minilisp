@@ -347,42 +347,6 @@ any intern(Context *CONTEXT_PTR, any sym, any tree[2])
 
 }
 
-void putByte(Context *CONTEXT_PTR, int ch, int *bitCount, uword *acc, any *curCell, cell *prevCell)
-{
-    ch = ch & 0xff;
-    int d = 8;
-
-    if (*bitCount != BITS)
-        *acc |= (uword)ch << *bitCount;
-
-    if (*bitCount + d  > BITS)
-    {
-        if (*curCell)
-        {
-            any x = consName(CONTEXT_PTR, *acc, Nil);
-            setCARType(x, BIN);
-            cdr(*curCell) = x;
-            setCARType(*curCell, BIN);
-            *curCell = x;
-        }
-        else
-        {
-            any x = consSym(CONTEXT_PTR, NULL, Nil);
-            setCARType(x, BIN_START);
-            Push(*prevCell, x);
-            any y = consName(CONTEXT_PTR, *acc, Nil);
-            setCARType(y, BIN);
-            *curCell = y;
-            setCARType(*curCell, BIN);
-            car(car(prevCell)) = *curCell;
-        }
-        *acc = ch >> BITS - *bitCount;
-        *bitCount -= BITS;
-    }
-
-    *bitCount += d;
-}
-
 any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
 {
     any nm, x, y, z;
@@ -505,13 +469,6 @@ int symBytes(Context *CONTEXT_PTR, any x)
     }
 
     return cnt;
-}
-
-void putByte1(int c, int *i, uword *p, any *q)
-{
-    *p = c & 0xff;
-    *i = 8;
-    *q = NULL;
 }
 
 any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
