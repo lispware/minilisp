@@ -2998,16 +2998,28 @@ any doLine(Context *CONTEXT_PTR, any x)
    if (isNil(EVAL(CONTEXT_PTR, car(x))))
    {
       cell c1;
-      Push(c1, cons(CONTEXT_PTR, mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr), Nil));
-      any y = data(c1);
-      for (;;)
+      any y = Nil;
+
+      do
       {
-            if (CONTEXT_PTR->Env.get(CONTEXT_PTR), eol(CONTEXT_PTR))
-                return Pop(c1);
-            cdr(y) = cons(CONTEXT_PTR, mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr), Nil);
-            setCARType(y, PTR_CELL);
-            y = cdr(y);
-      }
+            any c = mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr);
+            if (y == Nil)
+            {
+                Push(c1, cons(CONTEXT_PTR, c, Nil));
+                y = data(c1);
+            }
+            else
+            {
+                cdr(y) = cons(CONTEXT_PTR, c, Nil);
+                setCARType(y, PTR_CELL);
+                y = cdr(y);
+            }
+
+            CONTEXT_PTR->Env.get(CONTEXT_PTR);
+
+      } while (!eol(CONTEXT_PTR));
+
+      return Pop(c1);
    }
    else
    {
