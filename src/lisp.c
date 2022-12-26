@@ -3542,6 +3542,7 @@ any read0(Context *CONTEXT_PTR, bool top)
             return Nil;
         eofErr();
     }
+
     if (CONTEXT_PTR->Chr == '(')
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
@@ -3550,6 +3551,7 @@ any read0(Context *CONTEXT_PTR, bool top)
             CONTEXT_PTR->Env.get(CONTEXT_PTR);
         return x;
     }
+
     if (CONTEXT_PTR->Chr == '[')
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
@@ -3559,17 +3561,20 @@ any read0(Context *CONTEXT_PTR, bool top)
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
         return x;
     }
+
     if (CONTEXT_PTR->Chr == '\'')
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
         any rest = read0(CONTEXT_PTR, top);
         return cons(CONTEXT_PTR, doQuote_D, rest);
     }
+
     if (CONTEXT_PTR->Chr == ',')
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
         return read0(CONTEXT_PTR, top);
     }
+
     if (CONTEXT_PTR->Chr == '`')
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
@@ -3578,6 +3583,7 @@ any read0(Context *CONTEXT_PTR, bool top)
         drop(c1);
         return x;
     }
+
     if (CONTEXT_PTR->Chr == '"')
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
@@ -3625,7 +3631,9 @@ any read0(Context *CONTEXT_PTR, bool top)
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
     }
 
-    putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
+    int shift = 0;
+    any curCell = startSym(CONTEXT_PTR, &c1);
+    curCell = putSymByte(CONTEXT_PTR, curCell, &shift, CONTEXT_PTR->Chr);
 
     int count=0;
     for (;;)
@@ -3640,11 +3648,12 @@ any read0(Context *CONTEXT_PTR, bool top)
         {
             CONTEXT_PTR->Env.get(CONTEXT_PTR);
         }
-        putByte(CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &p, &c1);
+        curCell = putSymByte(CONTEXT_PTR, curCell, &shift, CONTEXT_PTR->Chr);
     }
 
     dump("putbyte1");
-    y = popSym(CONTEXT_PTR, i, w, p, &c1);
+    y = Pop(c1);
+
     dump("putbyte2");
     if (x = symToNum(CONTEXT_PTR, tail(y), 0, '.', 0))
     {
