@@ -629,15 +629,14 @@ any startSym(Context *CONTEXT_PTR, any c1)
     any q = cons(CONTEXT_PTR, Nil, Nil);
     Push(*c1, q);
 
-    any p = q->car = cons(CONTEXT_PTR, Nil, Nil);
+    q->car = cons(CONTEXT_PTR, Nil, Nil);
     q->cdr = q;
     q->type = PTR_CELL;
 
-    byte b;
-    any curCell = p;
+    any curCell = q->car;
+    curCell->type = BIN;
+
     uword *ptr = (uword *)&(curCell->car);
-    int shift = 0;
-    p->type = BIN;
     *ptr=0;
 
     return curCell;
@@ -1381,39 +1380,30 @@ any pack(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
 // (pack 'any ..) -> sym
 any doPack(Context *CONTEXT_PTR, any x)
 {
-   cell c1, c2;
-   int nonzero=0;
-   any q = cons(CONTEXT_PTR, Nil, Nil);
-   Push(c1, q);
+    int nonzero = 0;
+    int shift = 0;
 
-   any p = q->car = cons(CONTEXT_PTR, Nil, Nil);
-   q->cdr = q;
-   q->type = PTR_CELL;
+    cell c1;
+    any curCell = startSym(CONTEXT_PTR, &c1);
 
-   unsigned char b;
-   any curCell = p;
-   uword *ptr = (uword *)&(curCell->car);
-   int shift = 0;
-   p->type = BIN;
-   *ptr = 0;
+    cell c2;
+    Push(c2, Nil);
 
-   Push(c2, Nil);
+    while (!isNil(x = cdr(x)))
+    {
+        data(c2) = EVAL(CONTEXT_PTR, car(x));
+        curCell = pack(CONTEXT_PTR, curCell, data(c2), &shift, &nonzero);
+    }
 
-   while (!isNil(x = cdr(x)))
-   {
-      data(c2) = EVAL(CONTEXT_PTR, car(x));
-      p = pack(CONTEXT_PTR, p, data(c2), &shift, &nonzero);
-   }
-
-   if (nonzero)
-   {
-      return Pop(c1);
-   }
-   else
-   {
-      drop(c1);
-      return Nil;
-   }
+    if (nonzero)
+    {
+        return Pop(c1);
+    }
+    else
+    {
+        drop(c1);
+        return Nil;
+    }
 }
 
 // (chop 'any) -> lst
