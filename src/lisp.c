@@ -3588,23 +3588,43 @@ any read0(Context *CONTEXT_PTR, bool top)
         }
         if (!testEsc(CONTEXT_PTR))
             eofErr();
-        putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
+
+        int shift = 0;
+        any curCell = startSym(CONTEXT_PTR, &c1);
+        curCell = putSymByte(CONTEXT_PTR, curCell, &shift, CONTEXT_PTR->Chr);
+
         while (CONTEXT_PTR->Env.get(CONTEXT_PTR), CONTEXT_PTR->Chr != '"')
         {
             if (!testEsc(CONTEXT_PTR))
+            {
                 eofErr();
-            putByte(CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &p, &c1);
+            }
+
+            curCell = putSymByte(CONTEXT_PTR, curCell, &shift, CONTEXT_PTR->Chr);
         }
-        y = popSym(CONTEXT_PTR, i, w, p, &c1),  CONTEXT_PTR->Env.get(CONTEXT_PTR);
+
+        y = Pop(c1);
+        CONTEXT_PTR->Env.get(CONTEXT_PTR);
+
         if (x = isIntern(CONTEXT_PTR, tail(y), CONTEXT_PTR->Transient))
+        {
             return x;
+        }
+
         intern(CONTEXT_PTR, y, CONTEXT_PTR->Transient);
         return y;
     }
+
     if (strchr(Delim, CONTEXT_PTR->Chr))
+    {
         err(NULL, NULL, "Bad input '%c' (%d)", isprint(CONTEXT_PTR->Chr)? CONTEXT_PTR->Chr:'?', CONTEXT_PTR->Chr);
+    }
+
     if (CONTEXT_PTR->Chr == '\\')
+    {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
+    }
+
     putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
 
     int count=0;
