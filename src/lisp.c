@@ -2984,26 +2984,27 @@ void space(Context *CONTEXT_PTR)
 // (line 'flg) -> lst|sym
 any doLine(Context *CONTEXT_PTR, any x)
 {
-   any y;
-   int i;
-   uword w;
-   cell c1;
-
    if (!CONTEXT_PTR->Chr)
+   {
       CONTEXT_PTR->Env.get(CONTEXT_PTR);
+   }
+
    if (eol(CONTEXT_PTR))
+   {
       return Nil;
+   }
+
    x = cdr(x);
    if (isNil(EVAL(CONTEXT_PTR, car(x))))
    {
+      cell c1;
       Push(c1, cons(CONTEXT_PTR, mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr), Nil));
-      y = data(c1);
+      any y = data(c1);
       for (;;)
       {
             if (CONTEXT_PTR->Env.get(CONTEXT_PTR), eol(CONTEXT_PTR))
                 return Pop(c1);
-            any c = mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr);
-            cdr(y) = cons(CONTEXT_PTR, c, Nil);
+            cdr(y) = cons(CONTEXT_PTR, mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr), Nil);
             setCARType(y, PTR_CELL);
             y = cdr(y);
       }
@@ -3011,19 +3012,8 @@ any doLine(Context *CONTEXT_PTR, any x)
    else
    {
       cell c1;
-      any q = cons(CONTEXT_PTR, Nil, Nil);
-      Push(c1, q);
-
-      any p = q->car = cons(CONTEXT_PTR, Nil, Nil);
-      q->cdr = q;
-      q->type = PTR_CELL;
-
-      byte b;
-      any curCell = p;
-      uword *ptr = (uword *)&(curCell->car);
+      any curCell = startSym(CONTEXT_PTR, &c1);
       int shift = 0;
-      p->type = BIN;
-      *ptr = 0;
 
       do
       {
