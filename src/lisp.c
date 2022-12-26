@@ -624,11 +624,10 @@ any putSymByte(Context *CONTEXT_PTR, any curCell, int *shift, byte b)
     return curCell;
 }
 
-any mkSym(Context *CONTEXT_PTR, byte *s)
+any startSym(Context *CONTEXT_PTR, any c1)
 {
-    cell c1;
     any q = cons(CONTEXT_PTR, Nil, Nil);
-    Push(c1, q);
+    Push(*c1, q);
 
     any p = q->car = cons(CONTEXT_PTR, Nil, Nil);
     q->cdr = q;
@@ -640,6 +639,16 @@ any mkSym(Context *CONTEXT_PTR, byte *s)
     int shift = 0;
     p->type = BIN;
     *ptr=0;
+
+    return curCell;
+}
+
+any mkSym(Context *CONTEXT_PTR, byte *s)
+{
+    cell c1;
+    byte b;
+    int shift = 0;
+    any curCell = startSym(CONTEXT_PTR, &c1);
 
     while (b = *s++)
     {
@@ -3610,11 +3619,6 @@ any read0(Context *CONTEXT_PTR, bool top)
     for (;;)
     {
         count++;
-        // if (count > 6)
-        // {
-        //     printf("%s too long\n", (char*)&w);
-        //     bye(0);
-        // }
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
         if (strchr(Delim, CONTEXT_PTR->Chr))
         {
