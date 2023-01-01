@@ -318,42 +318,26 @@ int getByte1(Context *CONTEXT_PTR, int *i, uword *p, any *sym)
     int c = *p & 0xff;
     *p >>= 8;
     *i -= 8;
-
     return c;
 }
 
 int getByte(Context *CONTEXT_PTR, int *i, uword *p, any *q)
 {
-    int c;
-
     if (*i == 0)
     {
         if (isNil(*q))
         {
             return 0;
         }
-        else
-        {
-            *i = BITS;
-            *p = (uword)(car(*q));
-            *q = cdr(*q);
-        }
+
+        *i = BITS;
+        *p = (uword)(car(*q));
+        *q = cdr(*q);
     }
 
-    c = *p & 0xff;
+    int c = *p & 0xff;
     *p >>= 8;
     *i -= 8;
-
-    if (*i < 0)
-    {
-        *p = (uword)tail(*q),  *q = val(*q);
-        c |= *p << *i;
-        *p >>= 8 - *i;
-        *i += BITS-8;
-    }
-
-    c &= 0xff;
-
     return c;
 }
 
