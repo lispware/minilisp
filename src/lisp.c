@@ -600,15 +600,9 @@ any mkSym(Context *CONTEXT_PTR, byte *s)
 
 int firstByte(Context*CONTEXT_PTR, any s)
 {
-    if (isSym(s))
-    {
-        return ((uword)(car(car(s)))) & 0xff;
-    }
-    else
-    {
-        giveup("Cant get first byte");
-        return -1;
-    }
+    int i;
+    uword w;
+    return getByte1(CONTEXT_PTR, &i, &w, &s);
 }
 
 static int INDEX;
