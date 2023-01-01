@@ -276,12 +276,12 @@ any mkStr(Context *CONTEXT_PTR, char *s)
    }
 }
 
-any isIntern(Context *CONTEXT_PTR, any nm, any tree[2])
+any isIntern(Context *CONTEXT_PTR, any nm, any tree)
 {
     any x, y, z;
     word n;
 
-    for (x = tree[1]; !isNil(x);)
+    for (x = tree; !isNil(x);)
     {
         y = car(nm);
         z = car(car(x));
@@ -341,17 +341,17 @@ int getByte(Context *CONTEXT_PTR, int *i, uword *p, any *q)
     return c;
 }
 
-any intern(Context *CONTEXT_PTR, any sym, any tree[2])
+any intern(Context *CONTEXT_PTR, any sym, any *tree)
 {
     any nm, x, y, z;
     word n;
 
-    x = tree[1];
+    x = *tree;
 
     if (isNil(x))
     {
-        tree[1] = consIntern(CONTEXT_PTR, sym, Nil);
-        return tree[1];
+        *tree = consIntern(CONTEXT_PTR, sym, Nil);
+        return *tree;
     }
 
     for (;;)
@@ -723,10 +723,10 @@ void markAll(Context *CONTEXT_PTR)
    }
 
    /* Mark */
-   setMark(CONTEXT_PTR->Intern[0], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Intern[0]);
-   setMark(CONTEXT_PTR->Intern[1], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Intern[1]);
-   setMark(CONTEXT_PTR->Transient[0], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Transient[0]);
-   setMark(CONTEXT_PTR->Transient[1], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Transient[1]);
+   setMark(CONTEXT_PTR->Intern, 0);mark(CONTEXT_PTR, CONTEXT_PTR->Intern);
+   setMark(CONTEXT_PTR->Intern, 0);mark(CONTEXT_PTR, CONTEXT_PTR->Intern);
+   setMark(CONTEXT_PTR->Transient, 0);mark(CONTEXT_PTR, CONTEXT_PTR->Transient);
+   setMark(CONTEXT_PTR->Transient, 0);mark(CONTEXT_PTR, CONTEXT_PTR->Transient);
    if (CONTEXT_PTR->ApplyArgs) setMark(CONTEXT_PTR->ApplyArgs, 0);mark(CONTEXT_PTR, CONTEXT_PTR->ApplyArgs);
    if (CONTEXT_PTR->ApplyBody) setMark(CONTEXT_PTR->ApplyBody, 0);mark(CONTEXT_PTR, CONTEXT_PTR->ApplyBody);
    for (p = CONTEXT_PTR->Env.stack; p; p = cdr(p))
@@ -3522,7 +3522,7 @@ any read0(Context *CONTEXT_PTR, bool top)
             return x;
         }
 
-        intern(CONTEXT_PTR, y, CONTEXT_PTR->Transient);
+        intern(CONTEXT_PTR, y, &CONTEXT_PTR->Transient);
         return y;
     }
 
@@ -3569,7 +3569,7 @@ any read0(Context *CONTEXT_PTR, bool top)
         return x;
     }
 
-    intern(CONTEXT_PTR, y, CONTEXT_PTR->Intern);
+    intern(CONTEXT_PTR, y, &CONTEXT_PTR->Intern);
     val(y) = Nil;
     setCARType(y, PTR_CELL);
     return y;
@@ -3979,7 +3979,7 @@ any addString(any *Mem, any m, char *s)
 void initialize_context(Context *CONTEXT_PTR)
 {
    heapAlloc(CONTEXT_PTR);
-   CONTEXT_PTR->Intern[0] = CONTEXT_PTR->Intern[1] = CONTEXT_PTR->Transient[0] = CONTEXT_PTR->Transient[1] = Nil;
+   CONTEXT_PTR->Intern = CONTEXT_PTR->Transient = Nil;
 
    for (int i = 1; i < MEMS; i++)
    {
@@ -3988,7 +3988,7 @@ void initialize_context(Context *CONTEXT_PTR)
       if (isSym(cell))
       {
          dump("symbol1");
-         intern(CONTEXT_PTR, cell, CONTEXT_PTR->Intern);
+         intern(CONTEXT_PTR, cell, &CONTEXT_PTR->Intern);
          dump("symbol2");
       }
    }
