@@ -301,38 +301,57 @@ any isIntern(Context *CONTEXT_PTR, any nm, any tree[2])
     return NULL;
 }
 
+int getByte1(Context *CONTEXT_PTR, int *i, uword *p, any *sym)
+{
+    if (isSym(*sym))
+    {
+        (*sym)=car(*sym);
+        *i = BITS;
+        *p = (uword)(car(*sym));
+        *sym = (cdr(*sym));
+    }
+    else
+    {
+        giveup("Cant getByte");
+    }
+
+    int c = *p & 0xff;
+    *p >>= 8;
+    *i -= 8;
+
+    return c;
+}
+
 int getByte(Context *CONTEXT_PTR, int *i, uword *p, any *q)
 {
     int c;
 
     if (*i == 0)
     {
-        if (!*q || isNil(*q))
+        if (isNil(*q))
         {
             return 0;
         }
         else
         {
-            *i = BITS,  *p = (uword)(car(*q)),  *q = cdr(*q);
+            *i = BITS;
+            *p = (uword)(car(*q));
+            *q = cdr(*q);
         }
     }
-    c = *p & 0xff,  *p >>= 8;
-    if (*i >= 8)
-        *i -= 8;
-    else if (isNum(*q))
-    {
-        *p = (uword)*q >> 2,  *q = NULL;
-        c |= *p << *i;
-        *p >>= 8 - *i;
-        *i += BITS-9;
-    }
-    else
+
+    c = *p & 0xff;
+    *p >>= 8;
+    *i -= 8;
+
+    if (*i < 0)
     {
         *p = (uword)tail(*q),  *q = val(*q);
         c |= *p << *i;
         *p >>= 8 - *i;
         *i += BITS-8;
     }
+
     c &= 0xff;
 
     return c;
@@ -423,25 +442,6 @@ any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
             }
         }
     }
-}
-
-int getByte1(Context *CONTEXT_PTR, int *i, uword *p, any *q)
-{
-    int c;
-
-    if (isSym(*q))
-    {
-        (*q)=car(*q);
-        *i = BITS, *p = (uword)(car(*q)) , *q = (cdr(*q));
-    }
-    else
-    {
-        giveup("Cant getByte");
-    }
-
-    c = *p & 0xff, *p >>= 8, *i -= 8;
-
-    return c;
 }
 
 int symBytes(Context *CONTEXT_PTR, any x)
