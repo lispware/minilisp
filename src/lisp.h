@@ -361,7 +361,6 @@ void *allignedAlloc(size_t size);
 void copy_mem(any M, Context *To);
 any isIntern(Context *CONTEXT_PTR, any nm, any tree[2]);
 any intern(Context *CONTEXT_PTR, any sym, any tree[2]);
-any internBin(Context *CONTEXT_PTR, any sym, any tree[2]);
 void initialize_context(Context *CONTEXT_PTR);
 any consIntern(Context *CONTEXT_PTR, any x, any y);
 any consName(Context *CONTEXT_PTR, uword w, any n);
