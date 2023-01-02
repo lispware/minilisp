@@ -362,8 +362,6 @@ void copy_mem(any M, Context *To);
 any isIntern(Context *CONTEXT_PTR, any nm, any tree);
 any intern(Context *CONTEXT_PTR, any sym, any *tree);
 void initialize_context(Context *CONTEXT_PTR);
-any consIntern(Context *CONTEXT_PTR, any x, any y);
-any consName(Context *CONTEXT_PTR, uword w, any n);
 int symBytes(Context *CONTEXT_PTR, any x);
 any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign);
 any mkSym(Context *CONTEXT_PTR, byte *s);

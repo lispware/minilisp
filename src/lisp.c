@@ -350,7 +350,7 @@ any intern(Context *CONTEXT_PTR, any sym, any *tree)
 
     if (isNil(x))
     {
-        *tree = consIntern(CONTEXT_PTR, sym, Nil);
+        *tree = cons(CONTEXT_PTR, sym, Nil);
         return *tree;
     }
 
@@ -370,22 +370,16 @@ any intern(Context *CONTEXT_PTR, any sym, any *tree)
         {
             if (n < 0)
             {
-                any xx = consIntern(CONTEXT_PTR, sym, Nil);
-                setCARType(xx, PTR_CELL);
-                xx = consIntern(CONTEXT_PTR, xx, Nil);
-                setCARType(xx, PTR_CELL);
+                any xx = cons(CONTEXT_PTR, sym, Nil);
+                xx = cons(CONTEXT_PTR, xx, Nil);
                 cdr(x) = xx;
-                setCARType(x, PTR_CELL);
                 return sym;
             }
             else
             {
-                any xx = consIntern(CONTEXT_PTR, sym, Nil);
-                setCARType(xx, PTR_CELL);
-                xx = consIntern(CONTEXT_PTR, Nil, xx);
-                setCARType(xx, PTR_CELL);
+                any xx = cons(CONTEXT_PTR, sym, Nil);
+                xx = cons(CONTEXT_PTR, Nil, xx);
                 cdr(x) = xx;
-                setCARType(x, PTR_CELL);
                 return sym;
             }
 
@@ -398,8 +392,7 @@ any intern(Context *CONTEXT_PTR, any sym, any *tree)
             }
             else
             {
-                cadr(x) = consIntern(CONTEXT_PTR, sym, Nil);
-                setCARType(car(x), PTR_CELL);
+                cadr(x) = cons(CONTEXT_PTR, sym, Nil);
                 return sym;
             }
         }
@@ -411,8 +404,7 @@ any intern(Context *CONTEXT_PTR, any sym, any *tree)
             }
             else
             {
-                cddr(x) = consIntern(CONTEXT_PTR, sym, Nil);
-                setCARType(cdr(x), PTR_CELL);
+                cddr(x) = cons(CONTEXT_PTR, sym, Nil);
                 return sym;
             }
         }
@@ -3994,18 +3986,6 @@ void initialize_context(Context *CONTEXT_PTR)
    }
 }
 
-any consIntern(Context *CONTEXT_PTR, any x, any y)
-{
-    dump("consIntern1");
-    any r = cons(CONTEXT_PTR, x, y);
-    dump("consIntern2");
-
-    setCARType(r, PTR_CELL);
-    dump("consIntern3");
-
-    return r;
-}
-
 any consSym(Context *CONTEXT_PTR, any val, any w)
 {
     cell *p;
@@ -4053,26 +4033,6 @@ any cons(Context *CONTEXT_PTR, any x, any y)
     dump("cons3");
 
     return p;
-}
-
-any consName(Context *CONTEXT_PTR, uword w, any n)
-{
-   cell *p;
-
-   if (!(p = CONTEXT_PTR->Avail))
-   {
-       cell c1;
-       Push(c1, n);
-      gc(CONTEXT_PTR, CELLS);
-      drop(c1);
-      p = CONTEXT_PTR->Avail;
-   }
-   CONTEXT_PTR->Avail = car(p);
-   p = symPtr(p);
-   car(p) = (any)w;
-   cdr(p) = n;
-   setCARType(p, PTR_CELL);
-   return p;
 }
 
 uword length(Context *CONTEXT_PTR, any x)
