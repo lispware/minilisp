@@ -339,6 +339,68 @@ int getByte(Context *CONTEXT_PTR, int *i, uword *p, any *q)
     return c;
 }
 
+int isSymAtNode(Context *CONTEXT_PTR, any sym, any node, word *n)
+{
+    any y = car(sym);
+    any z = car(car(node));
+
+    while ((*n = (word)(car(y)) - (word)car(z)) == 0)
+    {
+        if (GetType(y) != BIN)
+        {
+            return 1;
+        }
+        y = cdr(y);
+        z = cdr(z);
+    }
+
+    return 0;
+}
+
+int addSymToLeftOfNode(Context *CONTEXT_PTR, any sym, any *node)
+{
+    if (isNil(cdr(*node)))
+    {
+        any newNode = cons(CONTEXT_PTR, sym, Nil);
+        newNode = cons(CONTEXT_PTR, newNode, Nil);
+        cdr(*node) = newNode;
+        return 1;
+    }
+
+    *node = cdr(*node);
+
+    if (isNil(car(*node)))
+    {
+        car(*node) = cons(CONTEXT_PTR, sym, Nil);
+        return 1;
+    }
+
+    *node = car(*node);
+    return 0;
+}
+
+int addSymToRightOfNode(Context *CONTEXT_PTR, any sym, any *node)
+{
+    if (isNil(cdr(*node)))
+    {
+        any newNode = cons(CONTEXT_PTR, sym, Nil);
+        newNode = cons(CONTEXT_PTR, Nil, newNode);
+        cdr(*node) = newNode;
+        return 1;
+    }
+
+    *node = cdr(*node);
+
+    if (isNil(cdr(*node)))
+    {
+        cdr(*node) = cons(CONTEXT_PTR, sym, Nil);
+        return 1;
+    }
+
+    *node = cdr(*node);
+    return 0;
+}
+
 any intern(Context *CONTEXT_PTR, any sym, any *root)
 {
     any node = *root;
@@ -349,59 +411,25 @@ any intern(Context *CONTEXT_PTR, any sym, any *root)
         return *root;
     }
 
-    any y, z;
-    word n;
-
     for (;;)
     {
-        y = car(sym);
-        z = car(car(node));
-        while ((n = (word)(car(y)) - (word)car(z)) == 0)
+        word n;
+        if (isSymAtNode(CONTEXT_PTR, sym, node, &n))
         {
-            if (GetType(y) != BIN) return sym;
-            y=cdr(y);
-            z=cdr(z);
-        }
-
-        if (isNil(cdr(node)))
-        {
-            any newNode = cons(CONTEXT_PTR, sym, Nil);
-            if (n < 0)
-            {
-                newNode = cons(CONTEXT_PTR, newNode, Nil);
-            }
-            else
-            {
-                newNode = cons(CONTEXT_PTR, Nil, newNode);
-            }
-
-            cdr(node) = newNode;
             return sym;
         }
 
-        node = cdr(node);
-
         if (n < 0)
         {
-            if (!isNil(car(node)))
+            if (addSymToLeftOfNode(CONTEXT_PTR, sym, &node))
             {
-                node = car(node);
-            }
-            else
-            {
-                car(node) = cons(CONTEXT_PTR, sym, Nil);
                 return sym;
             }
         }
         else
         {
-            if (!isNil(cdr(node)))
+            if (addSymToRightOfNode(CONTEXT_PTR, sym, &node))
             {
-                node = cdr(node);
-            }
-            else
-            {
-                cdr(node) = cons(CONTEXT_PTR, sym, Nil);
                 return sym;
             }
         }
