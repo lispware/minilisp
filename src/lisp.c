@@ -555,12 +555,13 @@ any mkChar(Context *CONTEXT_PTR, int c)
     return mkSym(CONTEXT_PTR, (byte*)&b);
 }
 
+
+
 any putSymByte(Context *CONTEXT_PTR, any curCell, int *shift, byte b)
 {
     uword *ptr = (uword *)&(curCell->car);
-    *ptr |= (uword)b << (*shift);
-    *shift += 8;
-    if (*shift >= BITS)
+
+    if (*shift == BITS)
     {
         *shift = 0;
         curCell->cdr = cons(CONTEXT_PTR, Nil, Nil);
@@ -569,6 +570,9 @@ any putSymByte(Context *CONTEXT_PTR, any curCell, int *shift, byte b)
         ptr = (uword *)&(curCell->car);
         *ptr = 0;
     }
+
+    *ptr |= (uword)b << (*shift);
+    *shift += 8;
 
     return curCell;
 }
@@ -4140,4 +4144,46 @@ void ppp(Context*CONTEXT_PTR, char *m, cell c)
 {
     //for (int i = 0; i < PUSH_POP; i++) printf(" ");
     //printf("c.car=%p c.cdr=%p Env->stack=%p %s", (c).car, (c).cdr, CONTEXT_PTR->Env.stack, m);
+}
+
+void releaseMalloc(external *ext)
+{
+    word *ptr = ext->pointer;
+    void (*destructor)(external *) = *ptr;
+    destructor(ext);
+    free(ext->pointer);
+    free(ext);
+}
+
+char * printMalloc(Context *CONTEXT_PTR, external* ext)
+{
+    char *mem=(char*)malloc(7);
+    strcpy(mem, "MALLOC");
+    return mem;
+}
+
+int equalMalloc(Context *CONTEXT_PTR, external *ext1, external *ext2)
+{
+    return 0;
+}
+
+external *copyMalloc(Context *CONTEXT_PTR, external *ext)
+{
+    return ext;
+}
+
+external *allocateMemBlock(Context *CONTEXT_PTR, word size, void (*destructor)(external*))
+{
+    external *ptr = (external *)malloc(sizeof(external));
+    ptr->type = EXT_MALLOC;
+    ptr->release = releaseMalloc;
+    ptr->print = printMalloc;
+    ptr->equal = equalMalloc;
+    ptr->copy = copyMalloc;
+    ptr->pointer = (void*)malloc(size);
+
+    word *dest = ptr->pointer;
+    *dest = (word)destructor;
+
+    return ptr;
 }
