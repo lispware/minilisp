@@ -296,8 +296,6 @@ any isIntern(Context *CONTEXT_PTR, any nm, any tree)
         x = n<0? cadr(x) : cddr(x);
     }
 
-
-
     return NULL;
 }
 
@@ -341,24 +339,23 @@ int getByte(Context *CONTEXT_PTR, int *i, uword *p, any *q)
     return c;
 }
 
-any intern(Context *CONTEXT_PTR, any sym, any *tree)
+any intern(Context *CONTEXT_PTR, any sym, any *root)
 {
-    any nm, x, y, z;
-    word n;
+    any node = *root;
 
-    x = *tree;
-
-    if (isNil(x))
+    if (isNil(node))
     {
-        *tree = cons(CONTEXT_PTR, sym, Nil);
-        return *tree;
+        *root = cons(CONTEXT_PTR, sym, Nil);
+        return *root;
     }
+
+    any y, z;
+    word n;
 
     for (;;)
     {
-
         y = car(sym);
-        z = car(car(x));
+        z = car(car(node));
         while ((n = (word)(car(y)) - (word)car(z)) == 0)
         {
             if (GetType(y) != BIN) return sym;
@@ -366,45 +363,43 @@ any intern(Context *CONTEXT_PTR, any sym, any *tree)
             z=cdr(z);
         }
 
-        if (isNil(cdr(x)))
+        if (isNil(cdr(node)))
         {
+            any newNode = cons(CONTEXT_PTR, sym, Nil);
             if (n < 0)
             {
-                any xx = cons(CONTEXT_PTR, sym, Nil);
-                xx = cons(CONTEXT_PTR, xx, Nil);
-                cdr(x) = xx;
-                return sym;
+                newNode = cons(CONTEXT_PTR, newNode, Nil);
             }
             else
             {
-                any xx = cons(CONTEXT_PTR, sym, Nil);
-                xx = cons(CONTEXT_PTR, Nil, xx);
-                cdr(x) = xx;
-                return sym;
+                newNode = cons(CONTEXT_PTR, Nil, newNode);
             }
 
+            cdr(node) = newNode;
+            return sym;
         }
+
         if (n < 0)
         {
-            if (!isNil(cadr(x)))
+            if (!isNil(cadr(node)))
             {
-                x = cadr(x);
+                node = cadr(node);
             }
             else
             {
-                cadr(x) = cons(CONTEXT_PTR, sym, Nil);
+                cadr(node) = cons(CONTEXT_PTR, sym, Nil);
                 return sym;
             }
         }
         else
         {
-            if (!isNil(cddr(x)))
+            if (!isNil(cddr(node)))
             {
-                x = cddr(x);
+                node = cddr(node);
             }
             else
             {
-                cddr(x) = cons(CONTEXT_PTR, sym, Nil);
+                cddr(node) = cons(CONTEXT_PTR, sym, Nil);
                 return sym;
             }
         }
