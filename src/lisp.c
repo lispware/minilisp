@@ -379,27 +379,29 @@ any intern(Context *CONTEXT_PTR, any sym, any *root)
             return sym;
         }
 
+        node = cdr(node);
+
         if (n < 0)
         {
-            if (!isNil(cadr(node)))
+            if (!isNil(car(node)))
             {
-                node = cadr(node);
+                node = car(node);
             }
             else
             {
-                cadr(node) = cons(CONTEXT_PTR, sym, Nil);
+                car(node) = cons(CONTEXT_PTR, sym, Nil);
                 return sym;
             }
         }
         else
         {
-            if (!isNil(cddr(node)))
+            if (!isNil(cdr(node)))
             {
-                node = cddr(node);
+                node = cdr(node);
             }
             else
             {
-                cddr(node) = cons(CONTEXT_PTR, sym, Nil);
+                cdr(node) = cons(CONTEXT_PTR, sym, Nil);
                 return sym;
             }
         }
