@@ -44,11 +44,12 @@ any EVAL(Context *CONTEXT_PTR, any x)
 any evExpr(Context *CONTEXT_PTR, any expr, any x)
 {
    any y = car(expr);
+   uword len = length(CONTEXT_PTR, y);
 
-   bindFrame *f = allocFrame(length(CONTEXT_PTR, y)+2);
+   bindFrame *f = allocFrame(len + 2);
 
    f->link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = f;
-   f->i = (bindSize * (length(CONTEXT_PTR, y)+2)) / (2*sizeof(any)) - 1;
+   f->i = (bindSize * (len + 2)) / (2*sizeof(any)) - 1;
    f->cnt = 1,  f->bnd[0].sym = At,  f->bnd[0].val = val(At);
 
    while (!isNil(y) && isCell(y))
