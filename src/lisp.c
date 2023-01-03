@@ -23,18 +23,17 @@ any EVAL(Context *CONTEXT_PTR, any x)
     {
         return x;
     }
-    else if (isFunc(x))
-    {
-        // TODO - we need to fix the FUNC value perhaps
-        return x;
-    }
-    else if (isNum(x))
-    {
-        return x;
-    }
     else if (isSym(x))
     {
         return val(x);
+    }
+    else if (isFunc(x))
+    {
+        giveup("Unexpected Func");
+    }
+    else if (isNum(x))
+    {
+        giveup("Unexpected Num");
     }
     else
     {
@@ -52,7 +51,7 @@ any evExpr(Context *CONTEXT_PTR, any expr, any x)
    f->i = (bindSize * (length(CONTEXT_PTR, y)+2)) / (2*sizeof(any)) - 1;
    f->cnt = 1,  f->bnd[0].sym = At,  f->bnd[0].val = val(At);
 
-   while (!isNil(y) && y != cdr(y) && isCell(y))
+   while (!isNil(y) && isCell(y))
    {
       f->bnd[f->cnt].sym = car(y);
       f->bnd[f->cnt].val = EVAL(CONTEXT_PTR, car(x));
