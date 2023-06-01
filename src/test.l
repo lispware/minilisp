@@ -111,7 +111,7 @@
 (TEST "(let X (1 2 3) (++ X))" 1 (let X (1 2 3) (++ X)))
 
 ################################################################################
-# make/link/list/length
+# make/link/list/length/conc
 ################################################################################
 (TEST "(make)" Nil (make))
 (TEST "(make (link 1))" (1) (make (link 1)))
@@ -130,6 +130,20 @@
 (TEST "(length \"abcd\")" 4 (length "abcd"))
 (TEST "(length (list 1 2 3))" 3 (length (list 1 2 3)))
 (TEST "(length (list))" 1 (length (list)))
+
+(TEST "(conc)" Nil (conc))
+(TEST "(conc 1)" 1 (conc 1))
+(TEST "(conc 1 10)" 10 (conc 1 10))
+(TEST "(conc (1) 2)" 1 (car (conc (1) 2)))
+(TEST "(conc (1) 2)" 2 (cdr (conc (1) 2)))
+(TEST "(conc (1 2 3) (4 5 6))" (1 2 3 4 5 6) (conc (1 2 3) (4 5 6)))
+(TEST "(conc (1) (2) (3))" (1 2 3) (conc (1) (2) (3)))
+
+(TEST "(glue \",\" 1)" 1 (glue "," 1))
+(TEST "(glue \",\" 1 2 3)" 123 (glue "," 123))
+(TEST "(glue \",\" (1 2 3))" "1,2,3" (glue "," (1 2 3)))
+(TEST "(glue \",\" (list 1 2 3))" "1,2,3" (glue "," (list 1 2 3)))
+(TEST "(glue \",\" (list 1 2 (+ 3 1)))" "1,2,4" (glue "," (list 1 2 (+ 3 1))))
 
 ################################################################################
 # index

@@ -2567,6 +2567,73 @@ any doCons(Context *CONTEXT_PTR, any x)
    return Pop(c1);
 }
 
+// (conc 'lst ..) -> lst
+any doConc(Context *CONTEXT_PTR, any x) {
+   any y, z;
+   cell c1;
+
+   x = cdr(x),  Push(c1, y = EVAL(CONTEXT_PTR, car(x)));
+   while (!isNil(x = cdr(x))) {
+      z = EVAL(CONTEXT_PTR, car(x));
+      if (!isCell(y))
+         y = data(c1) = z;
+      else {
+         while (!isNil(cdr(y)))
+            y = cdr(y);
+         cdr(y) = z;
+      }
+   }
+   return Pop(c1);
+}
+
+// (pack 'any ..) -> sym
+any doGlue(Context *CONTEXT_PTR, any x)
+{
+    int nonzero = 0;
+    int shift = 0;
+
+    cell c1;
+    any curCell = startSym(CONTEXT_PTR, &c1);
+
+    cell c2;
+    Push(c2, Nil);
+
+    cell c3, c4;
+    x = cdr(x),  Push(c3, EVAL(CONTEXT_PTR, car(x)));
+    x = cdr(x),  Push(c4, x =EVAL(CONTEXT_PTR, car(x)));
+
+    if (!isCell(x))
+    {
+	    // Not a list
+	    drop(c1);
+	    return x;
+    }
+
+
+    if (!isNil(car(x)))
+    {
+        data(c2) = EVAL(CONTEXT_PTR, car(x));
+        curCell = pack(CONTEXT_PTR, curCell, data(c2), &shift, &nonzero);
+    }
+
+    while (!isNil(x = cdr(x)))
+    {
+        curCell = pack(CONTEXT_PTR, curCell, data(c3), &shift, &nonzero);
+        data(c2) = EVAL(CONTEXT_PTR, car(x));
+        curCell = pack(CONTEXT_PTR, curCell, data(c2), &shift, &nonzero);
+    }
+
+    if (nonzero)
+    {
+        return Pop(c1);
+    }
+    else
+    {
+        drop(c1);
+        return Nil;
+    }
+}
+
 // (c...r 'lst) -> any
 any doCar(Context *CONTEXT_PTR, any ex)
 {
@@ -3902,6 +3969,8 @@ void setupBuiltinFunctions(any * Mem)
     AddFunc(memCell, "length", doLength);
     AddFunc(memCell, "list", doList);
     AddFunc(memCell, "cons", doCons);
+    AddFunc(memCell, "glue", doGlue);
+    AddFunc(memCell, "conc", doConc);
     AddFunc(memCell, "car", doCar);
     AddFunc(memCell, "cdr", doCdr);
     AddFunc(memCell, "while", doWhile);
