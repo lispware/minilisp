@@ -2491,6 +2491,56 @@ any doList(Context *CONTEXT_PTR, any x)
    return Pop(c1);
 }
 
+
+// (split 'lst 'any ..) -> lst
+any doSplit(Context *CONTEXT_PTR, any x) {
+   any y;
+   int i;
+   cell c1, res, sub;
+
+   int n = length(CONTEXT_PTR, cdr(x=cdr(x)));
+
+   if (!isCell(data(c1) = EVAL(CONTEXT_PTR, car(x))))
+   {
+      return data(c1);
+   }
+
+   cell *c = (cell *)calloc(sizeof(cell), n);
+
+   Save(c1);
+   for (i = 0; i < n; ++i)
+      x = cdr(x),  Push(c[i], EVAL(CONTEXT_PTR, car(x)));
+   Push(res, x = Nil);
+   Push(sub, y = Nil);
+   do {
+      for (i = 0;  i < n;  ++i) {
+         if (0 == equal(CONTEXT_PTR, car(data(c1)), data(c[i]))) {
+            if (isNil(x))
+               x = data(res) = cons(CONTEXT_PTR, data(sub), Nil);
+            else
+               x = cdr(x) = cons(CONTEXT_PTR, data(sub), Nil);
+            y = data(sub) = Nil;
+            goto spl1;
+         }
+      }
+      if (isNil(y))
+         y = data(sub) = cons(CONTEXT_PTR, car(data(c1)), Nil);
+      else
+         y = cdr(y) = cons(CONTEXT_PTR, car(data(c1)), Nil);
+spl1: ;
+   } while (!isNil(data(c1) = cdr(data(c1))));
+
+
+   y = cons(CONTEXT_PTR, data(sub), Nil);
+   drop(c1);
+   free(c);
+
+   if (isNil(x))
+      return y;
+   cdr(x) = y;
+   return data(res);
+}
+
 // (mapcar 'fun 'lst ..) -> lst
 any doMapcar(Context *CONTEXT_PTR, any ex)
 {
@@ -3963,6 +4013,7 @@ void setupBuiltinFunctions(any * Mem)
     AddFunc(memCell, "list", doList);
     AddFunc(memCell, "cons", doCons);
     AddFunc(memCell, "glue", doGlue);
+    AddFunc(memCell, "split", doSplit);
     AddFunc(memCell, "conc", doConc);
     AddFunc(memCell, "car", doCar);
     AddFunc(memCell, "cdr", doCdr);
