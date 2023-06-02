@@ -2592,13 +2592,9 @@ any doGlue(Context *CONTEXT_PTR, any x)
     int nonzero = 0;
     int shift = 0;
 
-    cell c1;
+    cell c1, c2, c3, c4;
     any curCell = startSym(CONTEXT_PTR, &c1);
 
-    cell c2;
-    Push(c2, Nil);
-
-    cell c3, c4;
     x = cdr(x),  Push(c3, EVAL(CONTEXT_PTR, car(x)));
     x = cdr(x),  Push(c4, x =EVAL(CONTEXT_PTR, car(x)));
 
@@ -2609,18 +2605,15 @@ any doGlue(Context *CONTEXT_PTR, any x)
 	    return x;
     }
 
-
     if (!isNil(car(x)))
     {
-        data(c2) = EVAL(CONTEXT_PTR, car(x));
-        curCell = pack(CONTEXT_PTR, curCell, data(c2), &shift, &nonzero);
+        curCell = pack(CONTEXT_PTR, curCell, car(x), &shift, &nonzero);
     }
 
     while (!isNil(x = cdr(x)))
     {
         curCell = pack(CONTEXT_PTR, curCell, data(c3), &shift, &nonzero);
-        data(c2) = EVAL(CONTEXT_PTR, car(x));
-        curCell = pack(CONTEXT_PTR, curCell, data(c2), &shift, &nonzero);
+        curCell = pack(CONTEXT_PTR, curCell, car(x), &shift, &nonzero);
     }
 
     if (nonzero)
