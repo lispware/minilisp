@@ -1,4 +1,4 @@
-SOURCES=main.c lisp.c windows.c gmp.c
+SOURCES=main.c lisp.c gmp.c
 
-all: $(SOURCES) libtommath/tommath.lib
+all: $(SOURCES)
 	cl /nologo /I . /Zi ws2_32.lib advapi32.lib  $(SOURCES) /Felisp.exe
