@@ -247,7 +247,14 @@
 (TEST "for I 10"  55 (let X 0 (for I 10 (setq X (+ X I)))))
 (TEST "for I (1..10)"  55 (let X 0 (for I (1 2 3 4 5 6 7 8 9 10) (setq X (+ X I)))))
 
-(TEST "mapcar" (2 3 4) (mapcar '((X) (+ 1 X)) (1 2 3)))
+(TEST "(mapcar)" Nil (mapcar))
+(TEST "(mapcar pack)" Nil (mapcar pack))
+(TEST "(mapcar pack 1)" Nil (mapcar pack 1))
+(TEST "(mapcar pack 1 2 3)" Nil (mapcar pack 1 2 3))
+(TEST "(mapcar pack (1 2 3))" "123" (pack (mapcar pack (1 2 3))))
+(TEST "(mapcar pack (1 2 3) (4 5 6))" "142536" (pack (mapcar pack (1 2 3) (4 5 6))))
+(TEST "(mapcar pack (1 2 3) (4 5))" "14253" (pack (mapcar pack (1 2 3) (4 5))))
+(TEST "(mapcar '((X) (+ 1 X)) (1 2 3))" (2 3 4) (mapcar '((X) (+ 1 X)) (1 2 3)))
 
 # loop is infinite loop, so no testing :)
 
