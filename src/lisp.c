@@ -549,10 +549,21 @@ returnNULL:
 
 any mkChar(Context *CONTEXT_PTR, int c)
 {
-    byte b[2];
-    b[0] = (byte)c;
-    b[1] = 0;
-    return mkSym(CONTEXT_PTR, (byte*)&b);
+	any x;
+	byte b[2];
+	b[0] = (byte)c;
+	b[1] = 0;
+	any y = mkSym(CONTEXT_PTR, (byte*)&b);
+
+	// intern into transient to make " appear
+
+	if (x = isIntern(CONTEXT_PTR, tail(y), CONTEXT_PTR->Transient))
+	{
+		return x;
+	}
+
+	intern(CONTEXT_PTR, y, &CONTEXT_PTR->Transient);
+	return y;
 }
 
 
