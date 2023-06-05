@@ -2767,18 +2767,20 @@ any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p)
    }
    else {
       any x = CONTEXT_PTR->ApplyArgs;
-      val(caar(x)) = cf? car(data(p[n])) : data(p[n]);
+      caar(x) = cf? car(data(p[n])) : data(p[n]);
       while (--n >= 0) {
-         if (!isCell(cdr(x)))
+         if (isNil(cdr(x)))
          {
-            cdr(x) = cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil,0), car(x)), Nil);
-            setCARType(x, PTR_CELL);
+            cdr(x) = cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, Nil), car(x)), Nil);
+            setCARType(cdr(x), PTR_CELL);
          }
          x = cdr(x);
-         val(caar(x)) = cf? car(data(p[n])) : data(p[n]);
-         setCARType(caar(x), PTR_CELL);
+         caar(x) = cf? car(data(p[n])) : data(p[n]);
+         setCARType(cdr(x), PTR_CELL);
       }
+      
       cdr(CONTEXT_PTR->ApplyBody) = car(x);
+
       setCARType(CONTEXT_PTR->ApplyBody, PTR_CELL);
    }
 
