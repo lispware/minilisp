@@ -138,6 +138,11 @@ any evList(Context *CONTEXT_PTR, any ex)
     if (isNum(foo = car(ex)))
         return ex;
 
+    if (isSym(foo) && cdr(foo) == foo)
+    {
+        return ex;
+    }
+
     if (isCell(foo))
     {
         if (isFunc(foo = evList(CONTEXT_PTR, foo)))

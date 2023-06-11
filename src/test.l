@@ -147,6 +147,7 @@
 
 (TEST "(pack (split (chop \"a,b,c,d\")))" "a,b,c,d" (pack (split (chop "a,b,c,d"))))
 (TEST "(pack (split (chop \"a,b,c,d\") \",\"))" "abcd" (pack (split (chop "a,b,c,d") ",")))
+(TEST "mapcar with pack"  "ITEM 1: hello ITEM 2: world" (let L (mapcar pack (split (chop "hello,world") ",")) (pack "ITEM 1: " (car L) " ITEM 2: " (car (cdr L)) )))
 
 ################################################################################
 # index
