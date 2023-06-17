@@ -1287,6 +1287,11 @@ any pack(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
         return r;
     }
 
+    if (isNil(x))
+    {
+        return r;
+    }
+
     if (isNum(x))
     {
         char *buf = mpz_get_str(NULL, 10, num(x));
@@ -2711,6 +2716,62 @@ any doCdr(Context *CONTEXT_PTR, any ex)
    return cdr(x);
 }
 
+// (filter 'fun 'lst ..) -> lst
+any doFilter(Context *CONTEXT_PTR, any ex)
+{
+   any x = cdr(ex);
+   cell res, foo;
+
+   Push(res, Nil);
+   Push(foo, EVAL(CONTEXT_PTR, car(x)));
+   
+   x = cdr(x);
+   if (!isNil(x) && isCell(x))
+   {
+      int i, n = 0;
+
+      cell *c = (cell *)calloc(sizeof(cell), length(CONTEXT_PTR, x));
+
+      do
+         Push(c[n], EVAL(CONTEXT_PTR, car(x))), ++n;
+      while (!isNil(x = cdr(x)));
+      if (!isCell(data(c[0])))
+      {
+        free(c);
+        return Pop(res);
+      }
+
+      while (isNil(apply(CONTEXT_PTR, ex, data(foo), YES, n, c))) {
+         if (isNil(data(c[0]) = cdr(data(c[0]))))
+         {
+            free(c);
+            return Pop(res);
+         }
+         for (i = 1; i < n; ++i)
+            data(c[i]) = cdr(data(c[i]));
+      }
+
+      data(res) = x = cons(CONTEXT_PTR, car(data(c[0])), Nil);
+
+      while (!isNil(data(c[0]) = cdr(data(c[0]))))
+      {
+         for (i = 1; i < n; ++i)
+         {
+            data(c[i]) = cdr(data(c[i]));
+         }
+
+         if (!isNil(apply(CONTEXT_PTR, ex, data(foo), YES, n, c)))
+         {
+            x = cdr(x) = cons(CONTEXT_PTR, car(data(c[0])), Nil);
+         }
+      }
+
+      free(c);
+   }
+
+   return Pop(res);
+}
+
 any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p)
 {
    while (!isFunc(foo)) {
@@ -4032,6 +4093,7 @@ void setupBuiltinFunctions(any * Mem)
     AddFunc(memCell, "cons", doCons);
     AddFunc(memCell, "glue", doGlue);
     AddFunc(memCell, "split", doSplit);
+    AddFunc(memCell, "filter", doFilter);
     AddFunc(memCell, "conc", doConc);
     AddFunc(memCell, "car", doCar);
     AddFunc(memCell, "cdr", doCdr);

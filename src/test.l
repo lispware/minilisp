@@ -149,6 +149,15 @@
 (TEST "(pack (split (chop \"a,b,c,d\") \",\"))" "abcd" (pack (split (chop "a,b,c,d") ",")))
 (TEST "mapcar with pack"  "ITEM 1: hello ITEM 2: world" (let L (mapcar pack (split (chop "hello,world") ",")) (pack "ITEM 1: " (car L) " ITEM 2: " (car (cdr L)) )))
 
+(TEST "filter" Nil (filter))
+(TEST "filter" Nil (filter Nil))
+(TEST "filter" Nil (filter Nil Nil))
+(TEST "filter" Nil (filter Nil (1 2 3)))
+(TEST "filter" (1 2 3) (filter '((X) T) (1 2 3)))
+(TEST "filter" (3 4) (filter '((X) (> X 2)) (1 2 3 4)))
+(TEST "filter" (3 4) (filter '((X) (> X 2)) (1 2 3 4 2 1)))
+(TEST "filter" (list "a" "b") (filter '((X) (or (= X "b") (= X "a"))) (list "a" "b")))
+
 ################################################################################
 # index
 ################################################################################
