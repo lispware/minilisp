@@ -1,6 +1,6 @@
-SOURCES=main.c lisp.c gmp.c
+SOURCES=main.c lisp.c gmp.c bn.c
 
 # cl /nologo /I . /Zi ws2_32.lib advapi32.lib  $(SOURCES) /Felisp.exe
 
 all: $(SOURCES)
-	cl /nologo /I . /O3 ws2_32.lib advapi32.lib  $(SOURCES) /Felisp.exe
+	cl /nologo /I . ws2_32.lib advapi32.lib  $(SOURCES) /Felisp.exe

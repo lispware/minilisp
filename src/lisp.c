@@ -539,9 +539,8 @@ any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
         else if ((c -= '0') > 9) goto returnNULL;
     }
 
-
-    MP_INT *BIGNUM = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init_set_str(BIGNUM, str, base);
+    struct bn *BIGNUM = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_string_fixed(BIGNUM, str, LEN, realloc);
     free(str);
     NewNumber(BIGNUM, r);
     return r;

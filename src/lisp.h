@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <gmp.h>
+#include <bn.h>
 #include <num.h>
 
 
@@ -260,7 +261,7 @@ void ppp(Context *, char*, cell);
 #define NeedLst(ex,x)   if (!isCell(x) && !isNil(x)) lstError(ex,x)
 #define NeedVar(ex,x)   if (isNum(x)) varError(ex,x)
 
-#define num(x)          ((MP_INT*)(((external*)((any)car(x)))->pointer))
+#define num(x)          ((struct bn*)(((external*)((any)car(x)))->pointer))
 #define tail(x)         (x)
 #define val(x)          (cdr(x))
 #define symPtr(x)       (x)
