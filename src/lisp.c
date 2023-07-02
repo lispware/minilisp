@@ -640,13 +640,13 @@ char *ExtTypeString(any cell, char*buf)
 {
     external *e = (external *)car(cell);
     int len;
-    char *b;
 
     if (!e) return "NULL";
     switch(e->type)
     {
         case EXT_NUM:
-            b = mpz_get_str(NULL, 10, (MP_INT*)num(cell));
+            char *b=(char*)malloc(1024);
+            bignum_to_string((struct bn*)num(cell), b, 1024);
             len = strlen(b);
             sprintf(buf, "%s", b);
             free(b);
@@ -2296,7 +2296,7 @@ external * copyExtNum(Context *CONTEXT_PTR, external *ext)
         exit(0);
     }
 
-    MP_INT *BIGNUM = (MP_INT*)malloc(sizeof(MP_INT));
+    struct bn *BIGNUM = (struct bn*)malloc(sizeof(struct bn));
     mpz_init(BIGNUM);
     mpz_set(BIGNUM, (MP_INT*)ext->pointer);
 
@@ -2330,7 +2330,9 @@ int equalExtNum(Context *CONTEXT_PTR, external*x, external*y)
 
 char * printExtNum(Context *CONTEXT_PTR, struct _external* obj)
 {
-    return mpz_get_str(NULL, 10, (MP_INT*)obj->pointer);
+    char *buf=(char*)malloc(1024);
+    bignum_to_string((struct bn*)obj->pointer, buf, 1024);
+    return buf;
 }
 
 // (++ var) -> any
