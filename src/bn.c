@@ -140,6 +140,7 @@ void bignum_from_string_fixed(struct bn* n, char* str, int nbytes, void*(*_reall
     }
 
     bignum_from_string(n, str, newSize - 1);
+    free(str);
 }
 
 void bignum_to_string(struct bn* n, char* str, int nbytes)

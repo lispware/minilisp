@@ -541,7 +541,7 @@ any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
 
     struct bn *BIGNUM = (struct bn*)malloc(sizeof(struct bn));
     bignum_from_string_fixed(BIGNUM, str, LEN, realloc);
-    free(str);
+    //free(str); bignum_from_string_fixed frees str
     NewNumber(BIGNUM, r);
     return r;
 
@@ -2279,11 +2279,8 @@ void releaseExtNum(external *p)
         exit(0);
     }
 
-    printf("FREEING NUM START\n");
     free(p->pointer);
-    printf("FREEING NUM MID\n");
     free(p);
-    printf("FREEING NUM DONE\n");
 }
 
 external * copyExtNum(Context *CONTEXT_PTR, external *ext)
