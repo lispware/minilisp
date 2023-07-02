@@ -1121,9 +1121,8 @@ any doCmp(Context *CONTEXT_PTR, any x)
         {
             drop(c1);
 
-            MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
-            mpz_init(id);
-            mpz_set_si(id, r);
+            struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+            bignum_from_int(id, r);
             NewNumber( id, idr);
             return idr;
         }
@@ -1133,9 +1132,8 @@ any doCmp(Context *CONTEXT_PTR, any x)
 
     drop(c1);
 
-    MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(id);
-    mpz_set_ui(id, 0);
+    struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(id, 0);
 
     NewNumber( id, idr);
     return idr;
@@ -2164,18 +2162,16 @@ any doAdd(Context *CONTEXT_PTR, any ex)
     x = cdr(ex);
     if (isNil(data(c1) = EVAL(CONTEXT_PTR, car(x))))
     {
-        MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
-        mpz_init(id);
-        mpz_set_ui(id, 0);
+        struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+        bignum_from_int(id, 0);
         NewNumber(id, idr);
         return idr;
     }
 
     NeedNum(ex, data(c1));
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(data(c1)));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(data(c1)));
 
     NewNumber( n, r);
     Push(c1, r);
@@ -2190,8 +2186,8 @@ any doAdd(Context *CONTEXT_PTR, any ex)
         }
 
         NeedNum(ex,data(c2));
-        MP_INT *m = num(data(c2));
-        mpz_add(n, m, n);
+        struct bn *m = num(data(c2));
+        bignum_add(n, m, n);
 
         drop(c2);
     }
@@ -2283,8 +2279,11 @@ void releaseExtNum(external *p)
         exit(0);
     }
 
+    printf("FREEING NUM START\n");
     free(p->pointer);
+    printf("FREEING NUM MID\n");
     free(p);
+    printf("FREEING NUM DONE\n");
 }
 
 external * copyExtNum(Context *CONTEXT_PTR, external *ext)
@@ -2296,8 +2295,7 @@ external * copyExtNum(Context *CONTEXT_PTR, external *ext)
     }
 
     struct bn *BIGNUM = (struct bn*)malloc(sizeof(struct bn));
-    mpz_init(BIGNUM);
-    mpz_set(BIGNUM, (MP_INT*)ext->pointer);
+    bignum_assign(BIGNUM, (MP_INT*)ext->pointer);
 
     external *e = (external *)malloc(sizeof(external));
     e->type = EXT_NUM;
