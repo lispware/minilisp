@@ -2283,7 +2283,6 @@ void releaseExtNum(external *p)
         exit(0);
     }
 
-    mpz_clear((MP_INT*)p->pointer);
     free(p->pointer);
     free(p);
 }
@@ -2325,7 +2324,7 @@ int equalExtNum(Context *CONTEXT_PTR, external*x, external*y)
         return 1;
     }
 
-    return mpz_cmp((MP_INT*)x->pointer, (MP_INT*)y->pointer);
+    return bignum_cmp((struct bn*)x->pointer, (struct bn*)y->pointer);
 }
 
 char * printExtNum(Context *CONTEXT_PTR, struct _external* obj)
