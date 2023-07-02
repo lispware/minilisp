@@ -1386,36 +1386,30 @@ any doChop(Context *CONTEXT_PTR, any x)
 any doDo(Context *CONTEXT_PTR, any x)
 {
     any f, y, z, a;
-    MP_INT CTR, ONE;
-    mpz_init(&ONE);
-    mpz_init(&CTR);
+    struct bn CTR, ONE;
 
-    mpz_set_ui(&ONE, 1);
+    bignum_from_int(&ONE, 1);
 
     x = cdr(x);
     if (isNil(f = EVAL(CONTEXT_PTR, car(x))))
     {
-        mpz_clear(&CTR);
-        mpz_clear(&ONE);
         return Nil;
     }
     else
     {
-        mpz_set(&CTR, num(f));
+        bignum_assign(&CTR, num(f));
     }
 
     x = cdr(x),  z = Nil;
     for (;;)
     {
-        int cmp = mpz_cmp(&CTR, &ONE); 
+        int cmp = bignum_cmp(&CTR, &ONE); 
         if (cmp >= 0)
         {
-            mpz_sub_ui(&CTR, &CTR, 1);
+            bignum_dec(&CTR);
         }
         else
         {
-            mpz_clear(&CTR);
-            mpz_clear(&ONE);
             return z;
         }
         y = x;
@@ -1428,8 +1422,6 @@ any doDo(Context *CONTEXT_PTR, any x)
                     z = cdr(z);
                     if (isNil(a = EVAL(CONTEXT_PTR, car(z))))
                     {
-                        mpz_clear(&CTR);
-                        mpz_clear(&ONE);
                         return prog(CONTEXT_PTR, cdr(z));
                     }
                     val(At) = a;
@@ -1441,8 +1433,6 @@ any doDo(Context *CONTEXT_PTR, any x)
                     if (!isNil(a = EVAL(CONTEXT_PTR, car(z))))
                     {
                         val(At) = a;
-                        mpz_clear(&CTR);
-                        mpz_clear(&ONE);
                         return prog(CONTEXT_PTR, cdr(z));
                     }
                     z = Nil;
