@@ -1291,7 +1291,9 @@ any pack(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
 
     if (isNum(x))
     {
-        char *buf = mpz_get_str(NULL, 10, num(x));
+        char* buf = (char*)malloc(1024);
+        //char *buf = mpz_get_str(NULL, 10, num(x));
+        bignum_to_string(num(x), buf, 1024);
         char *b = buf;
         any curCell = r;
         uword *ptr = (uword *)&(curCell->car);
@@ -1758,9 +1760,8 @@ any doSub(Context *CONTEXT_PTR, any ex)
     x = cdr(ex);
     if (isNil(data(c1) = EVAL(CONTEXT_PTR, car(x))))
     {
-        MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
-        mpz_init(id);
-        mpz_set_ui(id, 0);
+        struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+        bignum_from_int(id, 0);
 
         NewNumber( id, idr);
         return idr;
@@ -1768,9 +1769,8 @@ any doSub(Context *CONTEXT_PTR, any ex)
 
     NeedNum(ex, data(c1));
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(data(c1)));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(data(c1)));
 
     NewNumber( n, r);
     Push(c1, r);
@@ -1785,8 +1785,8 @@ any doSub(Context *CONTEXT_PTR, any ex)
         }
 
         NeedNum(ex,data(c2));
-        MP_INT *m = num(data(c2));
-        mpz_sub(n, n, m);
+        struct bn *m = num(data(c2));
+        bignum_sub(n, m, n);
 
         drop(c2);
     }
