@@ -1292,8 +1292,7 @@ any pack(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
     if (isNum(x))
     {
         char* buf = (char*)malloc(1024);
-        //char *buf = mpz_get_str(NULL, 10, num(x));
-        bignum_to_string(num(x), buf, 1024);
+        bignum_to_string(num(x), buf + 2, 1024);
         char *b = buf;
         any curCell = r;
         uword *ptr = (uword *)&(curCell->car);
@@ -1819,11 +1818,9 @@ any doDiv(Context *CONTEXT_PTR, any ex)
     NeedNum(ex, data(c2));
 
     data(c2) = copyNum(CONTEXT_PTR, data(c2));
-    MP_INT *c = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(c);
-    MP_INT *d = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(d);
-    mpz_divmod(c, d, num(data(c1)), num(data(c2)));
+    struct bn *c = (struct bn*)malloc(sizeof(struct bn));
+    struct bn *d = (struct bn*)malloc(sizeof(struct bn));
+    bignum_divmod(num(data(c1)), num(data(c2)), c, d);
 
     NewNumber( c, r1);
     data(c1) = r1;
@@ -3528,7 +3525,8 @@ void prin(Context *CONTEXT_PTR, any x)
 void outNum(Context *CONTEXT_PTR, any n)
 {
     int len;
-    char *buf = mpz_get_str(NULL, 10, num(n));
+    char *buf = (char *)malloc(1024);
+    bignum_to_string(num(n), buf, 1024);
     outString(CONTEXT_PTR, buf);
     free(buf);
 }
