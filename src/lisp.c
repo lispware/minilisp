@@ -1455,9 +1455,8 @@ any doQuote(Context *CONTEXT_PTR, any x)
 
 any mkNum(Context *CONTEXT_PTR, word n)
 {
-    MP_INT *BIGNUM = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(BIGNUM);
-    mpz_set_ui(BIGNUM, n);
+    struct bn *BIGNUM = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(BIGNUM, n);
     NewNumber( BIGNUM, r);
     return r;
 }
@@ -1580,14 +1579,13 @@ any doFor(Context *CONTEXT_PTR, any x)
         {
             if (isNum(data(c1)))
             {
-                if (! mpz_cmp(num(f->bnd[0].sym->cdr), num(data(c1))))
+                if (! bignum_cmp(num(f->bnd[0].sym->cdr), num(data(c1))))
                     break;
 
-                MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-                mpz_init(n);
+                struct bn *n = (struct bn*)malloc(sizeof(struct bn));
 
-                mpz_set(n, num(f->bnd[0].sym->cdr));
-                mpz_add_ui(n, n, 1);
+                bignum_assign(n, num(f->bnd[0].sym->cdr));
+                bignum_inc(n);
 
                 NewNumber( n, r);
                 f->bnd[0].sym->cdr  = r;
@@ -2253,9 +2251,8 @@ any copyNum(Context *CONTEXT_PTR, any n)
 {
     if (!isNum(n)) return Nil;
 
-    MP_INT *BIGNUM = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(BIGNUM);
-    mpz_set(BIGNUM, num(n));
+    struct bn *BIGNUM = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(BIGNUM, num(n));
 
     NewNumber(BIGNUM, r);
     return r;
@@ -2282,7 +2279,7 @@ external * copyExtNum(Context *CONTEXT_PTR, external *ext)
     }
 
     struct bn *BIGNUM = (struct bn*)malloc(sizeof(struct bn));
-    bignum_assign(BIGNUM, (MP_INT*)ext->pointer);
+    bignum_assign(BIGNUM, (struct bn*)ext->pointer);
 
     external *e = (external *)malloc(sizeof(external));
     e->type = EXT_NUM;
