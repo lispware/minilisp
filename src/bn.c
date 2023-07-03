@@ -124,19 +124,22 @@ void bignum_from_string_fixed(struct bn* n, char* str, int nbytes, void*(*_reall
 {
     int block=sizeof(DTYPE)*2;
     int remainder = (nbytes - 1) % block;
-    int extra = block - remainder;
+    int extra = remainder ? block - remainder : 0;
     int newSize = remainder ? nbytes + extra : nbytes;
 
-    str = (char*)_realloc(str, newSize + 1);
-
-    for(int i=(nbytes-1); i >= 0; i--)
+    if (extra)
     {
-        str[i+extra] = str[i];
-    }
+        str = (char*)_realloc(str, newSize);
 
-    for (int i = 0; i < extra; i++)
-    {
-        str[i]='0';
+        for (int i = (nbytes - 1); i >= 0; i--)
+        {
+            str[i + extra] = str[i];
+        }
+
+        for (int i = 0; i < extra; i++)
+        {
+            str[i] = '0';
+        }
     }
 
     bignum_from_string(n, str, newSize - 1);
