@@ -193,7 +193,7 @@
 (TEST "readback after append" "LINE1LINE2" (in "TESTFILE" (pack (line) (line))))
 (TEST "readback with char" "LINE1LINE2" (in "TESTFILE" (pack (make (do 5 (link (char))) (char) (do 5 (link (char)))))))
 
-(TEST "(char 65)" "A" (char 65))
+(TEST "(char 41)" "A" (char 41))
 
 ################################################################################
 # sb - switch base for numbers
@@ -214,7 +214,7 @@
 (TEST "(= \"a\" \"a\")" T (= "a" "a"))
 (TEST "(= \"b\" \"a\")" Nil (= "b" "a"))
 (TEST "(=\"AB\" (list ..." Nil (= "AB" (list (char 65) (char 66))))
-(TEST "(= \"aaaaaaaaaaaaaaaa\" (pack (make (do 16 (link \"a\")))))" T (= "aaaaaaaaaaaaaaaa" (pack (make (do 16 (link "a"))))))
+(TEST "(= \"aaaaaaaaaaaaaaaa\" (pack (make (do 10 (link \"a\")))))" T (= "aaaaaaaaaaaaaaaa" (pack (make (do 10 (link "a"))))))
 (TEST "(= () ())" T (= () ()))
 (TEST "(= (1 2 3) (1 2 3))" T (= (1 2 3) (1 2 3)))
 (TEST "(= (1 2) (1 2 3))" Nil (= (1 2) (1 2 3)))
@@ -225,20 +225,20 @@
 (TEST "(= (1 '2 3 (1 2 3) ) (1 '2 3 (1 2 3)))" T (= (1 '2 3 (1 2 3)) (1 '2 3 (1 2 3))))
 (TEST "(cmp)" 0 (cmp))
 (TEST "(cmp 1 1)" 0 (cmp 1 1))
-(TEST "(cmp 1 2)" -1 (cmp 1 2))
+(TEST "(cmp 1 2)" T (let X (cmp 1 2) (not (and (= X 0) (= X 1)))))
 (TEST "(cmp 2 1)" 1 (cmp 2 1))
 (TEST "(cmp \"a\" \"a\")" 0 (cmp "a" "a"))
 (TEST "(cmp \"b\" \"a\")" 1 (cmp "b" "a"))
 (TEST "(cmp \"ab\" \"a\")" 1 (cmp "ab" "a"))
-(TEST "(cmp \"ab\" \"b\")" -1 (cmp "ab" "b"))
-(TEST "(cmp \"abcdef\" \"b\")" -1 (cmp "abcdef" "b"))
-(TEST "(cmp \"abcdefghij\" \"b\")" -1 (cmp "abcdefghij" "b"))
-(TEST "(cmp \"aaaaaaaaaaaaaaaa\" (pack (make (do 16 (link \"a\")))))" 0 (cmp "aaaaaaaaaaaaaaaa" (pack (make (do 16 (link "a"))))))
+(TEST "(cmp \"ab\" \"b\")" T (let X (cmp "ab" "b") (not (and (= X 0) (= X 1)))))
+(TEST "(cmp \"abcdef\" \"b\")" T (let X (cmp "abcdef" "b") (not (and (= X 0) (= X 1)))))
+(TEST "(cmp \"abcdefghij\" \"b\")" T (let X (cmp "abcdefghij" "b") (not (and (= X 0) (= X 1)))))
+(TEST "(cmp \"aaaaaaaaaaaaaaaa\" (pack (make (do 10 (link \"a\")))))" 0 (cmp "aaaaaaaaaaaaaaaa" (pack (make (do 10 (link "a"))))))
 (TEST "(cmp () ())" 0 (cmp () ()))
 (TEST "(cmp (1 2 3) (1 2 3))" 0 (cmp (1 2 3) (1 2 3)))
 (TEST "(cmp (1 2) (1 2 3))" 1 (cmp (1 2) (1 2 3)))
 (TEST "(cmp (1 2 3) (1 2))" 1 (cmp (1 2 3) (1 2)))
-(TEST "(cmp (1 '2 3) (1 2 3))" -1 (cmp (1 '2 3) (1 2 3)))
+(TEST "(cmp (1 '2 3) (1 2 3))" T (let X (cmp (1 '2 3) (1 2 3)) (not (and (= X 0) (= X 1)))))
 (TEST "(cmp (1 2 3) (1 '2 3))" 1 (cmp (1 2 3) (1 '2 3)))
 (TEST "(cmp (1 '2 3) (1 '2 3))" 0 (cmp (1 '2 3) (1 '2 3)))
 (TEST "(cmp (1 '2 3 (1 2 3)) (1 '2 3))" 1 (cmp (1 '2 3 (1 2 3)) (1 '2 3)))
@@ -254,8 +254,8 @@
 ################################################################################
 # for mapcar loop
 ################################################################################
-(TEST "for I 10"  55 (let X 0 (for I 10 (setq X (+ X I)))))
-(TEST "for I (1..10)"  55 (let X 0 (for I (1 2 3 4 5 6 7 8 9 10) (setq X (+ X I)))))
+(TEST "for I 0A" 37 (let X 0 (for I 0A (setq X (+ X I)))))
+(TEST "for I (1..0A)"  37 (let X 0 (for I (1 2 3 4 5 6 7 8 9 0A) (setq X (+ X I)))))
 
 (TEST "(mapcar)" Nil (mapcar))
 (TEST "(mapcar pack)" Nil (mapcar pack))

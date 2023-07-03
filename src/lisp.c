@@ -1129,6 +1129,7 @@ any doCmp(Context *CONTEXT_PTR, any x)
             drop(c1);
 
             struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+            bignum_init(id);
             bignum_from_int(id, r);
             NewNumber( id, idr);
             return idr;
