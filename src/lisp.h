@@ -388,6 +388,7 @@ any doMul(Context *CONTEXT_PTR, any x);
 any doDiv(Context *CONTEXT_PTR, any x);
 any doMod(Context *CONTEXT_PTR, any x);
 any doBinRShift(Context *CONTEXT_PTR, any ex);
+any doBinLShift(Context* CONTEXT_PTR, any ex);
 any doBinNot(Context *CONTEXT_PTR, any x);
 any doBinAnd(Context *CONTEXT_PTR, any x);
 any doBinOr(Context *CONTEXT_PTR, any x);

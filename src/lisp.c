@@ -2049,24 +2049,41 @@ any doBinRShift(Context *CONTEXT_PTR, any ex)
 
     if (isNil(p1) || !isNum(p1)) return Nil;
 
-    s = mpz_get_si(num(p1));
+    s = bignum_to_int(num(p1));
 
     x = cdr(x);
     any p2 = EVAL(CONTEXT_PTR, car(x));
 
     if (isNil(p2) || !isNum(p2)) return Nil;
 
-    MP_INT *m = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(m);
-    if (s >= 0)
-    {
-        mpz_div_2exp(m, num(p2), s);
-    }
-    else
-    {
-        s *= -1;
-        mpz_mul_2exp(m, num(p2), s);
-    }
+    struct bn *m = (struct bn*)malloc(sizeof(struct bn));
+    bignum_rshift(num(p2), m, s);
+
+    NewNumber( m, r);
+
+    return r;
+}
+
+// (>> 'num ..) -> num
+any doBinLShift(Context *CONTEXT_PTR, any ex)
+{
+    any x, y;
+    word s = 1;
+
+    x = cdr(ex);
+    any p1 = EVAL(CONTEXT_PTR, car(x));
+
+    if (isNil(p1) || !isNum(p1)) return Nil;
+
+    s = bignum_to_int(num(p1));
+
+    x = cdr(x);
+    any p2 = EVAL(CONTEXT_PTR, car(x));
+
+    if (isNil(p2) || !isNum(p2)) return Nil;
+
+    struct bn *m = (struct bn*)malloc(sizeof(struct bn));
+    bignum_lshift(num(p2), m, s);
 
     NewNumber( m, r);
 
@@ -4059,6 +4076,7 @@ void setupBuiltinFunctions(any * Mem)
     AddFunc(memCell, "/", doDiv);
     AddFunc(memCell, "%", doMod);
     AddFunc(memCell, ">>", doBinRShift);
+    AddFunc(memCell, "<<", doBinLShift);
     AddFunc(memCell, "!", doBinNot);
     AddFunc(memCell, "&", doBinAnd);
     AddFunc(memCell, "|", doBinOr);

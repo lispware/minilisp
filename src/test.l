@@ -73,13 +73,13 @@
 (TEST "(% 10 2 2)" 0 (% 10 2 2))
 (TEST "(% A B) # A=1b, B=7" 6 (let (A 1b B 7) (% A B)))
 
-(let (N 100
-      LS -1
+(let (N 4
+      LS 1
       RS 1
-      AFTER_LS (>> LS N)
-      AFTER_LS_EXPECTED 200
+      AFTER_LS (<< LS N)
+      AFTER_LS_EXPECTED 8
       AFTER_RS (>> RS N)
-      AFTER_RS_EXPECTED 50)
+      AFTER_RS_EXPECTED 2)
     (TEST "RIGHT SHIFT" AFTER_RS_EXPECTED AFTER_RS)
     (TEST "LEFT SHIFT" AFTER_LS_EXPECTED AFTER_LS))
 
