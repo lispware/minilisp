@@ -1294,7 +1294,7 @@ any pack(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
     if (isNum(x))
     {
         char* buf = (char*)malloc(1024);
-        bignum_to_string(num(x), buf + 2, 1024);
+        bignum_to_string(num(x), buf, 1024);
         char *b = buf;
         any curCell = r;
         uword *ptr = (uword *)&(curCell->car);
