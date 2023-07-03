@@ -475,7 +475,7 @@ any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
     uword w;
     bool sign, frac;
     any s = sym;
-    int base = 10;
+    int base = 16;
 
 
 
@@ -525,7 +525,11 @@ any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
         if ((int)c != ign)
         {
             str[CTR++] = c;
-            if ((c -= '0') > 9)
+            if ((base == 10) && (c - '0') > 9)
+            {
+                goto returnNULL;
+            }
+            else if ((base == 16) && (c - '0' > 9) && (c - 'a' > 'f') && (c - 'A' > 'F'))
             {
                 goto returnNULL;
             }
@@ -1890,9 +1894,8 @@ any doPow(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(y));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
@@ -1900,8 +1903,9 @@ any doPow(Context *CONTEXT_PTR, any ex)
             return Nil;
         NeedNum(ex,y);
 
-        int m = mpz_get_ui(num(y));
-        mpz_pow_ui(n, n, m);
+        struct bn BN;
+        bignum_assign(&BN, n);
+        bignum_pow(&BN, num(y), n);
 
     }
 
