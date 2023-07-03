@@ -645,12 +645,14 @@ char *ExtTypeString(any cell, char*buf)
     switch(e->type)
     {
         case EXT_NUM:
-            char *b=(char*)malloc(1024);
+        {
+            char* b = (char*)malloc(1024);
             bignum_to_string((struct bn*)num(cell), b, 1024);
             len = strlen(b);
             sprintf(buf, "%s", b);
             free(b);
             return "EXT_NUM";
+        }
         case EXT_SOCKET: return "EXT_SOCKET";
         default: return "UNKNOWN";
     }
@@ -1842,18 +1844,16 @@ any doMul(Context *CONTEXT_PTR, any ex)
     x = cdr(ex);
     if (isNil(data(c1) = EVAL(CONTEXT_PTR, car(x))))
     {
-        MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
-        mpz_init(id);
-        mpz_set_ui(id, 1);
-        NewNumber( id, idr);
+        struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+        bignum_from_int(id, 1);
+        NewNumber(id, idr);
         return idr;
     }
 
     NeedNum(ex, data(c1));
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(data(c1)));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(data(c1)));
 
     NewNumber( n, r);
     Push(c1, r);
@@ -1867,9 +1867,12 @@ any doMul(Context *CONTEXT_PTR, any ex)
             return Nil;
         }
 
+        struct bn BN;
+        bignum_assign(&BN, n);
+
         NeedNum(ex,data(c2));
-        MP_INT *m = num(data(c2));
-        mpz_mul(n, m, n);
+        struct bn *m = num(data(c2));
+        bignum_mul(&BN, m, n);
 
         drop(c2);
     }

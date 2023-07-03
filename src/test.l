@@ -51,13 +51,13 @@
 (TEST "(-)" 0 (-))
 (TEST "(- 1)" 1 (- 1)) # this is different from PIL
 (TEST "(- 2 1)" 1 (- 2 1))
-(TEST "(- A B C) # A=10, B=2, C=3" 5 (let (A 10 B 2 C 3) (- A B C)))
+(TEST "(- A B C) # A=10, B=2, C=3" 5 (let (A 0a B 2 C 3) (- A B C)))
 (let N 233423423432426465767456323343 (TEST (pack "(- " N  " 1)") 233423423432426465767456323342 (- N 1)))
 
 (TEST "(*)" 1 (*))
 (TEST "(* 1)" 1 (* 1)) # this is different from PIL
 (TEST "(* 2 3)" 6 (* 2 3))
-(TEST "(* A B C) # A=10, B=2, C=3" 60 (let (A 10 B 2 C 3) (* A B C)))
+(TEST "(* A B C) # A=0a, B=2, C=3" 60 (let (A 10 B 2 C 3) (* A B C)))
 (let N 233423423432426465767456323343 (TEST (pack "(* " N  " (+ " N " 1))") 54486494606913860857456602291802225080642579694922823018992 (* N (+ N 1))))
 
 (TEST "(/)" Nil (/))

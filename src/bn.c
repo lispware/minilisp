@@ -150,6 +150,12 @@ void bignum_to_string(struct bn* n, char* str, int nbytes)
   require(nbytes > 0, "nbytes must be positive");
   require((nbytes & 1) == 0, "string format must be in hex -> equal number of bytes");
 
+  if (bignum_is_zero(n))
+  {
+      sprintf(str, "0");
+      return;
+  }
+
   int j = BN_ARRAY_SIZE - 1; /* index into array - reading "MSB" first -> big-endian */
   int i = 0;                 /* index into string representation. */
 
