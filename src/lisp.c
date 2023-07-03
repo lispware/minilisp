@@ -2347,9 +2347,8 @@ any indx(Context *CONTEXT_PTR, any x, any y)
 {
     any z = y;
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set_ui(n, 1);
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(n, 1);
 
     while (!isNil(y))
     {
@@ -2358,7 +2357,7 @@ any indx(Context *CONTEXT_PTR, any x, any y)
             NewNumber( n, r);
             return r;
         }
-        mpz_add_ui(n, n, 1);
+        bignum_inc(n);
         if (z == (y = cdr(y)))
             return Nil;
     }
@@ -2427,19 +2426,16 @@ any doLength(Context *CONTEXT_PTR, any x)
 
     x = EVAL(CONTEXT_PTR, cadr(x));
     CellPartType t = GetType(x);
-    MP_INT *r = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(r); // TODO handle the errors appropriately
-    mpz_set_ui(r, 0);
+    struct bn *r = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(r, 0);
 
     if (isNil(x))
     {
-        mpz_clear(r);
         free(r);
         return Nil;
     }
     if (isNum(x))
     {
-        mpz_clear(r);
         free(r);
         return x;
     }
@@ -2452,7 +2448,7 @@ any doLength(Context *CONTEXT_PTR, any x)
             if (w) lengthBiggerThanZero = 1;
             while (w)
             {
-                mpz_add_ui(r, r, 1);
+                bignum_inc(r);
                 w >>= 8;
             }
             x = x->cdr;
@@ -2463,20 +2459,18 @@ any doLength(Context *CONTEXT_PTR, any x)
         lengthBiggerThanZero = 1;
         while (!isNil(x))
         {
-            mpz_add_ui(r, r, 1);
+            bignum_inc(r);
             x = cdr(x);
         }
     }
     else
     {
-        mpz_clear(r);
         free(r);
         return Nil;
     }
 
     if (!lengthBiggerThanZero)
     {
-        mpz_clear(r);
         free(r);
         return Nil;
     }
@@ -3203,15 +3197,14 @@ any doChar(Context *CONTEXT_PTR, any ex)
 
     if (isNum(x))
     {
-        return mkChar(CONTEXT_PTR, mpz_get_ui(num(x)));
+        return mkChar(CONTEXT_PTR, bignum_to_int(num(x)));
     }
 
     if (isSym(x))
     {
 
-        MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-        mpz_init(n);
-        mpz_set_ui(n, firstByte(CONTEXT_PTR, x));
+        struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+        bignum_from_int(n, firstByte(CONTEXT_PTR, x));
 
         NewNumber(n, r);
         return r;
@@ -3270,22 +3263,19 @@ any doRd(Context *CONTEXT_PTR, any ex)
 
     p1 = EVAL(CONTEXT_PTR, p1);
     if (!isNum(p1)) return Nil;
-    size_t count = mpz_get_ui(num(p1));
+    size_t count = bignum_to_int(num(p1));
 
 
     int order = 0;
     p2 = EVAL(CONTEXT_PTR, p2);
     if (isNum(p2))
     {
-        order = mpz_get_ui(num(p2));
+        order = bignum_to_int(num(p2));
     }
 
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
 
-    MP_INT *temp = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(temp);
     // TODO use bignum instead of int for count?
     for(int i = 0;i < count; i++)
     {
@@ -3299,28 +3289,34 @@ any doRd(Context *CONTEXT_PTR, any ex)
 
         if (i == 0)
         {
-            mpz_set_ui(n, CONTEXT_PTR->Chr);
+            bignum_from_int(n, CONTEXT_PTR->Chr);
         }
         else
         {
             if (order == 1)
             {
-                mpz_mul_ui(n, n, 256);
-                mpz_add_ui(n, n, CONTEXT_PTR->Chr);
+                struct bn BN, N;
+                bignum_from_int(&BN, 256);
+                bignum_assign(&N, n);
+                bignum_mul(&N, &BN, n);
+                bignum_assign(&N, n);
+                bignum_assign(&BN, CONTEXT_PTR->Chr);
+                bignum_add(&N, &BN, n);
             }
             else
             {
-                mpz_set_ui(temp, CONTEXT_PTR->Chr);
+                struct bn N1, N2, N3;
+                bignum_from_int(&N1, CONTEXT_PTR->Chr);
+                bignum_from_int(&N2, 256);
                 for (int j = 0; j < i; j++)
                 {
-                    mpz_mul_ui(temp, temp, 256);
+                    bignum_mul(&N1, &N2, &N3);
+                    bignum_assign(&N1, &N3);
                 }
-                mpz_add(n, n, temp);
+                bignum_add(n, &N3, n);
             }
         }
     }
-    mpz_clear(temp);
-    free(temp);
 
 
     NewNumber(n, r);
