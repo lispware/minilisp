@@ -1938,9 +1938,8 @@ any doMod(Context *CONTEXT_PTR, any ex)
     NeedNum(ex, data(c2));
 
     data(c2) = copyNum(CONTEXT_PTR, data(c2));
-    MP_INT *c = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(c);
-    mpz_mod(c, num(data(c1)), num(data(c2)));
+    struct bn *c = (struct bn*)malloc(sizeof(struct bn));
+    bignum_mod(num(data(c1)), num(data(c2)), c);
 
     NewNumber( c, r1);
     data(c1) = r1;
