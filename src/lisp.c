@@ -1964,18 +1964,16 @@ any doBinAnd(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(y));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        MP_INT *m = num(y);
-        mpz_and(n, m, n);
-
+        struct bn *m = num(y);
+        bignum_and(n, m, n);
     }
 
     NewNumber( n, r);
@@ -1992,18 +1990,16 @@ any doBinOr(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(y));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        MP_INT *m = num(y);
-        mpz_or(n, m, n);
-
+        struct bn *m = num(y);
+        bignum_or(n, m, n);
     }
 
     NewNumber( n, r);
@@ -2020,18 +2016,16 @@ any doBinXor(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(y));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        MP_INT *m = num(y);
-        mpz_xor(n, m, n);
-
+        struct bn *m = num(y);
+        bignum_xor(n, m, n);
     }
 
     NewNumber( n, r);
@@ -2100,26 +2094,23 @@ any doNumLt(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(y));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        MP_INT *m = num(y);
-        if (mpz_cmp(n, m) >= 0)
+        struct bn *m = num(y);
+        if (bignum_cmp(n, m) >= 0)
         {
-            mpz_clear(n);
             free(n);
             return Nil;
         }
 
     }
 
-    mpz_clear(n);
     free(n);
     return T;
 }
@@ -2135,26 +2126,23 @@ any doNumGt(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(y));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        MP_INT *m = num(y);
-        if (mpz_cmp(n, m) <= 0)
+        struct bn *m = num(y);
+        if (bignum_cmp(n, m) <= 0)
         {
-            mpz_clear(n);
             free(n);
             return Nil;
         }
 
     }
 
-    mpz_clear(n);
     free(n);
     return T;
 }

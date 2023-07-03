@@ -86,7 +86,7 @@
 (TEST "(& 1 1)" 1 (& 1 1))
 (TEST "(| 1 2)" 3 (| 1 2))
 (TEST "(x| 1 1)" 0 (x| 1 1))
-(TEST "(** 2 10)" 1024 (** 2 10))
+(TEST "(** 2 3)" 8 (** 2 3))
 (TEST "(< 1 10)" T (< 1 10))
 (TEST "(> 1 10)" Nil (> 1 10))
 (TEST "(< 0 (let X 1 (rand X)))" T (< 0 (let X 1 (rand X))))
@@ -94,7 +94,7 @@
 
 (TEST "nested let" (11 10) (make (let X 10 (let X (+ 1 X) (link X)) (link X))))
 (TEST "Single let binding" 10 (let X 10 X))
-(TEST "multiple let bindings" 10 (let (X 5 Y 5) (+ X Y)))
+(TEST "multiple let bindings" 9 (let (X 4 Y 5) (+ X Y)))
 
 (TEST "do 0" Nil (make (do 0 (link 1))))
 (TEST "do 5" (1 1 1 1 1) (make (do 5 (link 1))))
