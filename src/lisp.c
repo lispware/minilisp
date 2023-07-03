@@ -540,6 +540,7 @@ any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
     }
 
     struct bn *BIGNUM = (struct bn*)malloc(sizeof(struct bn));
+    bignum_init(BIGNUM);
     bignum_from_string_fixed(BIGNUM, str, LEN, realloc);
     //free(str); bignum_from_string_fixed frees str
     NewNumber(BIGNUM, r);
@@ -1586,7 +1587,6 @@ any doFor(Context *CONTEXT_PTR, any x)
                     break;
 
                 struct bn *n = (struct bn*)malloc(sizeof(struct bn));
-
                 bignum_assign(n, num(f->bnd[0].sym->cdr));
                 bignum_inc(n);
 
