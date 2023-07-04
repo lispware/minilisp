@@ -72,11 +72,11 @@ void bignum_from_int(struct bn* n, DTYPE_TMP i)
 }
 
 
-int bignum_to_int(struct bn* n)
+DTYPE_TMP bignum_to_int(struct bn* n)
 {
   require(n, "n is null");
 
-  int ret = 0;
+  DTYPE_TMP ret = 0;
 
   /* Endianness issue if machine is not little-endian? */
 #if (WORD_SIZE == 1)
@@ -89,6 +89,9 @@ int bignum_to_int(struct bn* n)
   ret += n->array[1] << 16;
 #elif (WORD_SIZE == 4)
   ret += n->array[0];
+  DTYPE_TMP num_32 = 32;
+  DTYPE_TMP tmp = n->array[1];
+  ret += (tmp << num_32);
 #endif
 
   return ret;

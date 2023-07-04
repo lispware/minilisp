@@ -61,11 +61,11 @@ extern int PUSH_POP;
 #if INTPTR_MAX == INT32_MAX
     #define WORD_TYPE uint32_t
     #define SIGNED_WORD_TYPE int32_t
-    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mpz_get_si(num((P))); }
+    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = bignum_to_int(num((P))); }
 #elif INTPTR_MAX == INT64_MAX
     #define WORD_TYPE uint64_t
     #define SIGNED_WORD_TYPE int64_t
-    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mpz_get_si(num((P))); }
+    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = bignum_to_int(num((P))); }
 #else
     #error "Unsupported bit width"
 #endif

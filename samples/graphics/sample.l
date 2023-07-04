@@ -2,16 +2,16 @@
 
 (SDL_Init (| SDL_INIT_VIDEO SDL_INIT_AUDIO))
 
-(setq HEIGHT 1200)
-(setq WIDTH 1200)
-(setq FONT_WIDTH 10)
-(setq FONT_HEIGHT 18)
+(setq HEIGHT 100)
+(setq WIDTH 100)
+(setq FONT_WIDTH 0a)
+(setq FONT_HEIGHT 12)
 (setq MAGNIFICATION 1)
 (setq EDITOR_Y (- HEIGHT (* MAGNIFICATION FONT_HEIGHT)))
 (setq OUTPUT_Y (- HEIGHT (* 3 MAGNIFICATION FONT_HEIGHT)))
 
 (setq WIN (SDL_CreateWindow "HELLO" WIDTH HEIGHT 0 0 0))
-(setq RENDERER (SDL_CreateRenderer WIN -1 0))
+(setq RENDERER (SDL_CreateRenderer WIN (- 0 1) 0))
 (setq MUTEX (SDL_CreateMutex))
 
 
@@ -142,9 +142,11 @@
     (SDL_UnlockMutex MUTEX))
 
 
+
 (de EVENT_NAME (E)
     (let R (if (= E WINDOW_EVENT) "WINDOW_EVENT" Nil)
         (if (= E SDL_KEYDOWN) (setq R "KEY_DOWN"))
+        (if (= E SDL_KEYUP) (setq R "KEY_UP"))
         R))
 
 

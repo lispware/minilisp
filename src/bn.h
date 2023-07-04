@@ -89,7 +89,7 @@ enum { SMALLER = -1, EQUAL = 0, LARGER = 1 };
 /* Initialization functions: */
 void bignum_init(struct bn* n);
 void bignum_from_int(struct bn* n, DTYPE_TMP i);
-int  bignum_to_int(struct bn* n);
+DTYPE_TMP bignum_to_int(struct bn* n);
 void bignum_from_string(struct bn* n, char* str, int nbytes);
 void bignum_to_string(struct bn* n, char* str, int maxsize);
 
