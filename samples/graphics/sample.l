@@ -2,8 +2,8 @@
 
 (SDL_Init (| SDL_INIT_VIDEO SDL_INIT_AUDIO))
 
-(setq HEIGHT 100)
-(setq WIDTH 100)
+(setq HEIGHT 350)
+(setq WIDTH 450)
 (setq FONT_WIDTH 0a)
 (setq FONT_HEIGHT 12)
 (setq MAGNIFICATION 1)
@@ -30,27 +30,27 @@
     (SDL_RenderDrawLine RENDERER  X Y X Y R G B))
 
 (de line (X1 Y1 X2 Y2 R G B)
-    (let CF '((C) (if C C 255))
+    (let CF '((C) (if C C 0ff))
         (SDL_SetRenderDrawColor RENDERER (CF R) (CF G) (CF B))
         (SDL_RenderDrawLine RENDERER X1 Y1 X2 Y2)))
 
 (de point (X1 Y1 R G B)
-    (let CF '((C) (if C C 255))
+    (let CF '((C) (if C C 0ff))
         (SDL_SetRenderDrawColor RENDERER (CF R) (CF G) (CF B))
         (SDL_RenderDrawPoint RENDERER X1 Y1)))
 
 (de box (X Y S R1 G1 B1)
-    (let (CF '((C) (if C C 255))
+    (let (CF '((C) (if C C 0ff))
           R (CF R1)
           G (CF G1)
           B (CF B1))
-        (SDL_RenderDrawLine RENDERER X Y (+ X S) Y  R G B)
-        (SDL_RenderDrawLine RENDERER X Y X (+ Y S)  R G B)
-        (SDL_RenderDrawLine RENDERER X (+ Y S) (+ X S) (+ Y S)  R G B)
-        (SDL_RenderDrawLine RENDERER (+ X S) (+ Y S) (+ X S) Y  R G B)))
+        (line X Y (+ X S) Y  R G B)
+        (line X Y X (+ Y S)  R G B)
+        (line X (+ Y S) (+ X S) (+ Y S)  R G B)
+        (line (+ X S) (+ Y S) (+ X S) Y  R G B)))
 
 (de clear (R G B)
-    (let CF '((C) (if C C 255))
+    (let CF '((C) (if C C 0ff))
         (SDL_SetRenderDrawColor RENDERER (CF R) (CF G) (CF B)))
 
     (SDL_RendererClear RENDERER)
@@ -59,7 +59,7 @@
 (de update () (SDL_RendererPresent RENDERER))
 
 (de dd ()
-    (SDL_RenderCopy RENDERER TEXTURE Nil (100 100 1000 1000)))
+    (SDL_RenderCopy RENDERER TEXTURE Nil (5 5 3e8 2e8)))
 
 
 (de audioSetup ()
@@ -95,9 +95,9 @@
 
 (de demo ()
     (SDL_LockMutex MUTEX)
-    (clear 0 0 255)
+    (clear 0 0 0ff)
     (SDL_UnlockMutex MUTEX)
-    (for I (list (255 0 0) (0 255 0) (255 255 255))
+    (for I (list (0ff 0 0) (0 0ff 0) (0ff 0ff 0ff))
         (SDL_LockMutex MUTEX)
         (SDL_SetRenderDrawColor RENDERER (car I) (car (cdr I)) (car (cdr (cdr I))))
         (box 100 100 200)
@@ -106,10 +106,9 @@
         (SDL_Delay 400)))
 
 (de write (X Y S)
-    (WriteString RENDERER X Y 255 255 255 0 0 255 MAGNIFICATION S))
+    (WriteString RENDERER X Y 0ff 0ff 0ff 0 0 0ff MAGNIFICATION S))
 
 (de updateLine (X)
-    (PlayWAV AD)
     (write 0 EDITOR_Y SPACES)
     (if X (write 0 EDITOR_Y (pack X)))
     (SDL_RendererPresent RENDERER))

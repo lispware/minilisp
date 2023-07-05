@@ -188,9 +188,6 @@ any LISP_SDL_CreateRenderer(Context *CONTEXT_PTR, any ex)
     ex = cdr(ex);
     NumberParam(word, flags, car(ex));
 
-    printf("sizeof win = %d\n", sizeof(win));
-    printf("WIN = %p\n", win);
-
     SDL_Renderer *renderer = SDL_CreateRenderer((SDL_Window*)win, index, flags);
 
     if (renderer == NULL) return Nil;
@@ -5602,7 +5599,7 @@ UserData UD;
 void my_audio_callback(void *userdata, Uint8 *stream, int len)
 {
     UserData *ud = (UserData*)userdata;
-    printf("%d %d\n", len, ud->bufferLength);
+    //printf("%d %d\n", len, ud->bufferLength);
     if (ud->bufferLength == 0) return; 
 
     SDL_LockAudioDevice(2);
