@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 #define StringParam(P, R) char *R; { any __p = EVAL(CONTEXT_PTR, P); R = (char*)malloc(pathSize(CONTEXT_PTR, __p )); pathString(CONTEXT_PTR, __p, R);}
-#define GetNumberParam(p, r) if (isNum(p)) r = mpz_get_si(num((p))); else r = 0;
+#define GetNumberParam(p, r) if (isNum(p)) r = bignum_to_int(num((p))); else r = 0;
 
 void drawPixel(SDL_Surface *surface, int x, int y, SDL_Color color)
 {
@@ -41,17 +41,15 @@ any LISP_SDL_PollEvent(Context *CONTEXT_PTR, any x)
     {
         cell c1, c2;
 
-        MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-        mpz_init(n);
-        mpz_set_ui(n, event.type);
+        struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+        bignum_from_int(n, event.type);
         NewNumber(n, r1);
         Push(c1, r1);
 
         if (event.type == SDL_WINDOWEVENT)
         {
-            n = (MP_INT*)malloc(sizeof(MP_INT));
-            mpz_init(n);
-            mpz_set_ui(n, event.window.event);
+            n = (struct bn*)malloc(sizeof(struct bn));
+            bignum_from_int(n, event.window.event);
             NewNumber(n, r2);
             Push(c2, r2);
 
@@ -61,9 +59,8 @@ any LISP_SDL_PollEvent(Context *CONTEXT_PTR, any x)
         }
         else if (event.type == SDL_TEXTINPUT)
         {
-            n = (MP_INT*)malloc(sizeof(MP_INT));
-            mpz_init(n);
-            mpz_set_ui(n, ((char *)event.text.text)[0]);
+            n = (struct bn*)malloc(sizeof(struct bn));
+            bignum_from_int(n, ((char *)event.text.text)[0]);
             NewNumber(n, r2);
             Push(c2, r2);
 
@@ -73,9 +70,8 @@ any LISP_SDL_PollEvent(Context *CONTEXT_PTR, any x)
         }
         else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
         {
-            n = (MP_INT*)malloc(sizeof(MP_INT));
-            mpz_init(n);
-            mpz_set_ui(n, event.key.keysym.sym);
+            n = (struct bn*)malloc(sizeof(struct bn));
+            bignum_from_int(n, event.key.keysym.sym);
             NewNumber(n, r2);
             Push(c2, r2);
 
@@ -196,9 +192,8 @@ any LISP_SDL_CreateRenderer(Context *CONTEXT_PTR, any ex)
 
     if (renderer == NULL) return Nil;
 
-    MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(id);
-    mpz_set_ui(id, (word)renderer);
+    struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(id, (word)renderer);
 
     NewNumber(id, idr);
 
@@ -233,9 +228,8 @@ any LISP_SDL_CreateWindow(Context *CONTEXT_PTR, any ex)
 
     SDL_StartTextInput();
     
-    MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(id);
-    mpz_set_ui(id, window);
+    struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(id, window);
 
     cell c1;
     NewNumber(id, idr);
@@ -5471,9 +5465,8 @@ any LISP_SDL_CreateMutex(Context *CONTEXT_PTR, any ex)
 
     if (!mutex) return Nil;
 
-    MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(id);
-    mpz_set_ui(id, (word)mutex);
+    struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(id, (word)mutex);
 
     NewNumber(id, idr);
 
@@ -5518,9 +5511,8 @@ any LISP_SDL_CreateTextureFromSurface(Context *CONTEXT_PTR, any ex)
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface((SDL_Renderer*)renderer, (SDL_Surface*)surface);
 
-    MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(id);
-    mpz_set_ui(id, (word)texture);
+    struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(id, (word)texture);
 
     NewNumber(id, idr);
 
@@ -5607,7 +5599,7 @@ UserData UD;
 void my_audio_callback(void *userdata, Uint8 *stream, int len)
 {
     UserData *ud = (UserData*)userdata;
-    printf("%d %d\n", len, ud->bufferLength);
+    //printf("%d %d\n", len, ud->bufferLength);
     if (ud->bufferLength == 0) return; 
 
     SDL_LockAudioDevice(2);
@@ -5635,39 +5627,33 @@ any LoadWAV(Context *CONTEXT_PTR, any ex)
     }
 
     cell c1, c2, c3, c4, c5, c6;
-    MP_INT *n1 = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n1);
-    mpz_set_ui(n1, (word)buffer);
+    struct bn *n1 = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(n1, (word)buffer);
     NewNumber(n1, b);
     Push(c1, b);
 
-    MP_INT *n2 = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n2);
-    mpz_set_ui(n2, (word)bufferLength);
+    struct bn *n2 = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(n2, (word)bufferLength);
     NewNumber(n2, l);
     Push(c2, l);
 
-    MP_INT *freq = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(freq);
-    mpz_set_ui(freq, (word)spec.freq);
+    struct bn *freq = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(freq, (word)spec.freq);
     NewNumber(freq, freqL);
     Push(c3, freqL);
 
-    MP_INT *format = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(format);
-    mpz_set_ui(format, (word)spec.format);
+    struct bn *format = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(format, (word)spec.format);
     NewNumber(format, formatL);
     Push(c4, formatL);
 
-    MP_INT *channels = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(channels);
-    mpz_set_ui(channels, (word)spec.channels);
+    struct bn *channels = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(channels, (word)spec.channels);
     NewNumber(channels, channelsL);
     Push(c5, channelsL);
 
-    MP_INT *samples = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(samples);
-    mpz_set_ui(samples, (word)spec.samples);
+    struct bn *samples = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(samples, (word)spec.samples);
     NewNumber(samples, samplesL);
     Push(c6, samplesL);
 
@@ -5708,9 +5694,8 @@ any LISP_SDL_OpenAudionDevice(Context *CONTEXT_PTR, any ex)
         return Nil;
     }
 
-    MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(id);
-    mpz_set_ui(id, deviceId);
+    struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(id, deviceId);
 
     NewNumber(id, idr);
 
@@ -5837,8 +5822,8 @@ int main(int argc, char* av[])
     CONTEXT_PTR->AV = av;
     CONTEXT_PTR->InFile = stdin, CONTEXT_PTR->Env.get = getStdin;
     CONTEXT_PTR->OutFile = stdout, CONTEXT_PTR->Env.put = putStdout;
-    CONTEXT_PTR->ApplyArgs = Nil;
-    CONTEXT_PTR->ApplyBody = Nil;
+    CONTEXT_PTR->ApplyArgs = cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, Nil), Nil), Nil);
+    CONTEXT_PTR->ApplyBody = cons(CONTEXT_PTR, Nil, Nil);
 
     loadAll(CONTEXT_PTR, NULL);
     while (!feof(stdin))

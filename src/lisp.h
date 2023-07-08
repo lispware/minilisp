@@ -8,7 +8,7 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
-#include <gmp.h>
+#include <bn.h>
 #include <num.h>
 
 
@@ -60,11 +60,11 @@ extern int PUSH_POP;
 #if INTPTR_MAX == INT32_MAX
     #define WORD_TYPE uint32_t
     #define SIGNED_WORD_TYPE int32_t
-    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mpz_get_si(num((P))); }
+    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = bignum_to_int(num((P))); }
 #elif INTPTR_MAX == INT64_MAX
     #define WORD_TYPE uint64_t
     #define SIGNED_WORD_TYPE int64_t
-    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mpz_get_si(num((P))); }
+    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = bignum_to_int(num((P))); }
 #else
     #error "Unsupported bit width"
 #endif
@@ -260,7 +260,7 @@ void ppp(Context *, char*, cell);
 #define NeedLst(ex,x)   if (!isCell(x) && !isNil(x)) lstError(ex,x)
 #define NeedVar(ex,x)   if (isNum(x)) varError(ex,x)
 
-#define num(x)          ((MP_INT*)(((external*)((any)car(x)))->pointer))
+#define num(x)          ((struct bn*)(((external*)((any)car(x)))->pointer))
 #define tail(x)         (x)
 #define val(x)          (cdr(x))
 #define symPtr(x)       (x)
@@ -387,12 +387,12 @@ any doMul(Context *CONTEXT_PTR, any x);
 any doDiv(Context *CONTEXT_PTR, any x);
 any doMod(Context *CONTEXT_PTR, any x);
 any doBinRShift(Context *CONTEXT_PTR, any ex);
+any doBinLShift(Context* CONTEXT_PTR, any ex);
 any doBinNot(Context *CONTEXT_PTR, any x);
 any doBinAnd(Context *CONTEXT_PTR, any x);
 any doBinOr(Context *CONTEXT_PTR, any x);
 any doBinXor(Context *CONTEXT_PTR, any x);
 any doPow(Context *CONTEXT_PTR, any x);
-any doRandom(Context *CONTEXT_PTR, any x);
 any doLet(Context *CONTEXT_PTR, any x);
 any doPrin(Context *CONTEXT_PTR, any x);
 any doCall(Context *CONTEXT_PTR, any ex);
@@ -411,7 +411,6 @@ any doIn(Context *CONTEXT_PTR, any ex);
 any doOut(Context *CONTEXT_PTR, any ex);
 any doLine(Context *CONTEXT_PTR, any x);
 any doChar(Context *CONTEXT_PTR, any ex);
-any doSwitchBase(Context *CONTEXT_PTR, any ex);
 any doRd(Context *CONTEXT_PTR, any ex);
 any doWr(Context *CONTEXT_PTR, any ex);
 any doNot(Context *CONTEXT_PTR, any x);
