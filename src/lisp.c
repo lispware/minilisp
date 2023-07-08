@@ -1,59 +1,4 @@
 #include "lisp.h"
-#ifndef __NET_H__
-#define __NET_H__
-void getStdinNet(Context *CONTEXT_PTR);
-any pltBind(Context *CONTEXT_PTR, word n);
-any pltConnect(Context *CONTEXT_PTR, any ex);
-any pltHttp(Context *CONTEXT_PTR, any ex);
-any pltListen(Context *CONTEXT_PTR, word n);
-any pltSocket(Context *CONTEXT_PTR, any ex);
-void popIOFilesNet(Context *CONTEXT_PTR);
-void pushIOFilesNet(Context *CONTEXT_PTR, inFrame *f, outFrame *fo);
-void putStdoutNet(Context *CONTEXT_PTR, int c);
-any doBind(Context *CONTEXT_PTR, any ex);
-any doConnect(Context *CONTEXT_PTR, any ex);
-any doHTTP(Context *CONTEXT_PTR, any ex);
-any doListen(Context *CONTEXT_PTR, any ex);
-any doSocket(Context *CONTEXT_PTR, any ex);
-any doSocketClose(Context *CONTEXT_PTR, any ex);
-void releaseSocket(struct _external* obj);
-char *printSocket(Context *CONTEXT_PTR, struct _external* obj);
-external * copySocket(Context *CONTEXT_PTR, external *ext);
-int equalSocket(Context *CONTEXT_PTR, external*x, external*y);
-void pltClose(struct _external* obj);
-any parse(Context *CONTEXT_PTR, any x, bool skp);
-void getParse(Context *CONTEXT_PTR);
-any rdList(Context *CONTEXT_PTR);
-any doArgv(Context *CONTEXT_PTR, any ex);
-
-word GetThreadID();
-
-#define NewExternalSocket(EXT_PARAM, FD) external *EXT_PARAM = (external *)malloc(sizeof(external));\
-    EXT_PARAM->type = EXT_SOCKET;\
-    EXT_PARAM->release = releaseSocket;\
-    EXT_PARAM->print = printSocket;\
-    EXT_PARAM->equal = equalSocket;\
-    EXT_PARAM->copy = copySocket;\
-    EXT_PARAM->pointer = (void*)(uword)FD;
-
-#endif
-#ifndef __THREAD_H__
-#define __THREAD_H__
-
-
-void copyHeap(Context *From, Context *To);
-void copyBackupCell(cell *fromCell, cell * toCell);
-void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell);
-void copyRestoreCell(Context *From, Context *To, cell *fromCell, cell *toCell);
-void copyHeap(Context *From, Context *To);
-typedef void * (*thread_func_t)(void *);
-void plt_thread_start(Context *CONTEXT_PTR, thread_func_t FUNC, int wait);
-void plt_sleep(int ms);
-any pltGetThreadId(Context *CONTEXT_PTR);
-
-#endif
-
-void ppp(Context*CONTEXT_PTR, char *m, cell c);
 
 any prog(Context *CONTEXT_PTR, any x)
 {
@@ -78,18 +23,17 @@ any EVAL(Context *CONTEXT_PTR, any x)
     {
         return x;
     }
-    else if (isFunc(x))
-    {
-        // TODO - we need to fix the FUNC value perhaps
-        return x;
-    }
-    else if (isNum(x))
-    {
-        return x;
-    }
     else if (isSym(x))
     {
         return val(x);
+    }
+    else if (isFunc(x))
+    {
+        giveup("Unexpected Func");
+    }
+    else if (isNum(x))
+    {
+        giveup("Unexpected Num");
     }
     else
     {
@@ -100,14 +44,15 @@ any EVAL(Context *CONTEXT_PTR, any x)
 any evExpr(Context *CONTEXT_PTR, any expr, any x)
 {
    any y = car(expr);
+   uword len = length(CONTEXT_PTR, y);
 
-   bindFrame *f = allocFrame(length(CONTEXT_PTR, y)+2);
+   bindFrame *f = allocFrame(len + 2);
 
    f->link = CONTEXT_PTR->Env.bind,  CONTEXT_PTR->Env.bind = f;
-   f->i = (bindSize * (length(CONTEXT_PTR, y)+2)) / (2*sizeof(any)) - 1;
+   f->i = (bindSize * (len + 2)) / (2*sizeof(any)) - 1;
    f->cnt = 1,  f->bnd[0].sym = At,  f->bnd[0].val = val(At);
 
-   while (!isNil(y) && y != cdr(y) && isCell(y))
+   while (!isNil(y) && isCell(y))
    {
       f->bnd[f->cnt].sym = car(y);
       f->bnd[f->cnt].val = EVAL(CONTEXT_PTR, car(x));
@@ -192,6 +137,11 @@ any evList(Context *CONTEXT_PTR, any ex)
 
     if (isNum(foo = car(ex)))
         return ex;
+
+    if (isSym(foo) && cdr(foo) == foo)
+    {
+        return ex;
+    }
 
     if (isCell(foo))
     {
@@ -331,12 +281,12 @@ any mkStr(Context *CONTEXT_PTR, char *s)
    }
 }
 
-any isIntern(Context *CONTEXT_PTR, any nm, any tree[2])
+any isIntern(Context *CONTEXT_PTR, any nm, any tree)
 {
     any x, y, z;
     word n;
 
-    for (x = tree[1]; !isNil(x);)
+    for (x = tree; !isNil(x);)
     {
         y = car(nm);
         z = car(car(x));
@@ -351,195 +301,144 @@ any isIntern(Context *CONTEXT_PTR, any nm, any tree[2])
         x = n<0? cadr(x) : cddr(x);
     }
 
-
-
     return NULL;
 }
 
-int getByte(Context *CONTEXT_PTR, int *i, uword *p, any *q)
+int getByte1(Context *CONTEXT_PTR, int *i, uword *p, any *sym)
 {
-    int c;
-
-    if (*i == 0)
+    if (isSym(*sym))
     {
-        if (!*q || isNil(*q))
-        {
-            return 0;
-        }
-        else
-        {
-            *i = BITS,  *p = (uword)(car(*q)),  *q = cdr(*q);
-        }
-    }
-    c = *p & 0xff,  *p >>= 8;
-    if (*i >= 8)
-        *i -= 8;
-    else if (isNum(*q))
-    {
-        *p = (uword)*q >> 2,  *q = NULL;
-        c |= *p << *i;
-        *p >>= 8 - *i;
-        *i += BITS-9;
-    }
-    else
-    {
-        *p = (uword)tail(*q),  *q = val(*q);
-        c |= *p << *i;
-        *p >>= 8 - *i;
-        *i += BITS-8;
-    }
-    c &= 0xff;
-
-    return c;
-}
-
-any intern(Context *CONTEXT_PTR, any sym, any tree[2])
-{
-   any nm, x;
-   word n;
-
-   return internBin(CONTEXT_PTR, sym, tree);
-
-}
-
-void putByte(Context *CONTEXT_PTR, int ch, int *bitCount, uword *acc, any *curCell, cell *prevCell)
-{
-    ch = ch & 0xff;
-    int d = 8;
-
-    if (*bitCount != BITS)
-        *acc |= (uword)ch << *bitCount;
-
-    if (*bitCount + d  > BITS)
-    {
-        if (*curCell)
-        {
-            any x = consName(CONTEXT_PTR, *acc, Nil);
-            setCARType(x, BIN);
-            cdr(*curCell) = x;
-            setCARType(*curCell, BIN);
-            *curCell = x;
-        }
-        else
-        {
-            any x = consSym(CONTEXT_PTR, NULL, Nil);
-            setCARType(x, BIN_START);
-            Push(*prevCell, x);
-            any y = consName(CONTEXT_PTR, *acc, Nil);
-            setCARType(y, BIN);
-            *curCell = y;
-            setCARType(*curCell, BIN);
-            car(car(prevCell)) = *curCell;
-        }
-        *acc = ch >> BITS - *bitCount;
-        *bitCount -= BITS;
-    }
-
-    *bitCount += d;
-}
-
-void putByte0(int *i, uword *p, any *q)
-{
-    *p = 0;
-    *i = 0;
-    *q = NULL;
-}
-
-any internBin(Context *CONTEXT_PTR, any sym, any tree[2])
-{
-    any nm, x, y, z;
-    word n;
-
-    x = tree[1];
-
-    if (isNil(x))
-    {
-        tree[1] = consIntern(CONTEXT_PTR, sym, Nil);
-        return tree[1];
-    }
-
-    for (;;)
-    {
-
-        y = car(sym);
-        z = car(car(x));
-        while ((n = (word)(car(y)) - (word)car(z)) == 0)
-        {
-            if (GetType(y) != BIN) return sym;
-            y=cdr(y);
-            z=cdr(z);
-        }
-
-        if (isNil(cdr(x)))
-        {
-            if (n < 0)
-            {
-                any xx = consIntern(CONTEXT_PTR, sym, Nil);
-                setCARType(xx, PTR_CELL);
-                xx = consIntern(CONTEXT_PTR, xx, Nil);
-                setCARType(xx, PTR_CELL);
-                cdr(x) = xx;
-                setCARType(x, PTR_CELL);
-                return sym;
-            }
-            else
-            {
-                any xx = consIntern(CONTEXT_PTR, sym, Nil);
-                setCARType(xx, PTR_CELL);
-                xx = consIntern(CONTEXT_PTR, Nil, xx);
-                setCARType(xx, PTR_CELL);
-                cdr(x) = xx;
-                setCARType(x, PTR_CELL);
-                return sym;
-            }
-
-        }
-        if (n < 0)
-        {
-            if (!isNil(cadr(x)))
-            {
-                x = cadr(x);
-            }
-            else
-            {
-                cadr(x) = consIntern(CONTEXT_PTR, sym, Nil);
-                setCARType(car(x), PTR_CELL);
-                return sym;
-            }
-        }
-        else
-        {
-            if (!isNil(cddr(x)))
-            {
-                x = cddr(x);
-            }
-            else
-            {
-                cddr(x) = consIntern(CONTEXT_PTR, sym, Nil);
-                setCARType(cdr(x), PTR_CELL);
-                return sym;
-            }
-        }
-    }
-}
-
-int getByte1(Context *CONTEXT_PTR, int *i, uword *p, any *q)
-{
-    int c;
-
-    if (isSym(*q))
-    {
-        (*q)=car(*q);
-        *i = BITS, *p = (uword)(car(*q)) , *q = (cdr(*q));
+        (*sym)=car(*sym);
+        *i = BITS;
+        *p = (uword)(car(*sym));
+        *sym = (cdr(*sym));
     }
     else
     {
         giveup("Cant getByte");
     }
 
-    c = *p & 0xff, *p >>= 8, *i -= 8;
-
+    int c = *p & 0xff;
+    *p >>= 8;
+    *i -= 8;
     return c;
+}
+
+int getByte(Context *CONTEXT_PTR, int *i, uword *p, any *q)
+{
+    if (*i == 0)
+    {
+        if (isNil(*q))
+        {
+            return 0;
+        }
+
+        *i = BITS;
+        *p = (uword)(car(*q));
+        *q = cdr(*q);
+    }
+
+    int c = *p & 0xff;
+    *p >>= 8;
+    *i -= 8;
+    return c;
+}
+
+int isSymAtNode(Context *CONTEXT_PTR, any sym, any node, word *n)
+{
+    any y = car(sym);
+    any z = car(car(node));
+
+    while ((*n = (word)(car(y)) - (word)car(z)) == 0)
+    {
+        if (GetType(y) != BIN)
+        {
+            return 1;
+        }
+        y = cdr(y);
+        z = cdr(z);
+    }
+
+    return 0;
+}
+
+int addSymToLeftOfNode(Context *CONTEXT_PTR, any sym, any *node)
+{
+    if (isNil(cdr(*node)))
+    {
+        any newNode = cons(CONTEXT_PTR, sym, Nil);
+        newNode = cons(CONTEXT_PTR, newNode, Nil);
+        cdr(*node) = newNode;
+        return 1;
+    }
+
+    *node = cdr(*node);
+
+    if (isNil(car(*node)))
+    {
+        car(*node) = cons(CONTEXT_PTR, sym, Nil);
+        return 1;
+    }
+
+    *node = car(*node);
+    return 0;
+}
+
+int addSymToRightOfNode(Context *CONTEXT_PTR, any sym, any *node)
+{
+    if (isNil(cdr(*node)))
+    {
+        any newNode = cons(CONTEXT_PTR, sym, Nil);
+        newNode = cons(CONTEXT_PTR, Nil, newNode);
+        cdr(*node) = newNode;
+        return 1;
+    }
+
+    *node = cdr(*node);
+
+    if (isNil(cdr(*node)))
+    {
+        cdr(*node) = cons(CONTEXT_PTR, sym, Nil);
+        return 1;
+    }
+
+    *node = cdr(*node);
+    return 0;
+}
+
+any intern(Context *CONTEXT_PTR, any sym, any *root)
+{
+    any node = *root;
+
+    if (isNil(node))
+    {
+        *root = cons(CONTEXT_PTR, sym, Nil);
+        return *root;
+    }
+
+    for (;;)
+    {
+        word n;
+        if (isSymAtNode(CONTEXT_PTR, sym, node, &n))
+        {
+            return sym;
+        }
+
+        if (n < 0)
+        {
+            if (addSymToLeftOfNode(CONTEXT_PTR, sym, &node))
+            {
+                return sym;
+            }
+        }
+        else
+        {
+            if (addSymToRightOfNode(CONTEXT_PTR, sym, &node))
+            {
+                return sym;
+            }
+        }
+    }
 }
 
 int symBytes(Context *CONTEXT_PTR, any x)
@@ -569,13 +468,6 @@ int symBytes(Context *CONTEXT_PTR, any x)
     return cnt;
 }
 
-void putByte1(int c, int *i, uword *p, any *q)
-{
-    *p = c & 0xff;
-    *i = 8;
-    *q = NULL;
-}
-
 any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
 {
     unsigned c;
@@ -583,7 +475,7 @@ any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
     uword w;
     bool sign, frac;
     any s = sym;
-    int base = 10;
+    int base = 16;
 
 
 
@@ -633,7 +525,11 @@ any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
         if ((int)c != ign)
         {
             str[CTR++] = c;
-            if ((c -= '0') > 9)
+            if ((base == 10) && (c - '0') > 9)
+            {
+                goto returnNULL;
+            }
+            else if ((base == 16) && (c - '0' > 9) && (c - 'a' > 'f') && (c - 'A' > 'F'))
             {
                 goto returnNULL;
             }
@@ -647,10 +543,10 @@ any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign)
         else if ((c -= '0') > 9) goto returnNULL;
     }
 
-
-    MP_INT *BIGNUM = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init_set_str(BIGNUM, str, base);
-    free(str);
+    struct bn *BIGNUM = (struct bn*)malloc(sizeof(struct bn));
+    bignum_init(BIGNUM);
+    bignum_from_string_fixed(BIGNUM, str, LEN, realloc);
+    //free(str); bignum_from_string_fixed frees str
     NewNumber(BIGNUM, r);
     return r;
 
@@ -662,66 +558,83 @@ returnNULL:
 
 any mkChar(Context *CONTEXT_PTR, int c)
 {
-    cell c1;
-    any r = cons(CONTEXT_PTR, Nil, Nil);
-    Push (c1, r);
-    car(data(c1)) = cons(CONTEXT_PTR, Nil, Nil);
-    cdr(data(c1)) = Nil;
-    car(car(data(c1))) = (any)(uword)c;
-    car(cdr(data(c1))) = Nil;
+	any x;
+	byte b[2];
+	b[0] = (byte)c;
+	b[1] = 0;
+	any y = mkSym(CONTEXT_PTR, (byte*)&b);
 
-    setCARType(data(c1), BIN_START);
-    setCARType(car(data(c1)), BIN);
+	// intern into transient to make " appear
 
-    return Pop(c1);
+	if (x = isIntern(CONTEXT_PTR, tail(y), CONTEXT_PTR->Transient))
+	{
+		return x;
+	}
+
+	intern(CONTEXT_PTR, y, &CONTEXT_PTR->Transient);
+	return y;
+}
+
+
+
+any putSymByte(Context *CONTEXT_PTR, any curCell, int *shift, byte b)
+{
+    uword *ptr = (uword *)&(curCell->car);
+
+    if (*shift == BITS)
+    {
+        *shift = 0;
+        curCell->cdr = cons(CONTEXT_PTR, Nil, Nil);
+        curCell = curCell->cdr;
+        setCARType(curCell, BIN);
+        ptr = (uword *)&(curCell->car);
+        *ptr = 0;
+    }
+
+    *ptr |= (uword)b << (*shift);
+    *shift += 8;
+
+    return curCell;
+}
+
+any startSym(Context *CONTEXT_PTR, any c1)
+{
+    any q = cons(CONTEXT_PTR, Nil, Nil);
+    Push(*c1, q);
+
+    q->car = cons(CONTEXT_PTR, Nil, Nil);
+    q->cdr = q;
+    q->type = PTR_CELL;
+
+    any curCell = q->car;
+    curCell->type = BIN;
+
+    uword *ptr = (uword *)&(curCell->car);
+    *ptr=0;
+
+    return curCell;
 }
 
 any mkSym(Context *CONTEXT_PTR, byte *s)
 {
-    int i;
-    uword w;
-    cell c1, *p;
+    cell c1;
+    byte b;
+    int shift = 0;
+    any curCell = startSym(CONTEXT_PTR, &c1);
 
-    putByte1(*s++, &i, &w, &p);
-    while (*s)
+    while (b = *s++)
     {
-        putByte(CONTEXT_PTR, *s++, &i, &w, &p, &c1);
+        curCell = putSymByte(CONTEXT_PTR, curCell, &shift, b);
     }
-    return popSym(CONTEXT_PTR, i, w, p, &c1);
-}
 
-any popSym(Context *CONTEXT_PTR, int i, uword n, any q, cell *cp)
-{
-    if (q)
-    {
-        cdr(q) = consName(CONTEXT_PTR, n, Nil);
-        setCARType(q, BIN);
-        setCARType(cdr(q), BIN);
-        return Pop(*cp);
-    }
-    else
-    {
-        any x = consSym(CONTEXT_PTR, NULL, Nil);
-        setCARType(x, BIN_START);
-        Push(*cp, x);
-        any y = consName(CONTEXT_PTR, n, Nil);
-        setCARType(y, BIN);
-        car(car(cp)) = y;
-        return Pop(*cp);
-    }
+    return Pop(c1);
 }
 
 int firstByte(Context*CONTEXT_PTR, any s)
 {
-    if (isSym(s))
-    {
-        return ((uword)(car(car(s)))) & 0xff;
-    }
-    else
-    {
-        giveup("Cant get first byte");
-        return -1;
-    }
+    int i;
+    uword w;
+    return getByte1(CONTEXT_PTR, &i, &w, &s);
 }
 
 static int INDEX;
@@ -732,17 +645,19 @@ char *ExtTypeString(any cell, char*buf)
 {
     external *e = (external *)car(cell);
     int len;
-    char *b;
 
     if (!e) return "NULL";
     switch(e->type)
     {
         case EXT_NUM:
-            b = mpz_get_str(NULL, 10, (MP_INT*)num(cell));
+        {
+            char* b = (char*)malloc(1024);
+            bignum_to_string((struct bn*)num(cell), b, 1024);
             len = strlen(b);
             sprintf(buf, "%s", b);
             free(b);
             return "EXT_NUM";
+        }
         case EXT_SOCKET: return "EXT_SOCKET";
         default: return "UNKNOWN";
     }
@@ -851,10 +766,10 @@ void markAll(Context *CONTEXT_PTR)
    }
 
    /* Mark */
-   setMark(CONTEXT_PTR->Intern[0], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Intern[0]);
-   setMark(CONTEXT_PTR->Intern[1], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Intern[1]);
-   setMark(CONTEXT_PTR->Transient[0], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Transient[0]);
-   setMark(CONTEXT_PTR->Transient[1], 0);mark(CONTEXT_PTR, CONTEXT_PTR->Transient[1]);
+   setMark(CONTEXT_PTR->Intern, 0);mark(CONTEXT_PTR, CONTEXT_PTR->Intern);
+   setMark(CONTEXT_PTR->Intern, 0);mark(CONTEXT_PTR, CONTEXT_PTR->Intern);
+   setMark(CONTEXT_PTR->Transient, 0);mark(CONTEXT_PTR, CONTEXT_PTR->Transient);
+   setMark(CONTEXT_PTR->Transient, 0);mark(CONTEXT_PTR, CONTEXT_PTR->Transient);
    if (CONTEXT_PTR->ApplyArgs) setMark(CONTEXT_PTR->ApplyArgs, 0);mark(CONTEXT_PTR, CONTEXT_PTR->ApplyArgs);
    if (CONTEXT_PTR->ApplyBody) setMark(CONTEXT_PTR->ApplyBody, 0);mark(CONTEXT_PTR, CONTEXT_PTR->ApplyBody);
    for (p = CONTEXT_PTR->Env.stack; p; p = cdr(p))
@@ -1127,6 +1042,14 @@ int equal(Context *CONTEXT_PTR, any v, any v2)
         return 1;
     }
 
+    if (isSym(v) || isSym(v2))
+    {
+        if (!(isSym(v) && isSym(v2)))
+        {
+            return 1;
+        }
+    }
+
     if (t == EXT)
     {
         external *e1 = (external*)car(v);
@@ -1205,9 +1128,9 @@ any doCmp(Context *CONTEXT_PTR, any x)
         {
             drop(c1);
 
-            MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
-            mpz_init(id);
-            mpz_set_si(id, r);
+            struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+            bignum_init(id);
+            bignum_from_int(id, r);
             NewNumber( id, idr);
             return idr;
         }
@@ -1217,9 +1140,8 @@ any doCmp(Context *CONTEXT_PTR, any x)
 
     drop(c1);
 
-    MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(id);
-    mpz_set_ui(id, 0);
+    struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(id, 0);
 
     NewNumber( id, idr);
     return idr;
@@ -1351,26 +1273,90 @@ any doHide(Context* CONTEXT_PTR, any ex)
    return Nil;
 }
 
+any pack(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero)
+{
+    if (!isNil(x) && isCell(x))
+    {
+        do
+        {
+            if (GetType(x) == PTR_CELL)
+            {
+                r = pack(CONTEXT_PTR, r, car(x), shift, nonzero);
+            }
+            else
+            {
+                r = pack(CONTEXT_PTR, r, x, shift, nonzero);
+            }
+        } while (!isNil(x = cdr(x)));
+    
+        return r;
+    }
+
+    if (isNil(x))
+    {
+        return r;
+    }
+
+    if (isNum(x))
+    {
+        char* buf = (char*)malloc(1024);
+        bignum_to_string(num(x), buf, 1024);
+        char *b = buf;
+        any curCell = r;
+        uword *ptr = (uword *)&(curCell->car);
+
+        do
+        {
+            *nonzero = 1;
+            r = curCell = putSymByte(CONTEXT_PTR, curCell, shift, *b++);
+        } while (*b);
+        free(buf);
+
+        return r;
+    }
+    else if (!isNil(x))
+    {
+        int c, j;
+        uword w;
+        any curCell = r;
+        uword *ptr = (uword *)&(curCell->car);
+        for (c = getByte1(CONTEXT_PTR, &j, &w, &x); c; c = getByte(CONTEXT_PTR, &j, &w, &x))
+        {
+            *nonzero = 1;
+            r = curCell = putSymByte(CONTEXT_PTR, curCell, shift, c);
+        }
+
+        return r;
+    }
+}
 
 // (pack 'any ..) -> sym
 any doPack(Context *CONTEXT_PTR, any x)
 {
-   int i;
-   uword w;
-   any y;
-   cell c1, c2;
+    int nonzero = 0;
+    int shift = 0;
 
-   x = cdr(x),  Push(c1, EVAL(CONTEXT_PTR, car(x)));
-   putByte0(&i, &w, &y);
-   pack(CONTEXT_PTR, data(c1), &i, &w, &y, &c2);
-   while (!isNil(x = cdr(x)))
-   {
-      pack(CONTEXT_PTR, data(c1) = EVAL(CONTEXT_PTR, car(x)), &i, &w, &y, &c2);
-   }
-   y = popSym(CONTEXT_PTR, i, w, y, &c2);
-   drop(c1);
+    cell c1;
+    any curCell = startSym(CONTEXT_PTR, &c1);
 
-   return i? y : Nil;
+    cell c2;
+    Push(c2, Nil);
+
+    while (!isNil(x = cdr(x)))
+    {
+        data(c2) = EVAL(CONTEXT_PTR, car(x));
+        curCell = pack(CONTEXT_PTR, curCell, data(c2), &shift, &nonzero);
+    }
+
+    if (nonzero)
+    {
+        return Pop(c1);
+    }
+    else
+    {
+        drop(c1);
+        return Nil;
+    }
 }
 
 // (chop 'any) -> lst
@@ -1405,80 +1391,34 @@ any doChop(Context *CONTEXT_PTR, any x)
 
 }
 
-void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp)
-{
-    int c, j;
-    uword w;
-
-    if (!isNil(x) && isCell(x))
-    {
-        do
-        {
-            if (GetType(x) == PTR_CELL)
-            {
-                pack(CONTEXT_PTR, car(x), i, p, q, cp);
-            }
-            else
-            {
-                pack(CONTEXT_PTR, x, i, p, q, cp);
-            }
-        }
-        while (!isNil(x = cdr(x)));
-    }
-    if (isNum(x))
-    {
-        char *buf = mpz_get_str(NULL, 10, num(x));
-        char *b = buf;
-
-        do
-        {
-            putByte(CONTEXT_PTR, *b++, i, p, q, cp);
-        }
-        while (*b);
-        free(buf);
-    }
-    else if (!isNil(x))
-    {
-        for (x = x, c = getByte1(CONTEXT_PTR, &j, &w, &x); c; c = getByte(CONTEXT_PTR,&j, &w, &x))
-        {
-            putByte(CONTEXT_PTR, c, i, p, q, cp);
-        }
-    }
-}
 
 any doDo(Context *CONTEXT_PTR, any x)
 {
     any f, y, z, a;
-    MP_INT CTR, ONE;
-    mpz_init(&ONE);
-    mpz_init(&CTR);
+    struct bn CTR, ONE;
 
-    mpz_set_ui(&ONE, 1);
+    bignum_from_int(&ONE, 1);
 
     x = cdr(x);
     if (isNil(f = EVAL(CONTEXT_PTR, car(x))))
     {
-        mpz_clear(&CTR);
-        mpz_clear(&ONE);
         return Nil;
     }
     else
     {
-        mpz_set(&CTR, num(f));
+        bignum_assign(&CTR, num(f));
     }
 
     x = cdr(x),  z = Nil;
     for (;;)
     {
-        int cmp = mpz_cmp(&CTR, &ONE); 
+        int cmp = bignum_cmp(&CTR, &ONE); 
         if (cmp >= 0)
         {
-            mpz_sub_ui(&CTR, &CTR, 1);
+            bignum_dec(&CTR);
         }
         else
         {
-            mpz_clear(&CTR);
-            mpz_clear(&ONE);
             return z;
         }
         y = x;
@@ -1491,8 +1431,6 @@ any doDo(Context *CONTEXT_PTR, any x)
                     z = cdr(z);
                     if (isNil(a = EVAL(CONTEXT_PTR, car(z))))
                     {
-                        mpz_clear(&CTR);
-                        mpz_clear(&ONE);
                         return prog(CONTEXT_PTR, cdr(z));
                     }
                     val(At) = a;
@@ -1504,8 +1442,6 @@ any doDo(Context *CONTEXT_PTR, any x)
                     if (!isNil(a = EVAL(CONTEXT_PTR, car(z))))
                     {
                         val(At) = a;
-                        mpz_clear(&CTR);
-                        mpz_clear(&ONE);
                         return prog(CONTEXT_PTR, cdr(z));
                     }
                     z = Nil;
@@ -1528,9 +1464,8 @@ any doQuote(Context *CONTEXT_PTR, any x)
 
 any mkNum(Context *CONTEXT_PTR, word n)
 {
-    MP_INT *BIGNUM = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(BIGNUM);
-    mpz_set_ui(BIGNUM, n);
+    struct bn *BIGNUM = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(BIGNUM, n);
     NewNumber( BIGNUM, r);
     return r;
 }
@@ -1653,14 +1588,12 @@ any doFor(Context *CONTEXT_PTR, any x)
         {
             if (isNum(data(c1)))
             {
-                if (! mpz_cmp(num(f->bnd[0].sym->cdr), num(data(c1))))
+                if (! bignum_cmp(num(f->bnd[0].sym->cdr), num(data(c1))))
                     break;
 
-                MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-                mpz_init(n);
-
-                mpz_set(n, num(f->bnd[0].sym->cdr));
-                mpz_add_ui(n, n, 1);
+                struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+                bignum_assign(n, num(f->bnd[0].sym->cdr));
+                bignum_inc(n);
 
                 NewNumber( n, r);
                 f->bnd[0].sym->cdr  = r;
@@ -1833,9 +1766,8 @@ any doSub(Context *CONTEXT_PTR, any ex)
     x = cdr(ex);
     if (isNil(data(c1) = EVAL(CONTEXT_PTR, car(x))))
     {
-        MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
-        mpz_init(id);
-        mpz_set_ui(id, 0);
+        struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+        bignum_from_int(id, 0);
 
         NewNumber( id, idr);
         return idr;
@@ -1843,9 +1775,8 @@ any doSub(Context *CONTEXT_PTR, any ex)
 
     NeedNum(ex, data(c1));
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(data(c1)));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(data(c1)));
 
     NewNumber( n, r);
     Push(c1, r);
@@ -1860,8 +1791,8 @@ any doSub(Context *CONTEXT_PTR, any ex)
         }
 
         NeedNum(ex,data(c2));
-        MP_INT *m = num(data(c2));
-        mpz_sub(n, n, m);
+        struct bn *m = num(data(c2));
+        bignum_sub(n, m, n);
 
         drop(c2);
     }
@@ -1894,11 +1825,9 @@ any doDiv(Context *CONTEXT_PTR, any ex)
     NeedNum(ex, data(c2));
 
     data(c2) = copyNum(CONTEXT_PTR, data(c2));
-    MP_INT *c = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(c);
-    MP_INT *d = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(d);
-    mpz_divmod(c, d, num(data(c1)), num(data(c2)));
+    struct bn *c = (struct bn*)malloc(sizeof(struct bn));
+    struct bn *d = (struct bn*)malloc(sizeof(struct bn));
+    bignum_divmod(num(data(c1)), num(data(c2)), c, d);
 
     NewNumber( c, r1);
     data(c1) = r1;
@@ -1920,18 +1849,16 @@ any doMul(Context *CONTEXT_PTR, any ex)
     x = cdr(ex);
     if (isNil(data(c1) = EVAL(CONTEXT_PTR, car(x))))
     {
-        MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
-        mpz_init(id);
-        mpz_set_ui(id, 1);
-        NewNumber( id, idr);
+        struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+        bignum_from_int(id, 1);
+        NewNumber(id, idr);
         return idr;
     }
 
     NeedNum(ex, data(c1));
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(data(c1)));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(data(c1)));
 
     NewNumber( n, r);
     Push(c1, r);
@@ -1945,9 +1872,12 @@ any doMul(Context *CONTEXT_PTR, any ex)
             return Nil;
         }
 
+        struct bn BN;
+        bignum_assign(&BN, n);
+
         NeedNum(ex,data(c2));
-        MP_INT *m = num(data(c2));
-        mpz_mul(n, m, n);
+        struct bn *m = num(data(c2));
+        bignum_mul(&BN, m, n);
 
         drop(c2);
     }
@@ -1965,9 +1895,8 @@ any doPow(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(y));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
@@ -1975,8 +1904,9 @@ any doPow(Context *CONTEXT_PTR, any ex)
             return Nil;
         NeedNum(ex,y);
 
-        int m = mpz_get_ui(num(y));
-        mpz_pow_ui(n, n, m);
+        struct bn BN;
+        bignum_assign(&BN, n);
+        bignum_pow(&BN, num(y), n);
 
     }
 
@@ -2009,9 +1939,8 @@ any doMod(Context *CONTEXT_PTR, any ex)
     NeedNum(ex, data(c2));
 
     data(c2) = copyNum(CONTEXT_PTR, data(c2));
-    MP_INT *c = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(c);
-    mpz_mod(c, num(data(c1)), num(data(c2)));
+    struct bn *c = (struct bn*)malloc(sizeof(struct bn));
+    bignum_mod(num(data(c1)), num(data(c2)), c);
 
     NewNumber( c, r1);
     data(c1) = r1;
@@ -2036,18 +1965,16 @@ any doBinAnd(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(y));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        MP_INT *m = num(y);
-        mpz_and(n, m, n);
-
+        struct bn *m = num(y);
+        bignum_and(n, m, n);
     }
 
     NewNumber( n, r);
@@ -2064,18 +1991,16 @@ any doBinOr(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(y));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        MP_INT *m = num(y);
-        mpz_or(n, m, n);
-
+        struct bn *m = num(y);
+        bignum_or(n, m, n);
     }
 
     NewNumber( n, r);
@@ -2092,18 +2017,16 @@ any doBinXor(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(y));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        MP_INT *m = num(y);
-        mpz_xor(n, m, n);
-
+        struct bn *m = num(y);
+        bignum_xor(n, m, n);
     }
 
     NewNumber( n, r);
@@ -2121,24 +2044,41 @@ any doBinRShift(Context *CONTEXT_PTR, any ex)
 
     if (isNil(p1) || !isNum(p1)) return Nil;
 
-    s = mpz_get_si(num(p1));
+    s = bignum_to_int(num(p1));
 
     x = cdr(x);
     any p2 = EVAL(CONTEXT_PTR, car(x));
 
     if (isNil(p2) || !isNum(p2)) return Nil;
 
-    MP_INT *m = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(m);
-    if (s >= 0)
-    {
-        mpz_div_2exp(m, num(p2), s);
-    }
-    else
-    {
-        s *= -1;
-        mpz_mul_2exp(m, num(p2), s);
-    }
+    struct bn *m = (struct bn*)malloc(sizeof(struct bn));
+    bignum_rshift(num(p2), m, s);
+
+    NewNumber( m, r);
+
+    return r;
+}
+
+// (>> 'num ..) -> num
+any doBinLShift(Context *CONTEXT_PTR, any ex)
+{
+    any x, y;
+    word s = 1;
+
+    x = cdr(ex);
+    any p1 = EVAL(CONTEXT_PTR, car(x));
+
+    if (isNil(p1) || !isNum(p1)) return Nil;
+
+    s = bignum_to_int(num(p1));
+
+    x = cdr(x);
+    any p2 = EVAL(CONTEXT_PTR, car(x));
+
+    if (isNil(p2) || !isNum(p2)) return Nil;
+
+    struct bn *m = (struct bn*)malloc(sizeof(struct bn));
+    bignum_lshift(num(p2), m, s);
 
     NewNumber( m, r);
 
@@ -2155,26 +2095,23 @@ any doNumLt(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(y));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        MP_INT *m = num(y);
-        if (mpz_cmp(n, m) >= 0)
+        struct bn *m = num(y);
+        if (bignum_cmp(n, m) >= 0)
         {
-            mpz_clear(n);
             free(n);
             return Nil;
         }
 
     }
 
-    mpz_clear(n);
     free(n);
     return T;
 }
@@ -2190,26 +2127,23 @@ any doNumGt(Context *CONTEXT_PTR, any ex)
         return Nil;
     NeedNum(ex,y);
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(y));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(y));
 
     while (!isNil(x = cdr(x)))
     {
         if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
             return Nil;
         NeedNum(ex,y);
-        MP_INT *m = num(y);
-        if (mpz_cmp(n, m) <= 0)
+        struct bn *m = num(y);
+        if (bignum_cmp(n, m) <= 0)
         {
-            mpz_clear(n);
             free(n);
             return Nil;
         }
 
     }
 
-    mpz_clear(n);
     free(n);
     return T;
 }
@@ -2225,18 +2159,16 @@ any doAdd(Context *CONTEXT_PTR, any ex)
     x = cdr(ex);
     if (isNil(data(c1) = EVAL(CONTEXT_PTR, car(x))))
     {
-        MP_INT *id = (MP_INT*)malloc(sizeof(MP_INT));
-        mpz_init(id);
-        mpz_set_ui(id, 0);
+        struct bn *id = (struct bn*)malloc(sizeof(struct bn));
+        bignum_from_int(id, 0);
         NewNumber(id, idr);
         return idr;
     }
 
     NeedNum(ex, data(c1));
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set(n, num(data(c1)));
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(data(c1)));
 
     NewNumber( n, r);
     Push(c1, r);
@@ -2251,8 +2183,8 @@ any doAdd(Context *CONTEXT_PTR, any ex)
         }
 
         NeedNum(ex,data(c2));
-        MP_INT *m = num(data(c2));
-        mpz_add(n, m, n);
+        struct bn *m = num(data(c2));
+        bignum_add(n, m, n);
 
         drop(c2);
     }
@@ -2272,10 +2204,9 @@ any doInc(Context *CONTEXT_PTR, any ex)
 
     NeedNum(ex, data(c1));
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n); // TODO handle the errors appropriately
-    mpz_add_ui(n, num(data(c1)), 1);
-
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(data(c1)));
+    bignum_inc(n);
 
     NewNumber( n, r);
 
@@ -2294,33 +2225,12 @@ any doDec(Context *CONTEXT_PTR, any ex)
 
     NeedNum(ex, data(c1));
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n); 
-    mpz_sub_ui(n, num(data(c1)), 1);
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(n, num(data(c1)));
+    bignum_dec(n);
 
     NewNumber( n, r);
 
-    return r;
-}
-
-// (rand 'num ..) -> num
-any doRandom(Context *CONTEXT_PTR, any ex)
-{
-    any x, y;
-    uword s = 32;
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-
-    x = cdr(ex);
-    if (!isNil(y = EVAL(CONTEXT_PTR, car(x))))
-    {
-        mpz_set(n, num(y));
-        s = mpz_get_ui(n);
-    }
-
-    mpz_random(n, s);
-
-    NewNumber( n, r);
     return r;
 }
 
@@ -2328,9 +2238,8 @@ any copyNum(Context *CONTEXT_PTR, any n)
 {
     if (!isNum(n)) return Nil;
 
-    MP_INT *BIGNUM = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(BIGNUM);
-    mpz_set(BIGNUM, num(n));
+    struct bn *BIGNUM = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(BIGNUM, num(n));
 
     NewNumber(BIGNUM, r);
     return r;
@@ -2344,7 +2253,6 @@ void releaseExtNum(external *p)
         exit(0);
     }
 
-    mpz_clear((MP_INT*)p->pointer);
     free(p->pointer);
     free(p);
 }
@@ -2357,9 +2265,8 @@ external * copyExtNum(Context *CONTEXT_PTR, external *ext)
         exit(0);
     }
 
-    MP_INT *BIGNUM = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(BIGNUM);
-    mpz_set(BIGNUM, (MP_INT*)ext->pointer);
+    struct bn *BIGNUM = (struct bn*)malloc(sizeof(struct bn));
+    bignum_assign(BIGNUM, (struct bn*)ext->pointer);
 
     external *e = (external *)malloc(sizeof(external));
     e->type = EXT_NUM;
@@ -2386,12 +2293,14 @@ int equalExtNum(Context *CONTEXT_PTR, external*x, external*y)
         return 1;
     }
 
-    return mpz_cmp((MP_INT*)x->pointer, (MP_INT*)y->pointer);
+    return bignum_cmp((struct bn*)x->pointer, (struct bn*)y->pointer);
 }
 
 char * printExtNum(Context *CONTEXT_PTR, struct _external* obj)
 {
-    return mpz_get_str(NULL, 10, (MP_INT*)obj->pointer);
+    char *buf=(char*)malloc(1024);
+    bignum_to_string((struct bn*)obj->pointer, buf, 1024);
+    return buf;
 }
 
 // (++ var) -> any
@@ -2417,9 +2326,8 @@ any indx(Context *CONTEXT_PTR, any x, any y)
 {
     any z = y;
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set_ui(n, 1);
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(n, 1);
 
     while (!isNil(y))
     {
@@ -2428,7 +2336,7 @@ any indx(Context *CONTEXT_PTR, any x, any y)
             NewNumber( n, r);
             return r;
         }
-        mpz_add_ui(n, n, 1);
+        bignum_inc(n);
         if (z == (y = cdr(y)))
             return Nil;
     }
@@ -2497,19 +2405,16 @@ any doLength(Context *CONTEXT_PTR, any x)
 
     x = EVAL(CONTEXT_PTR, cadr(x));
     CellPartType t = GetType(x);
-    MP_INT *r = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(r); // TODO handle the errors appropriately
-    mpz_set_ui(r, 0);
+    struct bn *r = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(r, 0);
 
     if (isNil(x))
     {
-        mpz_clear(r);
         free(r);
         return Nil;
     }
     if (isNum(x))
     {
-        mpz_clear(r);
         free(r);
         return x;
     }
@@ -2522,7 +2427,7 @@ any doLength(Context *CONTEXT_PTR, any x)
             if (w) lengthBiggerThanZero = 1;
             while (w)
             {
-                mpz_add_ui(r, r, 1);
+                bignum_inc(r);
                 w >>= 8;
             }
             x = x->cdr;
@@ -2533,20 +2438,18 @@ any doLength(Context *CONTEXT_PTR, any x)
         lengthBiggerThanZero = 1;
         while (!isNil(x))
         {
-            mpz_add_ui(r, r, 1);
+            bignum_inc(r);
             x = cdr(x);
         }
     }
     else
     {
-        mpz_clear(r);
         free(r);
         return Nil;
     }
 
     if (!lengthBiggerThanZero)
     {
-        mpz_clear(r);
         free(r);
         return Nil;
     }
@@ -2572,6 +2475,56 @@ any doList(Context *CONTEXT_PTR, any x)
    return Pop(c1);
 }
 
+
+// (split 'lst 'any ..) -> lst
+any doSplit(Context *CONTEXT_PTR, any x) {
+   any y;
+   int i;
+   cell c1, res, sub;
+
+   int n = length(CONTEXT_PTR, cdr(x=cdr(x)));
+
+   if (!isCell(data(c1) = EVAL(CONTEXT_PTR, car(x))))
+   {
+      return data(c1);
+   }
+
+   cell *c = (cell *)calloc(sizeof(cell), n);
+
+   Save(c1);
+   for (i = 0; i < n; ++i)
+      x = cdr(x),  Push(c[i], EVAL(CONTEXT_PTR, car(x)));
+   Push(res, x = Nil);
+   Push(sub, y = Nil);
+   do {
+      for (i = 0;  i < n;  ++i) {
+         if (0 == equal(CONTEXT_PTR, car(data(c1)), data(c[i]))) {
+            if (isNil(x))
+               x = data(res) = cons(CONTEXT_PTR, data(sub), Nil);
+            else
+               x = cdr(x) = cons(CONTEXT_PTR, data(sub), Nil);
+            y = data(sub) = Nil;
+            goto spl1;
+         }
+      }
+      if (isNil(y))
+         y = data(sub) = cons(CONTEXT_PTR, car(data(c1)), Nil);
+      else
+         y = cdr(y) = cons(CONTEXT_PTR, car(data(c1)), Nil);
+spl1: ;
+   } while (!isNil(data(c1) = cdr(data(c1))));
+
+
+   y = cons(CONTEXT_PTR, data(sub), Nil);
+   drop(c1);
+   free(c);
+
+   if (isNil(x))
+      return y;
+   cdr(x) = y;
+   return data(res);
+}
+
 // (mapcar 'fun 'lst ..) -> lst
 any doMapcar(Context *CONTEXT_PTR, any ex)
 {
@@ -2582,7 +2535,7 @@ any doMapcar(Context *CONTEXT_PTR, any ex)
    Push(foo, EVAL(CONTEXT_PTR, car(x)));
 
    x = cdr(x);
-   if (isCell(x)) {
+   if (!isNil(x) && isCell(x)) {
       int i, n = 0;
       //cell c[length(CONTEXT_PTR, x)];
       cell *c = (cell *)calloc(sizeof(cell), length(CONTEXT_PTR, x));
@@ -2648,6 +2601,66 @@ any doCons(Context *CONTEXT_PTR, any x)
    return Pop(c1);
 }
 
+// (conc 'lst ..) -> lst
+any doConc(Context *CONTEXT_PTR, any x) {
+   any y, z;
+   cell c1;
+
+   x = cdr(x),  Push(c1, y = EVAL(CONTEXT_PTR, car(x)));
+   while (!isNil(x = cdr(x))) {
+      z = EVAL(CONTEXT_PTR, car(x));
+      if (!isCell(y))
+         y = data(c1) = z;
+      else {
+         while (!isNil(cdr(y)))
+            y = cdr(y);
+         cdr(y) = z;
+      }
+   }
+   return Pop(c1);
+}
+
+// (pack 'any ..) -> sym
+any doGlue(Context *CONTEXT_PTR, any x)
+{
+    int nonzero = 0;
+    int shift = 0;
+
+    cell c1, c2, c3, c4;
+    any curCell = startSym(CONTEXT_PTR, &c1);
+
+    x = cdr(x),  Push(c3, EVAL(CONTEXT_PTR, car(x)));
+    x = cdr(x),  Push(c4, x =EVAL(CONTEXT_PTR, car(x)));
+
+    if (!isCell(x))
+    {
+	    // Not a list
+	    drop(c1);
+	    return x;
+    }
+
+    if (!isNil(car(x)))
+    {
+        curCell = pack(CONTEXT_PTR, curCell, car(x), &shift, &nonzero);
+    }
+
+    while (!isNil(x = cdr(x)))
+    {
+        curCell = pack(CONTEXT_PTR, curCell, data(c3), &shift, &nonzero);
+        curCell = pack(CONTEXT_PTR, curCell, car(x), &shift, &nonzero);
+    }
+
+    if (nonzero)
+    {
+        return Pop(c1);
+    }
+    else
+    {
+        drop(c1);
+        return Nil;
+    }
+}
+
 // (c...r 'lst) -> any
 any doCar(Context *CONTEXT_PTR, any ex)
 {
@@ -2664,6 +2677,62 @@ any doCdr(Context *CONTEXT_PTR, any ex)
    x = EVAL(CONTEXT_PTR, car(x));
    NeedLst(ex,x);
    return cdr(x);
+}
+
+// (filter 'fun 'lst ..) -> lst
+any doFilter(Context *CONTEXT_PTR, any ex)
+{
+   any x = cdr(ex);
+   cell res, foo;
+
+   Push(res, Nil);
+   Push(foo, EVAL(CONTEXT_PTR, car(x)));
+   
+   x = cdr(x);
+   if (!isNil(x) && isCell(x))
+   {
+      int i, n = 0;
+
+      cell *c = (cell *)calloc(sizeof(cell), length(CONTEXT_PTR, x));
+
+      do
+         Push(c[n], EVAL(CONTEXT_PTR, car(x))), ++n;
+      while (!isNil(x = cdr(x)));
+      if (!isCell(data(c[0])))
+      {
+        free(c);
+        return Pop(res);
+      }
+
+      while (isNil(apply(CONTEXT_PTR, ex, data(foo), YES, n, c))) {
+         if (isNil(data(c[0]) = cdr(data(c[0]))))
+         {
+            free(c);
+            return Pop(res);
+         }
+         for (i = 1; i < n; ++i)
+            data(c[i]) = cdr(data(c[i]));
+      }
+
+      data(res) = x = cons(CONTEXT_PTR, car(data(c[0])), Nil);
+
+      while (!isNil(data(c[0]) = cdr(data(c[0]))))
+      {
+         for (i = 1; i < n; ++i)
+         {
+            data(c[i]) = cdr(data(c[i]));
+         }
+
+         if (!isNil(apply(CONTEXT_PTR, ex, data(foo), YES, n, c)))
+         {
+            x = cdr(x) = cons(CONTEXT_PTR, car(data(c[0])), Nil);
+         }
+      }
+
+      free(c);
+   }
+
+   return Pop(res);
 }
 
 any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p)
@@ -2738,18 +2807,20 @@ any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p)
    }
    else {
       any x = CONTEXT_PTR->ApplyArgs;
-      val(caar(x)) = cf? car(data(p[n])) : data(p[n]);
+      caar(x) = cf? car(data(p[n])) : data(p[n]);
       while (--n >= 0) {
-         if (!isCell(cdr(x)))
+         if (isNil(cdr(x)))
          {
-            cdr(x) = cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil,0), car(x)), Nil);
-            setCARType(x, PTR_CELL);
+            cdr(x) = cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, Nil), car(x)), Nil);
+            setCARType(cdr(x), PTR_CELL);
          }
          x = cdr(x);
-         val(caar(x)) = cf? car(data(p[n])) : data(p[n]);
-         setCARType(caar(x), PTR_CELL);
+         caar(x) = cf? car(data(p[n])) : data(p[n]);
+         setCARType(cdr(x), PTR_CELL);
       }
+      
       cdr(CONTEXT_PTR->ApplyBody) = car(x);
+
       setCARType(CONTEXT_PTR->ApplyBody, PTR_CELL);
    }
 
@@ -2991,35 +3062,56 @@ void space(Context *CONTEXT_PTR)
 // (line 'flg) -> lst|sym
 any doLine(Context *CONTEXT_PTR, any x)
 {
-   any y;
-   int i;
-   uword w;
-   cell c1;
-
    if (!CONTEXT_PTR->Chr)
+   {
       CONTEXT_PTR->Env.get(CONTEXT_PTR);
-   if (eol(CONTEXT_PTR))
-      return Nil;
-   x = cdr(x);
-   if (isNil(EVAL(CONTEXT_PTR, car(x)))) {
-      Push(c1, cons(CONTEXT_PTR, mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr), Nil));
-      y = data(c1);
-      for (;;) {
-         if (CONTEXT_PTR->Env.get(CONTEXT_PTR), eol(CONTEXT_PTR))
-            return Pop(c1);
-         any c = mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr);
-         cdr(y) = cons(CONTEXT_PTR, c, Nil);
-         setCARType(y, PTR_CELL);
-         y = cdr(y);
-      }
    }
-   else {
-      putByte1(CONTEXT_PTR->Chr, &i, &w, &y);
-      for (;;) {
-         if (CONTEXT_PTR->Env.get(CONTEXT_PTR), eol(CONTEXT_PTR))
-            return popSym(CONTEXT_PTR, i, w, y, &c1);
-         putByte(CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &y, &c1);
-      }
+
+   if (eol(CONTEXT_PTR))
+   {
+      return Nil;
+   }
+
+   x = cdr(x);
+   if (isNil(EVAL(CONTEXT_PTR, car(x))))
+   {
+      cell c1;
+      any y = Nil;
+
+      do
+      {
+            any c = mkChar(CONTEXT_PTR, CONTEXT_PTR->Chr);
+            if (y == Nil)
+            {
+                Push(c1, cons(CONTEXT_PTR, c, Nil));
+                y = data(c1);
+            }
+            else
+            {
+                cdr(y) = cons(CONTEXT_PTR, c, Nil);
+                setCARType(y, PTR_CELL);
+                y = cdr(y);
+            }
+
+            CONTEXT_PTR->Env.get(CONTEXT_PTR);
+
+      } while (!eol(CONTEXT_PTR));
+
+      return Pop(c1);
+   }
+   else
+   {
+      cell c1;
+      any curCell = startSym(CONTEXT_PTR, &c1);
+      int shift = 0;
+
+      do
+      {
+         curCell = putSymByte(CONTEXT_PTR, curCell, &shift, CONTEXT_PTR->Chr);
+         CONTEXT_PTR->Env.get(CONTEXT_PTR);
+      } while (!eol(CONTEXT_PTR));
+
+      return Pop(c1);
    }
 }
 
@@ -3084,63 +3176,20 @@ any doChar(Context *CONTEXT_PTR, any ex)
 
     if (isNum(x))
     {
-        return mkChar(CONTEXT_PTR, mpz_get_ui(num(x)));
+        return mkChar(CONTEXT_PTR, bignum_to_int(num(x)));
     }
 
     if (isSym(x))
     {
 
-        MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-        mpz_init(n);
-        mpz_set_ui(n, firstByte(CONTEXT_PTR, x));
+        struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+        bignum_from_int(n, firstByte(CONTEXT_PTR, x));
 
         NewNumber(n, r);
         return r;
     }
     return Nil;
 }
-
-any doSwitchBase(Context *CONTEXT_PTR, any ex)
-{
-    any p1 = cadr(ex);
-    any p2 = caddr(ex);
-    int base = 10;
-
-    p1 = EVAL(CONTEXT_PTR, p1);
-    CellPartType t = GetType(p1);
-
-    p2 = EVAL(CONTEXT_PTR, p2);
-    if (isNum(p2))
-    {
-        base = mpz_get_ui(num(p2));
-    }
-
-    if (isNum(p1))
-    {
-        char *buf = mpz_get_str(NULL, base, num(p1));
-        any r = mkSym(CONTEXT_PTR, (byte*)buf);
-        free(buf);
-        return r;
-    }
-    else if (isSym(p1))
-    {
-        int LEN = pathSize(CONTEXT_PTR, p1);
-        int CTR = 0;
-        char *str = (char *)calloc(LEN, 1);
-        sym2str(CONTEXT_PTR, p1, str);
-
-        MP_INT *BIGNUM = (MP_INT*)malloc(sizeof(MP_INT));
-        mpz_init(BIGNUM);
-        mpz_init_set_str(BIGNUM, str, base);
-        free(str);
-
-        NewNumber( BIGNUM, r);
-        return r;
-    }
-
-    return Nil;
-}
-
 
 any doRd(Context *CONTEXT_PTR, any ex)
 {
@@ -3151,22 +3200,19 @@ any doRd(Context *CONTEXT_PTR, any ex)
 
     p1 = EVAL(CONTEXT_PTR, p1);
     if (!isNum(p1)) return Nil;
-    size_t count = mpz_get_ui(num(p1));
+    size_t count = bignum_to_int(num(p1));
 
 
     int order = 0;
     p2 = EVAL(CONTEXT_PTR, p2);
     if (isNum(p2))
     {
-        order = mpz_get_ui(num(p2));
+        order = bignum_to_int(num(p2));
     }
 
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
 
-    MP_INT *temp = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(temp);
     // TODO use bignum instead of int for count?
     for(int i = 0;i < count; i++)
     {
@@ -3180,28 +3226,34 @@ any doRd(Context *CONTEXT_PTR, any ex)
 
         if (i == 0)
         {
-            mpz_set_ui(n, CONTEXT_PTR->Chr);
+            bignum_from_int(n, CONTEXT_PTR->Chr);
         }
         else
         {
             if (order == 1)
             {
-                mpz_mul_ui(n, n, 256);
-                mpz_add_ui(n, n, CONTEXT_PTR->Chr);
+                struct bn BN, N;
+                bignum_from_int(&BN, 256);
+                bignum_assign(&N, n);
+                bignum_mul(&N, &BN, n);
+                bignum_assign(&N, n);
+                bignum_from_int(&BN, CONTEXT_PTR->Chr);
+                bignum_add(&N, &BN, n);
             }
             else
             {
-                mpz_set_ui(temp, CONTEXT_PTR->Chr);
+                struct bn N1, N2, N3;
+                bignum_from_int(&N1, CONTEXT_PTR->Chr);
+                bignum_from_int(&N2, 256);
                 for (int j = 0; j < i; j++)
                 {
-                    mpz_mul_ui(temp, temp, 256);
+                    bignum_mul(&N1, &N2, &N3);
+                    bignum_assign(&N1, &N3);
                 }
-                mpz_add(n, n, temp);
+                bignum_add(n, &N3, n);
             }
         }
     }
-    mpz_clear(temp);
-    free(temp);
 
 
     NewNumber(n, r);
@@ -3223,36 +3275,30 @@ any doWr(Context *CONTEXT_PTR, any ex)
 
     p1 = EVAL(CONTEXT_PTR, p1);
     if (!isNum(p1)) return Nil;
-    
 
     char *buf = (char*)malloc(1024);
     int count = 0;
     int bufSize=1024;
 
+    struct bn temp, twofivefive, data;
+    bignum_from_int(&twofivefive, 255);
+    bignum_assign(&data, num(p1));
 
-    MP_INT temp, twofivefive, data;
-    mpz_init(&temp);
-    mpz_init(&data);
-    mpz_init(&twofivefive);
-    mpz_set_ui(&twofivefive, 255);
-    mpz_set(&data, num(p1));
-
-    if(!mpz_cmp_ui(&data, 0))
+    if(bignum_is_zero(&data))
     {
         CONTEXT_PTR->Env.put(CONTEXT_PTR, 0);
-        MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-        mpz_init(n);
-        mpz_set_ui(n, 1);
+        struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+        bignum_from_int(n, 1);
 
         NewNumber( n, r);
         return r;
     }
 
-    while(mpz_cmp_ui(&data, 0))
+    while(!bignum_is_zero(&data))
     {
-        mpz_and(&temp, &data, &twofivefive);
-        buf[count++] = mpz_get_ui(&temp);
-        mpz_div_2exp(&data, &data, 8);
+        bignum_and(&twofivefive, &data, &temp);
+        buf[count++] = bignum_to_int(&temp);
+        bignum_rshift(&data, &data, 8);
 
         if (count == bufSize)
         {
@@ -3265,7 +3311,7 @@ any doWr(Context *CONTEXT_PTR, any ex)
     p2 = EVAL(CONTEXT_PTR, p2);
     if (isNum(p2))
     {
-        order = mpz_get_ui(num(p2));
+        order = bignum_to_int(num(p2));
     }
 
     for (int i = 0; i < count; i++)
@@ -3275,9 +3321,8 @@ any doWr(Context *CONTEXT_PTR, any ex)
     free(buf);
 
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set_ui(n, count);
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(n, count);
 
     NewNumber( n, r);
     return r;
@@ -3368,9 +3413,8 @@ any doCall(Context *CONTEXT_PTR, any ex)
     int ret = system(buf);
     free(buf);
 
-    MP_INT *n = (MP_INT*)malloc(sizeof(MP_INT));
-    mpz_init(n);
-    mpz_set_ui(n, ret);
+    struct bn *n = (struct bn*)malloc(sizeof(struct bn));
+    bignum_from_int(n, ret);
 
     NewNumber( n, r);
 
@@ -3417,7 +3461,8 @@ void prin(Context *CONTEXT_PTR, any x)
 void outNum(Context *CONTEXT_PTR, any n)
 {
     int len;
-    char *buf = mpz_get_str(NULL, 10, num(n));
+    char *buf = (char *)malloc(1024);
+    bignum_to_string(num(n), buf, 1024);
     outString(CONTEXT_PTR, buf);
     free(buf);
 }
@@ -3528,6 +3573,7 @@ any read0(Context *CONTEXT_PTR, bool top)
             return Nil;
         eofErr();
     }
+
     if (CONTEXT_PTR->Chr == '(')
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
@@ -3536,6 +3582,7 @@ any read0(Context *CONTEXT_PTR, bool top)
             CONTEXT_PTR->Env.get(CONTEXT_PTR);
         return x;
     }
+
     if (CONTEXT_PTR->Chr == '[')
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
@@ -3545,17 +3592,20 @@ any read0(Context *CONTEXT_PTR, bool top)
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
         return x;
     }
+
     if (CONTEXT_PTR->Chr == '\'')
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
         any rest = read0(CONTEXT_PTR, top);
         return cons(CONTEXT_PTR, doQuote_D, rest);
     }
+
     if (CONTEXT_PTR->Chr == ',')
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
         return read0(CONTEXT_PTR, top);
     }
+
     if (CONTEXT_PTR->Chr == '`')
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
@@ -3564,6 +3614,7 @@ any read0(Context *CONTEXT_PTR, bool top)
         drop(c1);
         return x;
     }
+
     if (CONTEXT_PTR->Chr == '"')
     {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
@@ -3574,34 +3625,51 @@ any read0(Context *CONTEXT_PTR, bool top)
         }
         if (!testEsc(CONTEXT_PTR))
             eofErr();
-        putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
+
+        int shift = 0;
+        any curCell = startSym(CONTEXT_PTR, &c1);
+        curCell = putSymByte(CONTEXT_PTR, curCell, &shift, CONTEXT_PTR->Chr);
+
         while (CONTEXT_PTR->Env.get(CONTEXT_PTR), CONTEXT_PTR->Chr != '"')
         {
             if (!testEsc(CONTEXT_PTR))
+            {
                 eofErr();
-            putByte(CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &p, &c1);
+            }
+
+            curCell = putSymByte(CONTEXT_PTR, curCell, &shift, CONTEXT_PTR->Chr);
         }
-        y = popSym(CONTEXT_PTR, i, w, p, &c1),  CONTEXT_PTR->Env.get(CONTEXT_PTR);
+
+        y = Pop(c1);
+        CONTEXT_PTR->Env.get(CONTEXT_PTR);
+
         if (x = isIntern(CONTEXT_PTR, tail(y), CONTEXT_PTR->Transient))
+        {
             return x;
-        intern(CONTEXT_PTR, y, CONTEXT_PTR->Transient);
+        }
+
+        intern(CONTEXT_PTR, y, &CONTEXT_PTR->Transient);
         return y;
     }
+
     if (strchr(Delim, CONTEXT_PTR->Chr))
+    {
         err(NULL, NULL, "Bad input '%c' (%d)", isprint(CONTEXT_PTR->Chr)? CONTEXT_PTR->Chr:'?', CONTEXT_PTR->Chr);
+    }
+
     if (CONTEXT_PTR->Chr == '\\')
+    {
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
-    putByte1(CONTEXT_PTR->Chr, &i, &w, &p);
+    }
+
+    int shift = 0;
+    any curCell = startSym(CONTEXT_PTR, &c1);
+    curCell = putSymByte(CONTEXT_PTR, curCell, &shift, CONTEXT_PTR->Chr);
 
     int count=0;
     for (;;)
     {
         count++;
-        // if (count > 6)
-        // {
-        //     printf("%s too long\n", (char*)&w);
-        //     bye(0);
-        // }
         CONTEXT_PTR->Env.get(CONTEXT_PTR);
         if (strchr(Delim, CONTEXT_PTR->Chr))
         {
@@ -3611,11 +3679,12 @@ any read0(Context *CONTEXT_PTR, bool top)
         {
             CONTEXT_PTR->Env.get(CONTEXT_PTR);
         }
-        putByte(CONTEXT_PTR, CONTEXT_PTR->Chr, &i, &w, &p, &c1);
+        curCell = putSymByte(CONTEXT_PTR, curCell, &shift, CONTEXT_PTR->Chr);
     }
 
     dump("putbyte1");
-    y = popSym(CONTEXT_PTR, i, w, p, &c1);
+    y = Pop(c1);
+
     dump("putbyte2");
     if (x = symToNum(CONTEXT_PTR, tail(y), 0, '.', 0))
     {
@@ -3626,7 +3695,7 @@ any read0(Context *CONTEXT_PTR, bool top)
         return x;
     }
 
-    intern(CONTEXT_PTR, y, CONTEXT_PTR->Intern);
+    intern(CONTEXT_PTR, y, &CONTEXT_PTR->Intern);
     val(y) = Nil;
     setCARType(y, PTR_CELL);
     return y;
@@ -3920,6 +3989,7 @@ void setupBuiltinFunctions(any * Mem)
     AddFunc(memCell, "/", doDiv);
     AddFunc(memCell, "%", doMod);
     AddFunc(memCell, ">>", doBinRShift);
+    AddFunc(memCell, "<<", doBinLShift);
     AddFunc(memCell, "!", doBinNot);
     AddFunc(memCell, "&", doBinAnd);
     AddFunc(memCell, "|", doBinOr);
@@ -3927,7 +3997,6 @@ void setupBuiltinFunctions(any * Mem)
     AddFunc(memCell, "**", doPow);
     AddFunc(memCell, ">", doNumGt);
     AddFunc(memCell, "<", doNumLt);
-    AddFunc(memCell, "rand", doRandom);
     AddFunc(memCell, "let", doLet);
     AddFunc(memCell, "prinl", doPrin);
     AddFunc(memCell, "do", doDo);
@@ -3938,13 +4007,16 @@ void setupBuiltinFunctions(any * Mem)
     AddFunc(memCell, "length", doLength);
     AddFunc(memCell, "list", doList);
     AddFunc(memCell, "cons", doCons);
+    AddFunc(memCell, "glue", doGlue);
+    AddFunc(memCell, "split", doSplit);
+    AddFunc(memCell, "filter", doFilter);
+    AddFunc(memCell, "conc", doConc);
     AddFunc(memCell, "car", doCar);
     AddFunc(memCell, "cdr", doCdr);
     AddFunc(memCell, "while", doWhile);
     AddFunc(memCell, "in", doIn);
     AddFunc(memCell, "out", doOut);
     AddFunc(memCell, "char", doChar);
-    AddFunc(memCell, "sb", doSwitchBase);
     AddFunc(memCell, "line", doLine);
     AddFunc(memCell, "not", doNot);
     AddFunc(memCell, "for", doFor);
@@ -3964,20 +4036,12 @@ void setupBuiltinFunctions(any * Mem)
     AddFunc(memCell, "chop", doChop);
     AddFunc(memCell, "args", doArgs);
     AddFunc(memCell, "next", doNext);
-    AddFunc(memCell, "thread", doThread);
-    AddFunc(memCell, "sleep", doSleep);
     AddFunc(memCell, "rd", doRd);
     AddFunc(memCell, "wr", doWr);
     AddFunc(memCell, "++", doPopq);
     AddFunc(memCell, "inc", doInc);
     AddFunc(memCell, "dec", doDec);
-    AddFunc(memCell, "bind", doBind);
-    AddFunc(memCell, "listen", doListen);
-    AddFunc(memCell, "socket", doSocket);
-    AddFunc(memCell, "connect", doConnect);
-    AddFunc(memCell, "tid", doTid);
     AddFunc(memCell, "cmp", doCmp);
-    AddFunc(memCell, "os", doOs);
     AddFunc(memCell, "argv", doArgv);
     
     WORD_TYPE end = (WORD_TYPE)memCell;
@@ -4044,7 +4108,7 @@ any addString(any *Mem, any m, char *s)
 void initialize_context(Context *CONTEXT_PTR)
 {
    heapAlloc(CONTEXT_PTR);
-   CONTEXT_PTR->Intern[0] = CONTEXT_PTR->Intern[1] = CONTEXT_PTR->Transient[0] = CONTEXT_PTR->Transient[1] = Nil;
+   CONTEXT_PTR->Intern = CONTEXT_PTR->Transient = Nil;
 
    for (int i = 1; i < MEMS; i++)
    {
@@ -4053,43 +4117,16 @@ void initialize_context(Context *CONTEXT_PTR)
       if (isSym(cell))
       {
          dump("symbol1");
-         intern(CONTEXT_PTR, cell, CONTEXT_PTR->Intern);
+         intern(CONTEXT_PTR, cell, &CONTEXT_PTR->Intern);
          dump("symbol2");
       }
    }
 }
 
-any consIntern(Context *CONTEXT_PTR, any x, any y)
-{
-    dump("consIntern1");
-    any r = cons(CONTEXT_PTR, x, y);
-    dump("consIntern2");
-
-    setCARType(r, PTR_CELL);
-    dump("consIntern3");
-
-    return r;
-}
-
 any consSym(Context *CONTEXT_PTR, any val, any w)
 {
-    cell *p;
-
-    if (!(p = CONTEXT_PTR->Avail)) {
-        cell c1;
-
-        if (!val)
-            gc(CONTEXT_PTR, CELLS);
-        else {
-            Push(c1,val);
-            gc(CONTEXT_PTR, CELLS);
-            drop(c1);
-        }
-        p = CONTEXT_PTR->Avail;
-    }
-    CONTEXT_PTR->Avail = car(p);
-    cdr(p) = val ? val : p;
-    car(p) = (any)w;
+    any p = cons(CONTEXT_PTR, (any)w, val);
+    if (!val) cdr(p) = p;
     return p;
 }
 
@@ -4118,26 +4155,6 @@ any cons(Context *CONTEXT_PTR, any x, any y)
     dump("cons3");
 
     return p;
-}
-
-any consName(Context *CONTEXT_PTR, uword w, any n)
-{
-   cell *p;
-
-   if (!(p = CONTEXT_PTR->Avail))
-   {
-       cell c1;
-       Push(c1, n);
-      gc(CONTEXT_PTR, CELLS);
-      drop(c1);
-      p = CONTEXT_PTR->Avail;
-   }
-   CONTEXT_PTR->Avail = car(p);
-   p = symPtr(p);
-   car(p) = (any)w;
-   cdr(p) = n;
-   setCARType(p, PTR_CELL);
-   return p;
 }
 
 uword length(Context *CONTEXT_PTR, any x)
@@ -4206,11 +4223,6 @@ int MEMS;
 any Mem;
 
 int PUSH_POP=0;
-void ppp(Context*CONTEXT_PTR, char *m, cell c)
-{
-    //for (int i = 0; i < PUSH_POP; i++) printf(" ");
-    //printf("c.car=%p c.cdr=%p Env->stack=%p %s", (c).car, (c).cdr, CONTEXT_PTR->Env.stack, m);
-}
 
 void debugIndent(Context *CONTEXT_PTR)
 {
@@ -4236,372 +4248,16 @@ void debugLogAny(Context *CONTEXT_PTR, char *message, any x)
     printf("\n");
 }
 
-
-void RestoreStack(Context *From, Context *To)
+void ppp(Context*CONTEXT_PTR, char *m, cell c)
 {
-    any stackptr = From->Env.stack;
-    if (!stackptr) return;
-    To->Env.stack = (any)calloc(sizeof(cell), 1);
-    any tostackptr = To->Env.stack;
-
-    while (stackptr)
-    {
-        any fromCell = car(stackptr);
-        any toCell = car(tostackptr) = (any)calloc(sizeof(cell), 1);
-
-        uword *temp = (uword*)cdr(fromCell);
-        any cdrOfFromCell = (any)temp[0];
-        CellPartType type = fromCell->type;
-
-        any c = car(fromCell);
-        if (c)
-        {
-            uword *temp2 = (uword*)makeptr(c)->cdr;
-            toCell->car = (any)temp2[1];
-        }
-
-        toCell->type = type;
-        if (cdrOfFromCell != 0)
-        {
-            any x = makeptr(cdrOfFromCell);
-            uword *temp2 = (uword*)x->cdr;
-            toCell->cdr = (any)temp2[1];
-        }
-
-
-        stackptr = cdr(stackptr);
-        if (stackptr)
-        {
-            cdr(tostackptr) = (any)calloc(sizeof(cell), 1);
-            tostackptr = cdr(tostackptr);
-        }
-        else
-        {
-            cdr(tostackptr) = NULL;
-        }
-    }
-}
-
-void copyHeap(Context *From, Context *To)
-{
-    for (int i = 0;i < From->HeapCount; i++)
-    {
-        heapAlloc(To);
-    }
-    To->Mem=(any)calloc(1, sizeof(cell)*MEMS);
-
-    /////////////////////////////////////////////////////
-    //dumpMem(From, "DEBUG_HEAP0.txt");
-    //dumpMem(To, "DEBUG_COPY0.txt");
-    heap *from = From->Heaps;
-    heap *to = To->Heaps;
-    for(int i = 0; i < MEMS; i++)
-    {
-        any fromCell = &(From->Mem[i]);
-        any toCell = (any)(To->Mem + i);
-        copyBackupCell(fromCell, toCell);
-    }
-    while(from)
-    {
-        for(int j=0; j < CELLS; j++)
-        {
-            cell *fromCell = &from->cells[j];
-            cell *toCell = &to->cells[j];
-            copyBackupCell(fromCell, toCell);
-        }
-
-        from=from->next;
-        to=to->next;
-    }
-
-    dumpMemory(From, "t1");
-    dumpMemory(To, "t1");
-
-    /////////////////////////////////////////////////////
-    from = From->Heaps;
-    to = To->Heaps;
-    for(int i = 0; i < MEMS; i++)
-    {
-        cell *fromCell = From->Mem + i;
-        cell *toCell = To->Mem + i;
-        copyFixupCell(From, To, fromCell, toCell);
-    }
-    while(from)
-    {
-        for(int j=0; j < CELLS; j++)
-        {
-            any fromCell = &from->cells[j];
-            any toCell = &to->cells[j];
-            copyFixupCell(From, To, fromCell, toCell);
-
-        }
-
-        from=from->next;
-        to=to->next;
-    }
-
-    /////////////////////////////////////////////////////
-    
-
-
-    // COPY STACK
-    RestoreStack(From, To);
-
-
-    /////////////////////////////////////////////////////
-    from = From->Heaps;
-    to = To->Heaps;
-    for(int i = 0; i < MEMS; i++)
-    {
-        cell *fromCell = From->Mem + i;
-        cell *toCell = To->Mem + i;
-        copyRestoreCell(From, To, fromCell, toCell);
-    }
-    while(from)
-    {
-        for(int j=0; j < CELLS; j++)
-        {
-            any fromCell = &from->cells[j];
-            any toCell = &to->cells[j];
-            copyRestoreCell(From, To, fromCell, toCell);
-        }
-
-        from=from->next;
-        to=to->next;
-    }
-
-    //dumpMem(From, "DEBUG_HEAP2.txt");
-    //dumpMem(To, "DEBUG_COPY2.txt");
-}
-
-void copyBackupCell(cell *fromCell, cell * toCell)
-{
-    uword  *temp = (uword*)calloc(sizeof(uword*) * 3, 1);
-    temp[0] = (uword)fromCell->cdr;
-    temp[1] = (uword)toCell;
-    temp[2] = (uword)(fromCell->type);
-    fromCell->cdr = (any)temp;
-}
-
-void copyFixupCell(Context *From, Context *To, cell *fromCell, cell * toCell)
-{
-    uword *temp = (uword*)fromCell->cdr;
-    any cdrOfFromCell = (any)temp[0];
-    CellPartType type = temp[2];
-
-    if (type == EXT)
-    {
-        external *e = (external*)fromCell->car;
-        if (e) toCell->car = (any)e->copy(From, e);
-        else toCell->car = fromCell->car;
-        toCell->type = EXT;
-    }
-    else if (!cdrOfFromCell)
-    {
-        toCell->car = NULL;
-        toCell->type = type;
-    }
-    else if (type == FUNC || type == BIN)
-    {
-        toCell->car = fromCell->car;
-        toCell->type = type;
-    }
-    else // PTR_CELL
-    {
-        uword *temp2 = (uword*)makeptr(fromCell->car)->cdr;
-        toCell->car = (any)temp2[1];
-        toCell->type = PTR_CELL;
-    }
-
-    if (cdrOfFromCell != 0)
-    {
-        any x = makeptr(cdrOfFromCell);
-        uword *temp2 = (uword*)x->cdr;
-        toCell->cdr = (any)temp2[1];
-    }
-}
-
-void copyRestoreCell(Context *From, Context *To, cell *fromCell, cell *toCell)
-{
-    if (fromCell== From->Avail)
-    {
-        To->Avail = toCell;
-    }
-    if (fromCell== From->Intern[0])
-    {
-        To->Intern[0] = toCell;
-    }
-    if (fromCell== From->Intern[1])
-    {
-        To->Intern[1] = toCell;
-    }
-    if (fromCell== From->Transient[0])
-    {
-        To->Transient[0] = toCell;
-    }
-    if (fromCell== From->Transient[1])
-    {
-        To->Transient[1] = toCell;
-    }
-    if (fromCell== To->Code)
-    {
-        To->Code = toCell;
-    }
-
-    uword *temp = (uword*)fromCell->cdr;
-    fromCell->cdr = (any)temp[0];
-    free(temp);
-}
-
-extern int CONSCTR;
-
-void *thread_func(void *arg)
-{
-    Context *CONTEXT_PTR = arg;
-
-    dumpMemory(CONTEXT_PTR, "thIN");
-
-    CONSCTR=1000;
-    EVAL(CONTEXT_PTR, CONTEXT_PTR->Code);
-
-    gc(CONTEXT_PTR, CELLS);
-
-    heap *h = CONTEXT_PTR->Heaps;
-
-    while (h)
-    {
-        heap *x = h;
-        h = h->next;
-        free(x);
-    }
-
-    free(CONTEXT_PTR->Mem);
-    free(CONTEXT_PTR);
-    //TODO - Free the Env->Stack
-
-    return NULL;
-}
-
-any doThread(Context *CONTEXT_PTR_ORIG, any x)
-{
-    Context *CONTEXT_PTR = CONTEXT_PTR_ORIG;
-
-    CONTEXT_PTR = (Context*)calloc(1, sizeof(Context));
-    CONTEXT_PTR->InFile = stdin, CONTEXT_PTR->Env.get = getStdin;
-    CONTEXT_PTR->OutFile = stdout, CONTEXT_PTR->Env.put = putStdout;
-    CONTEXT_PTR->Code = caddr(x);
-    CONTEXT_PTR_ORIG->Code = CONTEXT_PTR->Code;
-
-    CONTEXT_PTR->ApplyArgs = Nil; //cons(CONTEXT_PTR, cons(CONTEXT_PTR, consSym(CONTEXT_PTR, Nil, 0), Nil), Nil);
-    CONTEXT_PTR->ApplyBody = Nil; //cons(CONTEXT_PTR, Nil, Nil);
-    CONTEXT_PTR->THREAD_COUNT = 1;
-    CONTEXT_PTR->THREAD_ID = GetThreadID();
-
-    dumpMemory(CONTEXT_PTR_ORIG, "th0");
-
-    copyHeap(CONTEXT_PTR_ORIG, CONTEXT_PTR);
-
-    dumpMemory(CONTEXT_PTR_ORIG, "th1");
-
-    CONTEXT_PTR->Mem[0].car = CONTEXT_PTR->Mem[0].cdr; // TODO - should find a better place for this
-    if (!CONTEXT_PTR_ORIG->Avail)
-    {
-        CONTEXT_PTR->Avail = 0;
-    }
-    else if (!CONTEXT_PTR_ORIG->Avail->car)
-    {
-        CONTEXT_PTR->Avail->car = 0;
-    }
-
-    dumpMemory(CONTEXT_PTR, "th2");
-
-
-    // Clear out the items that need to be moved to the new thread
-    x = cadr(x);
-    any m = EVAL(CONTEXT_PTR_ORIG, car(x));
-    do
-    {
-        if (GetType(m) == EXT)
-        {
-            car(m) = NULL;
-        }
-        x = cdr(x);
-        m = EVAL(CONTEXT_PTR_ORIG, car(x));
-    }
-    while(x != (&(CONTEXT_PTR_ORIG->Mem[0])));
-
-    plt_thread_start(CONTEXT_PTR, thread_func, 0); //TODO - passing nowait seems to not work
-
-    CONTEXT_PTR = CONTEXT_PTR_ORIG;
-    return Nil;
-}
-
-any doSleep(Context *CONTEXT_PTR, any ex)
-{
-    uword n;
-    any x,y;
-    x = cdr(ex);
-    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
-        return Nil;
-    NeedNum(ex,y);
-    n = mpz_get_ui(num(y));
-
-    plt_sleep(n);
-
-    return y;
-}
-
-any doTid(Context *CONTEXT_PTR, any ex)
-{
-    return pltGetThreadId(CONTEXT_PTR);
-}
-
-any doBind(Context *CONTEXT_PTR, any ex)
-{
-    uword n;
-    any x,y;
-    x = cdr(ex);
-    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
-        return Nil;
-    NeedNum(ex,y);
-    n = mpz_get_ui(num(y));
-
-    return pltBind(CONTEXT_PTR, n);
-}
-
-any doConnect(Context *CONTEXT_PTR, any ex)
-{
-    return pltConnect(CONTEXT_PTR, ex);
-}
-
-any doListen(Context *CONTEXT_PTR, any ex)
-{
-    uword n;
-    any x,y;
-    x = cdr(ex);
-    if (isNil(y = EVAL(CONTEXT_PTR, car(x))))
-        return Nil;
-
-    external *e = (external*)car(y);
-    n = (uword)e->pointer;
-
-    return pltListen(CONTEXT_PTR, n);
-}
-
-any doSocket(Context *CONTEXT_PTR, any ex)
-{
-    return pltSocket(CONTEXT_PTR, ex);
-}
-
-void releaseSocket(struct _external* obj)
-{
-    pltClose(obj);
+    //for (int i = 0; i < PUSH_POP; i++) printf(" ");
+    //printf("c.car=%p c.cdr=%p Env->stack=%p %s", (c).car, (c).cdr, CONTEXT_PTR->Env.stack, m);
 }
 
 void releaseMalloc(external *ext)
 {
     word *ptr = ext->pointer;
-    void (*destructor)(external *) = *ptr;
+    void (*destructor)(external *) = (void*)*ptr;
     destructor(ext);
     free(ext->pointer);
     free(ext);
@@ -4639,33 +4295,3 @@ external *allocateMemBlock(Context *CONTEXT_PTR, word size, void (*destructor)(e
 
     return ptr;
 }
-
-external * copySocket(Context *CONTEXT_PTR, external *ext)
-{
-    return ext;
-}
-
-int equalSocket(Context *CONTEXT_PTR, external*x, external*y)
-{
-    if (x->type != EXT_SOCKET)
-    {
-        fprintf(stderr, "LHS is not socket\n");
-        return 1;
-    }
-
-    if (y->type != EXT_SOCKET)
-    {
-        fprintf(stderr, "RHS is not socket\n");
-        return 1;
-    }
-
-    return x == y;
-}
-
-char * printSocket(Context *CONTEXT_PTR, struct _external* obj)
-{
-    char *buf=(char *)malloc(256);
-    sprintf(buf, "Socket %p\n", obj->pointer);
-    return buf;
-}
-

@@ -2,7 +2,7 @@ PARALLEL=-j6
 OPT=-g3
 MATH_OPT=-o3
 
-SOURCES=main.c lisp.c unix.c gmp.c
+SOURCES=main.c lisp.c bn.c
 EXE=lisp
 
 64: $(SOURCES)

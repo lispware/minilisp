@@ -8,7 +8,7 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
-#include <gmp.h>
+#include <bn.h>
 #include <num.h>
 
 
@@ -60,11 +60,11 @@ extern int PUSH_POP;
 #if INTPTR_MAX == INT32_MAX
     #define WORD_TYPE uint32_t
     #define SIGNED_WORD_TYPE int32_t
-    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mpz_get_si(num((P))); }
+    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = bignum_to_int(num((P))); }
 #elif INTPTR_MAX == INT64_MAX
     #define WORD_TYPE uint64_t
     #define SIGNED_WORD_TYPE int64_t
-    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = mpz_get_si(num((P))); }
+    #define NumberParam(T, R, V) T R = 0; { any P = EVAL(CONTEXT_PTR, V); if (isNum(P)) R = bignum_to_int(num((P))); }
 #else
     #error "Unsupported bit width"
 #endif
@@ -190,7 +190,7 @@ typedef struct _Context
     cell *Avail;
     stkEnv Env;
     FILE *InFile, *OutFile;
-    any Intern[2], Transient[2];
+    any Intern, Transient;
     any ApplyArgs, ApplyBody;
     any Code;
     int HeapCount;
@@ -260,7 +260,7 @@ void ppp(Context *, char*, cell);
 #define NeedLst(ex,x)   if (!isCell(x) && !isNil(x)) lstError(ex,x)
 #define NeedVar(ex,x)   if (isNum(x)) varError(ex,x)
 
-#define num(x)          ((MP_INT*)(((external*)((any)car(x)))->pointer))
+#define num(x)          ((struct bn*)(((external*)((any)car(x)))->pointer))
 #define tail(x)         (x)
 #define val(x)          (cdr(x))
 #define symPtr(x)       (x)
@@ -301,6 +301,7 @@ void releaseExtNum(struct _external* obj);
 char *printExtNum(Context *CONTEXT_PTR, struct _external* obj);
 external * copyExtNum(Context *CONTEXT_PTR, external *ext);
 int equalExtNum(Context *CONTEXT_PTR, external*x, external*y);
+any putSymByte(Context *CONTEXT_PTR, any curCell, int *shift, byte b);
 void putByte1(int c, int *i, uword *p, any *q);
 void putByte(Context *CONTEXT_PTR, int c, int *i, uword *p, any *q, cell *cp);
 any popSym(Context *CONTEXT_PTR, int i, uword n, any q, cell *cp);
@@ -335,10 +336,9 @@ void gc(Context *CONTEXT_PTR, word c);
 uword getHeapSize(Context *CONTEXT_PTR);
 int eqList(Context *CONTEXT_PTR, any v1, any v2);
 void sym2str(Context *CONTEXT_PTR, any nm, char *buf);
-void pack(Context *CONTEXT_PTR, any x, int *i, uword *p, any *q, cell *cp);
+any pack(Context *CONTEXT_PTR, any r, any x, int* shift, int *nonzero);
 any name(any s);
 void bufNum(char *b, word n);
-void putByte0(int *i, uword *p, any *q);
 any apply(Context *CONTEXT_PTR, any ex, any foo, bool cf, int n, cell *p);
 any consSym(Context *CONTEXT_PTR, any val, any w);
 any load(Context *CONTEXT_PTR, any ex, int pr, any x);
@@ -359,12 +359,9 @@ void mark(Context *CONTEXT_PTR, any x);
 void heapAlloc(Context *CONTEXT_PTR);
 void *allignedAlloc(size_t size);
 void copy_mem(any M, Context *To);
-any isIntern(Context *CONTEXT_PTR, any nm, any tree[2]);
-any intern(Context *CONTEXT_PTR, any sym, any tree[2]);
-any internBin(Context *CONTEXT_PTR, any sym, any tree[2]);
+any isIntern(Context *CONTEXT_PTR, any nm, any tree);
+any intern(Context *CONTEXT_PTR, any sym, any *tree);
 void initialize_context(Context *CONTEXT_PTR);
-any consIntern(Context *CONTEXT_PTR, any x, any y);
-any consName(Context *CONTEXT_PTR, uword w, any n);
 int symBytes(Context *CONTEXT_PTR, any x);
 any symToNum(Context *CONTEXT_PTR, any sym, int scl, int sep, int ign);
 any mkSym(Context *CONTEXT_PTR, byte *s);
@@ -390,12 +387,12 @@ any doMul(Context *CONTEXT_PTR, any x);
 any doDiv(Context *CONTEXT_PTR, any x);
 any doMod(Context *CONTEXT_PTR, any x);
 any doBinRShift(Context *CONTEXT_PTR, any ex);
+any doBinLShift(Context* CONTEXT_PTR, any ex);
 any doBinNot(Context *CONTEXT_PTR, any x);
 any doBinAnd(Context *CONTEXT_PTR, any x);
 any doBinOr(Context *CONTEXT_PTR, any x);
 any doBinXor(Context *CONTEXT_PTR, any x);
 any doPow(Context *CONTEXT_PTR, any x);
-any doRandom(Context *CONTEXT_PTR, any x);
 any doLet(Context *CONTEXT_PTR, any x);
 any doPrin(Context *CONTEXT_PTR, any x);
 any doCall(Context *CONTEXT_PTR, any ex);
@@ -414,7 +411,6 @@ any doIn(Context *CONTEXT_PTR, any ex);
 any doOut(Context *CONTEXT_PTR, any ex);
 any doLine(Context *CONTEXT_PTR, any x);
 any doChar(Context *CONTEXT_PTR, any ex);
-any doSwitchBase(Context *CONTEXT_PTR, any ex);
 any doRd(Context *CONTEXT_PTR, any ex);
 any doWr(Context *CONTEXT_PTR, any ex);
 any doNot(Context *CONTEXT_PTR, any x);

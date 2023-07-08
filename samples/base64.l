@@ -18,14 +18,14 @@
                      D (++ S)
                      )
                   (link
-                     (| (>> -2 A) (>> 4 B)))
+                     (| (<< 2 A) (>> 4 B)))
                   (and
                      C
                      (link
-                           (| (>> -4 (& B 15)) (>> 2 C)) ) 
+                           (| (<< 4 (& B 0F)) (>> 2 C)) ) 
                      D
                      (link
-                        (| (>> -6 (& C 3)) D)) ) ) ) ) ) )
+                        (| (<< 6 (& C 3)) D)) ) ) ) ) ) )
          
 (for I (decode64 "SGVsbG8gYmFzZTY0IHdvcmxkIQo=")  (wr I))
 

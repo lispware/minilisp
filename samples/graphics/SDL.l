@@ -1,12 +1,12 @@
 # include/SDL_events.h
 (setq SDL_INIT_AUDIO      16)
 (setq SDL_INIT_VIDEO      32)
-(setq SDL_WINDOWEVENT     (sb "200" 16))
-(setq SDL_KEYDOWN         (sb "300" 16))
-(setq SDL_KEYUP           (sb "301" 16))
-(setq SDL_TEXTEDITING     (sb "302" 16))
-(setq SDL_TEXTINPUT       (sb "303" 16))
-(setq SDL_KEYMAPCHANGED   (sb "304" 16))
+(setq SDL_WINDOWEVENT     200)
+(setq SDL_KEYDOWN         300)
+(setq SDL_KEYUP           301)
+(setq SDL_TEXTEDITING     302)
+(setq SDL_TEXTINPUT       303)
+(setq SDL_KEYMAPCHANGED   304)
 
 # include/SDL_video.h
 (setq SDL_WINDOWEVENT_NONE             0)
@@ -19,20 +19,20 @@
 (setq SDL_WINDOWEVENT_MINIMIZED        7)
 (setq SDL_WINDOWEVENT_MAXIMIZED        8)
 (setq SDL_WINDOWEVENT_RESTORED         9)
-(setq SDL_WINDOWEVENT_ENTER           10)
-(setq SDL_WINDOWEVENT_LEAVE           11)
-(setq SDL_WINDOWEVENT_FOCUS_GAINED    12)
-(setq SDL_WINDOWEVENT_FOCUS_LOST      13)
-(setq SDL_WINDOWEVENT_CLOSE           14)
-(setq SDL_WINDOWEVENT_TAKE_FOCUS      15)
-(setq SDL_WINDOWEVENT_HIT_TEST        16)
-(setq SDL_WINDOWEVENT_ICCPROF_CHANGED 17)
-(setq SDL_WINDOWEVENT_DISPLAY_CHANGED 18)
+(setq SDL_WINDOWEVENT_ENTER           0a)
+(setq SDL_WINDOWEVENT_LEAVE           0b)
+(setq SDL_WINDOWEVENT_FOCUS_GAINED    0c)
+(setq SDL_WINDOWEVENT_FOCUS_LOST      0d)
+(setq SDL_WINDOWEVENT_CLOSE           0e)
+(setq SDL_WINDOWEVENT_TAKE_FOCUS      0f)
+(setq SDL_WINDOWEVENT_HIT_TEST        10)
+(setq SDL_WINDOWEVENT_ICCPROF_CHANGED 11)
+(setq SDL_WINDOWEVENT_DISPLAY_CHANGED 12)
 
 # include/SDL_keycode.h
-(setq SDLK_RETURN     13) # '\r'
-(setq SDLK_ESCAPE     (sb "1b" 16)) #'\x1B'
+(setq SDLK_RETURN     0d) # '\r'
+(setq SDLK_ESCAPE     01b) #'\x1B'
 (setq SDLK_BACKSPACE  8) # '\b'
 (setq SDLK_TAB        9) # '\t'
-(setq SDLK_SPACE     32)
+(setq SDLK_SPACE     20)
 
