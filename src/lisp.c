@@ -3237,7 +3237,7 @@ any doRd(Context *CONTEXT_PTR, any ex)
                 bignum_assign(&N, n);
                 bignum_mul(&N, &BN, n);
                 bignum_assign(&N, n);
-                bignum_assign(&BN, CONTEXT_PTR->Chr);
+                bignum_from_int(&BN, CONTEXT_PTR->Chr);
                 bignum_add(&N, &BN, n);
             }
             else
@@ -4257,7 +4257,7 @@ void ppp(Context*CONTEXT_PTR, char *m, cell c)
 void releaseMalloc(external *ext)
 {
     word *ptr = ext->pointer;
-    void (*destructor)(external *) = *ptr;
+    void (*destructor)(external *) = (void*)*ptr;
     destructor(ext);
     free(ext->pointer);
     free(ext);

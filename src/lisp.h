@@ -8,7 +8,6 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
-#include <gmp.h>
 #include <bn.h>
 #include <num.h>
 
