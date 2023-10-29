@@ -16,15 +16,32 @@ any TheKey, TheCls, Thrown;
 any Intern[2], Transient[2];
 any ApplyArgs, ApplyBody;
 
-/* ROM Data */
+/* RAM Symbols */
+#ifdef MICROSOFT_C
+MEM_ALIGN any Ram[] = {
+   #include "ram.d"
+};
+
+MEM_ALIGN any const Rom[] = {
+   #include "rom.d"
+};
+
+MEM_ALIGN any const Functions[] = {
+   #include "functions.d"
+};
+#else
+any __attribute__ ((__aligned__(2*WORD))) Ram[] = {
+   #include "ram.d"
+};
+
 any const __attribute__ ((__aligned__(2*WORD))) Rom[] = {
    #include "rom.d"
 };
 
-/* RAM Symbols */
-any __attribute__ ((__aligned__(2*WORD))) Ram[] = {
-   #include "ram.d"
+any const __attribute__ ((__aligned__(2*WORD))) Functions[] = {
+   #include "functions.d"
 };
+#endif
 
 static bool Jam;
 static jmp_buf ErrRst;
@@ -363,7 +380,8 @@ any doQuit(any x) {
 
    x = cdr(x),  y = evSym(x);
    {
-      char msg[bufSize(y)];
+      // char msg[bufSize(y)];
+      char msg[1024];// TODO - address this
 
       bufString(y, msg);
       x = isCell(x = cdr(x))?  EVAL(car(x)) : NULL;
@@ -435,59 +453,59 @@ void unwind(catchFrame *catch) {
 /*** Evaluation ***/
 any evExpr(any expr, any x) {
    any y = car(expr);
-   struct {  // bindFrame
-      struct bindFrame *link;
-      int i, cnt;
-      struct {any sym; any val;} bnd[length(y)+2];
-   } f;
+   word len = length(y);
+   bindFrame *f = allocFrame(len + 2);
 
-   f.link = Env.bind,  Env.bind = (bindFrame*)&f;
-   f.i = sizeof(f.bnd) / (2*sizeof(any)) - 1;
-   f.cnt = 1,  f.bnd[0].sym = At,  f.bnd[0].val = val(At);
+   f->link = Env.bind,  Env.bind = (bindFrame*)f;
+   f->i = (bindSize * (len + 2)) / (2 * sizeof(any)) - 1;
+   f->cnt = 1,  f->bnd[0].sym = At,  f->bnd[0].val = val(At);
+
    while (isCell(y)) {
-      f.bnd[f.cnt].sym = car(y);
-      f.bnd[f.cnt].val = EVAL(car(x));
-      ++f.cnt, x = cdr(x), y = cdr(y);
+      f->bnd[f->cnt].sym = car(y);
+      f->bnd[f->cnt].val = EVAL(car(x));
+      ++f->cnt, x = cdr(x), y = cdr(y);
    }
    if (isNil(y)) {
       do {
-         x = val(f.bnd[--f.i].sym);
-         val(f.bnd[f.i].sym) = f.bnd[f.i].val;
-         f.bnd[f.i].val = x;
-      } while (f.i);
+         x = val(f->bnd[--f->i].sym);
+         val(f->bnd[f->i].sym) = f->bnd[f->i].val;
+         f->bnd[f->i].val = x;
+      } while (f->i);
       x = prog(cdr(expr));
    }
    else if (y != At) {
-      f.bnd[f.cnt].sym = y,  f.bnd[f.cnt++].val = val(y),  val(y) = x;
+      f->bnd[f->cnt].sym = y,  f->bnd[f->cnt++].val = val(y),  val(y) = x;
       do {
-         x = val(f.bnd[--f.i].sym);
-         val(f.bnd[f.i].sym) = f.bnd[f.i].val;
-         f.bnd[f.i].val = x;
-      } while (f.i);
+         x = val(f->bnd[--f->i].sym);
+         val(f->bnd[f->i].sym) = f->bnd[f->i].val;
+         f->bnd[f->i].val = x;
+      } while (f->i);
       x = prog(cdr(expr));
    }
    else {
       int n, cnt;
       cell *arg;
-      cell c[n = cnt = length(x)];
+      cell *c = (cell*)calloc(sizeof(cell) *(n = cnt = length(x)), 1);
 
       while (--n >= 0)
          Push(c[n], EVAL(car(x))),  x = cdr(x);
       do {
-         x = val(f.bnd[--f.i].sym);
-         val(f.bnd[f.i].sym) = f.bnd[f.i].val;
-         f.bnd[f.i].val = x;
-      } while (f.i);
+         x = val(f->bnd[--f->i].sym);
+         val(f->bnd[f->i].sym) = f->bnd[f->i].val;
+         f->bnd[f->i].val = x;
+      } while (f->i);
       n = Env.next,  Env.next = cnt;
       arg = Env.arg,  Env.arg = c;
       x = prog(cdr(expr));
       if (cnt)
          drop(c[cnt-1]);
       Env.arg = arg,  Env.next = n;
+      free(c);
    }
-   while (--f.cnt >= 0)
-      val(f.bnd[f.cnt].sym) = f.bnd[f.cnt].val;
-   Env.bind = f.link;
+   while (--f->cnt >= 0)
+      val(f->bnd[f->cnt].sym) = f->bnd[f->cnt].val;
+   Env.bind = f->link;
+   free(f);
    return x;
 }
 
@@ -567,12 +585,12 @@ any xSym(any x) {
 }
 
 // (args) -> flg
-any doArgs(any ex __attribute__((unused))) {
+any doArgs(any ex) {
    return Env.next > 0? T : Nil;
 }
 
 // (next) -> any
-any doNext(any ex __attribute__((unused))) {
+any doNext(any ex) {
    if (Env.next > 0)
       return data(Env.arg[--Env.next]);
    if (Env.next == 0)
@@ -696,7 +714,7 @@ any doArgv(any ex) {
 }
 
 // (opt) -> sym
-any doOpt(any ex __attribute__((unused))) {
+any doOpt(any ex) {
    return *AV && strcmp(*AV,"-")? mkStr(*AV++) : Nil;
 }
 

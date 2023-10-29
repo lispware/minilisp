@@ -682,7 +682,7 @@ any doText(any x) {
       return Nil;
    Save(c1);
    {
-      cell arg[length(x = cdr(x))];
+      cell *arg = (cell*)calloc(sizeof(cell), length(x = cdr(x)));
 
       for (n = 0;  isCell(x);  ++n, x = cdr(x))
          Push(arg[n], EVAL(car(x)));
@@ -704,6 +704,7 @@ any doText(any x) {
       } while (c = getByte(&i1, &w1, &nm1));
       nm2 = popSym(i2, w2, nm2, &c2);
       drop(c1);
+      free(arg);
       return nm2;
    }
 }

@@ -137,7 +137,8 @@ typedef struct catchFrame {
 
 /* Evaluation */
 #define EVAL(x)         (isNum(x)? x : isSym(x)? val(x) : evList(x))
-#define evSubr(f,x)     (*(fun)(num(f) & ~2))(x)
+//#define evSubr(f,x)     (*(fun)(num(f) & ~2))(x)
+#define evSubr(f,x) 	((fun)(Functions[num(f)>>2]))(x);
 
 /* Error checking */
 #define NeedNum(ex,x)   if (!isNum(x)) numError(ex,x)
@@ -148,6 +149,18 @@ typedef struct catchFrame {
 #define NeedLst(ex,x)   if (!isCell(x) && !isNil(x)) lstError(ex,x)
 #define NeedVar(ex,x)   if (isNum(x)) varError(ex,x)
 #define CheckVar(ex,x)  if ((x)>(any)Rom && (x)<=Quote) protError(ex,x)
+
+#ifdef WIN64
+#define MEM_ALIGN __declspec(align(128))
+#else
+#define MEM_ALIGN __declspec(align(64))
+#endif
+
+#ifdef MICROSOFT_C
+MEM_ALIGN any const Functions[];
+#else
+extern any const __attribute__ ((__aligned__(2*WORD))) Functions[];
+#endif
 
 /* Globals */
 extern int Chr, Trace;
@@ -166,15 +179,15 @@ extern any Ram[];
 /* Prototypes */
 void *alloc(void*,size_t);
 any apply(any,any,bool,int,cell*);
-void argError(any,any) __attribute__ ((noreturn));
-void atomError(any,any) __attribute__ ((noreturn));
+void argError(any,any);
+void atomError(any,any);
 void begString(void);
 void brkLoad(any);
 int bufNum(char[BITS/2],long);
 int bufSize(any);
 void bufString(any,char*);
-void bye(int) __attribute__ ((noreturn));
-void pairError(any,any) __attribute__ ((noreturn));
+void bye(int);
+void pairError(any,any);
 any circ(any);
 long compare(any,any);
 any cons(any,any);
@@ -183,23 +196,23 @@ any consSym(any,word);
 void newline(void);
 any endString(void);
 bool equal(any,any);
-void err(any,any,char*,...) __attribute__ ((noreturn));
+void err(any,any,char*,...);
 any evExpr(any,any);
 any evList(any);
 long evNum(any,any);
 any evSym(any);
-void execError(char*) __attribute__ ((noreturn));
+void execError(char*);
 int firstByte(any);
 any get(any,any);
 int getByte(int*,word*,any*);
 int getByte1(int*,word*,any*);
 void getStdin(void);
-void giveup(char*) __attribute__ ((noreturn));
+void giveup(char*);
 void heapAlloc(void);
 any intern(any,any[2]);
 bool isBlank(any);
 any isIntern(any,any[2]);
-void lstError(any,any) __attribute__ ((noreturn));
+void lstError(any,any);
 any load(any,int,any);
 any loadAll(any);
 any method(any);
@@ -210,7 +223,7 @@ any mkStr(char*);
 any mkTxt(int);
 any name(any);
 int numBytes(any);
-void numError(any,any) __attribute__ ((noreturn));
+void numError(any,any);
 any numToSym(any,int,int,int);
 void outName(any);
 void outNum(long);
@@ -223,7 +236,7 @@ void popOutFiles(void);
 any popSym(int,word,any,cell*);
 void prin(any);
 void print(any);
-void protError(any,any) __attribute__ ((noreturn));
+void protError(any,any);
 void pushInFiles(inFrame*);
 void pushOutFiles(outFrame*);
 void put(any,any,any);
@@ -236,12 +249,12 @@ any read1(int);
 int secondByte(any);
 void space(void);
 int symBytes(any);
-void symError(any,any) __attribute__ ((noreturn));
+void symError(any,any);
 any symToNum(any,int,int,int);
 void undefined(any,any);
 void unintern(any,any[2]);
 void unwind (catchFrame*);
-void varError(any,any) __attribute__ ((noreturn));
+void varError(any,any);
 void wrOpen(any,any,outFrame*);
 long xNum(any,any);
 any xSym(any);
@@ -349,4 +362,18 @@ static inline any run(any x) {
    while (isCell(x = cdr(x)));
    val(At) = Pop(at);
    return y;
+}
+
+typedef struct
+{
+	any sym; any val;
+}
+bindFrameBind;
+#define bindFrameSize (sizeof(bindFrame))
+#define bindSize (sizeof(bindFrameBind))
+static inline bindFrame *allocFrame(int l)
+{
+	int s1 = bindFrameSize;
+	int s2 = (l - 1) * bindSize;
+	return (bindFrame*)malloc(s1 + s2);
 }

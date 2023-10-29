@@ -148,7 +148,7 @@ any consSym(any val, word w) {
    }
    Avail = p->car;
    p = symPtr(p);
-   val(p) = val ?: p;
+   val(p) = val ? val : p;
    tail(p) = txt(w);
    return p;
 }

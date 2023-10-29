@@ -6,7 +6,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef WIN64
+typedef unsigned long long word;
+#define LX_FMT "0x%llx"
+#else
 typedef unsigned long word;
+#define LX_FMT "0x%lx"
+#endif
+
 typedef unsigned char byte;
 
 #undef bool
@@ -31,6 +38,10 @@ typedef struct symbol {
    int val;
    struct symbol *less, *more;
 } symbol;
+
+#define MAXFUNCTIONS 1024
+char *functions[MAXFUNCTIONS];
+int FUNC_CTR=0;
 
 static symbol *Intern, *Transient;
 
@@ -58,7 +69,11 @@ static void eofErr(void) {
    giveup("EOF Overrun");
 }
 
+#ifdef WIN64
+static void addList(int *ix, char ***list, char *fmt, long long x) {
+#else
 static void addList(int *ix, char ***list, char *fmt, long x) {
+#endif
    char buf[40];
 
    *list = realloc(*list, (*ix + 1) * sizeof(char*));
@@ -87,7 +102,7 @@ static void mkSym(int *ix, char ***list, char *mem, char *name, char *value) {
             addList(ix, list, value, 0);
             bin = YES;
          }
-         addList(&RomIx, &Rom, "0x%lx", w);
+         addList(&RomIx, &Rom, LX_FMT, w);
          w = c >> Bits - i;
          i -= Bits;
       }
@@ -95,21 +110,21 @@ static void mkSym(int *ix, char ***list, char *mem, char *name, char *value) {
    }
    if (bin) {
       if (i <= (Bits-2))
-         addList(&RomIx, &Rom, "0x%lx", box(w));
+         addList(&RomIx, &Rom, LX_FMT, box(w));
       else {
          addList(&RomIx, &Rom, "(Rom+%d)", RomIx + 2);
-         addList(&RomIx, &Rom, "0x%lx", w);
+         addList(&RomIx, &Rom, LX_FMT, w);
          addList(&RomIx, &Rom, "2", 0);
       }
    }
    else if (i > Bits-1) {
       addList(ix, list, "(Rom+%d)", RomIx + (ix == &RomIx? 3 : 1));
       addList(ix, list, value, 0);
-      addList(&RomIx, &Rom, "0x%lx", w);
+      addList(&RomIx, &Rom, LX_FMT, w);
       addList(&RomIx, &Rom, "2", 0);
    }
    else {
-      addList(ix, list, "0x%lx", txt(w));
+      addList(ix, list, LX_FMT, txt(w));
       addList(ix, list, value, 0);
    }
 }
@@ -241,7 +256,7 @@ static int rdList(int z) {
       return x;
    }
    x = read0(NO);
-   return cons(x, rdList(z ?: x));
+   return cons(x, rdList(z ? z : x));
 }
 
 /* Read one expression */
@@ -327,7 +342,7 @@ static int read0(bool top) {
 int main(int ac, char *av[]) {
    int x, ix;
    FILE *fp;
-   char *p, buf[40];
+   char *p, buf[1024];
 
    if ((ac -= 2) <= 0)
       giveup("No input files");
@@ -340,7 +355,14 @@ int main(int ac, char *av[]) {
    fprintf(fp, "#define Nil (any)(Rom+1)\n");
    insert(&Intern, "T", romSym("T", "(Rom+5)"));
    fprintf(fp, "#define T (any)(Rom+5)\n");
-   insert(&Intern, "quote", romSym("quote", "(num(doQuote) + 2)"));
+
+   
+   int f = FUNC_CTR++;
+   functions[f] = (char*)malloc(200);
+   sprintf(functions[f], "doQuote");
+   sprintf(buf, "(num(0) + 2) /* %d */", f);
+
+   insert(&Intern, "quote", romSym("quote", buf));
    fprintf(fp, "#define Quote (any)(Rom+7)\nany doQuote(any);\n");
    do {
       if (!freopen(*++av, "r", stdin))
@@ -377,7 +399,12 @@ int main(int ac, char *av[]) {
                *p++ = Chr;
             }
             *p = '\0';
-            sprintf(buf, "(num(%s) + 2)", Token);
+
+
+	    f = FUNC_CTR++;
+	    functions[f] = (char*)malloc(200);
+	    sprintf(functions[f], "%s", Token);
+            sprintf(buf, "(num(%d) + 2) /* %d */", (f << 2), f);
             Ram[-x] = strdup(buf);
             fprintf(fp, "any %s(any);\n", Token);
          }
@@ -420,6 +447,11 @@ int main(int ac, char *av[]) {
    if (fp = fopen("ram.d", "w")) {
       for (x = 0; x < RamIx; x += 2)
          fprintf(fp, "(any)%s, (any)%s,\n", Ram[x], Ram[x+1]);
+      fclose(fp);
+   }
+   if (fp = fopen("functions.d", "w")) {
+      for (x = 0; x < FUNC_CTR; x++)
+         fprintf(fp, "(any)%s,\n", functions[x]);
       fclose(fp);
    }
    return 0;

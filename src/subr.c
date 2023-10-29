@@ -528,7 +528,8 @@ any doDelq(any ex) {
 any doReplace(any x) {
    any y;
    int i, n = length(cdr(x = cdr(x))) + 1 & ~1;
-   cell c1, c2, c[n];
+   cell c1, c2;
+   cell *c = (cell*)calloc(sizeof(cell), n);
 
    if (!isCell(data(c1) = EVAL(car(x))))
       return data(c1);
@@ -551,6 +552,7 @@ any doReplace(any x) {
    }
    cdr(y) = data(c1);
    drop(c1);
+   free(c);
    return data(c2);
 }
 
@@ -566,7 +568,8 @@ any doStrip(any x) {
 any doSplit(any x) {
    any y;
    int i, n = length(cdr(x = cdr(x)));
-   cell c1, c[n], res, sub;
+   cell c1, res, sub;
+   cell *c = (cell*)calloc(sizeof(cell), n);
 
    if (!isCell(data(c1) = EVAL(car(x))))
       return data(c1);
@@ -597,6 +600,7 @@ spl1: ;
    if (isNil(x))
       return y;
    cdr(x) = y;
+   free(c);
    return data(res);
 }
 
@@ -745,7 +749,8 @@ any doTail(any ex) {
 // (stem 'lst 'any ..) -> lst
 any doStem(any x) {
    int i, n = length(cdr(x = cdr(x)));
-   cell c1, c[n];
+   cell c1;
+   cell *c = (cell*)calloc(sizeof(cell), n);
 
    Push(c1, EVAL(car(x)));
    for (i = 0; i < n; ++i)
@@ -757,6 +762,7 @@ any doStem(any x) {
             break;
          }
    }
+   free(c);
    return Pop(c1);
 }
 
@@ -1008,7 +1014,8 @@ any doMember(any x) {
 
    x = cdr(x),  Push(c1, EVAL(car(x)));
    x = cdr(x),  x = EVAL(car(x));
-   return member(Pop(c1), x) ?: Nil;
+   any r = member(Pop(c1), x);
+   return r ? r : Nil;
 }
 
 // (memq 'any 'lst) -> any
@@ -1017,7 +1024,8 @@ any doMemq(any x) {
 
    x = cdr(x),  Push(c1, EVAL(car(x)));
    x = cdr(x),  x = EVAL(car(x));
-   return memq(Pop(c1), x) ?: Nil;
+   any r = memq(Pop(c1), x);
+   return r ? r : Nil;
 }
 
 // (mmeq 'lst 'lst) -> any
@@ -1313,17 +1321,21 @@ static any fill(any x, any s) {
    if (car(x) == Up) {
       x = cdr(x);
       if (!isCell(y = EVAL(car(x))))
-         return fill(cdr(x), s) ?: cdr(x);
+      {
+	 any r = fill(cdr(x), s);
+         return r ? r : cdr(x);
+      }
       Push(c1, y);
       while (isCell(cdr(y)))
          y = cdr(y);
-      cdr(y) = fill(cdr(x), s) ?: cdr(x);
+      any r = fill(cdr(x), s);
+      cdr(y) = r ? r : cdr(x);
       return Pop(c1);
    }
    if (y = fill(car(x), s)) {
       Push(c1,y);
       y = fill(cdr(x), s);
-      return cons(Pop(c1), y ?: cdr(x));
+      return cons(Pop(c1), y ? y : cdr(x));
    }
    if (y = fill(cdr(x), s))
       return cons(car(x), y);

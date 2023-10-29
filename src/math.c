@@ -134,9 +134,16 @@ any doFormat(any ex) {
          ign = firstByte(y);
       }
    }
-   data(c1) = isNum(data(c1))?
-      numToSym(data(c1), scl, sep, ign) :
-      symToNum(name(data(c1)), scl, sep, ign) ?: Nil;
+
+   if (isNum(data(c1)))
+   {
+	   data(c1) = numToSym(data(c1), scl, sep, ign);
+   }
+   else
+   {
+	   any r = symToNum(name(data(c1)), scl, sep, ign);
+	   data(c1) = r ? r : Nil;
+   }
    return Pop(c1);
 }
 
