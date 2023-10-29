@@ -11,14 +11,14 @@ static void markTail(any x) {
    while (isCell(x)) {
       if (!(num(cdr(x)) & 1))
          return;
-      *(long*)&cdr(x) &= ~1;
+      *(word*)&cdr(x) &= ~1;
       mark(cdr(x)),  x = car(x);
    }
    if (!isTxt(x))
       do {
          if (!(num(val(x)) & 1))
             return;
-         *(long*)&val(x) &= ~1;
+         *(word*)&val(x) &= ~1;
       } while (!isNum(x = val(x)));
 }
 
@@ -26,7 +26,7 @@ static void mark(any x) {
    while (isCell(x)) {
       if (!(num(cdr(x)) & 1))
          return;
-      *(long*)&cdr(x) &= ~1;
+      *(word*)&cdr(x) &= ~1;
       mark(car(x)),  x = cdr(x);
    }
 
@@ -36,14 +36,14 @@ static void mark(any x) {
    }
 
    if (!isNum(x)  &&  num(val(x)) & 1) {
-      *(long*)&val(x) &= ~1;
+      *(word*)&val(x) &= ~1;
       mark(val(x));
       markTail(tail(x));
    }
 }
 
 /* Garbage collector */
-static void gc(long c) {
+static void gc(word c) {
    any p;
    heap *h;
    int i;
@@ -52,7 +52,7 @@ static void gc(long c) {
    do {
       p = h->cells + CELLS-1;
       do
-         *(long*)&cdr(p) |= 1;
+         *(word*)&cdr(p) |= 1;
       while (--p >= h->cells);
    } while (h = h->next);
    /* Mark */
@@ -153,7 +153,7 @@ any cons(any x, any y) {
 }
 
 /* Construct a symbol */
-any consSym(any val, word w) {
+any consSym(any val, uword w) {
    cell *p;
 
    if (!(p = Avail)) {
@@ -176,7 +176,7 @@ any consSym(any val, word w) {
 }
 
 /* Construct a name cell */
-any consName(word w, any n) {
+any consName(uword w, any n) {
    cell *p;
 
    if (!(p = Avail)) {

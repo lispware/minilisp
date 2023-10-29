@@ -8,7 +8,7 @@ static any read0(bool);
 
 static int StrI;
 static cell StrCell, *StrP;
-static word StrW;
+static uword StrW;
 static void (*PutSave)(int);
 static char Delim[] = " \t\n\r\"'(),[]`~{}";
 
@@ -30,7 +30,7 @@ int pathSize(any x) {
 
 void bufString(any x, char *p) {
    int c, i;
-   word w;
+   uword w;
 
    if (!isNil(x)) {
       for (x = name(x), c = getByte1(&i, &w, &x); c; c = getByte(&i, &w, &x)) {
@@ -48,7 +48,7 @@ void bufString(any x, char *p) {
 
 void pathString(any x, char *p) {
    int c, i;
-   word w;
+   uword w;
    char *h;
 
    x = name(x);
@@ -285,8 +285,8 @@ static any rdList(void) {
 /* Try for anonymous symbol */
 static any anonymous(any s) {
    int c, i;
-   word w;
-   unsigned long n;
+   uword w;
+   uword n;
    heap *h;
 
    if ((c = getByte1(&i, &w, &s)) != '$')
@@ -309,7 +309,7 @@ static any anonymous(any s) {
 /* Read one expression */
 static any read0(bool top) {
    int i;
-   word w;
+   uword w;
    any x, y;
    cell c1, *p;
 
@@ -404,7 +404,7 @@ any read1(int end) {
 /* Read one token */
 any token(any x, int c) {
    int i;
-   word w;
+   uword w;
    any y;
    cell c1, *p;
 
@@ -573,7 +573,7 @@ any doFrom(any x) {
    while (Chr >= 0) {
       for (i = 0; i < ac; ++i) {
          for (;;) {
-            if (av[i][p[i]] == (byte)Chr) {
+            if (av[i][p[i]] == (ubyte)Chr) {
                if (av[i][++p[i]])
                   break;
                Env.get();
@@ -606,7 +606,7 @@ done:
 any doTill(any ex) {
    any x;
    int i;
-   word w;
+   uword w;
    cell c1;
 
    x = evSym(cdr(ex));
@@ -659,7 +659,7 @@ static inline bool eol(void) {
 any doLine(any x) {
    any y;
    int i;
-   word w;
+   uword w;
    cell c1;
 
    if (!Chr)
@@ -874,11 +874,11 @@ void outString(char *s) {
       Env.put(*s++);
 }
 
-int bufNum(char buf[BITS/2], long n) {
+int bufNum(char buf[BITS/2], word n) {
    return sprintf(buf, "%ld", n);
 }
 
-void outNum(long n) {
+void outNum(word n) {
    char buf[BITS/2];
 
    bufNum(buf, n);
@@ -887,7 +887,7 @@ void outNum(long n) {
 
 void prIntern(any nm) {
    int i, c;
-   word w;
+   uword w;
 
    c = getByte1(&i, &w, &nm);
    if (strchr(Delim, c))
@@ -902,7 +902,7 @@ void prIntern(any nm) {
 
 void prTransient(any nm) {
    int i, c;
-   word w;
+   uword w;
 
    Env.put('"');
    c = getByte1(&i, &w, &nm);
@@ -928,7 +928,7 @@ void print(any x) {
       any nm = name(x);
 
       if (nm == txt(0))
-         Env.put('$'),  outNum((word)x/sizeof(cell));
+         Env.put('$'),  outNum((uword)x/sizeof(cell));
       else if (x == isIntern(nm, Intern))
          prIntern(nm);
       else
@@ -982,7 +982,7 @@ void prin(any x) {
          outNum(unBox(x));
       else if (isSym(x)) {
          int i, c;
-         word w;
+         uword w;
 
          for (x = name(x), c = getByte1(&i, &w, &x); c; c = getByte(&i, &w, &x)) {
             if (c != '^')

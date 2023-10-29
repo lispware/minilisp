@@ -9,7 +9,7 @@ static void divErr(any ex) {err(ex,NULL,"Div/0");}
 /* Number of bytes */
 int numBytes(any x) {
    int n = 4;
-   word w = (word)x >> 2;
+   uword w = (uword)x >> 2;
 
    if ((w & 0xFF000000) == 0) {
       --n;
@@ -26,9 +26,9 @@ int numBytes(any x) {
 any symToNum(any s, int scl, int sep, int ign) {
    unsigned c;
    int i;
-   word w;
+   uword w;
    bool sign, frac;
-   long n;
+   word n;
 
    if (!(c = getByte1(&i, &w, &s)))
       return NULL;
@@ -76,10 +76,10 @@ any symToNum(any s, int scl, int sep, int ign) {
 /* Make symbol from number */
 any numToSym(any x, int scl, int sep, int ign) {
    int i;
-   word w;
+   uword w;
    cell c1;
-   long n;
-   byte *p, buf[BITS/2];
+   word n;
+   ubyte *p, buf[BITS/2];
 
    n = unBox(x);
    putByte0(&i, &w, &x);
@@ -150,7 +150,7 @@ any doFormat(any ex) {
 // (+ 'num ..) -> num
 any doAdd(any ex) {
    any x, y;
-   long n;
+   word n;
 
    x = cdr(ex);
    if (isNil(y = EVAL(car(x))))
@@ -169,7 +169,7 @@ any doAdd(any ex) {
 // (- 'num ..) -> num
 any doSub(any ex) {
    any x, y;
-   long n;
+   word n;
 
    x = cdr(ex);
    if (isNil(y = EVAL(car(x))))
@@ -252,7 +252,7 @@ any doDec(any ex) {
 // (* 'num ..) -> num
 any doMul(any ex) {
    any x, y;
-   long n;
+   word n;
 
    x = cdr(ex);
    if (isNil(y = EVAL(car(x))))
@@ -271,7 +271,7 @@ any doMul(any ex) {
 // (*/ 'num1 ['num2 ..] 'num3) -> num
 any doMulDiv(any ex) {
    any x, y;
-   long long n;
+   word n;
 
    x = cdr(ex);
    if (isNil(y = EVAL(car(x))))
@@ -289,13 +289,13 @@ any doMulDiv(any ex) {
    }
    if (y == Zero)
       divErr(ex);
-   return box((long)((n + unBox(y)/2) / unBox(y)));
+   return box((word)((n + unBox(y)/2) / unBox(y)));
 }
 
 // (/ 'num ..) -> num
 any doDiv(any ex) {
    any x, y;
-   long n;
+   word n;
 
    x = cdr(ex);
    if (isNil(y = EVAL(car(x))))
@@ -316,7 +316,7 @@ any doDiv(any ex) {
 // (% 'num ..) -> num
 any doRem(any ex) {
    any x, y;
-   long n;
+   word n;
 
    x = cdr(ex);
    if (isNil(y = EVAL(car(x))))
@@ -337,7 +337,7 @@ any doRem(any ex) {
 // (>> 'num 'num) -> num
 any doShift(any ex) {
    any x, y;
-   long n, m;
+   word n, m;
 
    x = cdr(ex),  n = evNum(ex,x);
    x = cdr(x);
@@ -464,7 +464,7 @@ any doBitXor(any ex) {
 // (sqrt 'num ['flg|num]) -> num
 any doSqrt(any ex) {
    any x;
-	long m, n, r;
+	word m, n, r;
 
    x = cdr(ex);
    if (isNil(x = EVAL(car(x))))
@@ -490,7 +490,7 @@ any doSqrt(any ex) {
 }
 
 static uint64_t Seed;
-#define hi(t)     (word)((t) >> 32)
+#define hi(t)     (uword)((t) >> 32)
 
 // (seed 'num) -> num
 any doSeed(any ex) {
@@ -500,7 +500,7 @@ any doSeed(any ex) {
 // (rand ['num1 'num2] | ['T]) -> num | flg
 any doRand(any ex) {
    any x;
-   long n, m;
+   word n, m;
 
    x = cdr(ex);
    Seed = Seed * 6364136223846793005LL + 1;

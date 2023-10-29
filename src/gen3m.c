@@ -70,9 +70,9 @@ static void eofErr(void) {
 }
 
 #ifdef WIN64
-static void addList(int *ix, char ***list, char *fmt, long long x) {
+static void addList(int *ix, char ***list, char *fmt, word x) {
 #else
-static void addList(int *ix, char ***list, char *fmt, long x) {
+static void addList(int *ix, char ***list, char *fmt, word x) {
 #endif
    char buf[40];
 

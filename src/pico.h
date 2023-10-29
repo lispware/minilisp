@@ -16,14 +16,22 @@
 #define CELLS (800)
 #endif
 
-#define WORD ((int)sizeof(long))
 #define BITS (8*WORD)
 
 #define TAG_BITS (3)
 #define ONE_WITHOUT_TAG (1 << TAG_BITS)
 
-typedef unsigned long word;
-typedef unsigned char byte;
+#ifdef WIN64
+typedef unsigned long long uword;
+typedef long long word;
+#else
+typedef unsigned long uword;
+typedef long word;
+#endif
+
+#define WORD ((int)sizeof(word))
+
+typedef unsigned char ubyte;
 typedef unsigned char *ptr;
 
 #undef bool
@@ -64,7 +72,7 @@ typedef struct outFrame {
 
 typedef struct parseFrame {
    int i;
-   word w;
+   uword w;
    any sym, nm;
 } parseFrame;
 
@@ -92,7 +100,7 @@ typedef struct catchFrame {
 #define Free(p)         ((p)->car=Avail, Avail=(p))
 
 /* Number access */
-#define num(x)          ((long)(x))
+#define num(x)          ((word)(x))
 #define txt(n)          ((any)(num(n)<<1|1))
 #define box(n)          ((any)(num(n)<<TAG_BITS|6))
 #define box2(n)          ((any)(num(n)|2))
@@ -189,29 +197,29 @@ void argError(any,any);
 void atomError(any,any);
 void begString(void);
 void brkLoad(any);
-int bufNum(char[BITS/2],long);
+int bufNum(char[BITS/2],word);
 int bufSize(any);
 void bufString(any,char*);
 void bye(int);
 void pairError(any,any);
 any circ(any);
-long compare(any,any);
+word compare(any,any);
 any cons(any,any);
-any consName(word,any);
-any consSym(any,word);
+any consName(uword,any);
+any consSym(any,uword);
 void newline(void);
 any endString(void);
 bool equal(any,any);
 void err(any,any,char*,...);
 any evExpr(any,any);
 any evList(any);
-long evNum(any,any);
+word evNum(any,any);
 any evSym(any);
 void execError(char*);
 int firstByte(any);
 any get(any,any);
-int getByte(int*,word*,any*);
-int getByte1(int*,word*,any*);
+int getByte(int*,uword*,any*);
+int getByte1(int*,uword*,any*);
 void getStdin(void);
 void giveup(char*);
 void heapAlloc(void);
@@ -224,7 +232,7 @@ any loadAll(any);
 any method(any);
 any mkChar(int);
 any mkChar2(int,int);
-any mkSym(byte*);
+any mkSym(ubyte*);
 any mkStr(char*);
 any mkTxt(int);
 any name(any);
@@ -232,23 +240,23 @@ int numBytes(any);
 void numError(any,any);
 any numToSym(any,int,int,int);
 void outName(any);
-void outNum(long);
+void outNum(word);
 void outString(char*);
-void pack(any,int*,word*,any*,cell*);
+void pack(any,int*,uword*,any*,cell*);
 int pathSize(any);
 void pathString(any,char*);
 void popInFiles(void);
 void popOutFiles(void);
-any popSym(int,word,any,cell*);
+any popSym(int,uword,any,cell*);
 void prin(any);
 void print(any);
 void protError(any,any);
 void pushInFiles(inFrame*);
 void pushOutFiles(outFrame*);
 void put(any,any,any);
-void putByte(int,int*,word*,any*,cell*);
-void putByte0(int*,word*,any*);
-void putByte1(int,int*,word*,any*);
+void putByte(int,int*,uword*,any*,cell*);
+void putByte0(int*,uword*,any*);
+void putByte1(int,int*,uword*,any*);
 void putStdout(int);
 void rdOpen(any,any,inFrame*);
 any read1(int);
@@ -262,7 +270,7 @@ void unintern(any,any[2]);
 void unwind (catchFrame*);
 void varError(any,any);
 void wrOpen(any,any,outFrame*);
-long xNum(any,any);
+word xNum(any,any);
 any xSym(any);
 
 /* List element access */
@@ -280,7 +288,7 @@ static inline any nth(int n, any x) {
 
 static inline any getn(any x, any y) {
    if (isNum(x)) {
-      long n = unBox(x);
+      word n = unBox(x);
 
       if (n < 0) {
          while (++n)

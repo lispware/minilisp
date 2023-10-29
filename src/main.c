@@ -81,7 +81,7 @@ void heapAlloc(void) {
    heap *h;
    cell *p;
 
-   h = (heap*)((long)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
+   h = (heap*)((word)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
    h->next = Heaps,  Heaps = h;
    p = h->cells + CELLS-1;
    do
@@ -91,7 +91,7 @@ void heapAlloc(void) {
 
 // (heap 'flg) -> num
 any doHeap(any x) {
-   long n = 0;
+   word n = 0;
 
    x = cdr(x);
    if (isNil(EVAL(car(x)))) {
@@ -190,24 +190,24 @@ any circ(any x) {
    for (y = x;;) {
       any z = cdr(y);
 
-      *(word*)&cdr(y) |= 1;
+      *(uword*)&cdr(y) |= 1;
       if (!isCell(y = z)) {
          do
-            *(word*)&cdr(x) &= ~1;
+            *(uword*)&cdr(x) &= ~1;
          while (isCell(x = cdr(x)));
          return NULL;
       }
       if (y >= (any)Rom  &&  y < (any)(Rom+ROMS)) {
          do
-            *(word*)&cdr(x) &= ~1;
+            *(uword*)&cdr(x) &= ~1;
          while (y != (x = cdr(x)));
          return NULL;
       }
       if (num(cdr(y)) & 1) {
          while (x != y)
-            *(word*)&cdr(x) &= ~1,  x = cdr(x);
+            *(uword*)&cdr(x) &= ~1,  x = cdr(x);
          do
-            *(word*)&cdr(x) &= ~1;
+            *(uword*)&cdr(x) &= ~1;
          while (y != (x = cdr(x)));
          return y;
       }
@@ -251,7 +251,7 @@ bool equal(any x, any y) {
       if (!isCell(cdr(y)))
          break;
       if (x < (any)Rom  ||  x >= (any)(Rom+ROMS))
-         *(word*)&car(x) |= 1;
+         *(uword*)&car(x) |= 1;
       x = cdr(x),  y = cdr(y);
       if (num(car(x)) & 1) {
          for (;;) {
@@ -275,20 +275,20 @@ bool equal(any x, any y) {
                res = NO;
                break;
             }
-            *(word*)&car(a) &= ~1,  a = cdr(a),  b = cdr(b);
+            *(uword*)&car(a) &= ~1,  a = cdr(a),  b = cdr(b);
          }
          do
-            *(word*)&car(a) &= ~1,  a = cdr(a);
+            *(uword*)&car(a) &= ~1,  a = cdr(a);
          while (a != x);
          return res;
       }
    }
    while (a != x  &&  (a < (any)Rom  ||  a >= (any)(Rom+ROMS)))
-      *(word*)&car(a) &= ~1,  a = cdr(a);
+      *(uword*)&car(a) &= ~1,  a = cdr(a);
    return res;
 }
 
-long compare(any x, any y) {
+word compare(any x, any y) {
    any a, b;
 
    if (x == y)
@@ -304,7 +304,7 @@ long compare(any x, any y) {
    }
    if (isSym(x)) {
       int c, d, i, j;
-      word w, v;
+      uword w, v;
 
       if (isNum(y) || isNil(y))
          return +1;
@@ -312,7 +312,7 @@ long compare(any x, any y) {
          return -1;
       a = name(x),  b = name(y);
       if (a == txt(0) && b == txt(0))
-         return (long)x - (long)y;
+         return (word)x - (word)y;
       if ((c = getByte1(&i, &w, &a)) == (d = getByte1(&j, &v, &b)))
          do
             if (c == 0)
@@ -324,7 +324,7 @@ long compare(any x, any y) {
       return y == T? -1 : +1;
    a = x, b = y;
    for (;;) {
-      long n;
+      word n;
 
       if (n = compare(car(x),car(y)))
          return n;
@@ -453,7 +453,7 @@ void unwind(catchFrame *catch) {
 /*** Evaluation ***/
 any evExpr(any expr, any x) {
    any y = car(expr);
-   word len = length(y);
+   uword len = length(y);
    bindFrame *f = allocFrame(len + 2);
 
    f->link = Env.bind,  Env.bind = (bindFrame*)f;
@@ -558,9 +558,9 @@ any evList(any ex) {
 }
 
 /* Evaluate number */
-long evNum(any ex, any x) {return xNum(ex, EVAL(car(x)));}
+word evNum(any ex, any x) {return xNum(ex, EVAL(car(x)));}
 
-long xNum(any ex, any x) {
+word xNum(any ex, any x) {
    NeedNum(ex,x);
    return unBox(x);
 }
@@ -570,7 +570,7 @@ any evSym(any x) {return xSym(EVAL(car(x)));}
 
 any xSym(any x) {
    int i;
-   word w;
+   uword w;
    any y;
    cell c1, c2;
 
@@ -600,7 +600,7 @@ any doNext(any ex) {
 
 // (arg ['cnt]) -> any
 any doArg(any ex) {
-   long n;
+   word n;
 
    if (Env.next < 0)
       return Nil;
@@ -765,7 +765,7 @@ any doA(any x)
 {
 	char *ptr = (char*)calloc(BUF_SIZE, 1);
 
-	long l = (long)ptr;
+	word l = (word)ptr;
 
 	if (l&7)
 	{
@@ -786,16 +786,16 @@ any doPO(any ex)
 
    x = cdr(ex);
    y = EVAL(car(x));
-   long n = unBox(y);
+   word n = unBox(y);
 
    x = cdr(x);
    y = EVAL(car(x));
-   long m = unBox(y);
+   word m = unBox(y);
 
    x = cdr(x);
    y = EVAL(car(x));
 
-   long lp = (long)y->cdr;
+   word lp = (word)y->cdr;
    lp &= ~7;
    char *p = (char*)lp;
 
@@ -809,12 +809,12 @@ any doPE(any x)
 {
    x = cdr(x);
    any y = EVAL(car(x));
-   long n = unBox(y);
+   word n = unBox(y);
 
    x = cdr(x);
    y = EVAL(car(x));
 
-   long lp = (long)y->cdr;
+   word lp = (word)y->cdr;
    lp &= ~7;
    char *p = (char*)lp;
 

@@ -4,7 +4,7 @@
 
 #include "pico.h"
 
-static byte Ascii6[] = {
+static ubyte Ascii6[] = {
    0,  2,  2,  2,  2,  2,  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,
    2,  2,  2,  2,  2,  2,  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,
    2,  1,  3,  5,  7,  9, 11,  13,  15,  17,  19,  21,  23,  25,   4,   6,
@@ -15,7 +15,7 @@ static byte Ascii6[] = {
   42, 44, 46, 48, 50, 52, 54,  56,  58,  60,  62, 121, 123, 125, 127,   0
 };
 
-static byte Ascii7[] = {
+static ubyte Ascii7[] = {
    0, 33,  32, 34,  46, 35,  47, 36,  60,  37,  62,  38,  97,  39,  98,  40,
   99, 41, 100, 42, 101, 43, 102, 44, 103,  45, 104,  48, 105,  49, 106,  50,
  107, 51, 108, 52, 109, 53, 110, 54, 111,  55, 112,  56, 113,  57, 114,  58,
@@ -32,7 +32,7 @@ int firstByte(any s) {
 
    if (isNil(s))
       return 0;
-   c = (int)(isTxt(s = name(s))? (word)s >> 1 : (word)tail(s));
+   c = (int)(isTxt(s = name(s))? (uword)s >> 1 : (uword)tail(s));
    return Ascii7[c & (c & 1? 127 : 63)];
 }
 
@@ -41,18 +41,18 @@ int secondByte(any s) {
 
    if (isNil(s))
       return 0;
-   c = (int)(isTxt(s = name(s))? (word)s >> 1 : (word)tail(s));
+   c = (int)(isTxt(s = name(s))? (uword)s >> 1 : (uword)tail(s));
    c >>= c & 1? 7 : 6;
    return Ascii7[c & (c & 1? 127 : 63)];
 }
 
-int getByte1(int *i, word *p, any *q) {
+int getByte1(int *i, uword *p, any *q) {
    int c;
 
    if (isTxt(*q))
-      *i = BITS-1,  *p = (word)*q >> 1,  *q = NULL;
+      *i = BITS-1,  *p = (uword)*q >> 1,  *q = NULL;
    else
-      *i = BITS,  *p = (word)tail(*q),  *q = val(*q);
+      *i = BITS,  *p = (uword)tail(*q),  *q = val(*q);
    if (*p & 1)
       c = Ascii7[*p & 127],  *p >>= 7,  *i -= 7;
    else
@@ -60,29 +60,29 @@ int getByte1(int *i, word *p, any *q) {
    return c;
 }
 
-int getByte(int *i, word *p, any *q) {
+int getByte(int *i, uword *p, any *q) {
    int c;
 
    if (*i == 0) {
       if (!*q)
          return 0;
       if (isNum(*q))
-         *i = BITS-TAG_BITS,  *p = (word)*q >> TAG_BITS,  *q = NULL;
+         *i = BITS-TAG_BITS,  *p = (uword)*q >> TAG_BITS,  *q = NULL;
       else
-         *i = BITS,  *p = (word)tail(*q),  *q = val(*q);
+         *i = BITS,  *p = (uword)tail(*q),  *q = val(*q);
    }
    if (*p & 1) {
       c = *p & 127,  *p >>= 7;
       if (*i >= 7)
          *i -= 7;
       else if (isNum(*q)) {
-         *p = (word)*q >> TAG_BITS,  *q = NULL;
+         *p = (uword)*q >> TAG_BITS,  *q = NULL;
          c |= *p << *i;
          *p >>= 7 - *i;
          *i += BITS-9;
       }
       else {
-         *p = (word)tail(*q),  *q = val(*q);
+         *p = (uword)tail(*q),  *q = val(*q);
          c |= *p << *i;
          *p >>= 7 - *i;
          *i += BITS-7;
@@ -96,13 +96,13 @@ int getByte(int *i, word *p, any *q) {
       else if (!*q)
          return 0;
       else if (isNum(*q)) {
-         *p = (word)*q >> TAG_BITS,  *q = NULL;
+         *p = (uword)*q >> TAG_BITS,  *q = NULL;
          c |= *p << *i;
          *p >>= 6 - *i;
          *i += BITS-8;
       }
       else {
-         *p = (word)tail(*q),  *q = val(*q);
+         *p = (uword)tail(*q),  *q = val(*q);
          c |= *p << *i;
          *p >>= 6 - *i;
          *i += BITS-6;
@@ -125,20 +125,20 @@ any mkChar2(int c, int d) {
    return consSym(NULL, d << (c & 1? 7 : 6) | c);
 }
 
-void putByte0(int *i, word *p, any *q) {
+void putByte0(int *i, uword *p, any *q) {
    *i = 0,  *p = 0,  *q = NULL;
 }
 
-void putByte1(int c, int *i, word *p, any *q) {
+void putByte1(int c, int *i, uword *p, any *q) {
    *i = (*p = Ascii6[c & 127]) & 1? 7 : 6;
    *q = NULL;
 }
 
-void putByte(int c, int *i, word *p, any *q, cell *cp) {
+void putByte(int c, int *i, uword *p, any *q, cell *cp) {
    int d = (c = Ascii6[c & 127]) & 1? 7 : 6;
 
    if (*i != BITS)
-      *p |= (word)c << *i;
+      *p |= (uword)c << *i;
    if (*i + d  > BITS) {
       if (*q)
          *q = val(*q) = consName(*p, Zero);
@@ -152,7 +152,7 @@ void putByte(int c, int *i, word *p, any *q, cell *cp) {
    *i += d;
 }
 
-any popSym(int i, word n, any q, cell *cp) {
+any popSym(int i, uword n, any q, cell *cp) {
    if (q) {
       val(q) = i <= (BITS-TAG_BITS)? box(n) : consName(n, Zero);
       return Pop(*cp);
@@ -167,24 +167,24 @@ any popSym(int i, word n, any q, cell *cp) {
 
 int symBytes(any x) {
    int cnt = 0;
-   word w;
+   uword w;
 
    if (isNil(x))
       return 0;
    x = name(x);
    if (isTxt(x)) {
-      w = (word)x >> 1;
+      w = (uword)x >> 1;
       while (w)
          ++cnt,  w >>= w & 1? 7 : 6;
    }
    else {
       do {
-         w = (word)tail(x);
+         w = (uword)tail(x);
          do
             ++cnt;
          while (w >>= w & 1? 7 : 6);
       } while (!isNum(x = val(x)));
-      w = (word)x >> TAG_BITS;
+      w = (uword)x >> TAG_BITS;
       while (w)
          ++cnt,  w >>= w & 1? 7 : 6;
    }
@@ -193,11 +193,11 @@ int symBytes(any x) {
 
 any isIntern(any nm, any tree[2]) {
    any x, y, z;
-   long n;
+   word n;
 
    if (isTxt(nm)) {
       for (x = tree[0];  isCell(x);) {
-         if ((n = (word)nm - (word)name(car(x))) == 0)
+         if ((n = (uword)nm - (uword)name(car(x))) == 0)
             return car(x);
          x = n<0? cadr(x) : cddr(x);
       }
@@ -206,7 +206,7 @@ any isIntern(any nm, any tree[2]) {
       for (x = tree[1];  isCell(x);) {
          y = nm,  z = name(car(x));
          for (;;) {
-            if ((n = (word)tail(y) - (word)tail(z)) != 0) {
+            if ((n = (uword)tail(y) - (uword)tail(z)) != 0) {
                x = n<0? cadr(x) : cddr(x);
                break;
             }
@@ -229,7 +229,7 @@ any isIntern(any nm, any tree[2]) {
 
 any intern(any sym, any tree[2]) {
    any nm, x, y, z;
-   long n;
+   word n;
 
    if ((nm = name(sym)) == txt(0))
       return sym;
@@ -239,7 +239,7 @@ any intern(any sym, any tree[2]) {
          return sym;
       }
       for (;;) {
-         if ((n = (word)nm - (word)name(car(x))) == 0)
+         if ((n = (uword)nm - (uword)name(car(x))) == 0)
             return car(x);
          if (!isCell(cdr(x))) {
             cdr(x) = n<0? cons(cons(sym,Nil), Nil) : cons(Nil, cons(sym,Nil));
@@ -270,7 +270,7 @@ any intern(any sym, any tree[2]) {
       }
       for (;;) {
          y = nm,  z = name(car(x));
-         while ((n = (word)tail(y) - (word)tail(z)) == 0) {
+         while ((n = (uword)tail(y) - (uword)tail(z)) == 0) {
             y = val(y),  z = val(z);
             if (isNum(y)) {
                if (y == z)
@@ -309,7 +309,7 @@ any intern(any sym, any tree[2]) {
 
 void unintern(any sym, any tree[2]) {
    any nm, x, y, z, *p;
-   long n;
+   word n;
 
    if ((nm = name(sym)) == txt(0))
       return;
@@ -318,7 +318,7 @@ void unintern(any sym, any tree[2]) {
          return;
       p = &tree[0];
       for (;;) {
-         if ((n = (word)nm - (word)name(car(x))) == 0) {
+         if ((n = (uword)nm - (uword)name(car(x))) == 0) {
             if (car(x) == sym) {
                if (!isCell(cadr(x)))
                   *p = cddr(x);
@@ -354,7 +354,7 @@ void unintern(any sym, any tree[2]) {
       p = &tree[1];
       for (;;) {
          y = nm,  z = name(car(x));
-         while ((n = (word)tail(y) - (word)tail(z)) == 0) {
+         while ((n = (uword)tail(y) - (uword)tail(z)) == 0) {
             y = val(y),  z = val(z);
             if (isNum(y)) {
                if (y == z) {
@@ -431,9 +431,9 @@ any doName(any ex) {
 }
 
 /* Make name */
-any mkSym(byte *s) {
+any mkSym(ubyte *s) {
    int i;
-   word w;
+   uword w;
    cell c1, *p;
 
    putByte1(*s++, &i, &w, &p);
@@ -443,11 +443,11 @@ any mkSym(byte *s) {
 }
 
 /* Make string */
-any mkStr(char *s) {return s && *s? mkSym((byte*)s) : Nil;}
+any mkStr(char *s) {return s && *s? mkSym((ubyte*)s) : Nil;}
 
 bool isBlank(any x) {
    int i, c;
-   word w;
+   uword w;
 
    if (!isSymb(x))
       return NO;
@@ -591,7 +591,7 @@ any doZap(any ex) {
 any doChop(any x) {
    any y;
    int i, c;
-   word w;
+   uword w;
    cell c1, c2;
 
    if (isCell(x = EVAL(cadr(x))) || isNil(x))
@@ -607,9 +607,9 @@ any doChop(any x) {
    return data(c2);
 }
 
-void pack(any x, int *i, word *p, any *q, cell *cp) {
+void pack(any x, int *i, uword *p, any *q, cell *cp) {
    int c, j;
-   word w;
+   uword w;
 
    if (isCell(x))
       do
@@ -631,7 +631,7 @@ void pack(any x, int *i, word *p, any *q, cell *cp) {
 // (pack 'any ..) -> sym
 any doPack(any x) {
    int i;
-   word w;
+   uword w;
    any y;
    cell c1, c2;
 
@@ -648,7 +648,7 @@ any doPack(any x) {
 // (glue 'any 'lst) -> sym
 any doGlue(any x) {
    int i;
-   word w;
+   uword w;
    any y;
    cell c1, c2, c3;
 
@@ -672,7 +672,7 @@ any doGlue(any x) {
 // (text 'sym 'any ..) -> sym
 any doText(any x) {
    int c, n, i1, i2;
-   word w1, w2;
+   uword w1, w2;
    any nm1, nm2;
    cell c1, c2;
 
@@ -714,7 +714,7 @@ any doText(any x) {
 any doPreQ(any x) {
    any y, z;
    int c, i1, i2;
-   word w1, w2;
+   uword w1, w2;
    cell c1;
 
    Push(c1, evSym(x = cdr(x)));
@@ -960,7 +960,7 @@ any doPopq(any ex) {
 
 // (cut 'num 'var) -> lst
 any doCut(any ex) {
-   long n;
+   word n;
    any x, y;
    cell c1, c2;
 
@@ -1089,7 +1089,7 @@ static void idx(any x, cell *p) {
 any doIdx(any ex) {
    any x, y, z, *p;
    int flg;
-   long n;
+   word n;
    cell c1, c2;
 
    x = cdr(ex),  Push(c1, EVAL(car(x)));
@@ -1181,7 +1181,7 @@ static void lup(any x) {
 // (lup 'lst 'any) -> lst
 // (lup 'lst 'any 'any2) -> lst
 any doLup(any x) {
-   long n;
+   word n;
    cell c1, c2;
 
    x = cdr(x),  Push(c1, EVAL(car(x)));
@@ -1588,7 +1588,7 @@ any doUppQ(any x) {
 // (lowc 'any) -> any
 any doLowc(any x) {
    int c, i1, i2;
-   word w1, w2;
+   uword w1, w2;
    any nm;
    cell c1, c2;
 
@@ -1610,7 +1610,7 @@ any doLowc(any x) {
 // (uppc 'any) -> any
 any doUppc(any x) {
    int c, i1, i2;
-   word w1, w2;
+   uword w1, w2;
    any nm;
    cell c1, c2;
 
@@ -1632,7 +1632,7 @@ any doUppc(any x) {
 // (fold 'any ['num]) -> sym
 any doFold(any ex) {
    int n, c, i1, i2;
-   word w1, w2;
+   uword w1, w2;
    any x, nm;
    cell c1, c2;
 
