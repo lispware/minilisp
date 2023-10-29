@@ -18,6 +18,10 @@ meth [Meth] {doMeth}
 *Msg [Msg] NIL
 *Bye [Bye] NIL  # Last unremovable symbol
 
+A {doA}
+PE {doPE}
+PO {doPO}
+
 ### System Functions ###
 abs {doAbs}
 + {doAdd}

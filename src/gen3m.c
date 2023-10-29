@@ -20,7 +20,7 @@ typedef unsigned char byte;
 typedef enum {NO,YES} bool;
 
 #define txt(n)    (n << 1| 1)
-#define box(n)    (n << 2| 2)
+#define box(n)    (n << 3| 6)
 
 #define Nil    (1 << 2)
 #define T      (5 << 2)
@@ -360,7 +360,7 @@ int main(int ac, char *av[]) {
    int f = FUNC_CTR++;
    functions[f] = (char*)malloc(200);
    sprintf(functions[f], "doQuote");
-   sprintf(buf, "(num(0) + 2) /* %d */", f);
+   sprintf(buf, "(num(0) + 6) /* %d */", f);
 
    insert(&Intern, "quote", romSym("quote", buf));
    fprintf(fp, "#define Quote (any)(Rom+7)\nany doQuote(any);\n");
@@ -404,7 +404,7 @@ int main(int ac, char *av[]) {
 	    f = FUNC_CTR++;
 	    functions[f] = (char*)malloc(200);
 	    sprintf(functions[f], "%s", Token);
-            sprintf(buf, "(num(%d) + 2) /* %d */", (f << 2), f);
+            sprintf(buf, "(num(%d) + 6) /* %d */", (f << 3), f);
             Ram[-x] = strdup(buf);
             fprintf(fp, "any %s(any);\n", Token);
          }
@@ -451,7 +451,7 @@ int main(int ac, char *av[]) {
    }
    if (fp = fopen("functions.d", "w")) {
       for (x = 0; x < FUNC_CTR; x++)
-         fprintf(fp, "(any)%s,\n", functions[x]);
+         fprintf(fp, "(any)%s,/* %d */\n", functions[x], x);
       fclose(fp);
    }
    return 0;

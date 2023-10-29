@@ -1062,7 +1062,7 @@ any doDo(any x) {
       if (isNum(f)) {
          if (f == Zero)
             return z;
-         f = (any)(num(f) - 4);
+         f = (any)(num(f) - ONE_WITHOUT_TAG);
       }
       y = x;
       do {
@@ -1101,7 +1101,7 @@ any doAt(any ex) {
       return Nil;
    NeedNum(ex,car(x));
    NeedNum(ex,cdr(x));
-   if (num(car(x) = (any)(num(car(x)) + 4)) < num(cdr(x)))
+   if (num(car(x) = (any)(num(car(x)) + ONE_WITHOUT_TAG)) < num(cdr(x)))
       return Nil;
    car(x) = Zero;
    return prog(cddr(ex));
@@ -1142,7 +1142,7 @@ any doFor(any x) {
       body = x = cdr(x);
       for (;;) {
          if (isNum(data(c1))) {
-            val(f.bnd[0].sym) = (any)(num(val(f.bnd[0].sym)) + 4);
+            val(f.bnd[0].sym) = (any)(num(val(f.bnd[0].sym)) + ONE_WITHOUT_TAG);
             if (num(val(f.bnd[0].sym)) > num(data(c1)))
                break;
          }
@@ -1154,7 +1154,7 @@ any doFor(any x) {
                data(c1) = Nil;
          }
          if (f.cnt == 2)
-            val(f.bnd[1].sym) = (any)(num(val(f.bnd[1].sym)) + 4);
+            val(f.bnd[1].sym) = (any)(num(val(f.bnd[1].sym)) + ONE_WITHOUT_TAG);
          do {
             if (!isNum(y = car(x))) {
                if (isSym(y))
@@ -1211,7 +1211,7 @@ any doFor(any x) {
    body = x = cdr(x);
    for (;;) {
       if (f.cnt == 2)
-         val(f.bnd[1].sym) = (any)(num(val(f.bnd[1].sym)) + 4);
+         val(f.bnd[1].sym) = (any)(num(val(f.bnd[1].sym)) + ONE_WITHOUT_TAG);
       if (isNil(a = EVAL(cond)))
          break;
       val(At) = a;

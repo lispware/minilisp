@@ -67,7 +67,7 @@ int getByte(int *i, word *p, any *q) {
       if (!*q)
          return 0;
       if (isNum(*q))
-         *i = BITS-2,  *p = (word)*q >> 2,  *q = NULL;
+         *i = BITS-TAG_BITS,  *p = (word)*q >> TAG_BITS,  *q = NULL;
       else
          *i = BITS,  *p = (word)tail(*q),  *q = val(*q);
    }
@@ -76,7 +76,7 @@ int getByte(int *i, word *p, any *q) {
       if (*i >= 7)
          *i -= 7;
       else if (isNum(*q)) {
-         *p = (word)*q >> 2,  *q = NULL;
+         *p = (word)*q >> TAG_BITS,  *q = NULL;
          c |= *p << *i;
          *p >>= 7 - *i;
          *i += BITS-9;
@@ -96,7 +96,7 @@ int getByte(int *i, word *p, any *q) {
       else if (!*q)
          return 0;
       else if (isNum(*q)) {
-         *p = (word)*q >> 2,  *q = NULL;
+         *p = (word)*q >> TAG_BITS,  *q = NULL;
          c |= *p << *i;
          *p >>= 6 - *i;
          *i += BITS-8;
@@ -109,6 +109,7 @@ int getByte(int *i, word *p, any *q) {
       }
       c &= 63;
    }
+
    return Ascii7[c];
 }
 
@@ -153,7 +154,7 @@ void putByte(int c, int *i, word *p, any *q, cell *cp) {
 
 any popSym(int i, word n, any q, cell *cp) {
    if (q) {
-      val(q) = i <= (BITS-2)? box(n) : consName(n, Zero);
+      val(q) = i <= (BITS-TAG_BITS)? box(n) : consName(n, Zero);
       return Pop(*cp);
    }
    if (i > BITS-1) {
@@ -183,7 +184,7 @@ int symBytes(any x) {
             ++cnt;
          while (w >>= w & 1? 7 : 6);
       } while (!isNum(x = val(x)));
-      w = (word)x >> 2;
+      w = (word)x >> TAG_BITS;
       while (w)
          ++cnt,  w >>= w & 1? 7 : 6;
    }

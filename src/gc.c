@@ -29,6 +29,12 @@ static void mark(any x) {
       *(long*)&cdr(x) &= ~1;
       mark(car(x)),  x = cdr(x);
    }
+
+   if (isExt(x))
+   {
+	   return;
+   }
+
    if (!isNum(x)  &&  num(val(x)) & 1) {
       *(long*)&val(x) &= ~1;
       mark(val(x));
@@ -76,8 +82,16 @@ static void gc(long c) {
       do {
          p = h->cells + CELLS-1;
          do
+	 {
             if (num(p->cdr) & 1)
+	    {
+		    if (isExt(p->cdr))
+		    {
+			    printf("Freeing %p %p %p Nil=%p\n", p, p->car, p->cdr, Nil);
+		    }
                Free(p),  --c;
+	    }
+	 }
          while (--p >= h->cells);
       } while (h = h->next);
       while (c >= 0)
@@ -92,8 +106,16 @@ static void gc(long c) {
          av = Avail;
          p = h->cells + CELLS-1;
          do
+	 {
             if (num(p->cdr) & 1)
+	    {
+		    if (isExt(p->cdr))
+		    {
+			    printf("Freeing %p %p %p Nil=%p\n", p, p->car, p->cdr, Nil);
+		    }
                Free(p),  --c;
+	    }
+	 }
          while (--p >= h->cells);
          if (c)
             hp = &h->next,  h = h->next;

@@ -12,11 +12,15 @@
 #include <stdint.h>
 
 #ifndef CELLS
-#define CELLS (1024*1024/sizeof(cell))
+//#define CELLS (1024*1024/sizeof(cell))
+#define CELLS (800)
 #endif
 
 #define WORD ((int)sizeof(long))
 #define BITS (8*WORD)
+
+#define TAG_BITS (3)
+#define ONE_WITHOUT_TAG (1 << TAG_BITS)
 
 typedef unsigned long word;
 typedef unsigned char byte;
@@ -90,10 +94,11 @@ typedef struct catchFrame {
 /* Number access */
 #define num(x)          ((long)(x))
 #define txt(n)          ((any)(num(n)<<1|1))
-#define box(n)          ((any)(num(n)<<2|2))
-#define unBox(n)        (num(n)>>2)
-#define Zero            ((any)2)
-#define One             ((any)6)
+#define box(n)          ((any)(num(n)<<TAG_BITS|6))
+#define box2(n)          ((any)(num(n)|2))
+#define unBox(n)        (num(n)>>TAG_BITS)
+#define Zero            ((any)6)
+#define One             ((any)14)
 
 /* Symbol access */
 #define symPtr(x)       ((any)&(x)->cdr)
@@ -130,7 +135,8 @@ typedef struct catchFrame {
 /* Predicates */
 #define isNil(x)        ((x)==Nil)
 #define isTxt(x)        (num(x)&1)
-#define isNum(x)        (num(x)&2)
+#define isNum(x)        ((num(x)&6)==6)
+#define isExt(x)        ((num(x)&6)==2)
 #define isSym(x)        (num(x)&WORD)
 #define isSymb(x)       ((num(x)&(WORD+2))==WORD)
 #define isCell(x)       (!(num(x)&(2*WORD-1)))
@@ -138,7 +144,7 @@ typedef struct catchFrame {
 /* Evaluation */
 #define EVAL(x)         (isNum(x)? x : isSym(x)? val(x) : evList(x))
 //#define evSubr(f,x)     (*(fun)(num(f) & ~2))(x)
-#define evSubr(f,x) 	((fun)(Functions[num(f)>>2]))(x);
+#define evSubr(f,x) 	((fun)(Functions[num(f)>>3]))(x);
 
 /* Error checking */
 #define NeedNum(ex,x)   if (!isNum(x)) numError(ex,x)

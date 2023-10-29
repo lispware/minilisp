@@ -551,7 +551,7 @@ any evList(any ex) {
       if (isNil(val(foo)))
          undefined(foo,ex);
       if (isNum(foo = val(foo)))
-         return evSubr(foo,ex);
+	  return evSubr(foo,ex);
       if (isCell(foo))
          return evExpr(foo, cdr(ex));
    }
@@ -758,4 +758,65 @@ int main(int ac, char *av[]) {
    while (!feof(stdin))
       load(NULL, ':', Nil);
    bye(0);
+}
+
+#define BUF_SIZE (100)
+any doA(any x)
+{
+	char *ptr = (char*)calloc(BUF_SIZE, 1);
+
+	long l = (long)ptr;
+
+	if (l&7)
+	{
+		printf("Bad calloc\n");
+		exit(0);
+	}
+
+	any r = cons(Nil, box2(ptr));
+
+	printf("PTR = %p boxed ptr = %p r=%p\n", ptr, box2(ptr),  r);
+
+	return r;
+}
+
+any doPO(any ex)
+{
+   any x, y;
+
+   x = cdr(ex);
+   y = EVAL(car(x));
+   long n = unBox(y);
+
+   x = cdr(x);
+   y = EVAL(car(x));
+   long m = unBox(y);
+
+   x = cdr(x);
+   y = EVAL(car(x));
+
+   long lp = (long)y->cdr;
+   lp &= ~7;
+   char *p = (char*)lp;
+
+   printf("IDX = %d, VAL = %d (%p) PTR=%p\n", n, m, y, y->cdr);
+   p[n] = m;
+
+   return x;
+}
+
+any doPE(any x)
+{
+   x = cdr(x);
+   any y = EVAL(car(x));
+   long n = unBox(y);
+
+   x = cdr(x);
+   y = EVAL(car(x));
+
+   long lp = (long)y->cdr;
+   lp &= ~7;
+   char *p = (char*)lp;
+
+   return box(p[n]);;
 }

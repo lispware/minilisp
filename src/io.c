@@ -916,6 +916,12 @@ void prTransient(any nm) {
 
 /* Print one expression */
 void print(any x) {
+   if (isExt(x))
+   {
+      outNum(unBox(x));
+      return;
+   }
+
    if (isNum(x))
       outNum(unBox(x));
    else if (isSym(x)) {
@@ -966,6 +972,12 @@ void print(any x) {
 
 void prin(any x) {
    if (!isNil(x)) {
+      if (isExt(x))
+      {
+         outNum(unBox(x));
+	 return;
+      }
+
       if (isNum(x))
          outNum(unBox(x));
       else if (isSym(x)) {
