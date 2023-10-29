@@ -1,0 +1,39 @@
+!ifndef OPT
+OPT = /Ox
+!endif
+
+!ifndef PLAT
+PLAT = x86
+!endif
+
+!if "$(PLAT)" == "x64"
+CFLAGS = /DWIN64
+!endif
+
+
+picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c libuv.c
+objFiles = $(picoFiles:.c=.obj)
+
+picolisp.exe: sym.d rom.d ram.d $(objFiles) libuv
+	cl /nologo $(objFiles) libuv\$(PLAT)\uv.lib /Fe:$@
+	del uv.dll
+	copy libuv\$(PLAT)\uv.dll
+
+gen3m.exe: gen3m.c
+	cl /nologo $(CFLAGS) gen3m.c /Fe:gen3m.exe
+
+sym.d rom.d ram.d functions.d: gen3m.exe init.s lib.s pilog.s
+	gen3m.exe 0 init.s lib.s pilog.s
+
+.c.obj: 
+	cl /nologo $(OPT) $(CFLAGS) /DMICROSOFT_C /c $*.c /Fo$@
+
+
+libuv.obj: libuv.c libuv
+	cl /nologo $(OPT) $(CFLAGS) /DMICROSOFT_C /c /I libuv\include libuv.c
+
+libuv:
+	git clone -b libuv-1.47.0 https://github.com/ckkashyap/WindowsBinaries.git libuv
+
+clean:
+	del *.obj *.d *.exe

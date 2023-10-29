@@ -760,12 +760,19 @@ int main(int ac, char *av[]) {
    bye(0);
 }
 
-#define BUF_SIZE (100)
-any doA(any x)
+any doA(any ex)
 {
-	char *ptr = (char*)calloc(BUF_SIZE, 1);
+	any x, y;
+	x = cdr(ex);
+	y = EVAL(car(x));
+	word n = isNil(y) ? 100 : unBox(y);
 
-	word l = (word)ptr;
+	External *ext = (External*)calloc(sizeof(External), 1);
+
+	ext->data = calloc(n, 1);
+	ext->free = free;
+
+	word l = (word)ext->data;
 
 	if (l&7)
 	{
@@ -773,9 +780,9 @@ any doA(any x)
 		exit(0);
 	}
 
-	any r = cons(Nil, box2(ptr));
+	any r = cons(Nil, box2(ext));
 
-	printf("PTR = %p boxed ptr = %p r=%p\n", ptr, box2(ptr),  r);
+	printf("PTR = %p boxed ptr = %p r=%p SIZE = %d\n", ext->data, box2(ext),  r, n);
 
 	return r;
 }
@@ -797,7 +804,8 @@ any doPO(any ex)
 
    word lp = (word)y->cdr;
    lp &= ~7;
-   char *p = (char*)lp;
+   External *ext = (External*)lp;
+   char *p = (char*)ext->data;
 
    printf("IDX = %d, VAL = %d (%p) PTR=%p\n", n, m, y, y->cdr);
    p[n] = m;
@@ -816,7 +824,8 @@ any doPE(any x)
 
    word lp = (word)y->cdr;
    lp &= ~7;
-   char *p = (char*)lp;
+   External *ext = (External*)lp;
+   char *p = (char*)ext->data;
 
    return box(p[n]);;
 }

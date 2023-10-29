@@ -32,6 +32,8 @@ static void mark(any x) {
 
    if (isExt(x))
    {
+   	   External *ext = (External*)(((word)x)-2);
+   	   printf("MARK %p %p\n",x, ext->data);
 	   return;
    }
 
@@ -87,7 +89,15 @@ static void gc(word c) {
 	    {
 		    if (isExt(p->cdr))
 		    {
-			    printf("Freeing %p %p %p Nil=%p\n", p, p->car, p->cdr, Nil);
+			   printf("Freeing1 %p %p %p Nil=%p\n", p, p->car, p->cdr, Nil);
+			   any x = p->cdr;
+			   External *ext = (External*)(((word)x)-3);
+			   printf("REACHED %p %p\n",x, ext->data);
+			   if (ext->free)
+			   {
+			   	ext->free(ext->data);
+			   }
+			   free(ext);
 		    }
                Free(p),  --c;
 	    }
@@ -111,7 +121,15 @@ static void gc(word c) {
 	    {
 		    if (isExt(p->cdr))
 		    {
-			    printf("Freeing %p %p %p Nil=%p\n", p, p->car, p->cdr, Nil);
+			   printf("Freeing1 %p %p %p Nil=%p\n", p, p->car, p->cdr, Nil);
+			   any x = p->cdr;
+			   External *ext = (External*)(((word)x)-3);
+			   printf("REACHED %p %p\n",x, ext->data);
+			   if (ext->free)
+			   {
+			   	ext->free(ext->data);
+			   }
+			   free(ext);
 		    }
                Free(p),  --c;
 	    }

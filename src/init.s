@@ -310,3 +310,13 @@ xor {doXor}
 yoke {doYoke}
 zap {doZap}
 zero {doZero}
+
+uv_default_loop {douv_default_loop}
+uv_tcp_init {douv_tcp_init}
+uv_ip4_addr {douv_ip4_addr}
+uv_tcp_bind {douv_tcp_bind}
+uv_listen {douv_listen}
+uv_accept {douv_accept}
+uv_run {douv_run}
+uv_write {douv_write}
+dingo {dodingo}

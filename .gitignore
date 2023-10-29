@@ -3,3 +3,5 @@
 *.obj
 *.exe
 test/*
+bin/*
+src/gen3m

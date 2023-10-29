@@ -391,3 +391,9 @@ static inline bindFrame *allocFrame(int l)
 	int s2 = (l - 1) * bindSize;
 	return (bindFrame*)malloc(s1 + s2);
 }
+
+typedef struct
+{
+	struct External *data;
+	void (*free)(struct External *);
+} External;
