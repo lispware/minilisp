@@ -1,0 +1,15 @@
+#!/bin/sh
+
+../pil src/main_miniPicoLisp.l -bye
+
+../pil src/apply.l -bye
+
+../pil src/flow_miniPicoLisp.l -bye
+
+../pil src/sym_miniPicoLisp.l -bye
+
+../pil src/io_miniPicoLisp.l -bye
+
+../pil ../lib/pilog.l friends.l -bye
+
+echo "\e[32mALL TESTS PASSED\e[0m"
