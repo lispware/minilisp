@@ -18,12 +18,11 @@ PicoLisp implementation is tied to POSIX/Linux and gcc more tightly that I'd lik
 
 ## Building
 
+There is dependency on [libuvb](https://libuv.org/). On windows, there is logic in the nmakefile to download precompiled binaries. On Linux, you would need to install it like this sudo apt install libuv1-dev.
 
 ```bash
 git clone https://github.com/lispware/minilisp.git
 cd minilisp/src
-git submodule init
-git submodule update
 make
 ```
 
@@ -31,7 +30,7 @@ make
 
 Assuming that you have run vcvars64.bat or vcvars32.bat to ensure that Micrsoft C compiler is set in the PATH.
 ```bash
-nmake -f nmakefile
+nmake -f nmakefile PLAT=[x64|x86]
 ```
 
 #### GNULinux and MacOS / OS X
