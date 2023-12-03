@@ -6,7 +6,7 @@
 bin = ../bin
 picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c
 
-CC = gcc
+CC = gcc $(PLAT)
 
 picolisp: $(bin)/picolisp
 

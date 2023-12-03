@@ -145,7 +145,7 @@ any doApply(any ex) {
    x = cdr(x),  y = EVAL(car(x));
    {
       n = length(cdr(x));
-      word len = n + length(y);
+      uword len = n + length(y);
       cell *c = (cell*)calloc(sizeof(cell), len);
 
       while (isCell(y))
@@ -163,7 +163,7 @@ any doApply(any ex) {
 any doPass(any ex) {
    any x;
    int n, i;
-   word len = length(cdr(x = cdr(ex))) + (Env.next>0? Env.next : 0);
+   uword len = length(cdr(x = cdr(ex))) + (Env.next>0? Env.next : 0);
    cell foo;
    cell *c = (cell*)calloc(sizeof(cell), len);
 
@@ -183,7 +183,7 @@ any doMaps(any ex) {
    any x, y;
    int i, n;
    cell foo, sym, val;
-   word len = length(cdr(x = cdr(ex)));
+   uword len = length(cdr(x = cdr(ex)));
    cell *c = (cell*)calloc(sizeof(cell), len);
 
    Push(foo, EVAL(car(x)));

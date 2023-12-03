@@ -251,9 +251,9 @@ static any evMethod(any o, any expr, any x) {
    any y = car(expr);
    any cls = TheCls, key = TheKey;
 
-   word leny = length(y);
+   uword leny = length(y);
    bindFrame *f = allocFrame(leny + 3);
-   word bndSize = sizeof(f->bnd) * (leny + 3);
+   uword bndSize = sizeof(f->bnd) * (leny + 3);
 
    f->link = Env.bind,  Env.bind = (bindFrame*)f;
    f->i = bndSize / (2*sizeof(any)) - 2;
@@ -289,7 +289,7 @@ static any evMethod(any o, any expr, any x) {
    else {
       int n, cnt;
       cell *arg;
-      word lenx = length(x);
+      uword lenx = length(x);
       n = cnt = lenx;
       cell *c = (cell*)calloc(sizeof(cell), lenx);
 

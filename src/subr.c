@@ -255,7 +255,7 @@ any doNeed(any ex) {
 // (range 'num1 'num2 ['num3]) -> lst
 any doRange(any ex) {
    any x, y;
-   long a, z, n;
+   word a, z, n;
    cell c1;
 
    x = cdr(ex),  y = EVAL(car(x));  // Start value
@@ -679,7 +679,7 @@ any doClip(any x) {
 
 // (head 'num|lst 'lst) -> lst
 any doHead(any ex) {
-   long n;
+   word n;
    any x, y;
    cell c1, c2;
 
@@ -713,7 +713,7 @@ any doHead(any ex) {
 
 // (tail 'num|lst 'lst) -> lst
 any doTail(any ex) {
-   long n;
+   word n;
    any x, y;
    cell c1;
 
@@ -1122,7 +1122,7 @@ any doPrior(any x) {
 // (length 'any) -> num | T
 any doLength(any x) {
    int n, i, c;
-   word w;
+   uword w;
    any y;
 
    if (isNum(x = EVAL(cadr(x)))) {
@@ -1139,19 +1139,19 @@ any doLength(any x) {
    for (n = 0, y = x;;) {
       ++n;
       if (y < (any)Rom  ||  y >= (any)(Rom+ROMS))
-         *(word*)&car(y) |= 1;
+         *(uword*)&car(y) |= 1;
       if (!isCell(y = cdr(y))) {
          if (x < (any)Rom  ||  x >= (any)(Rom+ROMS))
             do
-               *(word*)&car(x) &= ~1;
+               *(uword*)&car(x) &= ~1;
             while (isCell(x = cdr(x)));
          return box(n);
       }
       if (num(car(y)) & 1) {
          while (x != y)
-            *(word*)&car(x) &= ~1,  x = cdr(x);
+            *(uword*)&car(x) &= ~1,  x = cdr(x);
          do
-            *(word*)&car(x) &= ~1;
+            *(uword*)&car(x) &= ~1;
          while (y != (x = cdr(x)));
          return T;
       }
@@ -1167,19 +1167,19 @@ static int size(any x) {
       if (isCell(car(y)))
          n += size(car(y));
       if (y < (any)Rom  ||  y >= (any)(Rom+ROMS))
-         *(word*)&car(y) |= 1;
+         *(uword*)&car(y) |= 1;
       if (!isCell(y = cdr(y))) {
          if (x < (any)Rom  ||  x >= (any)(Rom+ROMS))
             do
-               *(word*)&car(x) &= ~1;
+               *(uword*)&car(x) &= ~1;
             while (isCell(x = cdr(x)));
          return n;
       }
       if (num(car(y)) & 1) {
          while (x != y)
-            *(word*)&car(x) &= ~1,  x = cdr(x);
+            *(uword*)&car(x) &= ~1,  x = cdr(x);
          do
-            *(word*)&car(x) &= ~1;
+            *(uword*)&car(x) &= ~1;
          while (y != (x = cdr(x)));
          return n;
       }
