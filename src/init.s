@@ -306,3 +306,5 @@ xor {doXor}
 yoke {doYoke}
 zap {doZap}
 zero {doZero}
+calloc {doCalloc}
+free {doFree}

@@ -10,7 +10,7 @@ PLAT = x86
 CFLAGS = /DWIN64
 !endif
 
-picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c
+picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c bufferAllocation.c
 objFiles = $(picoFiles:.c=.obj)
 
 picolisp.exe: sym.d rom.d ram.d $(objFiles)
