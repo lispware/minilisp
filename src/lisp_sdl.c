@@ -47,3 +47,75 @@ any LISP_SDL_CreateRenderer(any ex)
     PACK(renderer, P);
     return P;
 }
+
+any LISP_SDL_PollEvent(any ex)
+{
+	SDL_Event event;
+	if (SDL_PollEvent( &event ))
+	{
+		if (event.type == SDL_WINDOWEVENT)
+		{
+			any y;
+			cell c1;
+
+			PACK(event.type, eventType);
+			Push(c1, y = cons(eventType, Nil));
+			PACK(event.window.event, eventValue)
+			y = cdr(y) = cons(eventValue, Nil);
+			printf("eventType = %p eventValue = %p\n", eventType, eventValue);
+			return Pop(c1);
+		}
+
+		return Nil;
+	}
+	else
+	{
+		return Nil;
+	}
+}
+
+
+any LISP_SDL_DestroyWindow(any ex)
+{
+	any x = cdr(ex);
+	any p1 = EVAL(car(x));
+
+    UNPACK(p1, w);
+    SDL_DestroyWindow((SDL_Window*)w);
+
+    return Nil;
+}
+
+any LISP_SDL_Quit(any ex)
+{
+    SDL_Quit();
+    return Nil;
+}
+
+
+any COMP_PACK(any ex)
+{
+	any x = cdr(ex);
+	any p1 = EVAL(car(x));
+	UNPACK(p1, word1);
+	x = cdr(x);
+	any p2 = EVAL(car(x));
+	UNPACK(p2, word2);
+
+	if (word1 == word2)
+	{
+		return T;
+	}
+
+	return Nil;
+}
+
+any doPACK(any ex)
+{
+	any x = cdr(ex);
+	any p1 = EVAL(car(x));
+	word n = unBox(p1);
+
+	PACK(n, ret);
+	return ret;
+}

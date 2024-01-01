@@ -310,3 +310,8 @@ calloc {doCalloc}
 free {doFree}
 SDL_CreateWindow {LISP_SDL_CreateWindow}
 SDL_CreateRenderer {LISP_SDL_CreateRenderer}
+SDL_PollEvent {LISP_SDL_PollEvent}
+SDL_DestroyWindow {LISP_SDL_DestroyWindow}
+SDL_Quit {LISP_SDL_Quit}
+COMP_PACK {COMP_PACK}
+PACK {doPACK}
