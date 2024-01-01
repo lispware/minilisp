@@ -308,3 +308,5 @@ zap {doZap}
 zero {doZero}
 calloc {doCalloc}
 free {doFree}
+SDL_CreateWindow {LISP_SDL_CreateWindow}
+SDL_CreateRenderer {LISP_SDL_CreateRenderer}

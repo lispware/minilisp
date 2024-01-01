@@ -4,7 +4,7 @@
 .SILENT:
 
 bin = ../bin
-picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c bufferAllocation.c
+picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c bufferAllocation.c lisp_sdl.c
 
 CC = gcc $(PLAT)
 
@@ -13,6 +13,7 @@ picolisp: $(bin)/picolisp
 .c.o:
 	echo $*.c:
 	$(CC) -c -O2 -pipe \
+        -I /home/kashyap/s/SDL2-install/include \
 	-falign-functions -fomit-frame-pointer -fno-strict-aliasing \
 	-W -Wimplicit -Wreturn-type -Wunused -Wformat \
 	-Wuninitialized -Wstrict-prototypes \
@@ -21,7 +22,7 @@ picolisp: $(bin)/picolisp
 $(bin)/picolisp: $(picoFiles:.c=.o)
 	mkdir -p $(bin)
 	echo "  " link picolisp:
-	$(CC) -o $(bin)/picolisp $(picoFiles:.c=.o) -lc -lm
+	$(CC) -o $(bin)/picolisp -L /home/kashyap/s/SDL2-install/lib $(picoFiles:.c=.o) -lc -lm -lSDL2
 	strip $(bin)/picolisp
 
 $(picoFiles:.c=.o): pico.h sym.d rom.d ram.d
