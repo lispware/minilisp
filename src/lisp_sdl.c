@@ -119,3 +119,62 @@ any doPACK(any ex)
 	PACK(n, ret);
 	return ret;
 }
+
+any LISP_SDL_Init(any ex)
+{
+	SDL_Init(SDL_INIT_VIDEO);
+	return Nil;
+}
+
+
+any LISP_SDL_RenderDrawLine(any ex)
+{
+	any x = cdr(ex);
+	any p1 = EVAL(car(x));
+    UNPACK(p1, renderer);
+    x = cdr(x);
+	any X1 = EVAL(car(x));
+    x = cdr(x);
+	any Y1 = EVAL(car(x));
+    x = cdr(x);
+	any X2 = EVAL(car(x));
+    x = cdr(x);
+	any Y2 = EVAL(car(x));
+
+	printf("%d %d %d %d\n", unBox(X1), unBox(Y1), unBox(X2), unBox(Y2));
+	//SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+	SDL_RenderDrawLine((SDL_Renderer*)renderer, unBox(X1), unBox(Y1), unBox(X2), unBox(Y2));
+
+	 //SDL_RenderPresent((SDL_Renderer*)renderer);
+
+	return Nil;
+}
+
+any LISP_SDL_RenderPresent(any ex)
+{
+	any x = cdr(ex);
+	any p1 = EVAL(car(x));
+
+    UNPACK(p1, renderer);
+    SDL_RenderPresent((SDL_Renderer*)renderer);
+
+    return Nil;
+}
+
+any LISP_SDL_SetRenderDrawColor(any ex)
+{
+	any x = cdr(ex);
+	any p1 = EVAL(car(x));
+
+    UNPACK(p1, renderer);
+
+    x = cdr(x);
+	any R = EVAL(car(x));
+    x = cdr(x);
+	any G = EVAL(car(x));
+    x = cdr(x);
+	any B = EVAL(car(x));
+	SDL_SetRenderDrawColor((SDL_Renderer*)renderer, R, G, B, SDL_ALPHA_OPAQUE);
+
+    return Nil;
+}

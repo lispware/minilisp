@@ -14,12 +14,18 @@
 (setq R (SDL_CreateRenderer W))
 
 
+(SDL_Init)
+
 (loop
 
     (while (SDL_PollEvent)
         (let ( EVENT  @)
 
             (prinl "TYPE = " (car EVENT) ", EVENT = " (cdr EVENT) " CLOSE = " SDL_WINDOWEVENT_CLOSE)
+
+            (SDL_SetRenderDrawColor R 0 255 0)
+            (SDL_RenderDrawLine R 100 100 200 200)
+            (SDL_RenderPresent R)
 
         	(if (COMP_PACK (car (cdr EVENT)) (PACK SDL_WINDOWEVENT_CLOSE))
         		(prinl "IT IS CLOSE")
