@@ -24,7 +24,8 @@
             (prinl "TYPE = " (car EVENT) ", EVENT = " (cdr EVENT) " CLOSE = " SDL_WINDOWEVENT_CLOSE)
 
             (SDL_SetRenderDrawColor R 0 255 0)
-            (SDL_RenderDrawLine R 100 100 200 200)
+            (let P (SDL_GetMouseState)
+            (SDL_RenderDrawLine R 10 10 (car P) (cdr P)))
             (SDL_RenderPresent R)
 
         	(if (COMP_PACK (car (cdr EVENT)) (PACK SDL_WINDOWEVENT_CLOSE))

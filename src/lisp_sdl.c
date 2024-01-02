@@ -62,7 +62,19 @@ any LISP_SDL_PollEvent(any ex)
 			Push(c1, y = cons(eventType, Nil));
 			PACK(event.window.event, eventValue)
 			y = cdr(y) = cons(eventValue, Nil);
-			printf("eventType = %p eventValue = %p\n", eventType, eventValue);
+			printf("WINDOW EVENT eventType = %p eventValue = %p\n", eventType, eventValue);
+			return Pop(c1);
+		}
+		else if (event.type == SDL_MOUSEBUTTONDOWN)
+		{
+			any y;
+			cell c1;
+
+			PACK(event.type, eventType);
+			Push(c1, y = cons(eventType, Nil));
+			PACK(event.window.event, eventValue)
+			y = cdr(y) = cons(eventValue, Nil);
+			printf("MOUSE EVENT eventType = %p eventValue = %p\n", eventType, eventValue);
 			return Pop(c1);
 		}
 
@@ -177,4 +189,11 @@ any LISP_SDL_SetRenderDrawColor(any ex)
 	SDL_SetRenderDrawColor((SDL_Renderer*)renderer, R, G, B, SDL_ALPHA_OPAQUE);
 
     return Nil;
+}
+
+any LISP_SDL_GetMouseState(any ex)
+{
+	word mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+	return cons(box(mouseX), box(mouseY));
 }

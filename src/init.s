@@ -315,6 +315,7 @@ SDL_DestroyWindow {LISP_SDL_DestroyWindow}
 SDL_RenderDrawLine {LISP_SDL_RenderDrawLine}
 SDL_RenderPresent {LISP_SDL_RenderPresent}
 SDL_SetRenderDrawColor {LISP_SDL_SetRenderDrawColor}
+SDL_GetMouseState {LISP_SDL_GetMouseState}
 SDL_Init {LISP_SDL_Init}
 SDL_Quit {LISP_SDL_Quit}
 COMP_PACK {COMP_PACK}
