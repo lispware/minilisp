@@ -29,6 +29,9 @@
 (setq SDL_WINDOWEVENT_ICCPROF_CHANGED 17) 
 (setq SDL_WINDOWEVENT_DISPLAY_CHANGED 18)
 
+(setq SDL_MOUSEBUTTONDOWN 1025) 
+
+
 # include/SDL_keycode.h
 (setq SDLK_RETURN     13) # '\r'
 (setq SDLK_ESCAPE     27) #'\x1B'

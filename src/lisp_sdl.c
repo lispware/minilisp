@@ -1,5 +1,6 @@
 #include "pico.h"
 #include <SDL2/SDL.h>
+#include <uv.h>
 
 #define PACK(__M, __R) any __R; { \
 word __r = (word)__M; \
@@ -153,11 +154,7 @@ any LISP_SDL_RenderDrawLine(any ex)
     x = cdr(x);
 	any Y2 = EVAL(car(x));
 
-	printf("%d %d %d %d\n", unBox(X1), unBox(Y1), unBox(X2), unBox(Y2));
-	//SDL_SetRenderDrawColor((SDL_Renderer*)renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	SDL_RenderDrawLine((SDL_Renderer*)renderer, unBox(X1), unBox(Y1), unBox(X2), unBox(Y2));
-
-	 //SDL_RenderPresent((SDL_Renderer*)renderer);
 
 	return Nil;
 }
@@ -186,14 +183,70 @@ any LISP_SDL_SetRenderDrawColor(any ex)
 	any G = EVAL(car(x));
     x = cdr(x);
 	any B = EVAL(car(x));
-	SDL_SetRenderDrawColor((SDL_Renderer*)renderer, R, G, B, SDL_ALPHA_OPAQUE);
+	SDL_SetRenderDrawColor((SDL_Renderer*)renderer, unBox(R), unBox(G), unBox(B), SDL_ALPHA_OPAQUE);
 
     return Nil;
 }
 
 any LISP_SDL_GetMouseState(any ex)
 {
-	word mouseX, mouseY;
+	Uint32 mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
 	return cons(box(mouseX), box(mouseY));
+}
+
+any LISP_uv_loop(any ex)
+{
+	uv_loop_t* uv_loop = uv_default_loop();
+
+    PACK(uv_loop, RET);
+    return RET;
+}
+
+any LISP_uv_run_nowait(any ex)
+{
+	any x = cdr(ex);
+	any p1 = EVAL(car(x));
+
+    UNPACK(p1, l);
+    uv_loop_t *loop = (uv_loop_t*)l;
+    uv_run(loop, UV_RUN_NOWAIT);
+    return Nil;
+}
+
+typedef struct {
+        uv_work_t _work;
+        any callback;
+} WORK;
+
+
+void __worker(uv_work_t *req)
+{
+        printf("worker callback\n");
+}
+
+void after_work(uv_work_t *req)
+{
+	WORK *work = (WORK*)req;
+        printf("after callback\n");
+
+	cell foo;
+	Push(foo, work->callback);
+	apply(work->callback, data(foo), NO, 0, NULL);
+	Pop(foo);
+}
+
+any LISP_uv_queue_work(any ex)
+{
+	any x = cdr(ex);
+	any p1 = EVAL(car(x));
+    UNPACK(p1, l);
+    uv_loop_t *loop = (uv_loop_t*)l;
+
+    x = cdr(x);
+
+	WORK *work = (WORK*)malloc(sizeof(WORK));
+	work->callback = EVAL(car(x));
+
+	uv_queue_work(loop, work, __worker, after_work);
 }

@@ -14,6 +14,7 @@ picolisp: $(bin)/picolisp
 	echo $*.c:
 	$(CC) -c -O2 -pipe \
         -I /home/kashyap/s/SDL2-install/include \
+        -I /home/kashyap/s/libuv-install/include \
 	-falign-functions -fomit-frame-pointer -fno-strict-aliasing \
 	-W -Wimplicit -Wreturn-type -Wunused -Wformat \
 	-Wuninitialized -Wstrict-prototypes \
@@ -22,7 +23,7 @@ picolisp: $(bin)/picolisp
 $(bin)/picolisp: $(picoFiles:.c=.o)
 	mkdir -p $(bin)
 	echo "  " link picolisp:
-	$(CC) -o $(bin)/picolisp -L /home/kashyap/s/SDL2-install/lib $(picoFiles:.c=.o) -lc -lm -lSDL2
+	$(CC) -o $(bin)/picolisp -L /home/kashyap/s/libuv-install/lib  -L /home/kashyap/s/SDL2-install/lib $(picoFiles:.c=.o) -lc -lm -lSDL2 -luv
 	strip $(bin)/picolisp
 
 $(picoFiles:.c=.o): pico.h sym.d rom.d ram.d

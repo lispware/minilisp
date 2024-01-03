@@ -15,6 +15,11 @@
 
 
 (SDL_Init)
+(setq LOOP (uv_loop))
+
+
+(de TASK ()
+	(prinl "HERE"))
 
 (loop
 
@@ -22,11 +27,15 @@
         (let ( EVENT  @)
 
             (prinl "TYPE = " (car EVENT) ", EVENT = " (cdr EVENT) " CLOSE = " SDL_WINDOWEVENT_CLOSE)
+            (prinl "TYPE = " (car EVENT) ", EVENT = " (cdr EVENT) " MOUSE = " SDL_MOUSEBUTTONDOWN)
 
-            (SDL_SetRenderDrawColor R 0 255 0)
-            (let P (SDL_GetMouseState)
-            (SDL_RenderDrawLine R 10 10 (car P) (cdr P)))
-            (SDL_RenderPresent R)
+        	(if (COMP_PACK (car EVENT) (PACK SDL_MOUSEBUTTONDOWN))
+        	    (do 1
+        	    (uv_queue_work LOOP TASK)
+				(SDL_SetRenderDrawColor R 0 255 0)
+				(let P (SDL_GetMouseState)
+				(SDL_RenderDrawLine R 10 10 (car P) (cdr P)))
+				(SDL_RenderPresent R)))
 
         	(if (COMP_PACK (car (cdr EVENT)) (PACK SDL_WINDOWEVENT_CLOSE))
         		(prinl "IT IS CLOSE")
@@ -38,5 +47,7 @@
 
             )
         )
+
+    	(uv_run_nowait LOOP)
     )
 

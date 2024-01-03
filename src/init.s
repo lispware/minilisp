@@ -320,3 +320,6 @@ SDL_Init {LISP_SDL_Init}
 SDL_Quit {LISP_SDL_Quit}
 COMP_PACK {COMP_PACK}
 PACK {doPACK}
+uv_loop {LISP_uv_loop}
+uv_run_nowait {LISP_uv_run_nowait}
+uv_queue_work {LISP_uv_queue_work}
