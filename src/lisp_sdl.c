@@ -15,7 +15,16 @@ __R = cons(box(__high), box(__low)); }
 	uword __L = unBox(cdr(__M));\
 	__R = (__H << (BITS / 2)) | __L; }
 
+typedef struct {
+        uv_work_t _work;
+        any callback;
+} WORK;
 
+typedef struct {
+	uv_connect_t _handle;
+	uv_tcp_t _tcp;
+	any callback;
+} ConnectionHandle;
 
 any LISP_SDL_CreateWindow(any ex)
 {
@@ -214,12 +223,6 @@ any LISP_uv_run_nowait(any ex)
     return Nil;
 }
 
-typedef struct {
-        uv_work_t _work;
-        any callback;
-} WORK;
-
-
 void __worker(uv_work_t *req)
 {
         printf("worker callback\n");
@@ -234,6 +237,8 @@ void after_work(uv_work_t *req)
 	Push(foo, work->callback);
 	apply(work->callback, data(foo), NO, 0, NULL);
 	Pop(foo);
+
+	free(work);
 }
 
 any LISP_uv_queue_work(any ex)
@@ -249,4 +254,61 @@ any LISP_uv_queue_work(any ex)
 	work->callback = EVAL(car(x));
 
 	uv_queue_work(loop, work, __worker, after_work);
+}
+
+void on_tcp_connect(uv_connect_t* req, int status)
+{
+	if (status != 0)
+	{
+		fprintf(stderr, "TCP connection failed: %s\n", uv_strerror(status));
+		return;
+	}
+
+	ConnectionHandle *connection = (ConnectionHandle*)req;
+
+	uv_tcp_t *t = &connection->_tcp;
+	PACK(t, tcp);
+
+	cell foo, c;
+	Push(foo, connection->callback);
+	Push(c, tcp);
+	apply(connection->callback, data(foo), NO, 1, &c);
+	Pop(foo);
+
+	free(req);
+}
+
+any LISP_uv_tcp_connect(any ex)
+{
+	any x = cdr(ex);
+	any p1 = EVAL(car(x));
+	x = cdr(x);
+	any p2 = EVAL(car(x));
+	x = cdr(x);
+	any p3 = EVAL(car(x));
+	x = cdr(x);
+	any p4 = EVAL(car(x));
+
+    UNPACK(p1, l);
+    uv_loop_t *loop = (uv_loop_t*)l;
+
+	char *host = (char *)calloc(bufSize(p2), 1);
+	bufString(p2, host);
+
+	word port = unBox(p3);
+
+	struct sockaddr_in* dest = (struct sockaddr_in*)calloc(sizeof(struct sockaddr_in), 1);
+    uv_ip4_addr(host, port, dest);
+
+	ConnectionHandle *connection = (ConnectionHandle*)calloc(sizeof(ConnectionHandle), 1);
+
+	uv_tcp_init(loop, &connection->_tcp);
+	connection->callback = p4;
+    // Start the asynchronous connect operation
+    uv_tcp_connect(&connection->_handle, &connection->_tcp, (const struct sockaddr*)dest, on_tcp_connect);
+
+
+	free(host);
+	free(dest);
+	return Nil;
 }

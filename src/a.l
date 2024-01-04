@@ -18,8 +18,16 @@
 (setq LOOP (uv_loop))
 
 
+(de ON_CONNECT (TCP)
+	(prinl "ON _CONNECT CALLED " TCP)
+)
+
 (de TASK ()
-	(prinl "HERE"))
+
+	(prinl "HERE")
+	(uv_tcp_connect LOOP "127.0.0.1" 8080 ON_CONNECT)
+
+	)
 
 (loop
 
