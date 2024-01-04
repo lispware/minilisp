@@ -20,9 +20,16 @@ typedef struct {
         any callback;
 } WORK;
 
+
+typedef struct {
+	uv_tcp_t _tcp;
+	any _read;
+	any _write;
+} TCPHandle;
+
 typedef struct {
 	uv_connect_t _handle;
-	uv_tcp_t _tcp;
+	TCPHandle _tcp;
 	any callback;
 } ConnectionHandle;
 
@@ -30,6 +37,18 @@ typedef struct {
 	uv_write_t write_req;
 	any callback;
 } WriteRequest;
+
+typedef struct {
+	uv_stream_t _stream;
+	any callback;
+} ReadRequest;
+
+
+void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
+{
+        buf->base = (char*)calloc(suggested_size, 1);
+        buf->len = suggested_size;
+}
 
 any LISP_SDL_CreateWindow(any ex)
 {
@@ -294,6 +313,10 @@ any LISP_uv_tcp_connect(any ex)
 	any p3 = EVAL(car(x));
 	x = cdr(x);
 	any p4 = EVAL(car(x));
+	x = cdr(x);
+	any p5 = EVAL(car(x));
+	x = cdr(x);
+	any p6 = EVAL(car(x));
 
     UNPACK(p1, l);
     uv_loop_t *loop = (uv_loop_t*)l;
@@ -310,6 +333,8 @@ any LISP_uv_tcp_connect(any ex)
 
 	uv_tcp_init(loop, &connection->_tcp);
 	connection->callback = p4;
+	connection->_tcp._read = p5;
+	connection->_tcp._write = p6;
     // Start the asynchronous connect operation
     uv_tcp_connect(&connection->_handle, &connection->_tcp, (const struct sockaddr*)dest, on_tcp_connect);
 
@@ -342,19 +367,55 @@ any LISP_uv_tcp_write(any ex)
 	any p1 = EVAL(car(x));
 	x = cdr(x);
 	any p2 = EVAL(car(x));
-	x = cdr(x);
-	any p3 = EVAL(car(x));
 
     UNPACK(p1, t);
-    uv_tcp_t *_tcp = (uv_tcp_t*)t;
+    TCPHandle *_tcp = (TCPHandle*)t;
 
 	char *text = (char *)calloc(bufSize(p2), 1);
 	bufString(p2, text);
 
 	uv_buf_t buf = uv_buf_init((char*)text, strlen(text));
 	WriteRequest* write_req = (WriteRequest*)calloc(sizeof(WriteRequest), 1);
-	write_req->callback = p3;
+	write_req->callback = _tcp->_write;
 	uv_write(write_req, (uv_stream_t*)_tcp, &buf, 1, on_tcp_write);
 
 	free(text);
+}
+
+void on_tcp_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
+{
+	if (nread < 0)
+	{
+		fprintf(stderr, "TCP read failed: %s\n", uv_strerror(nread));
+		return 0;
+	}
+
+	if (nread == 0)
+	{
+		fprintf(stderr, "EMPTY READ\n");
+		return;
+	}
+
+	ReadRequest* read_req = (ReadRequest*)stream;
+
+	cell foo, c;
+	Push(foo, read_req->callback);
+	Push(c, mkStr(buf->base));
+	apply(read_req->callback, data(foo), NO, 1, &c);
+	Pop(foo);
+}
+
+any LISP_uv_tcp_read(any ex)
+{
+	any x = cdr(ex);
+	any p1 = EVAL(car(x));
+	x = cdr(x);
+	any p2 = EVAL(car(x));
+
+    UNPACK(p1, t);
+    TCPHandle *_tcp = (TCPHandle*)t;
+
+    uv_read_start((uv_stream_t*)_tcp, alloc_buffer, on_tcp_read);
+
+    return Nil;
 }

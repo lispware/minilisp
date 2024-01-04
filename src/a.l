@@ -17,20 +17,32 @@
 (SDL_Init)
 (setq LOOP (uv_loop))
 
+(de ON_READ (S)
+	(prinl "WHY ON_READ CALLED ---> " S)
+	(prinl)
+	(prinl "---------------------------------------")
+
+
+	)
 
 (de ON_WRITE ()
-	(prinl "ON_WRITE CALLED"))
+	(prinl "ON_WRITE CALLED")
+
+
+	)
 
 (de ON_CONNECT (TCP)
-	(prinl "ON _CONNECT CALLED " TCP)
+	(prinl "ON _CONNECT CALLED ") 
 
-	(uv_tcp_write TCP "She sells sea shell  on the sea shore" ON_WRITE)
+	(uv_tcp_write TCP "She sells sea shell  on the sea shore")
+
+	(uv_tcp_read TCP )
 )
 
 (de TASK ()
 
 	(prinl "HERE")
-	(uv_tcp_connect LOOP "127.0.0.1" 8080 ON_CONNECT)
+	(uv_tcp_connect LOOP "127.0.0.1" 8080 ON_CONNECT ON_READ ON_WRITE) 
 
 	)
 
