@@ -26,6 +26,11 @@ typedef struct {
 	any callback;
 } ConnectionHandle;
 
+typedef struct {
+	uv_write_t write_req;
+	any callback;
+} WriteRequest;
+
 any LISP_SDL_CreateWindow(any ex)
 {
 	any x = cdr(ex);
@@ -261,6 +266,7 @@ void on_tcp_connect(uv_connect_t* req, int status)
 	if (status != 0)
 	{
 		fprintf(stderr, "TCP connection failed: %s\n", uv_strerror(status));
+		uv_close(req->handle, NULL);
 		return;
 	}
 
@@ -311,4 +317,44 @@ any LISP_uv_tcp_connect(any ex)
 	free(host);
 	free(dest);
 	return Nil;
+}
+
+void on_tcp_write(uv_write_t* req, int status)
+{
+	if (status != 0)
+	{
+		fprintf(stderr, "Write failed: %s\n", uv_strerror(status));
+		uv_close(req, NULL);
+		return;
+	}
+
+	WriteRequest* write_req = (WriteRequest*)req;
+
+	cell foo;
+	Push(foo, write_req->callback);
+	apply(write_req->callback, data(foo), NO, 0, NULL);
+	Pop(foo);
+}
+
+any LISP_uv_tcp_write(any ex)
+{
+	any x = cdr(ex);
+	any p1 = EVAL(car(x));
+	x = cdr(x);
+	any p2 = EVAL(car(x));
+	x = cdr(x);
+	any p3 = EVAL(car(x));
+
+    UNPACK(p1, t);
+    uv_tcp_t *_tcp = (uv_tcp_t*)t;
+
+	char *text = (char *)calloc(bufSize(p2), 1);
+	bufString(p2, text);
+
+	uv_buf_t buf = uv_buf_init((char*)text, strlen(text));
+	WriteRequest* write_req = (WriteRequest*)calloc(sizeof(WriteRequest), 1);
+	write_req->callback = p3;
+	uv_write(write_req, (uv_stream_t*)_tcp, &buf, 1, on_tcp_write);
+
+	free(text);
 }

@@ -18,8 +18,13 @@
 (setq LOOP (uv_loop))
 
 
+(de ON_WRITE ()
+	(prinl "ON_WRITE CALLED"))
+
 (de ON_CONNECT (TCP)
 	(prinl "ON _CONNECT CALLED " TCP)
+
+	(uv_tcp_write TCP "She sells sea shell  on the sea shore" ON_WRITE)
 )
 
 (de TASK ()
