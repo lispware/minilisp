@@ -24,7 +24,9 @@ typedef struct {
 typedef struct {
 	uv_tcp_t _tcp;
 	any _read;
+	any _readData;
 	any _write;
+	any _writeData;
 } TCPHandle;
 
 typedef struct {
@@ -41,6 +43,7 @@ typedef struct {
 typedef struct {
 	uv_stream_t _stream;
 	any callback;
+	any data;
 } ReadRequest;
 
 
@@ -268,9 +271,10 @@ void after_work(uv_work_t *req)
         printf("after callback\n");
 	WORK *work = (WORK*)req;
 
-	cell foo;
+	cell foo, c;
 	Push(foo, work->callback);
-	apply(work->callback, data(foo), NO, 0, NULL);
+	Push(c, work->_work.data);
+	apply(work->callback, data(foo), NO, 1, &c);
 	Pop(foo);
 
 	free(work);
@@ -287,7 +291,9 @@ any LISP_uv_queue_work(any ex)
 
 	WORK *work = (WORK*)malloc(sizeof(WORK));
 	work->callback = EVAL(car(x));
-	work->_work.data = work;
+
+    x = cdr(x);
+	work->_work.data = EVAL(car(x));
 
 	uv_queue_work(loop, work, __worker, after_work);
 }
@@ -329,6 +335,10 @@ any LISP_uv_tcp_connect(any ex)
 	any p5 = EVAL(car(x));
 	x = cdr(x);
 	any p6 = EVAL(car(x));
+	x = cdr(x);
+	any p7 = EVAL(car(x));
+	x = cdr(x);
+	any p8 = EVAL(car(x));
 
     UNPACK(p1, l);
     uv_loop_t *loop = (uv_loop_t*)l;
@@ -347,7 +357,9 @@ any LISP_uv_tcp_connect(any ex)
 	uv_tcp_init(loop, connection->_tcp);
 	connection->callback = p4;
 	connection->_tcp->_read = p5;
-	connection->_tcp->_write = p6;
+	connection->_tcp->_readData = p6;
+	connection->_tcp->_write = p7;
+	connection->_tcp->_writeData = p8;
     // Start the asynchronous connect operation
     uv_tcp_connect(&connection->_handle, connection->_tcp, (const struct sockaddr*)dest, on_tcp_connect);
 
@@ -409,11 +421,13 @@ void on_tcp_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 	}
 
 	ReadRequest* read_req = (ReadRequest*)stream;
+	TCPHandle* handle = (TCPHandle*)stream;
 
-	cell foo, c;
-	Push(foo, read_req->callback);
-	Push(c, mkStr(buf->base));
-	apply(read_req->callback, data(foo), NO, 1, &c);
+	cell foo, c[2];
+	Push(foo, handle->_read);
+	Push(c[0], mkStr(buf->base));
+	Push(c[1], handle->_readData);
+	apply(read_req->callback, data(foo), NO, 2, c);
 	Pop(foo);
 }
 
@@ -426,6 +440,8 @@ any LISP_uv_tcp_read(any ex)
 
     UNPACK(p1, t);
     TCPHandle *_tcp = (TCPHandle*)t;
+
+    printf("TCP HANDLE = %p\n", _tcp);
 
     uv_read_start((uv_stream_t*)_tcp, alloc_buffer, on_tcp_read);
 
