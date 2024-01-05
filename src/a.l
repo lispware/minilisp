@@ -22,7 +22,7 @@
 	(prinl)
 	(prinl "---------------------------------------")
 
-	(SDL_PushEvent S)
+	(SDL_PushEvent (list (SDL_GetMouseState) S))
 
 	)
 
@@ -65,7 +65,12 @@
 
         	(if (COMP_PACK (car EVENT) (PACK SDL_USEREVENT))
         	    (do 1
-        	    	(prinl "GOT THE USER EVENT" (car (cdr EVENT)));
+        	    	(prinl "GOT THE USER EVENT POINT X" (car (car (car (cdr EVENT)))))
+        	    	(prinl "GOT THE USER EVENT POINT Y" (cdr (car (car (cdr EVENT)))))
+        	    	(prinl "GOT THE USER EVENT STR " (cdr (car (cdr EVENT))))
+					(SDL_SetRenderDrawColor R 0 255 0)
+					(let (X1 (car (car (car (cdr EVENT)))) Y1 (cdr (car (car (cdr EVENT))))) (SDL_RenderDrawLine R 10 10 X1 Y1))
+					(SDL_RenderPresent R)
 				))
 
         	(if (COMP_PACK (car (cdr EVENT)) (PACK SDL_WINDOWEVENT_CLOSE))
