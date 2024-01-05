@@ -111,6 +111,17 @@ any LISP_SDL_PollEvent(any ex)
 			printf("MOUSE EVENT eventType = %p eventValue = %p\n", eventType, eventValue);
 			return Pop(c1);
 		}
+		else if (event.type == SDL_USEREVENT)
+		{
+			any y;
+			cell c1;
+
+			PACK(event.type, eventType);
+			Push(c1, y = cons(eventType, Nil));
+			y = cdr(y) = cons(event.user.data1, Nil);
+			printf("USER EVENT eventType = %p eventValue = %p\n", eventType, event.user.data1);
+			return Pop(c1);
+		}
 
 		return Nil;
 	}
@@ -419,4 +430,16 @@ any LISP_uv_tcp_read(any ex)
     uv_read_start((uv_stream_t*)_tcp, alloc_buffer, on_tcp_read);
 
     return Nil;
+}
+
+any LISP_SDL_PushEvent(any ex)
+{
+	any x = cdr(ex);
+	any p1 = EVAL(car(x));
+
+	SDL_Event event;
+	event.type = SDL_USEREVENT;
+	event.user.data1 = p1;
+	SDL_PushEvent(&event);
+	printf("SDL PUSH %d %p\n", SDL_USEREVENT, p1);
 }

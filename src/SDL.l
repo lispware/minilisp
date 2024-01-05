@@ -1,7 +1,6 @@
 # include/SDL_events.h
 (setq SDL_INIT_AUDIO      16)
 (setq SDL_INIT_VIDEO      32)
-(setq SDL_WINDOWEVENT     200)
 (setq SDL_KEYDOWN         300)
 (setq SDL_KEYUP           301)
 (setq SDL_TEXTEDITING     302)
@@ -30,6 +29,8 @@
 (setq SDL_WINDOWEVENT_DISPLAY_CHANGED 18)
 
 (setq SDL_MOUSEBUTTONDOWN 1025) 
+(setq SDL_USEREVENT 32768) 
+(setq SDL_WINDOWEVENT     512)
 
 
 # include/SDL_keycode.h

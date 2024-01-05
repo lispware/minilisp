@@ -22,6 +22,7 @@
 	(prinl)
 	(prinl "---------------------------------------")
 
+	(SDL_PushEvent S)
 
 	)
 
@@ -62,11 +63,16 @@
 				(SDL_RenderDrawLine R 10 10 (car P) (cdr P)))
 				(SDL_RenderPresent R)))
 
+        	(if (COMP_PACK (car EVENT) (PACK SDL_USEREVENT))
+        	    (do 1
+        	    	(prinl "GOT THE USER EVENT" (car (cdr EVENT)));
+				))
+
         	(if (COMP_PACK (car (cdr EVENT)) (PACK SDL_WINDOWEVENT_CLOSE))
         		(prinl "IT IS CLOSE")
         		(prinl "IT IS NOT CLOSE"))
 
-        	(if (COMP_PACK (car (cdr EVENT)) (PACK SDL_WINDOWEVENT_CLOSE))
+        	(if (and (COMP_PACK (car EVENT) (PACK SDL_WINDOWEVENT)) (COMP_PACK (car (cdr EVENT)) (PACK SDL_WINDOWEVENT_CLOSE)))
         		(do 1 (SDL_DestroyWindow W) (SDL_Quit) (bye)))
 
 

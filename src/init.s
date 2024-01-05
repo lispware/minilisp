@@ -318,6 +318,7 @@ SDL_SetRenderDrawColor {LISP_SDL_SetRenderDrawColor}
 SDL_GetMouseState {LISP_SDL_GetMouseState}
 SDL_Init {LISP_SDL_Init}
 SDL_Quit {LISP_SDL_Quit}
+SDL_PushEvent {LISP_SDL_PushEvent}
 COMP_PACK {COMP_PACK}
 PACK {doPACK}
 uv_loop {LISP_uv_loop}
