@@ -29,7 +29,7 @@ typedef struct {
 
 typedef struct {
 	uv_connect_t _handle;
-	TCPHandle _tcp;
+	TCPHandle *_tcp;
 	any callback;
 } ConnectionHandle;
 
@@ -254,8 +254,8 @@ void __worker(uv_work_t *req)
 
 void after_work(uv_work_t *req)
 {
-	WORK *work = (WORK*)req;
         printf("after callback\n");
+	WORK *work = (WORK*)req;
 
 	cell foo;
 	Push(foo, work->callback);
@@ -276,6 +276,7 @@ any LISP_uv_queue_work(any ex)
 
 	WORK *work = (WORK*)malloc(sizeof(WORK));
 	work->callback = EVAL(car(x));
+	work->_work.data = work;
 
 	uv_queue_work(loop, work, __worker, after_work);
 }
@@ -291,7 +292,7 @@ void on_tcp_connect(uv_connect_t* req, int status)
 
 	ConnectionHandle *connection = (ConnectionHandle*)req;
 
-	uv_tcp_t *t = &connection->_tcp;
+	uv_tcp_t *t = connection->_tcp;
 	PACK(t, tcp);
 
 	cell foo, c;
@@ -330,14 +331,14 @@ any LISP_uv_tcp_connect(any ex)
     uv_ip4_addr(host, port, dest);
 
 	ConnectionHandle *connection = (ConnectionHandle*)calloc(sizeof(ConnectionHandle), 1);
+	connection->_tcp = (TCPHandle*)calloc(sizeof(TCPHandle), 1);
 
-	uv_tcp_init(loop, &connection->_tcp);
+	uv_tcp_init(loop, connection->_tcp);
 	connection->callback = p4;
-	connection->_tcp._read = p5;
-	connection->_tcp._write = p6;
+	connection->_tcp->_read = p5;
+	connection->_tcp->_write = p6;
     // Start the asynchronous connect operation
-    uv_tcp_connect(&connection->_handle, &connection->_tcp, (const struct sockaddr*)dest, on_tcp_connect);
-
+    uv_tcp_connect(&connection->_handle, connection->_tcp, (const struct sockaddr*)dest, on_tcp_connect);
 
 	free(host);
 	free(dest);

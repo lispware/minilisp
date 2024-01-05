@@ -57,7 +57,7 @@
         	(if (COMP_PACK (car EVENT) (PACK SDL_MOUSEBUTTONDOWN))
         	    (do 1
         	    (uv_queue_work LOOP TASK)
-				(SDL_SetRenderDrawColor R 0 255 0)
+				(SDL_SetRenderDrawColor R 255 255 0)
 				(let P (SDL_GetMouseState)
 				(SDL_RenderDrawLine R 10 10 (car P) (cdr P)))
 				(SDL_RenderPresent R)))
