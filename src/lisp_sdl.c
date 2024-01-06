@@ -378,7 +378,7 @@ any LISP_uv_tcp_connect(any ex)
 	x = cdr(x);
 	any p4 = car(x);
 	x = cdr(x);
-	any p5 = car(x);
+	any p5 = x;
 
 	NEW_ConnectionHandle *connectionHandle = (NEW_ConnectionHandle*)calloc(sizeof(NEW_ConnectionHandle), 1);
 	connectionHandle->bindingTCP = p4;
