@@ -41,10 +41,14 @@
 	(uv_tcp_read TCP )
 )
 
+(de process (TTT)
+	(prinl "HURRAY"))
+
 (de TASK (DATA)
 
 	(prinl "HERE")
-	(uv_tcp_connect LOOP "127.0.0.1" 8080 ON_CONNECT ON_READ DATA ON_WRITE DATA) 
+	#(uv_tcp_connect LOOP "127.0.0.1" 8080 ON_CONNECT ON_READ DATA ON_WRITE DATA) 
+	(uv_tcp_connect LOOP "127.0.0.1" 8080 XXX (process XXX)) 
 
 	)
 

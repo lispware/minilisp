@@ -47,6 +47,17 @@ typedef struct {
 } ReadRequest;
 
 
+typedef struct {
+	uv_tcp_t tcp;
+	any read;
+	any write;
+} NEW_TCPHandle;
+typedef struct {
+	uv_connect_t handle;
+	any bindingTCP;
+	any callback;
+} NEW_ConnectionHandle;
+
 void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
 {
         buf->base = (char*)calloc(suggested_size, 1);
@@ -298,7 +309,7 @@ any LISP_uv_queue_work(any ex)
 	uv_queue_work(loop, work, __worker, after_work);
 }
 
-void on_tcp_connect(uv_connect_t* req, int status)
+void on_tcp_connect2(uv_connect_t* req, int status)
 {
 	if (status != 0)
 	{
@@ -321,7 +332,68 @@ void on_tcp_connect(uv_connect_t* req, int status)
 	free(req);
 }
 
+void on_tcp_connect(uv_connect_t* req, int status)
+{
+	if (status != 0)
+	{
+		fprintf(stderr, "TCP connection failed: %s\n", uv_strerror(status));
+		uv_close(req->handle, NULL);
+		return;
+	}
+
+	NEW_ConnectionHandle *connection = (NEW_ConnectionHandle*)req;
+
+	uv_tcp_t *t = (uv_tcp_t*)req->handle;
+	PACK(t, tcp);
+
+    bindFrame f;
+    any y = connection->bindingTCP;
+    Bind(y,f),  val(y) = tcp;
+    prog(connection->callback);
+    Unbind(f);
+}
+
+// (uv_tcp_connect LOOP "ip" 8080 TCP (handle TCP))
 any LISP_uv_tcp_connect(any ex)
+{
+	any x = ex;
+
+	x = cdr(x);
+	any p1 = EVAL(car(x));
+    UNPACK(p1, l);
+    uv_loop_t *loop = (uv_loop_t*)l;
+
+	x = cdr(x);
+	any p2 = EVAL(car(x));
+	char *host = (char *)calloc(bufSize(p2), 1);
+	bufString(p2, host);
+
+	x = cdr(x);
+	any p3 = EVAL(car(x));
+	word port = unBox(p3);
+
+	struct sockaddr_in* dest = (struct sockaddr_in*)calloc(sizeof(struct sockaddr_in), 1);
+    uv_ip4_addr(host, port, dest);
+
+	x = cdr(x);
+	any p4 = car(x);
+	x = cdr(x);
+	any p5 = car(x);
+
+	NEW_ConnectionHandle *connectionHandle = (NEW_ConnectionHandle*)calloc(sizeof(NEW_ConnectionHandle), 1);
+	connectionHandle->bindingTCP = p4;
+	connectionHandle->callback = p5;
+	NEW_TCPHandle *tcpHandle = (NEW_TCPHandle*)calloc(sizeof(NEW_TCPHandle), 1);
+	uv_tcp_init(loop, tcpHandle);
+
+    uv_tcp_connect(connectionHandle, tcpHandle, (const struct sockaddr*)dest, on_tcp_connect);
+
+	free(host);
+	free(dest);
+	return Nil;
+}
+
+any LISP_uv_tcp_connect2(any ex)
 {
 	any x = cdr(ex);
 	any p1 = EVAL(car(x));
