@@ -459,3 +459,23 @@ any LISP_SDL_PushEvent(any ex)
 	SDL_PushEvent(&event);
 	printf("SDL PUSH %d %p\n", SDL_USEREVENT, p1);
 }
+
+any doWithSQ(any ex)
+{
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+
+    word n = unBox(p1);
+    n = n * n;
+
+    x = cdr(x);
+
+    bindFrame f;
+
+    any y = car(x);
+    x = cdr(x),  Bind(y,f),  val(y) = box(n);;
+    x = prog(x);
+    Unbind(f);
+
+    return x;
+}
