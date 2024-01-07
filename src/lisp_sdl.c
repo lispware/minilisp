@@ -18,6 +18,8 @@ __R = cons(box(__high), box(__low)); }
 typedef struct {
         uv_work_t _work;
         any callback;
+        any binding;
+        any value;
 } WORK;
 
 
@@ -25,15 +27,7 @@ typedef struct {
 	uv_tcp_t _tcp;
 	any _read;
 	any _readData;
-	any _write;
-	any _writeData;
 } TCPHandle;
-
-typedef struct {
-	uv_connect_t _handle;
-	TCPHandle *_tcp;
-	any callback;
-} ConnectionHandle;
 
 typedef struct {
 	uv_write_t write_req;
@@ -49,8 +43,8 @@ typedef struct {
 
 typedef struct {
 	uv_tcp_t tcp;
-	any read;
-	any write;
+	any callback;
+	any data;
 } NEW_TCPHandle;
 typedef struct {
 	uv_connect_t handle;
@@ -280,12 +274,17 @@ void __worker(uv_work_t *req)
 void after_work(uv_work_t *req)
 {
 	WORK *work = (WORK*)req;
-	prog(work->callback);
+
+    bindFrame f;
+    any y = work->binding;
+    Bind(y,f),  val(y) = work->value;
+    prog(work->callback);
+    Unbind(f);
 	free(work);
 }
 
 
-// (uv_queue_work LOOP (process (SDL_GetMouseState)))
+// (uv_queue_work LOOP DATA (process DATA))
 any LISP_uv_queue_work(any ex)
 {
 	any x = ex;
@@ -295,34 +294,16 @@ any LISP_uv_queue_work(any ex)
     UNPACK(p1, l);
     uv_loop_t *loop = (uv_loop_t*)l;
 
-    x = cdr(x);
 	WORK *work = (WORK*)malloc(sizeof(WORK));
+
+    x = cdr(x);
+	work->binding = car(x);
+	work->value = EVAL(car(x));
+
+    x = cdr(x);
 	work->callback = x;
 
 	uv_queue_work(loop, work, __worker, after_work);
-}
-
-void on_tcp_connect2(uv_connect_t* req, int status)
-{
-	if (status != 0)
-	{
-		fprintf(stderr, "TCP connection failed: %s\n", uv_strerror(status));
-		uv_close(req->handle, NULL);
-		return;
-	}
-
-	ConnectionHandle *connection = (ConnectionHandle*)req;
-
-	uv_tcp_t *t = connection->_tcp;
-	PACK(t, tcp);
-
-	cell foo, c;
-	Push(foo, connection->callback);
-	Push(c, tcp);
-	apply(connection->callback, data(foo), NO, 1, &c);
-	Pop(foo);
-
-	free(req);
 }
 
 void on_tcp_connect(uv_connect_t* req, int status)
@@ -396,17 +377,10 @@ void on_tcp_write(uv_write_t* req, int status)
 	}
 
 	WriteRequest* write_req = (WriteRequest*)req;
+	printf("on_tcp_write WRITE_REQUEST = %p hanlde = \n", write_req);
 
-	// cell foo;
-	// Push(foo, write_req->callback);
-	// apply(write_req->callback, data(foo), NO, 0, NULL);
-	// Pop(foo);
-
-    //bindFrame f;
-    //any y = connection->bindingTCP;
-    //Bind(y,f),  val(y) = tcp;
     prog(write_req->callback);
-    //Unbind(f);
+    free(req);
 }
 
 // (uv_write TCP "HELLO" (on_write TCP))
@@ -430,33 +404,11 @@ any LISP_uv_tcp_write(any ex)
 	uv_buf_t buf = uv_buf_init((char*)text, strlen(text));
 	WriteRequest* write_req = (WriteRequest*)calloc(sizeof(WriteRequest), 1);
 	write_req->callback = callback;
+    printf("TCP HANDLE  = %p WrITE REQUEST = %p\n", t, write_req);
 	uv_write(write_req, (uv_stream_t*)tcp, &buf, 1, on_tcp_write);
 
 	free(text);
 	return Nil;
-}
-
-
-
-any LISP_uv_tcp_write2(any ex)
-{
-	any x = cdr(ex);
-	any p1 = EVAL(car(x));
-	x = cdr(x);
-	any p2 = EVAL(car(x));
-
-    UNPACK(p1, t);
-    TCPHandle *_tcp = (TCPHandle*)t;
-
-	char *text = (char *)calloc(bufSize(p2), 1);
-	bufString(p2, text);
-
-	uv_buf_t buf = uv_buf_init((char*)text, strlen(text));
-	WriteRequest* write_req = (WriteRequest*)calloc(sizeof(WriteRequest), 1);
-	write_req->callback = _tcp->_write;
-	uv_write(write_req, (uv_stream_t*)_tcp, &buf, 1, on_tcp_write);
-
-	free(text);
 }
 
 void on_tcp_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
@@ -473,30 +425,37 @@ void on_tcp_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 		return;
 	}
 
-	ReadRequest* read_req = (ReadRequest*)stream;
-	TCPHandle* handle = (TCPHandle*)stream;
+	NEW_TCPHandle* read_req = (NEW_TCPHandle*)stream;
 
-	cell foo, c[2];
-	Push(foo, handle->_read);
-	Push(c[0], mkStr(buf->base));
-	Push(c[1], handle->_readData);
-	apply(read_req->callback, data(foo), NO, 2, c);
-	Pop(foo);
+    bindFrame f;
+    any y = read_req->data;
+    Bind(y,f),  val(y) = mkStr(buf->base);
+	prog(read_req->callback);
+    Unbind(f);
 }
 
+// (uv_tcp_read TCP DATA (process DATA))
 any LISP_uv_tcp_read(any ex)
 {
-	any x = cdr(ex);
-	any p1 = EVAL(car(x));
+	any x = ex;
+
 	x = cdr(x);
-	any p2 = EVAL(car(x));
-
+	any p1 = EVAL(car(x));
     UNPACK(p1, t);
-    TCPHandle *_tcp = (TCPHandle*)t;
+    NEW_TCPHandle *tcp = (NEW_TCPHandle*)t;
 
-    printf("TCP HANDLE = %p\n", _tcp);
+	printf("uv_tcp_read <%p>\n", tcp);
 
-    uv_read_start((uv_stream_t*)_tcp, alloc_buffer, on_tcp_read);
+	x = cdr(x);
+	any p2 = car(x);
+
+	x = cdr(x);
+	any p3 = x;
+
+	tcp->data = p2;
+	tcp->callback = p3;
+
+    uv_read_start((uv_stream_t*)tcp, alloc_buffer, on_tcp_read);
 
     return Nil;
 }

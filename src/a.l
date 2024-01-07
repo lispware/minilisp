@@ -17,43 +17,36 @@
 (SDL_Init)
 (setq LOOP (uv_loop))
 
-(de ON_READ (S D)
-	(prinl "ON_READ ---> " S)
+(de ON_READ (D)
+	(prinl "ON_READ ---> ")
 	(prinl)
 	(prinl D)
 	(prinl "---------------------------------------")
 
-	(SDL_PushEvent (list D S))
+	#(SDL_PushEvent (list D S))
 
 	)
 
-(de ON_WRITE ()
+(de ON_WRITE (TTT)
 	(prinl "ON_WRITE CALLED")
 
+	(uv_tcp_read TTT DDD (ON_READ DDD))
+
 
 	)
 
-(de ON_CONNECT (TCP)
-	(prinl "ON _CONNECT CALLED ") 
+(de process (TTT XXX)
+	(prinl "HURRAY " TTT " " XXX)
 
-	(uv_tcp_write TCP "She sells sea shell  on the sea shore")
-
-	(uv_tcp_read TCP )
-)
-
-(de process (TTT)
-	(prinl "HURRAY " TTT)
-
-	(uv_tcp_write TTT  "APPLE MANGO BANANA" (ON_WRITE))
+	#(uv_tcp_write TTT  "APPLE MANGO BANANA" (ON_WRITE TTT))
 
 
 	)
 
 (de TASK (DATA)
 
-	(prinl "HERE " DATA)
-	#(uv_tcp_connect LOOP "127.0.0.1" 8080 ON_CONNECT ON_READ DATA ON_WRITE DATA) 
-	(uv_tcp_connect LOOP "127.0.0.1" 8080 XXX (process XXX)) 
+	(prinl "HERE 12345 " DATA)
+	(uv_tcp_connect LOOP "127.0.0.1" 8080 XXX (process XXX BBB))
 
 	)
 
@@ -67,7 +60,7 @@
 
         	(if (COMP_PACK (car EVENT) (PACK SDL_MOUSEBUTTONDOWN))
         	    (do 1
-        	    (uv_queue_work LOOP (TASK (SDL_GetMouseState)))
+        	    (let DATA (SDL_GetMouseState) (uv_queue_work LOOP (TASK DATA)))
 				(SDL_SetRenderDrawColor R 255 255 0)
 				(let P (SDL_GetMouseState)
 				(SDL_RenderDrawLine R 10 10 (car P) (cdr P)))
