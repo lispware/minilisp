@@ -28,7 +28,7 @@ sym.d rom.d ram.d functions.d: gen3m.exe init.s lib.s pilog.s
 libuv:
 	git clone -b libuv-1.47.0 https://github.com/ckkashyap/WindowsBinaries.git libuv
 
-lisdl2:
+libdl2:
 	git clone -b SDL2-2.28.5 https://github.com/ckkashyap/WindowsBinaries.git libsdl2
 
 clean:
