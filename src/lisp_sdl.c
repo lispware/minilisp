@@ -393,53 +393,6 @@ any LISP_uv_tcp_connect(any ex)
 	return Nil;
 }
 
-any LISP_uv_tcp_connect2(any ex)
-{
-	any x = cdr(ex);
-	any p1 = EVAL(car(x));
-	x = cdr(x);
-	any p2 = EVAL(car(x));
-	x = cdr(x);
-	any p3 = EVAL(car(x));
-	x = cdr(x);
-	any p4 = EVAL(car(x));
-	x = cdr(x);
-	any p5 = EVAL(car(x));
-	x = cdr(x);
-	any p6 = EVAL(car(x));
-	x = cdr(x);
-	any p7 = EVAL(car(x));
-	x = cdr(x);
-	any p8 = EVAL(car(x));
-
-    UNPACK(p1, l);
-    uv_loop_t *loop = (uv_loop_t*)l;
-
-	char *host = (char *)calloc(bufSize(p2), 1);
-	bufString(p2, host);
-
-	word port = unBox(p3);
-
-	struct sockaddr_in* dest = (struct sockaddr_in*)calloc(sizeof(struct sockaddr_in), 1);
-    uv_ip4_addr(host, port, dest);
-
-	ConnectionHandle *connection = (ConnectionHandle*)calloc(sizeof(ConnectionHandle), 1);
-	connection->_tcp = (TCPHandle*)calloc(sizeof(TCPHandle), 1);
-
-	uv_tcp_init(loop, connection->_tcp);
-	connection->callback = p4;
-	connection->_tcp->_read = p5;
-	connection->_tcp->_readData = p6;
-	connection->_tcp->_write = p7;
-	connection->_tcp->_writeData = p8;
-    // Start the asynchronous connect operation
-    uv_tcp_connect(&connection->_handle, connection->_tcp, (const struct sockaddr*)dest, on_tcp_connect);
-
-	free(host);
-	free(dest);
-	return Nil;
-}
-
 void on_tcp_write(uv_write_t* req, int status)
 {
 	if (status != 0)
@@ -451,13 +404,48 @@ void on_tcp_write(uv_write_t* req, int status)
 
 	WriteRequest* write_req = (WriteRequest*)req;
 
-	cell foo;
-	Push(foo, write_req->callback);
-	apply(write_req->callback, data(foo), NO, 0, NULL);
-	Pop(foo);
+	// cell foo;
+	// Push(foo, write_req->callback);
+	// apply(write_req->callback, data(foo), NO, 0, NULL);
+	// Pop(foo);
+
+    //bindFrame f;
+    //any y = connection->bindingTCP;
+    //Bind(y,f),  val(y) = tcp;
+    prog(write_req->callback);
+    //Unbind(f);
 }
 
+// (uv_write TCP "HELLO" (on_write TCP))
 any LISP_uv_tcp_write(any ex)
+{
+	any x = ex;
+
+	x=cdr(x);
+	any p1 = EVAL(car(x));
+    UNPACK(p1, t);
+    NEW_TCPHandle *tcp = (NEW_TCPHandle*)t;
+
+	x = cdr(x);
+	any p2 = EVAL(car(x));
+	char *text = (char *)calloc(bufSize(p2), 1);
+	bufString(p2, text);
+
+	x = cdr(x);
+	any callback = x;
+
+	uv_buf_t buf = uv_buf_init((char*)text, strlen(text));
+	WriteRequest* write_req = (WriteRequest*)calloc(sizeof(WriteRequest), 1);
+	write_req->callback = callback;
+	uv_write(write_req, (uv_stream_t*)tcp, &buf, 1, on_tcp_write);
+
+	free(text);
+	return Nil;
+}
+
+
+
+any LISP_uv_tcp_write2(any ex)
 {
 	any x = cdr(ex);
 	any p1 = EVAL(car(x));
