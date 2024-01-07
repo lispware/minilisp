@@ -31,6 +31,10 @@ typedef struct {
 
 typedef struct {
 	uv_write_t write_req;
+	any binding;
+	any value;
+	any binding2;
+	any value2;
 	any callback;
 } WriteRequest;
 
@@ -45,10 +49,14 @@ typedef struct {
 	uv_tcp_t tcp;
 	any callback;
 	any data;
+	any binding;
+	any bindingValue;
 } NEW_TCPHandle;
 typedef struct {
 	uv_connect_t handle;
 	any bindingTCP;
+	any bindingDATA;
+	any bindingDATAVALUE;
 	any callback;
 } NEW_ConnectionHandle;
 
@@ -323,11 +331,14 @@ void on_tcp_connect(uv_connect_t* req, int status)
     bindFrame f;
     any y = connection->bindingTCP;
     Bind(y,f),  val(y) = tcp;
+    y = connection->bindingDATA;
+    Bind(y, f);
+    val(y) = connection->bindingDATAVALUE;
     prog(connection->callback);
     Unbind(f);
 }
 
-// (uv_tcp_connect LOOP "ip" 8080 TCP (handle TCP))
+// (uv_tcp_connect LOOP "ip" 8080 TCP DATA (handle TCP DATA))
 any LISP_uv_tcp_connect(any ex)
 {
 	any x = ex;
@@ -352,11 +363,15 @@ any LISP_uv_tcp_connect(any ex)
 	x = cdr(x);
 	any p4 = car(x);
 	x = cdr(x);
-	any p5 = x;
+	any p5 = car(x);
+	x = cdr(x);
+	any p6 = x;
 
 	NEW_ConnectionHandle *connectionHandle = (NEW_ConnectionHandle*)calloc(sizeof(NEW_ConnectionHandle), 1);
 	connectionHandle->bindingTCP = p4;
-	connectionHandle->callback = p5;
+	connectionHandle->bindingDATA = p5;
+	connectionHandle->bindingDATAVALUE = EVAL(p5);
+	connectionHandle->callback = p6;
 	NEW_TCPHandle *tcpHandle = (NEW_TCPHandle*)calloc(sizeof(NEW_TCPHandle), 1);
 	uv_tcp_init(loop, tcpHandle);
 
@@ -379,17 +394,24 @@ void on_tcp_write(uv_write_t* req, int status)
 	WriteRequest* write_req = (WriteRequest*)req;
 	printf("on_tcp_write WRITE_REQUEST = %p hanlde = \n", write_req);
 
+    bindFrame f;
+    any y = write_req->binding;;
+    Bind(y,f),  val(y) = write_req->value;
+    y = write_req->binding2;
+    Bind(y,f),  val(y) = write_req->value2;
     prog(write_req->callback);
+    Unbind(f);
     free(req);
 }
 
-// (uv_write TCP "HELLO" (on_write TCP))
+// (uv_write TCP "HELLO" DATA (on_write TCP DATA))
 any LISP_uv_tcp_write(any ex)
 {
 	any x = ex;
 
 	x=cdr(x);
-	any p1 = EVAL(car(x));
+	any p1Sym = car(x);
+	any p1 = EVAL(p1Sym);
     UNPACK(p1, t);
     NEW_TCPHandle *tcp = (NEW_TCPHandle*)t;
 
@@ -399,11 +421,18 @@ any LISP_uv_tcp_write(any ex)
 	bufString(p2, text);
 
 	x = cdr(x);
+	any p3  = car(x);
+
+	x = cdr(x);
 	any callback = x;
 
 	uv_buf_t buf = uv_buf_init((char*)text, strlen(text));
 	WriteRequest* write_req = (WriteRequest*)calloc(sizeof(WriteRequest), 1);
 	write_req->callback = callback;
+	write_req->binding = p1Sym;
+	write_req->value = p1;
+	write_req->binding2 = p3;
+	write_req->value2 = EVAL(p3);
     printf("TCP HANDLE  = %p WrITE REQUEST = %p\n", t, write_req);
 	uv_write(write_req, (uv_stream_t*)tcp, &buf, 1, on_tcp_write);
 
@@ -430,11 +459,13 @@ void on_tcp_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
     bindFrame f;
     any y = read_req->data;
     Bind(y,f),  val(y) = mkStr(buf->base);
+    y = read_req->binding;
+    Bind(y,f),  val(y) = read_req->bindingValue;
 	prog(read_req->callback);
     Unbind(f);
 }
 
-// (uv_tcp_read TCP DATA (process DATA))
+// (uv_tcp_read TCP DATA DATA2 (process DATA DATA2))
 any LISP_uv_tcp_read(any ex)
 {
 	any x = ex;
@@ -450,10 +481,16 @@ any LISP_uv_tcp_read(any ex)
 	any p2 = car(x);
 
 	x = cdr(x);
-	any p3 = x;
+	any p3 = car(x);
+
+	x = cdr(x);
+	any p4 = x;
 
 	tcp->data = p2;
-	tcp->callback = p3;
+	tcp->callback = p4;
+	tcp->binding = p3;
+	tcp->bindingValue = EVAL(p3);
+
 
     uv_read_start((uv_stream_t*)tcp, alloc_buffer, on_tcp_read);
 

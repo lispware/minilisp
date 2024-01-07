@@ -17,28 +17,29 @@
 (SDL_Init)
 (setq LOOP (uv_loop))
 
-(de ON_READ (D)
-	(prinl "ON_READ ---> ")
+(de ON_READ (D D2)
+	(prinl "ON_READ123 ---> <<<" D2 ">>>")
 	(prinl)
 	(prinl D)
 	(prinl "---------------------------------------")
 
-	#(SDL_PushEvent (list D S))
+	(SDL_PushEvent (list D2 D ))
 
 	)
 
-(de ON_WRITE (TTT)
-	(prinl "ON_WRITE CALLED")
+(de ON_WRITE (TTT DATA)
+	(prinl "ON_WRITE CALLED TCP => " TTT)
+	(prinl "ON_WRITE CALLED DATA => " DATA)
 
-	(uv_tcp_read TTT DDD (ON_READ DDD))
+	(uv_tcp_read TTT DDD DATA (ON_READ DDD DATA))
 
 
 	)
 
-(de process (TTT XXX)
-	(prinl "HURRAY " TTT " " XXX)
+(de process (TTT DATA)
+	(prinl "HURRAY " TTT " DATA = " DATA)
 
-	#(uv_tcp_write TTT  "APPLE MANGO BANANA" (ON_WRITE TTT))
+	(uv_tcp_write TTT  "APPLE MANGO BANANA" DATA (ON_WRITE TTT DATA))
 
 
 	)
@@ -46,7 +47,7 @@
 (de TASK (DATA)
 
 	(prinl "HERE 12345 " DATA)
-	(uv_tcp_connect LOOP "127.0.0.1" 8080 XXX (process XXX BBB))
+	(uv_tcp_connect LOOP "127.0.0.1" 8080 XXX DATA (process XXX DATA))
 
 	)
 
