@@ -22,13 +22,6 @@ typedef struct {
         any value;
 } WORK;
 
-
-typedef struct {
-	uv_tcp_t _tcp;
-	any _read;
-	any _readData;
-} TCPHandle;
-
 typedef struct {
 	uv_write_t write_req;
 	any binding;
@@ -44,21 +37,21 @@ typedef struct {
 	any data;
 } ReadRequest;
 
-
 typedef struct {
 	uv_tcp_t tcp;
 	any callback;
 	any data;
 	any binding;
 	any bindingValue;
-} NEW_TCPHandle;
+} TCPHandle;
+
 typedef struct {
 	uv_connect_t handle;
 	any bindingTCP;
 	any bindingDATA;
 	any bindingDATAVALUE;
 	any callback;
-} NEW_ConnectionHandle;
+} ConnectionHandle;
 
 void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
 {
@@ -164,7 +157,6 @@ any LISP_SDL_Quit(any ex)
     SDL_Quit();
     return Nil;
 }
-
 
 any COMP_PACK(any ex)
 {
@@ -276,7 +268,6 @@ any LISP_uv_run_nowait(any ex)
 
 void __worker(uv_work_t *req)
 {
-        printf("worker callback\n");
 }
 
 void after_work(uv_work_t *req)
@@ -291,7 +282,6 @@ void after_work(uv_work_t *req)
 	free(work);
 }
 
-
 // (uv_queue_work LOOP DATA (process DATA))
 any LISP_uv_queue_work(any ex)
 {
@@ -302,7 +292,7 @@ any LISP_uv_queue_work(any ex)
     UNPACK(p1, l);
     uv_loop_t *loop = (uv_loop_t*)l;
 
-	WORK *work = (WORK*)malloc(sizeof(WORK));
+	WORK *work = (WORK*)calloc(sizeof(WORK), 1);
 
     x = cdr(x);
 	work->binding = car(x);
@@ -323,7 +313,7 @@ void on_tcp_connect(uv_connect_t* req, int status)
 		return;
 	}
 
-	NEW_ConnectionHandle *connection = (NEW_ConnectionHandle*)req;
+	ConnectionHandle *connection = (ConnectionHandle*)req;
 
 	uv_tcp_t *t = (uv_tcp_t*)req->handle;
 	PACK(t, tcp);
@@ -367,12 +357,12 @@ any LISP_uv_tcp_connect(any ex)
 	x = cdr(x);
 	any p6 = x;
 
-	NEW_ConnectionHandle *connectionHandle = (NEW_ConnectionHandle*)calloc(sizeof(NEW_ConnectionHandle), 1);
+	ConnectionHandle *connectionHandle = (ConnectionHandle*)calloc(sizeof(ConnectionHandle), 1);
 	connectionHandle->bindingTCP = p4;
 	connectionHandle->bindingDATA = p5;
 	connectionHandle->bindingDATAVALUE = EVAL(p5);
 	connectionHandle->callback = p6;
-	NEW_TCPHandle *tcpHandle = (NEW_TCPHandle*)calloc(sizeof(NEW_TCPHandle), 1);
+	TCPHandle *tcpHandle = (TCPHandle*)calloc(sizeof(TCPHandle), 1);
 	uv_tcp_init(loop, tcpHandle);
 
     uv_tcp_connect(connectionHandle, tcpHandle, (const struct sockaddr*)dest, on_tcp_connect);
@@ -413,7 +403,7 @@ any LISP_uv_tcp_write(any ex)
 	any p1Sym = car(x);
 	any p1 = EVAL(p1Sym);
     UNPACK(p1, t);
-    NEW_TCPHandle *tcp = (NEW_TCPHandle*)t;
+    TCPHandle *tcp = (TCPHandle*)t;
 
 	x = cdr(x);
 	any p2 = EVAL(car(x));
@@ -440,6 +430,11 @@ any LISP_uv_tcp_write(any ex)
 	return Nil;
 }
 
+void on_close(uv_handle_t *handle)
+{
+    free(handle);
+}
+
 void on_tcp_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 {
 	if (nread < 0)
@@ -454,7 +449,7 @@ void on_tcp_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 		return;
 	}
 
-	NEW_TCPHandle* read_req = (NEW_TCPHandle*)stream;
+	TCPHandle* read_req = (TCPHandle*)stream;
 
     bindFrame f;
     any y = read_req->data;
@@ -463,6 +458,8 @@ void on_tcp_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
     Bind(y,f),  val(y) = read_req->bindingValue;
 	prog(read_req->callback);
     Unbind(f);
+
+    uv_close(stream, on_close);
 }
 
 // (uv_tcp_read TCP DATA DATA2 (process DATA DATA2))
@@ -473,7 +470,7 @@ any LISP_uv_read_start(any ex)
 	x = cdr(x);
 	any p1 = EVAL(car(x));
     UNPACK(p1, t);
-    NEW_TCPHandle *tcp = (NEW_TCPHandle*)t;
+    TCPHandle *tcp = (TCPHandle*)t;
 
 	printf("uv_tcp_read <%p>\n", tcp);
 
@@ -491,9 +488,21 @@ any LISP_uv_read_start(any ex)
 	tcp->binding = p3;
 	tcp->bindingValue = EVAL(p3);
 
-
     uv_read_start((uv_stream_t*)tcp, alloc_buffer, on_tcp_read);
 
+    return Nil;
+}
+
+any LISP_uv_stop(any ex)
+{
+	any x = ex;
+
+	x = cdr(x);
+	any p1 = EVAL(car(x));
+    UNPACK(p1, l);
+    uv_loop_t *loop = (uv_loop_t*)l;
+
+    uv_stop(loop);
     return Nil;
 }
 
@@ -506,25 +515,5 @@ any LISP_SDL_PushEvent(any ex)
 	event.type = SDL_USEREVENT;
 	event.user.data1 = p1;
 	SDL_PushEvent(&event);
-	printf("SDL PUSH %d %p\n", SDL_USEREVENT, p1);
 }
 
-any doWithSQ(any ex)
-{
-    any x = cdr(ex);
-    any p1 = EVAL(car(x));
-
-    word n = unBox(p1);
-    n = n * n;
-
-    x = cdr(x);
-
-    bindFrame f;
-
-    any y = car(x);
-    x = cdr(x),  Bind(y,f),  val(y) = box(n);;
-    x = prog(x);
-    Unbind(f);
-
-    return x;
-}

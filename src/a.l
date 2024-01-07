@@ -63,7 +63,7 @@
         		(prinl "IT IS NOT CLOSE"))
 
         	(if (and (COMP_PACK (car EVENT) (PACK SDL_WINDOWEVENT)) (COMP_PACK (car (cdr EVENT)) (PACK SDL_WINDOWEVENT_CLOSE)))
-        		(do 1 (SDL_DestroyWindow W) (SDL_Quit) (bye)))
+        		(do 1 (SDL_DestroyWindow W) (uv_stop LOOP)(uv_run_nowait LOOP) (SDL_Quit)  (bye)))
 
 
             )
