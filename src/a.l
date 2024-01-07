@@ -51,7 +51,7 @@
 
 (de TASK (DATA)
 
-	(prinl "HERE")
+	(prinl "HERE " DATA)
 	#(uv_tcp_connect LOOP "127.0.0.1" 8080 ON_CONNECT ON_READ DATA ON_WRITE DATA) 
 	(uv_tcp_connect LOOP "127.0.0.1" 8080 XXX (process XXX)) 
 
@@ -67,7 +67,7 @@
 
         	(if (COMP_PACK (car EVENT) (PACK SDL_MOUSEBUTTONDOWN))
         	    (do 1
-        	    (uv_queue_work LOOP TASK (SDL_GetMouseState))
+        	    (uv_queue_work LOOP (TASK (SDL_GetMouseState)))
 				(SDL_SetRenderDrawColor R 255 255 0)
 				(let P (SDL_GetMouseState)
 				(SDL_RenderDrawLine R 10 10 (car P) (cdr P)))

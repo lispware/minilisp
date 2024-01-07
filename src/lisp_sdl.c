@@ -279,32 +279,25 @@ void __worker(uv_work_t *req)
 
 void after_work(uv_work_t *req)
 {
-        printf("after callback\n");
 	WORK *work = (WORK*)req;
-
-	cell foo, c;
-	Push(foo, work->callback);
-	Push(c, work->_work.data);
-	apply(work->callback, data(foo), NO, 1, &c);
-	Pop(foo);
-
+	prog(work->callback);
 	free(work);
 }
 
+
+// (uv_queue_work LOOP (process (SDL_GetMouseState)))
 any LISP_uv_queue_work(any ex)
 {
-	any x = cdr(ex);
+	any x = ex;
+
+	x = cdr(x);
 	any p1 = EVAL(car(x));
     UNPACK(p1, l);
     uv_loop_t *loop = (uv_loop_t*)l;
 
     x = cdr(x);
-
 	WORK *work = (WORK*)malloc(sizeof(WORK));
-	work->callback = EVAL(car(x));
-
-    x = cdr(x);
-	work->_work.data = EVAL(car(x));
+	work->callback = x;
 
 	uv_queue_work(loop, work, __worker, after_work);
 }
