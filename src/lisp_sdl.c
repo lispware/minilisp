@@ -466,7 +466,7 @@ void on_tcp_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 }
 
 // (uv_tcp_read TCP DATA DATA2 (process DATA DATA2))
-any LISP_uv_tcp_read(any ex)
+any LISP_uv_read_start(any ex)
 {
 	any x = ex;
 
