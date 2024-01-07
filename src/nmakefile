@@ -27,11 +27,11 @@ sym.d rom.d ram.d functions.d: gen3m.exe init.s lib.s pilog.s
 
 libuv:
 	git clone -b libuv-1.47.0 https://github.com/ckkashyap/WindowsBinaries.git libuv
-	cp libuv\$(PLAT)\uv.dll
+	copy libuv\$(PLAT)\uv.dll
 
 libsdl2:
 	git clone -b SDL2-2.28.5 https://github.com/ckkashyap/WindowsBinaries.git libsdl2
-	cp libsdl2\SDL2-2.28.5\lib\$(PLAT)\SDL2.dll
+	copy libsdl2\SDL2-2.28.5\lib\$(PLAT)\SDL2.dll
 
 clean:
 	del *.obj *.d *.exe
