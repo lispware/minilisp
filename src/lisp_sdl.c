@@ -1,5 +1,5 @@
 #include "pico.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <uv.h>
 
 #define PACK(__M, __R) any __R; { \
