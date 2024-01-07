@@ -1,6 +1,6 @@
-#include "pico.h"
-#include <SDL.h>
 #include <uv.h>
+#include <SDL.h>
+#include "pico.h"
 
 #define PACK(__M, __R) any __R; { \
 word __r = (word)__M; \
