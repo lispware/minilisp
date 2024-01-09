@@ -18,6 +18,8 @@ PicoLisp implementation is tied to POSIX/Linux and gcc more tightly that I'd lik
 
 ## Building
 
+Build depends on libuv and libSDL2. Please take a look at the Dockerfile to see how they may be installed.
+
 ```bash
 git clone https://github.com/lispware/minilisp.git
 cd minilisp/src
@@ -25,6 +27,8 @@ make
 ```
 
 #### Windows
+
+Build depends on libuv and libSDL2. Prebuilt binaries for those are automatically fetched from https://github.com/ckkashyap/WindowsBinaries
 
 Assuming that you have run vcvars64.bat or vcvars32.bat to ensure that Micrsoft C compiler is set in the PATH.
 ```bash
