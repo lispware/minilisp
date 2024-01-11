@@ -1,37 +1,19 @@
 (load "SDL.l")
 
-(de dummy ()
-	(let X 10
-	(setq X (calloc 200))))
-
-(let X (calloc 100)
-	(finally (free X)
-		(dummy)
-		(prinl "DO SOMETHING")))
-	
-
 (setq W (SDL_CreateWindow "HELLO SDL" 800 600))
 (setq R (SDL_CreateRenderer W))
-
 
 (SDL_Init)
 (setq LOOP (uv_loop))
 
-(de ON_READ (D D2)
-	(prinl "ON_READ123 ---> <<<" D2 ">>>")
-	(prinl)
-	(prinl D)
-	(prinl "---------------------------------------")
+(de ON_READ (BUF MOUSE_POSITION)
+	(SDL_PushEvent (list MOUSE_POSITION BUF)))
 
-	(SDL_PushEvent (list D2 D ))
+(de ON_WRITE (TCP MOUSE_POSITION)
+	(uv_read_start TCP BUF MOUSE_POSITION (ON_READ BUF MOUSE_POSITION)))
 
-	)
-
-(de ON_WRITE (TCP DATA)
-	(uv_read_start TCP BUF DATA (ON_READ BUF DATA)))
-
-(de process (TTT DATA)
-	(uv_tcp_write TTT  "APPLE MANGO BANANA" DATA (ON_WRITE TTT DATA)))
+(de process (TCP DATA)
+	(uv_tcp_write TCP  "APPLE MANGO BANANA" DATA (ON_WRITE TCP DATA)))
 
 (de TASK (DATA)
 	(uv_tcp_connect LOOP "127.0.0.1" 8080 TCP DATA (process TCP DATA)))
@@ -58,10 +40,6 @@
 					(SDL_RenderPresent R)
 				))
 
-        	(if (COMP_PACK (car (cdr EVENT)) (PACK SDL_WINDOWEVENT_CLOSE))
-        		(prinl "IT IS CLOSE")
-        		(prinl "IT IS NOT CLOSE"))
-
         	(if (and (COMP_PACK (car EVENT) (PACK SDL_WINDOWEVENT)) (COMP_PACK (car (cdr EVENT)) (PACK SDL_WINDOWEVENT_CLOSE)))
         		(do 1 (SDL_DestroyWindow W) (uv_stop LOOP)(uv_run_nowait LOOP) (SDL_Quit)  (bye)))
 
@@ -72,3 +50,13 @@
     	(uv_run_nowait LOOP)
     )
 
+
+(de dummy ()
+	(let X 10
+	(setq X (calloc 200))))
+
+(let X (calloc 100)
+	(finally (free X)
+		(dummy)
+		(prinl "DO SOMETHING")))
+	

@@ -105,7 +105,6 @@ any LISP_SDL_PollEvent(any ex)
 			Push(c1, y = cons(eventType, Nil));
 			PACK(event.window.event, eventValue)
 			y = cdr(y) = cons(eventValue, Nil);
-			printf("WINDOW EVENT eventType = %p eventValue = %p\n", eventType, eventValue);
 			return Pop(c1);
 		}
 		else if (event.type == SDL_MOUSEBUTTONDOWN)
@@ -117,7 +116,6 @@ any LISP_SDL_PollEvent(any ex)
 			Push(c1, y = cons(eventType, Nil));
 			PACK(event.window.event, eventValue)
 			y = cdr(y) = cons(eventValue, Nil);
-			printf("MOUSE EVENT eventType = %p eventValue = %p\n", eventType, eventValue);
 			return Pop(c1);
 		}
 		else if (event.type == SDL_USEREVENT)
@@ -128,7 +126,6 @@ any LISP_SDL_PollEvent(any ex)
 			PACK(event.type, eventType);
 			Push(c1, y = cons(eventType, Nil));
 			y = cdr(y) = cons(event.user.data1, Nil);
-			printf("USER EVENT eventType = %p eventValue = %p\n", eventType, event.user.data1);
 			return Pop(c1);
 		}
 
@@ -382,7 +379,6 @@ void on_tcp_write(uv_write_t* req, int status)
 	}
 
 	WriteRequest* write_req = (WriteRequest*)req;
-	printf("on_tcp_write WRITE_REQUEST = %p hanlde = \n", write_req);
 
     bindFrame f;
     any y = write_req->binding;;
@@ -423,7 +419,6 @@ any LISP_uv_tcp_write(any ex)
 	write_req->value = p1;
 	write_req->binding2 = p3;
 	write_req->value2 = EVAL(p3);
-    printf("TCP HANDLE  = %p WrITE REQUEST = %p\n", t, write_req);
 	uv_write(write_req, (uv_stream_t*)tcp, &buf, 1, on_tcp_write);
 
 	free(text);
@@ -471,8 +466,6 @@ any LISP_uv_read_start(any ex)
 	any p1 = EVAL(car(x));
     UNPACK(p1, t);
     TCPHandle *tcp = (TCPHandle*)t;
-
-	printf("uv_tcp_read <%p>\n", tcp);
 
 	x = cdr(x);
 	any p2 = car(x);
