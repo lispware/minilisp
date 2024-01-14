@@ -510,3 +510,84 @@ any LISP_SDL_PushEvent(any ex)
 	SDL_PushEvent(&event);
 }
 
+
+
+void on_connection(uv_stream_t *server, int status)
+{
+	TCPHandle *tcpHandle = (TCPHandle*)server;
+
+
+	uv_tcp_t *client = (uv_tcp_t*)malloc(sizeof(uv_tcp_t));
+	uv_tcp_init(uv_default_loop(), client);
+
+	if (uv_accept(server, (uv_stream_t*)client) == 0)
+	{
+		bindFrame f;
+		any y = connection->bindingTCP;
+		Bind(y,f),  val(y) = tcp;
+		y = connection->bindingDATA;
+		Bind(y, f);
+		val(y) = connection->bindingDATAVALUE;
+		prog(connection->callback);
+		Unbind(f);
+	}
+	else
+	{
+		free(client);
+		uv_close((uv_handle_t*)client, on_close);
+	}
+
+	// if (status != 0)
+	// {
+	// 	fprintf(stderr, "TCP connection failed: %s\n", uv_strerror(status));
+	// 	uv_close(req->handle, NULL);
+	// 	return;
+	// }
+}
+
+//  uv_tcp_bind(&server, (const struct sockaddr*)&addr, 0);
+// (uv_tcp_connect LOOP "ip" 8080 TCP DATA (handle TCP DATA))
+// (uv_tcp_listen LOOP "127.0.0.1" 8080 TCP  DATA (handle TCP DATA))
+any LISP_uv_tcp_listen(any ex)
+{
+	any x = ex;
+
+	x = cdr(x);
+	any p1 = EVAL(car(x));
+    UNPACK(p1, l);
+    uv_loop_t *loop = (uv_loop_t*)l;
+
+	x = cdr(x);
+	any p2 = EVAL(car(x));
+	char *host = (char *)calloc(bufSize(p2), 1);
+	bufString(p2, host);
+
+	x = cdr(x);
+	any p3 = EVAL(car(x));
+	word port = unBox(p3);
+
+	struct sockaddr_in* addr = (struct sockaddr_in*)calloc(sizeof(struct sockaddr_in), 1);
+    uv_ip4_addr(host, port, addr);
+
+	x = cdr(x);
+	any p4 = car(x);
+	x = cdr(x);
+	any p5 = car(x);
+	x = cdr(x);
+	any p6 = x;
+
+	TCPHandle *tcpHandle = (TCPHandle*)calloc(sizeof(TCPHandle), 1);
+	uv_tcp_init(loop, tcpHandle);
+
+    uv_tcp_bind(tcpHandle, (const struct sockaddr*)addr, 0);
+    int r = uv_listen(tcpHandle, 128, on_connection);
+
+
+	if (r)
+	{
+		fprintf(stderr, "TCP read failed: %s\n", uv_strerror(r));
+		return 0;
+	}
+
+	return Nil;
+}

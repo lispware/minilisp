@@ -326,5 +326,6 @@ uv_run_nowait {LISP_uv_run_nowait}
 uv_queue_work {LISP_uv_queue_work}
 uv_tcp_connect {LISP_uv_tcp_connect}
 uv_tcp_write {LISP_uv_tcp_write}
+uv_tcp_listen {LISP_uv_tcp_listen}
 uv_read_start {LISP_uv_read_start}
 uv_stop {LISP_uv_stop}
