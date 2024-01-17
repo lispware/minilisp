@@ -432,6 +432,7 @@ void on_close(uv_handle_t *handle)
 
 void on_tcp_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 {
+	printf("ON_TCP_READ CALLLED\n");
 	if (nread < 0)
 	{
 		fprintf(stderr, "TCP read failed: %s\n", uv_strerror(nread));
@@ -467,6 +468,8 @@ any LISP_uv_read_start(any ex)
     UNPACK(p1, t);
     TCPHandle *tcp = (TCPHandle*)t;
 
+    printf("TCP = %p\n", tcp);
+
 	x = cdr(x);
 	any p2 = car(x);
 
@@ -476,6 +479,8 @@ any LISP_uv_read_start(any ex)
 	x = cdr(x);
 	any p4 = x;
 
+	printf("CALLBACK ONTCP_READ = ");
+	prin(p4);
 	tcp->data = p2;
 	tcp->callback = p4;
 	tcp->binding = p3;
@@ -517,19 +522,42 @@ void on_connection(uv_stream_t *server, int status)
 	TCPHandle *tcpHandle = (TCPHandle*)server;
 
 
-	uv_tcp_t *client = (uv_tcp_t*)malloc(sizeof(uv_tcp_t));
+	TCPHandle *client = (TCPHandle*)calloc(sizeof(TCPHandle), 1);
 	uv_tcp_init(uv_default_loop(), client);
+
+	client->data = tcpHandle->data;
+	client->binding = tcpHandle->binding;
+	client->bindingValue = tcpHandle->bindingValue;
+	client->callback = tcpHandle->callback;
 
 	if (uv_accept(server, (uv_stream_t*)client) == 0)
 	{
+	    uv_tcp_t *t = (uv_tcp_t*)client;
+	    PACK(t, tcp);
+
+	    printf("client = %p tcp = %p data = %p bindingVAlue = %p\n", client, tcp, tcpHandle->data, tcpHandle->bindingValue);
+
 		bindFrame f;
-		any y = connection->bindingTCP;
+		any y = client->data;
 		Bind(y,f),  val(y) = tcp;
-		y = connection->bindingDATA;
+		y = client->binding;
 		Bind(y, f);
-		val(y) = connection->bindingDATAVALUE;
-		prog(connection->callback);
+		val(y) = client->bindingValue;
+		prog(client->callback);
 		Unbind(f);
+
+	// uv_tcp_t *t = (uv_tcp_t*)req->handle;
+	// PACK(t, tcp);
+
+    // bindFrame f;
+    // any y = connection->bindingTCP;
+    // Bind(y,f),  val(y) = tcp;
+    // y = connection->bindingDATA;
+    // Bind(y, f);
+    // val(y) = connection->bindingDATAVALUE;
+    // prog(connection->callback);
+    // Unbind(f);
+
 	}
 	else
 	{
@@ -578,6 +606,11 @@ any LISP_uv_tcp_listen(any ex)
 
 	TCPHandle *tcpHandle = (TCPHandle*)calloc(sizeof(TCPHandle), 1);
 	uv_tcp_init(loop, tcpHandle);
+	tcpHandle->data = p4;
+	tcpHandle->binding = p5;
+	tcpHandle->bindingValue = EVAL(p5);
+	tcpHandle->callback = p6;
+	printf("TCP HANDLE = %p\n", tcpHandle);
 
     uv_tcp_bind(tcpHandle, (const struct sockaddr*)addr, 0);
     int r = uv_listen(tcpHandle, 128, on_connection);
