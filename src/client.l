@@ -13,7 +13,7 @@
 	(uv_read_start TCP BUF MOUSE_POSITION (ON_READ BUF MOUSE_POSITION)))
 
 (de process (TCP DATA)
-	(uv_tcp_write TCP  "APPLE MANGO BANANA" DATA (ON_WRITE TCP DATA)))
+	(uv_tcp_write TCP  (pack (car DATA) "," (cdr DATA)) DATA (ON_WRITE TCP DATA)))
 
 (de TASK (DATA)
 	(uv_tcp_connect LOOP "127.0.0.1" 8080 TCP DATA (process TCP DATA)))
@@ -21,15 +21,14 @@
 (loop
 
     (while (SDL_PollEvent)
-        (let ( EVENT  @)
-
+        (let (EVENT  @)
         	(if (COMP_PACK (car EVENT) (PACK SDL_MOUSEBUTTONDOWN))
         	    (do 1
-        	    (let (DATA (SDL_GetMouseState) DATA2 DATA )(uv_queue_work LOOP (TASK DATA DATA2)))
-				(SDL_SetRenderDrawColor R 255 255 0)
-				(let P (SDL_GetMouseState)
-				(SDL_RenderDrawLine R 10 10 (car P) (cdr P)))
-				(SDL_RenderPresent R)))
+        	    	(let (MP (SDL_GetMouseState))
+        	    		(uv_queue_work LOOP (TASK MP))
+						(SDL_SetRenderDrawColor R 255 255 0)
+						(SDL_RenderDrawLine R 10 10 (car MP) (cdr MP))
+						(SDL_RenderPresent R))))
 
         	(if (COMP_PACK (car EVENT) (PACK SDL_USEREVENT))
         	    (do 1
@@ -42,8 +41,6 @@
 
         	(if (and (COMP_PACK (car EVENT) (PACK SDL_WINDOWEVENT)) (COMP_PACK (car (cdr EVENT)) (PACK SDL_WINDOWEVENT_CLOSE)))
         		(do 1 (SDL_DestroyWindow W) (uv_stop LOOP)(uv_run_nowait LOOP) (SDL_Quit)  (bye)))
-
-
             )
         )
 
