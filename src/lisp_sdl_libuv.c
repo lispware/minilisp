@@ -526,7 +526,12 @@ void on_connection(uv_stream_t *server, int status)
     client->bindingValue = tcpHandle->bindingValue;
     client->callback = tcpHandle->callback;
 
-    if (uv_accept(server, (uv_stream_t*)client) == 0)
+    if (uv_accept(server, (uv_stream_t*)client) != 0)
+    {
+        free(client);
+        uv_close((uv_handle_t*)client, on_close);
+    }
+    else
     {
         uv_tcp_t *t = (uv_tcp_t*)client;
         PACK(t, tcp);
@@ -541,11 +546,6 @@ void on_connection(uv_stream_t *server, int status)
         val(y) = client->bindingValue;
         prog(client->callback);
         Unbind(f);
-    }
-    else
-    {
-        free(client);
-        uv_close((uv_handle_t*)client, on_close);
     }
 }
 
