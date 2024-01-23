@@ -432,7 +432,6 @@ void on_close(uv_handle_t *handle)
 
 void on_tcp_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 {
-	printf("ON_TCP_READ CALLLED\n");
 	if (nread < 0)
 	{
 		fprintf(stderr, "TCP read failed: %s\n", uv_strerror(nread));
@@ -468,8 +467,6 @@ any LISP_uv_read_start(any ex)
     UNPACK(p1, t);
     TCPHandle *tcp = (TCPHandle*)t;
 
-    printf("TCP = %p\n", tcp);
-
 	x = cdr(x);
 	any p2 = car(x);
 
@@ -479,7 +476,6 @@ any LISP_uv_read_start(any ex)
 	x = cdr(x);
 	any p4 = x;
 
-	printf("CALLBACK ONTCP_READ = ");
 	prin(p4);
 	tcp->data = p2;
 	tcp->callback = p4;
@@ -516,7 +512,6 @@ any LISP_SDL_PushEvent(any ex)
 }
 
 
-
 void on_connection(uv_stream_t *server, int status)
 {
 	TCPHandle *tcpHandle = (TCPHandle*)server;
@@ -545,36 +540,14 @@ void on_connection(uv_stream_t *server, int status)
 		val(y) = client->bindingValue;
 		prog(client->callback);
 		Unbind(f);
-
-	// uv_tcp_t *t = (uv_tcp_t*)req->handle;
-	// PACK(t, tcp);
-
-    // bindFrame f;
-    // any y = connection->bindingTCP;
-    // Bind(y,f),  val(y) = tcp;
-    // y = connection->bindingDATA;
-    // Bind(y, f);
-    // val(y) = connection->bindingDATAVALUE;
-    // prog(connection->callback);
-    // Unbind(f);
-
 	}
 	else
 	{
 		free(client);
 		uv_close((uv_handle_t*)client, on_close);
 	}
-
-	// if (status != 0)
-	// {
-	// 	fprintf(stderr, "TCP connection failed: %s\n", uv_strerror(status));
-	// 	uv_close(req->handle, NULL);
-	// 	return;
-	// }
 }
 
-//  uv_tcp_bind(&server, (const struct sockaddr*)&addr, 0);
-// (uv_tcp_connect LOOP "ip" 8080 TCP DATA (handle TCP DATA))
 // (uv_tcp_listen LOOP "127.0.0.1" 8080 TCP  DATA (handle TCP DATA))
 any LISP_uv_tcp_listen(any ex)
 {
@@ -610,7 +583,6 @@ any LISP_uv_tcp_listen(any ex)
 	tcpHandle->binding = p5;
 	tcpHandle->bindingValue = EVAL(p5);
 	tcpHandle->callback = p6;
-	printf("TCP HANDLE = %p\n", tcpHandle);
 
     uv_tcp_bind(tcpHandle, (const struct sockaddr*)addr, 0);
     int r = uv_listen(tcpHandle, 128, on_connection);
