@@ -476,7 +476,6 @@ any LISP_uv_read_start(any ex)
 	x = cdr(x);
 	any p4 = x;
 
-	prin(p4);
 	tcp->data = p2;
 	tcp->callback = p4;
 	tcp->binding = p3;
