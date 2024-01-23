@@ -323,6 +323,7 @@ void on_tcp_connect(uv_connect_t* req, int status)
     val(y) = connection->bindingDATAVALUE;
     prog(connection->callback);
     Unbind(f);
+    free(req);
 }
 
 // (uv_tcp_connect LOOP "ip" 8080 TCP DATA (handle TCP DATA))
@@ -454,6 +455,7 @@ void on_tcp_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 	prog(read_req->callback);
     Unbind(f);
 
+    free(buf->base);
     uv_close(stream, on_close);
 }
 
