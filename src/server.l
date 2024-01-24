@@ -16,24 +16,22 @@
 		        "0,0,255")))))
 
 (de ON_READ (BUF TCP_AND_DATA)
+	(for I 100 (for J 500 (prinl))) # DELAY
     (let (TCP (car TCP_AND_DATA)
           DD (car (cdr TCP_AND_DATA)))
 		(uv_tcp_write TCP (getColor BUF) DATA (ON_WRITE TCP DATA))
 	)
 )
 
-(de ON_WRITE (TCP DATA)
-    (uv_close TCP)
-	(prinl "WRITING DONE"))
+(de ON_WRITE (TCP DATA) (uv_close TCP))
 
 (de handle (TCP DATA)
 	(let TCP_AND_DATA (list TCP DATA)
-	(uv_read_start TCP BUF TCP_AND_DATA (ON_READ BUF TCP_AND_DATA)))
-	(prinl "HELLO READ STARTED"))
-
+		(uv_read_start TCP BUF TCP_AND_DATA (ON_READ BUF TCP_AND_DATA))))
 
 (setq LOOP (uv_loop))
+
 (let DATA 100
-(uv_tcp_listen LOOP "0.0.0.0" 8080 TCP DATA (handle TCP DATA)))
+	(uv_tcp_listen LOOP "0.0.0.0" 8080 TCP DATA (handle TCP DATA)))
 
 (loop (uv_run_nowait LOOP))

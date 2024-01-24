@@ -6,6 +6,7 @@
 (SDL_Init)
 (setq LOOP (uv_loop))
 
+# convert "1,2,3" -> (1,2,3)
 (de getColor (BUF)
 	(let (A (chop BUF)
 	      B (split A ",")
@@ -13,6 +14,18 @@
 	      D (mapcar format C)
 	      )
 	D))
+
+(de drawBox (X Y)
+ (let (W 20
+       X1 (- X W)
+       Y1 (- Y W)
+       X2 (+ X W)
+       Y2 (+ Y W))
+ (SDL_RenderDrawLine RENDERER X1 Y1 X2 Y1)
+ (SDL_RenderDrawLine RENDERER X1 Y1 X1 Y2)
+ (SDL_RenderDrawLine RENDERER X1 Y2 X2 Y2)
+ (SDL_RenderDrawLine RENDERER X2 Y1 X2 Y2)))
+	
 
 (de ON_READ (BUF TCP_AND_MP)
     (let (TCP (car TCP_AND_MP)
@@ -38,7 +51,7 @@
         	    	(let (MP (SDL_GetMouseState))
         	    		(uv_queue_work LOOP (TASK MP))
 						(SDL_SetRenderDrawColor RENDERER 255 255 255)
-						(SDL_RenderDrawLine RENDERER 10 10 (car MP) (cdr MP))
+						(drawBox (car MP) (cdr MP))
 						(SDL_RenderPresent RENDERER))))
 
         	(if (COMP_PACK (car EVENT) (PACK SDL_USEREVENT))
@@ -53,7 +66,8 @@
 						  X1 (car (car ED))
 					      Y1 (cdr (car ED)))
 						(SDL_SetRenderDrawColor RENDERER R G B)
-						(SDL_RenderDrawLine RENDERER 10 10 X1 Y1))
+						(drawBox X1 Y1))
+
 					(SDL_RenderPresent RENDERER)
 				))
 
