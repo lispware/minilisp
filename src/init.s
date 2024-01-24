@@ -329,3 +329,4 @@ uv_tcp_write {LISP_uv_tcp_write}
 uv_tcp_listen {LISP_uv_tcp_listen}
 uv_read_start {LISP_uv_read_start}
 uv_stop {LISP_uv_stop}
+uv_close {LISP_uv_close}

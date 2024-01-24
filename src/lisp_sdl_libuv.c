@@ -456,7 +456,6 @@ void on_tcp_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
     Unbind(f);
 
     free(buf->base);
-    uv_close(stream, on_close);
 }
 
 // (uv_tcp_read TCP DATA DATA2 (process DATA DATA2))
@@ -488,6 +487,19 @@ any LISP_uv_read_start(any ex)
     return Nil;
 }
 
+any LISP_uv_close(any ex)
+{
+    any x = ex;
+
+    x = cdr(x);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, l);
+    uv_handle_t *handle = (uv_handle_t*)l;
+
+    uv_close(handle, NULL);
+    return Nil;
+}
+
 any LISP_uv_stop(any ex)
 {
     any x = ex;
@@ -512,7 +524,6 @@ any LISP_SDL_PushEvent(any ex)
     SDL_PushEvent(&event);
 }
 
-
 void on_connection(uv_stream_t *server, int status)
 {
     TCPHandle *tcpHandle = (TCPHandle*)server;
@@ -535,8 +546,6 @@ void on_connection(uv_stream_t *server, int status)
     {
         uv_tcp_t *t = (uv_tcp_t*)client;
         PACK(t, tcp);
-
-        printf("client = %p tcp = %p data = %p bindingVAlue = %p\n", client, tcp, tcpHandle->data, tcpHandle->bindingValue);
 
         bindFrame f;
         any y = client->data;
