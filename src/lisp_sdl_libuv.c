@@ -38,7 +38,7 @@ typedef struct {
 } ReadRequest;
 
 typedef struct {
-    uv_tcp_t tcp;
+    uv_stream_t tcp;
     any callback;
     any data;
     any binding;
@@ -267,8 +267,14 @@ void __worker(uv_work_t *req)
 {
 }
 
-void after_work(uv_work_t *req)
+void after_work(uv_work_t *req, int status)
 {
+    if (status != 0)
+    {
+        fprintf(stderr, "Worker failed: %s\n", uv_strerror(status));
+        return;
+    }
+
     WORK *work = (WORK*)req;
 
     bindFrame f;
@@ -298,7 +304,7 @@ any LISP_uv_queue_work(any ex)
     x = cdr(x);
     work->callback = x;
 
-    uv_queue_work(loop, work, __worker, after_work);
+    uv_queue_work(loop, (uv_work_t*)work, __worker, after_work);
 }
 
 void on_tcp_connect(uv_connect_t* req, int status)
@@ -306,7 +312,7 @@ void on_tcp_connect(uv_connect_t* req, int status)
     if (status != 0)
     {
         fprintf(stderr, "TCP connection failed: %s\n", uv_strerror(status));
-        uv_close(req->handle, NULL);
+        uv_close((uv_handle_t*)req->handle, NULL);
         return;
     }
 
@@ -361,9 +367,9 @@ any LISP_uv_tcp_connect(any ex)
     connectionHandle->bindingDATAVALUE = EVAL(p5);
     connectionHandle->callback = p6;
     TCPHandle *tcpHandle = (TCPHandle*)calloc(sizeof(TCPHandle), 1);
-    uv_tcp_init(loop, tcpHandle);
+    uv_tcp_init(loop, (uv_tcp_t*)tcpHandle);
 
-    uv_tcp_connect(connectionHandle, tcpHandle, (const struct sockaddr*)dest, on_tcp_connect);
+    uv_tcp_connect((uv_connect_t*)connectionHandle, (uv_tcp_t*)tcpHandle, (const struct sockaddr*)dest, on_tcp_connect);
 
     free(host);
     free(dest);
@@ -375,7 +381,7 @@ void on_tcp_write(uv_write_t* req, int status)
     if (status != 0)
     {
         fprintf(stderr, "Write failed: %s\n", uv_strerror(status));
-        uv_close(req, NULL);
+        uv_close((uv_handle_t*)req->handle, NULL);
         return;
     }
 
@@ -420,7 +426,7 @@ any LISP_uv_tcp_write(any ex)
     write_req->value = p1;
     write_req->binding2 = p3;
     write_req->value2 = EVAL(p3);
-    uv_write(write_req, (uv_stream_t*)tcp, &buf, 1, on_tcp_write);
+    uv_write((uv_write_t*)write_req, (uv_stream_t*)tcp, &buf, 1, on_tcp_write);
 
     free(text);
     return Nil;
@@ -436,7 +442,7 @@ void on_tcp_read(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
     if (nread < 0)
     {
         fprintf(stderr, "TCP read failed: %s\n", uv_strerror(nread));
-        return 0;
+        return;
     }
 
     if (nread == 0)
@@ -526,11 +532,16 @@ any LISP_SDL_PushEvent(any ex)
 
 void on_connection(uv_stream_t *server, int status)
 {
+    if (status != 0)
+    {
+        fprintf(stderr, "Connection failed: %s\n", uv_strerror(status));
+        return;
+    }
+
     TCPHandle *tcpHandle = (TCPHandle*)server;
 
-
     TCPHandle *client = (TCPHandle*)calloc(sizeof(TCPHandle), 1);
-    uv_tcp_init(uv_default_loop(), client);
+    uv_tcp_init(uv_default_loop(), (uv_tcp_t*)client);
 
     client->data = tcpHandle->data;
     client->binding = tcpHandle->binding;
@@ -588,14 +599,14 @@ any LISP_uv_tcp_listen(any ex)
     any p6 = x;
 
     TCPHandle *tcpHandle = (TCPHandle*)calloc(sizeof(TCPHandle), 1);
-    uv_tcp_init(loop, tcpHandle);
+    uv_tcp_init(loop, (uv_tcp_t*)tcpHandle);
     tcpHandle->data = p4;
     tcpHandle->binding = p5;
     tcpHandle->bindingValue = EVAL(p5);
     tcpHandle->callback = p6;
 
-    uv_tcp_bind(tcpHandle, (const struct sockaddr*)addr, 0);
-    int r = uv_listen(tcpHandle, 128, on_connection);
+    uv_tcp_bind((uv_tcp_t*)tcpHandle, (const struct sockaddr*)addr, 0);
+    int r = uv_listen((uv_stream_t*)tcpHandle, 128, on_connection);
 
 
     if (r)
