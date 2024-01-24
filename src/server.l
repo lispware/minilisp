@@ -16,7 +16,7 @@
 		        "0,0,255")))))
 
 (de ON_READ (BUF TCP_AND_DATA)
-	(for I 100 (for J 500 (prinl))) # DELAY
+	(for I 1000 (for J 20000 (+ I J))) # DELAY
     (let (TCP (car TCP_AND_DATA)
           DD (car (cdr TCP_AND_DATA)))
 		(uv_tcp_write TCP (getColor BUF) DATA (ON_WRITE TCP DATA))
