@@ -203,6 +203,52 @@ any LISP_SDL_RenderDrawPoint(any ex)
     return Nil;
 }
 
+// (SDL_SetRenderDrawBlendMode RENDERER MODE)
+// 0 SDL_BLENDMODE_NONE
+// 1 SDL_BLENDMODE_BLEND
+// 2 SDL_BLENDMODE_ADD
+// 3 SDL_BLENDMODE_MOD
+// 4 SDL_BLENDMODE_MUL
+any LISP_SDL_SetRenderDrawBlendMode(any ex)
+{
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, renderer);
+    x = cdr(x);
+    any M = EVAL(car(x));
+    int _mode = M == Nil? 0 : unBox(M);
+    SDL_BlendMode modes[] = {SDL_BLENDMODE_NONE,SDL_BLENDMODE_BLEND,SDL_BLENDMODE_ADD,SDL_BLENDMODE_MOD,SDL_BLENDMODE_MUL};
+
+	SDL_SetRenderDrawBlendMode((SDL_Renderer*)renderer, modes[_mode]);
+
+    return Nil;
+}
+
+any LISP_SDL_RenderFillRect(any ex)
+{
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, renderer);
+    x = cdr(x);
+    any X = EVAL(car(x));
+    x = cdr(x);
+    any Y = EVAL(car(x));
+    x = cdr(x);
+    any W = EVAL(car(x));
+    x = cdr(x);
+    any H = EVAL(car(x));
+
+	
+	SDL_Rect rect;
+	rect.x = unBox(X);
+	rect.y = unBox(Y);
+	rect.w = unBox(W);
+	rect.h = unBox(H);
+    SDL_RenderFillRect((SDL_Renderer*)renderer, &rect);
+
+    return Nil;
+}
+
 any LISP_SDL_RenderDrawLine(any ex)
 {
     any x = cdr(ex);

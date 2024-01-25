@@ -3,6 +3,8 @@
 (setq WIN (SDL_CreateWindow "HELLO SDL" 800 600))
 (setq RENDERER (SDL_CreateRenderer WIN))
 
+(SDL_SetRenderDrawBlendMode RENDERER 1)
+
 (SDL_Init)
 (setq LOOP (uv_loop))
 
@@ -50,8 +52,12 @@
         	    (do 1
         	    	(let (MP (SDL_GetMouseState))
         	    		(uv_queue_work LOOP (TASK MP))
-						(SDL_SetRenderDrawColor RENDERER 255 255 255)
+						(SDL_SetRenderDrawColor RENDERER 0 255 0 127)
 						(drawBox (car MP) (cdr MP))
+						(SDL_RenderFillRect RENDERER (- (car MP) 20) (- (cdr MP) 20) 40 40)
+						(SDL_SetRenderDrawColor RENDERER 255 255 0 255)
+						(SDL_RenderFillRect RENDERER (+ (car MP) 0) (+ (cdr MP) 0) 40 40)
+						(SDL_RenderDrawPoint RENDERER (car MP) (cdr MP))
 						(SDL_RenderPresent RENDERER))))
 
         	(if (COMP_PACK (car EVENT) (PACK SDL_USEREVENT))
