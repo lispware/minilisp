@@ -313,6 +313,7 @@ SDL_CreateRenderer {LISP_SDL_CreateRenderer}
 SDL_PollEvent {LISP_SDL_PollEvent}
 SDL_DestroyWindow {LISP_SDL_DestroyWindow}
 SDL_RenderDrawLine {LISP_SDL_RenderDrawLine}
+SDL_RenderDrawPoint {LISP_SDL_RenderDrawPoint}
 SDL_RenderPresent {LISP_SDL_RenderPresent}
 SDL_SetRenderDrawColor {LISP_SDL_SetRenderDrawColor}
 SDL_GetMouseState {LISP_SDL_GetMouseState}

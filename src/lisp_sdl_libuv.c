@@ -188,6 +188,20 @@ any LISP_SDL_Init(any ex)
     return Nil;
 }
 
+any LISP_SDL_RenderDrawPoint(any ex)
+{
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, renderer);
+    x = cdr(x);
+    any X1 = EVAL(car(x));
+    x = cdr(x);
+    any Y1 = EVAL(car(x));
+
+    SDL_RenderDrawPoint((SDL_Renderer*)renderer, unBox(X1), unBox(Y1));
+
+    return Nil;
+}
 
 any LISP_SDL_RenderDrawLine(any ex)
 {
@@ -232,7 +246,10 @@ any LISP_SDL_SetRenderDrawColor(any ex)
     any G = EVAL(car(x));
     x = cdr(x);
     any B = EVAL(car(x));
-    SDL_SetRenderDrawColor((SDL_Renderer*)renderer, unBox(R), unBox(G), unBox(B), SDL_ALPHA_OPAQUE);
+    x = cdr(x);
+    any A = EVAL(car(x));
+
+    SDL_SetRenderDrawColor((SDL_Renderer*)renderer, unBox(R), unBox(G), unBox(B), A == Nil ? SDL_ALPHA_OPAQUE: unBox(A));
 
     return Nil;
 }
