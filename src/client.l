@@ -17,6 +17,34 @@
 	      )
 	D))
 
+
+(de drawCircle (XC YC X Y)
+ 	(SDL_RenderDrawPoint RENDERER (+ XC X) (+ YC Y))
+ 	(SDL_RenderDrawPoint RENDERER (- XC X) (+ YC Y))
+ 	(SDL_RenderDrawPoint RENDERER (+ XC X) (- YC Y))
+ 	(SDL_RenderDrawPoint RENDERER (- XC X) (- YC Y))
+ 	(SDL_RenderDrawPoint RENDERER (+ XC Y) (+ YC X))
+ 	(SDL_RenderDrawPoint RENDERER (- XC Y) (+ YC X))
+ 	(SDL_RenderDrawPoint RENDERER (+ XC Y) (- YC X))
+ 	(SDL_RenderDrawPoint RENDERER (- XC Y) (- YC X))
+ 	)
+
+(de circleBres (XC YC R)
+    (let (X 0
+          Y R
+          D (- 3 (* 2 R))
+          )
+	 (drawCircle XC YC X Y)
+    (while (or (> Y X) (= Y X))
+           (setq X (+ 1 X))
+           (if (> D 0)
+               (do 1 (setq Y (- Y 1)) (setq D (+ D (* 4 (- X Y)) 10)))
+               (setq D (+ D (* 4 X) 6))
+               )
+           (drawCircle XC YC X Y)
+           )
+    ))
+
 (de drawBox (X Y)
  (let (W 20
        X1 (- X W)
@@ -72,6 +100,7 @@
 						  X1 (car (car ED))
 					      Y1 (cdr (car ED)))
 						(SDL_SetRenderDrawColor RENDERER R G B)
+						(circleBres X1 Y1 20)
 						(drawBox X1 Y1))
 
 					(SDL_RenderPresent RENDERER)

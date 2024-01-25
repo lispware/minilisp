@@ -238,7 +238,6 @@ any LISP_SDL_RenderFillRect(any ex)
     x = cdr(x);
     any H = EVAL(car(x));
 
-	
 	SDL_Rect rect;
 	rect.x = unBox(X);
 	rect.y = unBox(Y);
