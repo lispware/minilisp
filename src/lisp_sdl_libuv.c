@@ -388,9 +388,6 @@ void uv_file_change(uv_fs_event_t* handle, const char* filename, int events, int
         printf("File %s has changed!\n", filename);
 
     }
-
-    uv_fs_event_stop(handle);
-    uv_close((uv_handle_t*)handle, NULL);
 }
 
 any LISP_fs_event_start(any ex)
