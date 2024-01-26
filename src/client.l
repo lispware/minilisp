@@ -73,7 +73,17 @@
 (de TASK (DATA)
 	(uv_tcp_connect LOOP "127.0.0.1" 8080 TCP DATA (process TCP DATA)))
 
+(setq FS_EVENT_HANDLER (uv_fs_event_start LOOP "refresh.l" (file-change)))
+
+(de file-change () 
+	(uv_fs_event_stop FS_EVENT_HANDLER)
+	(prinl "FILE CHANGED")
+	(load "refresh.l")
+	(setq FS_EVENT_HANDLER (uv_fs_event_start LOOP "refresh.l" (file-change))))
+
+
 (loop
+
     (while (SDL_PollEvent)
         (let (EVENT  @)
         	(if (COMP_PACK (car EVENT) (PACK SDL_MOUSEBUTTONDOWN))

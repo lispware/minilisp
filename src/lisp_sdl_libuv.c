@@ -58,6 +58,8 @@ typedef struct {
 	any callback;
 } FileWatcherHandle;
 
+void on_close(uv_handle_t *handle);
+
 void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
 {
     buf->base = (char*)calloc(suggested_size, 1);
@@ -385,11 +387,12 @@ void uv_file_change(uv_fs_event_t* handle, const char* filename, int events, int
 	}
 
     if (events & UV_CHANGE) {
-        printf("File %s has changed!\n", filename);
-
+    	FileWatcherHandle *h = (FileWatcherHandle*)handle;
+    	prog(h->callback);
     }
 }
 
+// TODO: Add the corresponding stop
 any LISP_fs_event_start(any ex)
 {
     any x = ex;
@@ -401,9 +404,10 @@ any LISP_fs_event_start(any ex)
 
     FileWatcherHandle *handle = (FileWatcherHandle*)calloc(sizeof(FileWatcherHandle), 1);
 
-    if (uv_fs_event_init(loop, handle))
+    int ret = uv_fs_event_init(loop, &handle->watcher);
+    if (ret)
 	{
-		fprintf(stderr, "Error initializing file watcher\n");
+        fprintf(stderr, "Error initializing file watcher: %s\n", uv_strerror(ret));
 		return Nil;
 	}
 
@@ -415,14 +419,31 @@ any LISP_fs_event_start(any ex)
     x = cdr(x);
     handle->callback = x;
 
-    int ret = uv_fs_event_start(handle, uv_file_change, fileName, UV_FS_EVENT_RECURSIVE);
+    ret = uv_fs_event_start(handle, uv_file_change, fileName, UV_FS_EVENT_RECURSIVE);
     if(ret !=0)
 	{
-		fprintf(stderr, "Error starting file watcher\n");
-        fprintf(stderr, "Maybe this: %s\n", uv_strerror(ret));
+        fprintf(stderr, "Error starting file watcher: %s\n", uv_strerror(ret));
+        return Nil;
 	}
 
-	return Nil;
+    PACK(handle, P);
+    return P;
+}
+
+// this does the closure of the handle too
+any LISP_fs_event_stop(any ex)
+{
+    any x = ex;
+
+    x = cdr(x);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, l);
+    FileWatcherHandle *handle = (FileWatcherHandle*)l;
+
+    uv_fs_event_stop((uv_fs_event_t*)handle);
+	uv_close((uv_handle_t*)handle, on_close);
+
+    return Nil;
 }
 
 void on_tcp_connect(uv_connect_t* req, int status)
