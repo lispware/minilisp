@@ -53,6 +53,11 @@ typedef struct {
     any callback;
 } ConnectionHandle;
 
+typedef struct {
+	uv_fs_event_t watcher;
+	any callback;
+} FileWatcherHandle;
+
 void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
 {
     buf->base = (char*)calloc(suggested_size, 1);
@@ -367,6 +372,60 @@ any LISP_uv_queue_work(any ex)
     work->callback = x;
 
     uv_queue_work(loop, (uv_work_t*)work, __worker, after_work);
+    return Nil;
+}
+
+// (uv_fs_event_start LOOP "/path/file" (callback)
+void uv_file_change(uv_fs_event_t* handle, const char* filename, int events, int status)
+{
+	if (status < 0)
+	{
+		fprintf(stderr, "Error in file event callback: %s\n", uv_strerror(status));
+		return;
+	}
+
+    if (events & UV_CHANGE) {
+        printf("File %s has changed!\n", filename);
+
+    }
+
+    uv_fs_event_stop(handle);
+    uv_close((uv_handle_t*)handle, NULL);
+}
+
+any LISP_fs_event_start(any ex)
+{
+    any x = ex;
+
+    x = cdr(x);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, l);
+    uv_loop_t *loop = (uv_loop_t*)l;
+
+    FileWatcherHandle *handle = (FileWatcherHandle*)calloc(sizeof(FileWatcherHandle), 1);
+
+    if (uv_fs_event_init(loop, handle))
+	{
+		fprintf(stderr, "Error initializing file watcher\n");
+		return Nil;
+	}
+
+    x = cdr(x);
+    any p2 = EVAL(car(x));
+    char *fileName = (char *)calloc(bufSize(p2), 1);
+    bufString(p2, fileName);
+
+    x = cdr(x);
+    handle->callback = x;
+
+    int ret = uv_fs_event_start(handle, uv_file_change, fileName, UV_FS_EVENT_RECURSIVE);
+    if(ret !=0)
+	{
+		fprintf(stderr, "Error starting file watcher\n");
+        fprintf(stderr, "Maybe this: %s\n", uv_strerror(ret));
+	}
+
+	return Nil;
 }
 
 void on_tcp_connect(uv_connect_t* req, int status)
