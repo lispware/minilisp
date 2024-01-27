@@ -178,12 +178,6 @@ any LISP_SDL_FreeSurface(any ex)
 
 any LISP_SDL_RenderCopy(any ex)
 {
-    SDL_Rect    aa;
-    aa.x = 100;
-    aa.y = 100;
-    aa.w = 100;
-    aa.h = 100;
-
     any x = cdr(ex);
     any p1 = EVAL(car(x));
     UNPACK(p1, _r);
@@ -194,7 +188,41 @@ any LISP_SDL_RenderCopy(any ex)
     UNPACK(p2, _t);
     SDL_Texture *texture = (SDL_Texture*)_t;
 
-    SDL_RenderCopy(renderer, texture, NULL, &aa);
+    if (cdr(x) == Nil)
+    {
+        SDL_RenderCopy(renderer, texture, NULL, NULL);
+        return Nil;
+    }
+
+    x = cdr(x);
+    any sx = unBox(EVAL(car(x)));
+    x = cdr(x);
+    any sy = unBox(EVAL(car(x)));
+    x = cdr(x);
+    any sw = unBox(EVAL(car(x)));
+    x = cdr(x);
+    any sh = unBox(EVAL(car(x)));
+    x = cdr(x);
+    any dx = unBox(EVAL(car(x)));
+    x = cdr(x);
+    any dy = unBox(EVAL(car(x)));
+    x = cdr(x);
+    any dw = unBox(EVAL(car(x)));
+    x = cdr(x);
+    any dh = unBox(EVAL(car(x)));
+
+    SDL_Rect src;
+    src.x = sx;
+    src.y = sy;
+    src.w = sw;
+    src.h = sh;
+    SDL_Rect dst;
+    dst.x = dx;
+    dst.y = dy;
+    dst.w = dw;
+    dst.h = dh;
+
+    SDL_RenderCopy(renderer, texture, &src, &dst);
 
     return Nil;
 }
