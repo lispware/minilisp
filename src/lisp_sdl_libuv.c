@@ -98,6 +98,28 @@ any LISP_SDL_CreateRenderer(any ex)
     return P;
 }
 
+any LISP_SDL_SetWindowSize(any ex)
+{
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+
+    x = cdr(x);
+    any p2 = EVAL(car(x));
+    x = cdr(x);
+    any p3 = EVAL(car(x));
+
+    UNPACK(p1, w);
+    SDL_Window *window = (SDL_Window*)w;
+
+    word W = unBox(p2);
+    word H = unBox(p3);
+
+	SDL_SetWindowSize(window, W, H);
+
+
+    return Nil;
+}
+
 any LISP_SDL_PollEvent(any ex)
 {
     SDL_Event event;
