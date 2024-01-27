@@ -313,6 +313,7 @@ SDL_SetWindowSize {LISP_SDL_SetWindowSize}
 SDL_CreateRenderer {LISP_SDL_CreateRenderer}
 SDL_PollEvent {LISP_SDL_PollEvent}
 SDL_DestroyWindow {LISP_SDL_DestroyWindow}
+SDL_RenderClear {LISP_SDL_RenderClear}
 SDL_RenderDrawLine {LISP_SDL_RenderDrawLine}
 SDL_RenderDrawPoint {LISP_SDL_RenderDrawPoint}
 SDL_RenderFillRect {LISP_SDL_RenderFillRect}
@@ -323,6 +324,11 @@ SDL_GetMouseState {LISP_SDL_GetMouseState}
 SDL_Init {LISP_SDL_Init}
 SDL_Quit {LISP_SDL_Quit}
 SDL_PushEvent {LISP_SDL_PushEvent}
+IMG_Load {LISP_IMG_Load}
+SDL_FreeSurface {LISP_SDL_FreeSurface}
+SDL_GetWindowSurface {LISP_SDL_GetWindowSurface}
+SDL_CreateTextureFromSurface {LISP_SDL_CreateTextureFromSurface}
+SDL_RenderCopy {LISP_SDL_RenderCopy}
 COMP_PACK {COMP_PACK}
 PACK {doPACK}
 uv_loop {LISP_uv_loop}

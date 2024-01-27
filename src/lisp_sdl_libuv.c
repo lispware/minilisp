@@ -98,6 +98,107 @@ any LISP_SDL_CreateRenderer(any ex)
     return P;
 }
 
+any LISP_SDL_RenderClear(any ex)
+{
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+
+    UNPACK(p1, w);
+    SDL_Renderer *renderer = (SDL_Renderer*)w;
+    SDL_RenderClear(renderer);
+    return Nil;
+}
+
+any LISP_SDL_GetWindowSurface(any ex)
+{
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+
+    UNPACK(p1, w);
+    SDL_Window *window = (SDL_Window*)w;
+    SDL_Renderer *surface = SDL_GetWindowSurface(window);
+    PACK(surface, P);
+    return P;
+}
+
+any LISP_IMG_Load(any ex)
+{
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+    char *fileName = (char *)calloc(bufSize(p1), 1);
+    bufString(p1, fileName);
+
+    int width = 100, height = 100;
+    SDL_Surface *imageSurface =  SDL_CreateRGBSurfaceWithFormat(0, width, height, 0, SDL_PIXELFORMAT_RGB24);
+    PACK(imageSurface, P);
+    return P;
+}
+
+any LISP_SDL_CreateTextureFromSurface(any ex)
+{
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, _r);
+    SDL_Renderer *renderer = (SDL_Renderer*)_r;
+
+    x = cdr(x);
+    any p2 = EVAL(car(x));
+    UNPACK(p2, _s);
+    SDL_Surface *surface = (SDL_Renderer*)_s;
+
+
+    unsigned char *pixels = (unsigned char *)surface->pixels;
+    for(int i = 0; i < 100; i++)
+    {
+        for(int j = 0; j < 100; j++)
+        {
+            int o = (i * 300) + (j * 3);
+            pixels[o] = 255;
+            pixels[o+1] = 0;
+            pixels[o+2] = 0;
+        }
+    }
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    PACK(texture, P);
+    return P;
+}
+
+any LISP_SDL_FreeSurface(any ex)
+{
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, _s);
+    SDL_Surface *surface = (SDL_Surface*)_s;
+
+    SDL_FreeSurface(surface);
+    return Nil;
+}
+
+any LISP_SDL_RenderCopy(any ex)
+{
+    SDL_Rect    aa;
+    aa.x = 100;
+    aa.y = 100;
+    aa.w = 100;
+    aa.h = 100;
+
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, _r);
+    SDL_Renderer *renderer = (SDL_Renderer*)_r;
+
+    x = cdr(x);
+    any p2 = EVAL(car(x));
+    UNPACK(p2, _t);
+    SDL_Texture *texture = (SDL_Texture*)_t;
+
+    SDL_RenderCopy(renderer, texture, NULL, &aa);
+
+    return Nil;
+}
+
 any LISP_SDL_SetWindowSize(any ex)
 {
     any x = cdr(ex);

@@ -1,6 +1,7 @@
 (load "SDL.l")
 
 (setq WIN (SDL_CreateWindow "HELLO SDL" 800 600))
+#(setq WIN_SURFACE (SDL_GetWindowSurface WIN))
 (setq RENDERER (SDL_CreateRenderer WIN))
 
 (SDL_SetRenderDrawBlendMode RENDERER 1)

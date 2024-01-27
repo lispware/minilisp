@@ -1,7 +1,8 @@
 (prinl "RELOAD START")
 
-(setq WINDOW_HEIGHT 800)
-(setq WINDOW_WIDTH 1200)
+(setq WINDOW_WIDTH 800)
+(setq WINDOW_HEIGHT 600)
+
 
 (setq BORDER 50)
 (setq START BORDER)
@@ -53,7 +54,13 @@
 		(wheel (+ 100 (* (- X 1) 250)) (+ 100 (* (- Y 1) 200)))))
 
 
+#(SDL_RenderClear RENDERER)
 (SDL_RenderPresent RENDERER)
 
 (prinl "RELOAD END")
 
+(setq IMG (IMG_Load "DINGO"))
+(setq TEXTURE (SDL_CreateTextureFromSurface RENDERER IMG))
+(SDL_SetRenderDrawColor RENDERER 255 255 255 255)
+(SDL_RenderCopy RENDERER TEXTURE)
+(SDL_RenderPresent RENDERER)
