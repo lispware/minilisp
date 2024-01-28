@@ -61,6 +61,9 @@
 
 (setq IMG (IMG_Load "RGB.bmp"))
 (setq TEXTURE (SDL_CreateTextureFromSurface RENDERER IMG))
-(SDL_SetRenderDrawColor RENDERER 255 255 255 255)
+(SDL_SetRenderDrawColor RENDERER 255 255 255 100)
+(SDL_RenderFillRect RENDERER 0 0 WINDOW_WIDTH WINDOW_HEIGHT)
+(SDL_SetTextureBlendMode TEXTURE 1)
+(SDL_SetTextureAlphaMod TEXTURE 127)
 (SDL_RenderCopy RENDERER TEXTURE 0 0 200 200 200 200 200 200)
 (SDL_RenderPresent RENDERER)

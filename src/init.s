@@ -321,6 +321,8 @@ SDL_SetRenderDrawBlendMode {LISP_SDL_SetRenderDrawBlendMode}
 SDL_RenderPresent {LISP_SDL_RenderPresent}
 SDL_SetRenderDrawColor {LISP_SDL_SetRenderDrawColor}
 SDL_GetMouseState {LISP_SDL_GetMouseState}
+SDL_SetTextureBlendMode {LISP_SDL_SetTextureBlendMode}
+SDL_SetTextureAlphaMod {LISP_SDL_SetTextureAlphaMod}
 SDL_Init {LISP_SDL_Init}
 SDL_Quit {LISP_SDL_Quit}
 SDL_PushEvent {LISP_SDL_PushEvent}

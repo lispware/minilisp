@@ -459,6 +459,35 @@ any LISP_SDL_SetRenderDrawBlendMode(any ex)
     return Nil;
 }
 
+any LISP_SDL_SetTextureBlendMode(any ex)
+{
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, texture);
+    x = cdr(x);
+    any M = EVAL(car(x));
+    int _mode = M == Nil? 0 : unBox(M);
+    SDL_BlendMode modes[] = {SDL_BLENDMODE_NONE,SDL_BLENDMODE_BLEND,SDL_BLENDMODE_ADD,SDL_BLENDMODE_MOD,SDL_BLENDMODE_MUL};
+
+    SDL_SetTextureBlendMode(texture, modes[_mode]);
+
+    return Nil;
+}
+
+any LISP_SDL_SetTextureAlphaMod(any ex)
+{
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, texture);
+    x = cdr(x);
+    any M = EVAL(car(x));
+    int alpha = M == Nil? 0 : unBox(M);
+
+    SDL_SetTextureAlphaMod(texture, alpha);
+
+    return Nil;
+}
+
 any LISP_SDL_RenderFillRect(any ex)
 {
     any x = cdr(ex);
