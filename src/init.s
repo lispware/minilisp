@@ -331,6 +331,7 @@ SDL_FreeSurface {LISP_SDL_FreeSurface}
 SDL_GetWindowSurface {LISP_SDL_GetWindowSurface}
 SDL_CreateTextureFromSurface {LISP_SDL_CreateTextureFromSurface}
 SDL_RenderCopy {LISP_SDL_RenderCopy}
+SDL_SetTransparency {LISP_SDL_SetTransparency}
 COMP_PACK {COMP_PACK}
 PACK {doPACK}
 uv_loop {LISP_uv_loop}

@@ -98,6 +98,38 @@ any LISP_SDL_CreateRenderer(any ex)
     return P;
 }
 
+// (LISP_SDL_SetTransparency WIN TEXTURE R G B) 
+any LISP_SDL_SetTransparency(any ex)
+{
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, _w);
+    SDL_Window *window = (SDL_Window*)_w;
+
+    x = cdr(x);
+    any p2 = EVAL(car(x));
+    UNPACK(p2, _t);
+    SDL_Texture *texture = (SDL_Texture*)_t;
+
+    x = cdr(x);
+    any p3 = EVAL(car(x));
+    int R = unBox(p3);
+
+    x = cdr(x);
+    any p4 = EVAL(car(x));
+    int G = unBox(p4);
+
+    x = cdr(x);
+    any p5 = EVAL(car(x));
+    int B = unBox(p5);
+
+	SDL_PixelFormat* textureFormat = SDL_AllocFormat(SDL_GetWindowPixelFormat(window));
+    Uint32 transparentColorKey = SDL_MapRGB(textureFormat, R, G, B);
+    SDL_SetColorKey(texture, SDL_TRUE, transparentColorKey);
+
+	return Nil;
+}
+
 any LISP_SDL_RenderClear(any ex)
 {
     any x = cdr(ex);

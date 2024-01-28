@@ -60,6 +60,7 @@
 (prinl "RELOAD END")
 
 (setq IMG (IMG_Load "RGB.bmp"))
+(SDL_SetTransparency WIN IMG 0 0 0)
 (setq TEXTURE (SDL_CreateTextureFromSurface RENDERER IMG))
 (SDL_SetRenderDrawColor RENDERER 255 255 255 100)
 (SDL_RenderFillRect RENDERER 0 0 WINDOW_WIDTH WINDOW_HEIGHT)
