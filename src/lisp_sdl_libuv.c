@@ -121,6 +121,80 @@ any LISP_SDL_GetWindowSurface(any ex)
     return P;
 }
 
+unsigned char* extractChannelFromBMP(const char* filename, int* width, int* height, int* bpp, char channel)
+{
+    FILE* file = fopen(filename, "rb");
+    if (!file)
+    {
+        perror("Error opening file");
+        return NULL;
+    }
+
+    // Read the BMP header (54 bytes)
+    unsigned char header[54];
+    fread(header, sizeof(unsigned char), 54, file);
+
+    // Check if it's a valid BMP file
+    if (header[0] != 'B' || header[1] != 'M')
+    {
+        fclose(file);
+        printf("Not a BMP file\n");
+        return NULL;
+    }
+
+    // Extract width and height from the header
+    *width = *(int*)&header[18];
+    *height = *(int*)&header[22];
+
+    // Calculate the "Bytes per Pixel" (BPP)
+    *bpp = *(unsigned short*)&header[28] / 8;
+
+    // Calculate the size of the image data
+    int imageSize = *width * *height * *bpp;
+
+    // Allocate memory for the image data
+    unsigned char* imageData = (unsigned char*)malloc(imageSize);
+    if (!imageData)
+    {
+        perror("Error allocating memory for image data");
+        fclose(file);
+        return NULL;
+    }
+
+    // Read the image data
+    fread(imageData, sizeof(unsigned char), imageSize, file);
+    fclose(file);
+
+    // Allocate memory for the channel data
+    unsigned char* channelData = (unsigned char*)malloc(*width * *height * 3);
+    if (!channelData)
+    {
+        perror("Error allocating memory for channel data");
+        free(imageData);
+        return NULL;
+    }
+
+    int pixelIndex = 0;
+
+    for (int i = 0; i < imageSize; i += *bpp)
+    {
+        // Assuming little-endian byte order
+        unsigned int channelValue = 0;
+        for (int j = 0; j < *bpp; j++)
+        {
+            channelValue |= (imageData[i + j] << (8 * j));
+        }
+
+        // Extract the specified channel
+        channelData[pixelIndex++] = (unsigned char)(channelValue >> (8 * (*bpp - 1 - 0)));
+        channelData[pixelIndex++] = (unsigned char)(channelValue >> (8 * (*bpp - 1 - 1)));
+        channelData[pixelIndex++] = (unsigned char)(channelValue >> (8 * (*bpp - 1 - 2)));
+    }
+
+    free(imageData);
+    return channelData;
+}
+
 any LISP_IMG_Load(any ex)
 {
     any x = cdr(ex);
@@ -128,8 +202,24 @@ any LISP_IMG_Load(any ex)
     char *fileName = (char *)calloc(bufSize(p1), 1);
     bufString(p1, fileName);
 
-    int width = 100, height = 100;
+    int width, height, bpp;
+
+    unsigned char *imagePixels = extractChannelFromBMP(fileName, &width, &height, &bpp, 'R');
     SDL_Surface *imageSurface =  SDL_CreateRGBSurfaceWithFormat(0, width, height, 0, SDL_PIXELFORMAT_RGB24);
+
+    unsigned char *pixels = (unsigned char *)imageSurface->pixels;
+    int pi = 0;
+    for(int i = 0; i < height; i++)
+    {
+        for(int j = 0; j < width; j++)
+        {
+            int o = ((height - i - 1) * width * bpp) + (j * bpp);
+            pixels[o] = imagePixels[pi++];
+            pixels[o+1] = imagePixels[pi++];
+            pixels[o+2] = imagePixels[pi++];
+        }
+    }
+
     PACK(imageSurface, P);
     return P;
 }
@@ -145,19 +235,6 @@ any LISP_SDL_CreateTextureFromSurface(any ex)
     any p2 = EVAL(car(x));
     UNPACK(p2, _s);
     SDL_Surface *surface = (SDL_Renderer*)_s;
-
-
-    unsigned char *pixels = (unsigned char *)surface->pixels;
-    for(int i = 0; i < 100; i++)
-    {
-        for(int j = 0; j < 100; j++)
-        {
-            int o = (i * 300) + (j * 3);
-            pixels[o] = 255;
-            pixels[o+1] = 0;
-            pixels[o+2] = 0;
-        }
-    }
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 

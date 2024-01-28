@@ -59,8 +59,8 @@
 
 (prinl "RELOAD END")
 
-(setq IMG (IMG_Load "DINGO"))
+(setq IMG (IMG_Load "RGB.bmp"))
 (setq TEXTURE (SDL_CreateTextureFromSurface RENDERER IMG))
 (SDL_SetRenderDrawColor RENDERER 255 255 255 255)
-(SDL_RenderCopy RENDERER TEXTURE 0 0 100 100 200 200 100 100)
+(SDL_RenderCopy RENDERER TEXTURE 0 0 200 200 200 200 200 200)
 (SDL_RenderPresent RENDERER)
