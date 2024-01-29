@@ -153,7 +153,26 @@ any LISP_SDL_GetWindowSurface(any ex)
     return P;
 }
 
-unsigned char* extractChannelFromBMP(const char* filename, int* width, int* height, int* bpp, char channel)
+typedef struct _abcd {
+    uint16_t bfType;        // Signature, must be "BM" (0x42, 0x4D)
+    uint32_t bfSize;        // File size in bytes
+    uint16_t bfReserved1;   // Reserved, must be 0
+    uint16_t bfReserved2;   // Reserved, must be 0
+    uint32_t bfOffBits;     // Offset to the pixel data
+    uint32_t biSize;         // Size of the header
+    int32_t biWidth;         // Image width in pixels
+    int32_t biHeight;        // Image height in pixels
+    uint16_t biPlanes;       // Number of color planes (must be 1)
+    uint16_t biBitCount;     // Number of bits per pixel (24 bits for RGB)
+    uint32_t biCompression;  // Compression method (0 for uncompressed)
+    uint32_t biSizeImage;    // Image size in bytes (can be 0 if uncompressed)
+    int32_t biXPelsPerMeter; // Horizontal resolution (pixels per meter)
+    int32_t biYPelsPerMeter; // Vertical resolution (pixels per meter)
+    uint32_t biClrUsed;      // Number of colors in the palette (0 for 24-bit)
+    uint32_t biClrImportant; // Number of important colors (0 for all)
+} BMPHeader;
+
+unsigned char* extractChannelFromBMP(const char* filename, int* width, int* height, int* bpp, int* PADDING)
 {
     FILE* file = fopen(filename, "rb");
     if (!file)
@@ -164,7 +183,7 @@ unsigned char* extractChannelFromBMP(const char* filename, int* width, int* heig
 
     // Read the BMP header (54 bytes)
     unsigned char header[54];
-    fread(header, sizeof(unsigned char), 54, file);
+    fread(header, 1, 54, file);
 
     // Check if it's a valid BMP file
     if (header[0] != 'B' || header[1] != 'M')
@@ -177,15 +196,20 @@ unsigned char* extractChannelFromBMP(const char* filename, int* width, int* heig
     // Extract width and height from the header
     *width = *(int*)&header[18];
     *height = *(int*)&header[22];
+    int fileSize = *(int*)&header[2];
+
 
     // Calculate the "Bytes per Pixel" (BPP)
     *bpp = *(unsigned short*)&header[28] / 8;
 
+
     // Calculate the size of the image data
     int imageSize = *width * *height * *bpp;
 
+    *PADDING = (fileSize - imageSize - 54) / *height;
+
     // Allocate memory for the image data
-    unsigned char* imageData = (unsigned char*)malloc(imageSize);
+    unsigned char* imageData = (unsigned char*)malloc(fileSize - 54);
     if (!imageData)
     {
         perror("Error allocating memory for image data");
@@ -194,37 +218,10 @@ unsigned char* extractChannelFromBMP(const char* filename, int* width, int* heig
     }
 
     // Read the image data
-    fread(imageData, sizeof(unsigned char), imageSize, file);
+    fread(imageData, sizeof(unsigned char), fileSize-54, file);
     fclose(file);
 
-    // Allocate memory for the channel data
-    unsigned char* channelData = (unsigned char*)malloc(*width * *height * 3);
-    if (!channelData)
-    {
-        perror("Error allocating memory for channel data");
-        free(imageData);
-        return NULL;
-    }
-
-    int pixelIndex = 0;
-
-    for (int i = 0; i < imageSize; i += *bpp)
-    {
-        // Assuming little-endian byte order
-        unsigned int channelValue = 0;
-        for (int j = 0; j < *bpp; j++)
-        {
-            channelValue |= (imageData[i + j] << (8 * j));
-        }
-
-        // Extract the specified channel
-        channelData[pixelIndex++] = (unsigned char)(channelValue >> (8 * (*bpp - 1 - 0)));
-        channelData[pixelIndex++] = (unsigned char)(channelValue >> (8 * (*bpp - 1 - 1)));
-        channelData[pixelIndex++] = (unsigned char)(channelValue >> (8 * (*bpp - 1 - 2)));
-    }
-
-    free(imageData);
-    return channelData;
+    return imageData;
 }
 
 any LISP_IMG_Load(any ex)
@@ -234,10 +231,12 @@ any LISP_IMG_Load(any ex)
     char *fileName = (char *)calloc(bufSize(p1), 1);
     bufString(p1, fileName);
 
-    int width, height, bpp;
+    int width, height, bpp, PADDING;
 
-    unsigned char *imagePixels = extractChannelFromBMP(fileName, &width, &height, &bpp, 'R');
-    SDL_Surface *imageSurface =  SDL_CreateRGBSurfaceWithFormat(0, width, height, 0, SDL_PIXELFORMAT_RGB24);
+    unsigned char *imagePixels = extractChannelFromBMP(fileName, &width, &height, &bpp, &PADDING);
+    printf("%d %d\n", width, height);
+
+    SDL_Surface *imageSurface =  SDL_CreateRGBSurface(0, width, height, 32, 0xFF0000, 0xFF00, 0xFF, 0);
 
     unsigned char *pixels = (unsigned char *)imageSurface->pixels;
     int pi = 0;
@@ -245,11 +244,13 @@ any LISP_IMG_Load(any ex)
     {
         for(int j = 0; j < width; j++)
         {
-            int o = ((height - i - 1) * width * bpp) + (j * bpp);
-            pixels[o] = imagePixels[pi++];
-            pixels[o+1] = imagePixels[pi++];
-            pixels[o+2] = imagePixels[pi++];
+			int o = ((height - i - 1) * width * 4) + (j * 4);
+			pixels[o++] = imagePixels[pi++];
+			pixels[o++] = imagePixels[pi++];
+			pixels[o++] = imagePixels[pi++];
+			pixels[o++] = 0;
         }
+		pi+=PADDING;
     }
 
     PACK(imageSurface, P);

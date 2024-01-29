@@ -68,3 +68,10 @@
 (SDL_SetTextureAlphaMod TEXTURE 127)
 (SDL_RenderCopy RENDERER TEXTURE 0 0 200 200 200 200 200 200)
 (SDL_RenderPresent RENDERER)
+
+(setq FONT (IMG_Load "font.bmp"))
+(SDL_SetTransparency WIN FONT 12 12 12)
+(setq FONT_TEXTURE (SDL_CreateTextureFromSurface RENDERER FONT))
+(SDL_SetTextureBlendMode FONT_TEXTURE 1)
+(SDL_RenderCopy RENDERER FONT_TEXTURE 0 0 110 98 200 200 110 98)
+(SDL_RenderPresent RENDERER)
