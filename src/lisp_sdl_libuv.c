@@ -1,3 +1,5 @@
+#ifdef USE_LIBUV_AND_LIBSDL
+
 #include <uv.h>
 #include <SDL.h>
 #include "pico.h"
@@ -1087,3 +1089,5 @@ any doFree(any ex)
 	free((void*)mem);
 	return Nil;
 }
+
+#endif //USE_LIBUV_AND_LIBSDL
