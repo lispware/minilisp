@@ -1067,3 +1067,23 @@ any LISP_uv_tcp_listen(any ex)
 
     return Nil;
 }
+
+any doCalloc(any ex)
+{
+	any x, y;
+	x = cdr(ex);
+	y = EVAL(car(x));
+	word n = isNil(y) ? 100 : unBox(y);
+	void *mem = calloc(n, 1);
+	PACK(mem, R);
+	return R;
+}
+
+any doFree(any ex)
+{
+	any x = cdr(ex);
+	any p1 = EVAL(car(x));
+	UNPACK(p1, mem);
+	free((void*)mem);
+	return Nil;
+}

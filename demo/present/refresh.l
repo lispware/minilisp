@@ -1,6 +1,6 @@
 (prinl "RELOAD START")
-(setq WINDOW_WIDTH 1000)
-(setq WINDOW_HEIGHT 1000)
+(setq WINDOW_WIDTH 2500)
+(setq WINDOW_HEIGHT 1340)
 (setq BORDER 50)
 (setq STOP 550)
 (setq JUMP 50)
@@ -121,10 +121,13 @@
          (g-line 0 Y (- WINDOW_WIDTH 1) Y) ) ) )
 (let D 1
    (draw-str "PicoLisp is awesome!" 100 100 (/ FONT_WIDTH D) (/ FONT_HEIGHT D)) )
+(let (X 500 Y 600 R 300)
 (g-color 100 255 0 255)
-(g-circle 500 500 200)
-(g-line 600 300 340 650)
-(g-line 450 450 660 650)
+(g-circle X Y R)
+(for I 20
+(g-circle X Y (- R I 1))
+(g-line (+ I (+ X (/ R 2))) (- Y R) (+ I (- X (/ R 2))) (+ Y R))
+(g-line (+ I (- X (/ R 4))) (- Y (/ R 2)) (+ I (+ X (/ R 2))) (+ Y R))))
 (SDL_RenderPresent RENDERER)
 
 (prinl "RELOAD END")

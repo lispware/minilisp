@@ -4,7 +4,7 @@
 .SILENT:
 
 bin = ../bin
-picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c bufferAllocation.c lisp_sdl_libuv.c
+picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c lisp_sdl_libuv.c
 
 CC = gcc $(PLAT)
 
@@ -12,7 +12,7 @@ picolisp: $(bin)/picolisp
 
 .c.o:
 	echo $*.c:
-	$(CC) -c -g3 -pipe \
+	$(CC) -c -O3 -pipe \
         -I /usr/local/include/SDL2 \
 	-falign-functions -fomit-frame-pointer -fno-strict-aliasing \
 	-W -Wimplicit -Wreturn-type -Wunused -Wformat \
