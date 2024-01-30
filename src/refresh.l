@@ -12,6 +12,7 @@
 
 (if RESIZE_DONE Nil
 (SDL_SetWindowSize WIN WINDOW_WIDTH WINDOW_HEIGHT)
+(SDL_RenderClear RENDERER)
 (setq RESIZE_DONE T))
 
 (SDL_SetRenderDrawColor RENDERER 120 255 120 255)
@@ -39,8 +40,6 @@
 		  X2 (- WINDOW_WIDTH BORDER))
 	(line X1 Y1 X2 Y2)))
 
-
-
 (de wheel (X Y)
     (for I 4
 		(SDL_SetRenderDrawColor RENDERER 255 (* I 50) (* I 50))
@@ -53,28 +52,22 @@
 		(wheel (+ 100 (* (- X 1) 250)) (+ 100 (* (- Y 1) 200)))))
 
 
-#(SDL_RenderClear RENDERER)
 (SDL_RenderPresent RENDERER)
 
 (prinl "RELOAD END")
 
-(setq IMG (IMG_Load "RGB.bmp"))
-(SDL_SetTransparency WIN IMG 0 0 0)
-(setq TEXTURE (SDL_CreateTextureFromSurface RENDERER IMG))
-(SDL_SetRenderDrawColor RENDERER 255 255 255 100)
-(SDL_RenderFillRect RENDERER 0 0 WINDOW_WIDTH WINDOW_HEIGHT)
-(SDL_SetTextureBlendMode TEXTURE 1)
-(SDL_SetTextureAlphaMod TEXTURE 127)
-(SDL_RenderCopy RENDERER TEXTURE 0 0 200 200 200 200 200 200)
-(SDL_RenderPresent RENDERER)
+#(setq IMG (IMG_Load "RGB.bmp"))
+#(SDL_SetTransparency WIN IMG 0 0 0)
+#(setq TEXTURE (SDL_CreateTextureFromSurface RENDERER IMG))
+#(SDL_SetRenderDrawColor RENDERER 255 255 255 100)
+#(SDL_RenderFillRect RENDERER 0 0 WINDOW_WIDTH WINDOW_HEIGHT)
+#(SDL_SetTextureBlendMode TEXTURE 1)
+#(SDL_SetTextureAlphaMod TEXTURE 127)
+#(SDL_RenderCopy RENDERER TEXTURE 0 0 200 200 200 200 200 200)
+#(SDL_RenderPresent RENDERER)
 
-(SDL_SetRenderDrawColor RENDERER 0 0 255 200)
-(SDL_RenderFillRect RENDERER 0 0 WINDOW_WIDTH WINDOW_HEIGHT)
-(setq FONT (IMG_Load "font_72x144_62x38.bmp"))
-(SDL_SetTransparency WIN FONT 0 0 0)
-(setq FONT_TEXTURE (SDL_CreateTextureFromSurface RENDERER FONT))
 (SDL_SetTextureBlendMode FONT_TEXTURE 1)
-(SDL_RenderCopy RENDERER FONT_TEXTURE 0 0 2231 1111 0 0 2231 1111)
+#(SDL_RenderCopy RENDERER FONT_TEXTURE 0 0 2231 1111 0 0 2231 1111)
 
 
 (setq FONT_OFFSET_X 62)
@@ -96,7 +89,6 @@
 	    (SDL_SetRenderDrawColor RENDERER 255 255 (if ALT 255 0) 200)
 		(SDL_RenderFillRect RENDERER (+ SX  (* (- C 1) W)) (+ SY (* (- R 1) H)) W H)))))
 
-
 (de highlight (C)
         (let (N (char C)
               I (- N 32)
@@ -107,7 +99,7 @@
               )
         (prinl R)
 	    (SDL_SetRenderDrawColor RENDERER 127 0 0 100)
-		(SDL_RenderFillRect RENDERER X Y 72 145)
+		(SDL_RenderFillRect RENDERER X Y FONT_WIDTH FONT_HEIGHT)
 ))
 
 (de draw-char (C XX YY RW RH)
@@ -118,7 +110,7 @@
               Y (+ FONT_OFFSET_Y (* D FONT_HEIGHT))
               X (+ FONT_OFFSET_X (* R FONT_WIDTH 2))
               )
-        (SDL_RenderCopy RENDERER FONT_TEXTURE X Y 72 145 XX YY RW RH)
+        (SDL_RenderCopy RENDERER FONT_TEXTURE X Y FONT_WIDTH FONT_HEIGHT XX YY RW RH)
 ))
 
 (de draw-str (S XX YY RW RH)

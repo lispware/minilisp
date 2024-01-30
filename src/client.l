@@ -83,6 +83,13 @@
 	(setq FS_EVENT_HANDLER (uv_fs_event_start LOOP "refresh.l" (file-change))))
 
 
+(SDL_SetRenderDrawColor RENDERER 0 0 255 200)
+(SDL_RenderFillRect RENDERER 0 0 WINDOW_WIDTH WINDOW_HEIGHT)
+(setq FONT (IMG_Load "font_72x144_62x38.bmp"))
+(SDL_SetTransparency WIN FONT 0 0 0)
+(setq FONT_TEXTURE (SDL_CreateTextureFromSurface RENDERER FONT))
+(SDL_FreeSurface FONT)
+
 (loop
 
     (while (SDL_PollEvent)
