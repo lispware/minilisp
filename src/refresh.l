@@ -1,8 +1,7 @@
 (prinl "RELOAD START")
 
-(setq WINDOW_WIDTH 800)
-(setq WINDOW_HEIGHT 600)
-
+(setq WINDOW_WIDTH 2300)
+(setq WINDOW_HEIGHT 1200)
 
 (setq BORDER 50)
 (setq START BORDER)
@@ -69,11 +68,71 @@
 (SDL_RenderCopy RENDERER TEXTURE 0 0 200 200 200 200 200 200)
 (SDL_RenderPresent RENDERER)
 
-(SDL_SetRenderDrawColor RENDERER 0 0 0 100)
+(SDL_SetRenderDrawColor RENDERER 0 0 255 200)
 (SDL_RenderFillRect RENDERER 0 0 WINDOW_WIDTH WINDOW_HEIGHT)
 (setq FONT (IMG_Load "font.bmp"))
 (SDL_SetTransparency WIN FONT 0 0 0)
 (setq FONT_TEXTURE (SDL_CreateTextureFromSurface RENDERER FONT))
 (SDL_SetTextureBlendMode FONT_TEXTURE 1)
-(SDL_RenderCopy RENDERER FONT_TEXTURE 0 0 1175 1154 20 20 600 500)
+(SDL_RenderCopy RENDERER FONT_TEXTURE 0 0 2231 1111 0 0 2231 1111)
+
+
+(setq FONT_OFFSET_X 62)
+(setq FONT_OFFSET_Y 30)
+(setq FONT_WIDTH 72)
+(setq FONT_HEIGHT 145)
+
+
+(let (SX FONT_OFFSET_X
+      SY FONT_OFFSET_Y
+      W FONT_WIDTH
+      H FONT_HEIGHT)
+(for R 7
+	(if ALT (setq ALT Nil) (setq ALT 1))
+	(if ALT (setq ALT Nil) (setq ALT 1))
+	(for C 29 
+	    (do 1 
+	    (if ALT (setq ALT Nil) (setq ALT 1))
+	    (SDL_SetRenderDrawColor RENDERER 255 255 (if ALT 255 0) 200)
+		(SDL_RenderFillRect RENDERER (+ SX  (* (- C 1) W)) (+ SY (* (- R 1) H)) W H)))))
+
+
+(de highlight (C)
+        (let (N (char C)
+              I (- N 32)
+              D (/ I 15)
+              R (% I 15)
+              Y (+ FONT_OFFSET_Y (* D FONT_HEIGHT))
+              X (+ FONT_OFFSET_X (* R FONT_WIDTH 2))
+              )
+        (prinl R)
+	    (SDL_SetRenderDrawColor RENDERER 127 0 0 100)
+		(SDL_RenderFillRect RENDERER X Y 72 145)
+))
+
+(de draw-char (C XX YY)
+        (let (N (char C)
+              I (- N 32)
+              D (/ I 15)
+              R (% I 15)
+              Y (+ FONT_OFFSET_Y (* D FONT_HEIGHT))
+              X (+ FONT_OFFSET_X (* R FONT_WIDTH 2))
+              )
+        (SDL_RenderCopy RENDERER FONT_TEXTURE X Y 72 145 XX YY FONT_WIDTH FONT_HEIGHT)
+))
+
+(de draw-str (S XX YY)
+    (let X XX
+		(for C (chop S)
+			(draw-char C X YY)
+			(setq X (+ X FONT_WIDTH)))))
+	
+
+(highlight "c")
+#(draw-char "A" 100 1050)
+(draw-str "PicoLisp" 100 1050)
+		
 (SDL_RenderPresent RENDERER)
+
+
+(prinl (char "A"))
