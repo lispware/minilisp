@@ -70,7 +70,7 @@
 
 (SDL_SetRenderDrawColor RENDERER 0 0 255 200)
 (SDL_RenderFillRect RENDERER 0 0 WINDOW_WIDTH WINDOW_HEIGHT)
-(setq FONT (IMG_Load "font.bmp"))
+(setq FONT (IMG_Load "font_72x144_62x38.bmp"))
 (SDL_SetTransparency WIN FONT 0 0 0)
 (setq FONT_TEXTURE (SDL_CreateTextureFromSurface RENDERER FONT))
 (SDL_SetTextureBlendMode FONT_TEXTURE 1)
@@ -78,9 +78,9 @@
 
 
 (setq FONT_OFFSET_X 62)
-(setq FONT_OFFSET_Y 30)
+(setq FONT_OFFSET_Y 38)
 (setq FONT_WIDTH 72)
-(setq FONT_HEIGHT 145)
+(setq FONT_HEIGHT 144)
 
 
 (let (SX FONT_OFFSET_X
@@ -110,7 +110,7 @@
 		(SDL_RenderFillRect RENDERER X Y 72 145)
 ))
 
-(de draw-char (C XX YY)
+(de draw-char (C XX YY RW RH)
         (let (N (char C)
               I (- N 32)
               D (/ I 15)
@@ -118,21 +118,18 @@
               Y (+ FONT_OFFSET_Y (* D FONT_HEIGHT))
               X (+ FONT_OFFSET_X (* R FONT_WIDTH 2))
               )
-        (SDL_RenderCopy RENDERER FONT_TEXTURE X Y 72 145 XX YY FONT_WIDTH FONT_HEIGHT)
+        (SDL_RenderCopy RENDERER FONT_TEXTURE X Y 72 145 XX YY RW RH)
 ))
 
-(de draw-str (S XX YY)
+(de draw-str (S XX YY RW RH)
     (let X XX
 		(for C (chop S)
-			(draw-char C X YY)
-			(setq X (+ X FONT_WIDTH)))))
+			(draw-char C X YY RW RH)
+			(setq X (+ X RW)))))
 	
 
 (highlight "c")
-#(draw-char "A" 100 1050)
-(draw-str "PicoLisp" 100 1050)
+(let D 1
+(draw-str "PicoLisp is awesome!" 100 1050 (/ FONT_WIDTH D) (/ FONT_HEIGHT D)))
 		
 (SDL_RenderPresent RENDERER)
-
-
-(prinl (char "A"))
