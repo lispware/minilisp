@@ -234,7 +234,7 @@ any LISP_IMG_Load(any ex)
     int width, height, bpp, PADDING;
 
     unsigned char *imagePixels = extractChannelFromBMP(fileName, &width, &height, &bpp, &PADDING);
-    printf("%d %d\n", width, height);
+    printf("Image size = %d %d\n", width, height);
 
     SDL_Surface *imageSurface =  SDL_CreateRGBSurface(0, width, height, 32, 0xFF0000, 0xFF00, 0xFF, 0);
 
@@ -355,6 +355,27 @@ any LISP_SDL_SetWindowSize(any ex)
 
 	SDL_SetWindowSize(window, W, H);
 
+
+    return Nil;
+}
+
+any LISP_SDL_SetWindowPosition(any ex)
+{
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+
+    x = cdr(x);
+    any p2 = EVAL(car(x));
+    x = cdr(x);
+    any p3 = EVAL(car(x));
+
+    UNPACK(p1, w);
+    SDL_Window *window = (SDL_Window*)w;
+
+    word X = unBox(p2);
+    word Y = unBox(p3);
+
+	SDL_SetWindowPosition(window, X, Y);
 
     return Nil;
 }

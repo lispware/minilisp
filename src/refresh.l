@@ -12,6 +12,7 @@
 
 (if RESIZE_DONE Nil
 (SDL_SetWindowSize WIN WINDOW_WIDTH WINDOW_HEIGHT)
+(SDL_SetWindowPosition WIN 10 10)
 (SDL_RenderClear RENDERER)
 (setq RESIZE_DONE T))
 
@@ -67,7 +68,6 @@
 #(SDL_RenderPresent RENDERER)
 
 (SDL_SetTextureBlendMode FONT_TEXTURE 1)
-#(SDL_RenderCopy RENDERER FONT_TEXTURE 0 0 2231 1111 0 0 2231 1111)
 
 
 (setq FONT_OFFSET_X 62)
@@ -76,18 +76,21 @@
 (setq FONT_HEIGHT 144)
 
 
-(let (SX FONT_OFFSET_X
-      SY FONT_OFFSET_Y
-      W FONT_WIDTH
-      H FONT_HEIGHT)
-(for R 7
-	(if ALT (setq ALT Nil) (setq ALT 1))
-	(if ALT (setq ALT Nil) (setq ALT 1))
-	(for C 29 
-	    (do 1 
-	    (if ALT (setq ALT Nil) (setq ALT 1))
-	    (SDL_SetRenderDrawColor RENDERER 255 255 (if ALT 255 0) 200)
-		(SDL_RenderFillRect RENDERER (+ SX  (* (- C 1) W)) (+ SY (* (- R 1) H)) W H)))))
+(de render-font ()
+	(SDL_RenderCopy RENDERER FONT_TEXTURE 0 0 2231 1111 0 0 2231 1111)
+	(let (SX FONT_OFFSET_X
+		  SY FONT_OFFSET_Y
+		  W FONT_WIDTH
+		  H FONT_HEIGHT)
+	(for R 7
+		(if ALT (setq ALT Nil) (setq ALT 1))
+		(if ALT (setq ALT Nil) (setq ALT 1))
+		(for C 29 
+			(do 1 
+			(if ALT (setq ALT Nil) (setq ALT 1))
+			(SDL_SetRenderDrawColor RENDERER 255 255 (if ALT 255 0) 200)
+			(SDL_RenderFillRect RENDERER (+ SX  (* (- C 1) W)) (+ SY (* (- R 1) H)) W H))))))
+# (render-font) # Call this if you need to see the font bmp file rendered
 
 (de highlight (C)
         (let (N (char C)
@@ -120,7 +123,7 @@
 			(setq X (+ X RW)))))
 	
 
-(highlight "c")
+(highlight "A")
 (let D 1
 (draw-str "PicoLisp is awesome!" 100 1050 (/ FONT_WIDTH D) (/ FONT_HEIGHT D)))
 		
