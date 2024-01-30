@@ -1,57 +1,70 @@
 (prinl "RELOAD START")
 
-(setq WINDOW_WIDTH 2300)
-(setq WINDOW_HEIGHT 1200)
+(setq WINDOW_WIDTH 1000)
+(setq WINDOW_HEIGHT 1000)
 
 (setq BORDER 50)
-(setq START BORDER)
-(setq LINE_WIDTH 2)
 (setq STOP 550)
 (setq JUMP 50)
 (setq RAD 50)
 
-(if RESIZE_DONE Nil
-(SDL_SetWindowSize WIN WINDOW_WIDTH WINDOW_HEIGHT)
-(SDL_SetWindowPosition WIN 10 10)
+(SDL_SetRenderDrawColor RENDERER 0 0 0 255)
 (SDL_RenderClear RENDERER)
-(setq RESIZE_DONE T))
 
-(SDL_SetRenderDrawColor RENDERER 120 255 120 255)
-(SDL_RenderFillRect RENDERER 0 0 WINDOW_WIDTH WINDOW_HEIGHT)
+################################################################################
+(de g-color (R G B A)
+	(SDL_SetRenderDrawColor RENDERER R G B A))
 
-(SDL_SetRenderDrawColor RENDERER 100 0 0 200)
+(de drawCircle (XC YC X Y)
+ 	(SDL_RenderDrawPoint RENDERER (+ XC X) (+ YC Y))
+ 	(SDL_RenderDrawPoint RENDERER (- XC X) (+ YC Y))
+ 	(SDL_RenderDrawPoint RENDERER (+ XC X) (- YC Y))
+ 	(SDL_RenderDrawPoint RENDERER (- XC X) (- YC Y))
+ 	(SDL_RenderDrawPoint RENDERER (+ XC Y) (+ YC X))
+ 	(SDL_RenderDrawPoint RENDERER (- XC Y) (+ YC X))
+ 	(SDL_RenderDrawPoint RENDERER (+ XC Y) (- YC X))
+ 	(SDL_RenderDrawPoint RENDERER (- XC Y) (- YC X))
+ 	)
 
-(de line (X1 Y1 X2 Y2)
-	(for J LINE_WIDTH
-		(if (= Y1 Y2)
-			(SDL_RenderDrawLine RENDERER  X1 (+ Y1 J -1) X2 (+ Y2 J -1))
-			(SDL_RenderDrawLine RENDERER  (+ X1 J -1) Y1 (+ X2 J -1)  Y2))))
+(de g-circle (XC YC R)
+    (let (X 0
+          Y R
+          D (- 3 (* 2 R))
+          )
+	 (drawCircle XC YC X Y)
+    (while (or (> Y X) (= Y X))
+           (setq X (+ 1 X))
+           (if (> D 0)
+               (do 1 (setq Y (- Y 1)) (setq D (+ D (* 4 (- X Y)) 10)))
+               (setq D (+ D (* 4 X) 6))
+               )
+           (drawCircle XC YC X Y)
+           )
+    ))
+
+(de g-line (X1 Y1 X2 Y2)
+			(SDL_RenderDrawLine RENDERER  X1 Y1 X2  Y2))
+################################################################################
 	
-(for I 23
-	(let (X1 (+ BORDER (* (- I 1) JUMP) )
-		  Y1 BORDER
-		  X2 X1
-		  Y2 (- WINDOW_HEIGHT BORDER))
-	(line X1 Y1 X2 Y2)))
 
-(for I 15
-	(let (Y1 (+ BORDER (* (- I 1) JUMP) )
-		  X1 BORDER
-		  Y2 Y1
-		  X2 (- WINDOW_WIDTH BORDER))
-	(line X1 Y1 X2 Y2)))
-
-(de wheel (X Y)
-    (for I 4
-		(SDL_SetRenderDrawColor RENDERER 255 (* I 50) (* I 50))
-        (circleBres X Y (- RAD (- (* I 10) 1)))
-        (circleBres X Y (- RAD (- (* I 10) 2)))
-        (circleBres X Y (- RAD (* I 10)))))
-
-(for Y 4
-	(for X 5
-		(wheel (+ 100 (* (- X 1) 250)) (+ 100 (* (- Y 1) 200)))))
-
+# (for I 15
+# 	(let (Y1 (+ BORDER (* (- I 1) JUMP) )
+# 		  X1 BORDER
+# 		  Y2 Y1
+# 		  X2 (- WINDOW_WIDTH BORDER))
+# 	(g-line X1 Y1 X2 Y2)))
+# 
+# (de wheel (X Y)
+#     (for I 4
+# 		(SDL_SetRenderDrawColor RENDERER 255 (* I 50) (* I 50))
+#         (g-circle X Y (- RAD (- (* I 10) 1)))
+#         (g-circle X Y (- RAD (- (* I 10) 2)))
+#         (g-circle X Y (- RAD (* I 10)))))
+# 
+# (for Y 4
+# 	(for X 5
+# 		(wheel (+ 100 (* (- X 1) 250)) (+ 100 (* (- Y 1) 200)))))
+# 
 
 (SDL_RenderPresent RENDERER)
 
@@ -94,7 +107,6 @@
               Y (+ FONT_OFFSET_Y (* D FONT_HEIGHT))
               X (+ FONT_OFFSET_X (* R FONT_WIDTH 2))
               )
-        (prinl R)
 	    (SDL_SetRenderDrawColor RENDERER 127 0 0 100)
 		(SDL_RenderFillRect RENDERER X Y FONT_WIDTH FONT_HEIGHT)
 ))
@@ -116,9 +128,27 @@
 			(draw-char C X YY RW RH)
 			(setq X (+ X RW)))))
 	
+(let B 10
+	(for I (/ WINDOW_WIDTH B)
+		(if (not (= 0 (% I 10)) )
+			(g-color 50 50 127 127)
+			(g-color 100 100 200 127))
+		(let X (* I B)
+			(g-line X 0 X (- WINDOW_HEIGHT 1)))))
+(let B 10
+	(for I (/ WINDOW_HEIGHT B)
+		(if (not (= 0 (% I 10)) )
+			(g-color 50 50 127 127)
+			(g-color 100 100 200 127))
+		(let Y (* I B)
+			(g-line 0 Y (- WINDOW_WIDTH 1) Y))))
 
-(highlight "A")
 (let D 1
-(draw-str "PicoLisp is awesome!" 100 1050 (/ FONT_WIDTH D) (/ FONT_HEIGHT D)))
+	(draw-str "PicoLisp is awesome!" 100 100 (/ FONT_WIDTH D) (/ FONT_HEIGHT D)))
+
+(g-color 100 255 0 255)
+(g-circle 500 500 200)
+(g-line 600 300 340 650)
+(g-line 450 450 660 650)
 		
 (SDL_RenderPresent RENDERER)
