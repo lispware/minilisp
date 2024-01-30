@@ -70,12 +70,6 @@
 (SDL_SetTextureBlendMode FONT_TEXTURE 1)
 
 
-(setq FONT_OFFSET_X 62)
-(setq FONT_OFFSET_Y 38)
-(setq FONT_WIDTH 72)
-(setq FONT_HEIGHT 144)
-
-
 (de render-font ()
 	(SDL_RenderCopy RENDERER FONT_TEXTURE 0 0 2231 1111 0 0 2231 1111)
 	(let (SX FONT_OFFSET_X
