@@ -49,13 +49,13 @@
 (de TASK (DATA)
    (uv_tcp_connect LOOP "127.0.0.1" 8080 TCP DATA (process TCP DATA)) )
 
-(setq FS_EVENT_HANDLER (uv_fs_event_start LOOP "refresh.l" (file-change)))
+(setq FS_EVENT_HANDLER (uv_fs_event_start LOOP "refresh.l" FN (file-change FN)))
 
-(de file-change NIL
+(de file-change (FN)
    (uv_fs_event_stop FS_EVENT_HANDLER)
    (prinl "FILE CHANGED")
    (load "refresh.l")
-   (setq FS_EVENT_HANDLER (uv_fs_event_start LOOP "refresh.l" (file-change))) )
+   (setq FS_EVENT_HANDLER (uv_fs_event_start LOOP "refresh.l" FN (file-change FN))) )
 
 (setq FONT_OFFSET_X 28)
 

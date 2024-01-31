@@ -122,7 +122,7 @@
 (let D 1
    (draw-str "PicoLisp is awesome!" 100 100 (/ FONT_WIDTH D) (/ FONT_HEIGHT D)) )
 (let (X 500 Y 600 R 300)
-(g-color 100 255 0 255)
+(g-color 100 255 100 255)
 (g-circle X Y R)
 (for I 20
 (g-circle X Y (- R I 1))
