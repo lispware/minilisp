@@ -27,7 +27,7 @@ picolisp: $(bin)/picolisp
 $(bin)/picolisp: $(picoFiles:.c=.o)
 	mkdir -p $(bin)
 	echo "  " link picolisp:
-	$(CC) -o $(bin)/picolisp $(picoFiles:.c=.o) -lc -lm $(LIBS) 
+	$(CC) -o $(bin)/picolisp $(picoFiles:.c=.o) -lc $(LIBS) 
 	strip $(bin)/picolisp
 
 $(picoFiles:.c=.o): pico.h sym.d rom.d ram.d
