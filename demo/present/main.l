@@ -7,11 +7,21 @@
 
 (setq LOOP (uv_loop))
 
-(setq FS_EVENT_HANDLER (uv_fs_event_start LOOP "page1.l" FN (file-change FN))) 
-(de file-change (FileName)
-   (uv_fs_event_stop FS_EVENT_HANDLER)
-   (load "page1.l")
-   (setq FS_EVENT_HANDLER (uv_fs_event_start LOOP "page1.l" FN (file-change FN))) )
+(de create-handler (fileName N)
+	(let (CODE1 (pack
+					"-setq FS_EVENT_HANDLER" N " (uv_fs_event_start LOOP \"" fileName "\" FN (file-change" I " FN))")
+	      CODE2 (pack
+				"-de file-change" N  "(FileName)"
+   					"(uv_fs_event_stop FS_EVENT_HANDLER" N ")"
+   					"(prinl FileName \" is changed\")"
+   					"(load FileName)"
+   					"(setq FS_EVENT_HANDLER" N " (uv_fs_event_start LOOP FileName FN (file-change" I " FN)))"))
+   		(load CODE1)
+   		(load CODE2)))
+
+
+(for I 9
+	(create-handler (pack "page" I ".l") I))
 
 (setq FONT_OFFSET_X 28)
 (setq FONT_OFFSET_Y 17)
@@ -24,7 +34,6 @@
 (SDL_FreeSurface FONT)
 
 (SDL_SetWindowPosition WIN 100 1000)
-
 (load "page1.l")
 
 (loop
@@ -70,9 +79,10 @@
                (COMP_PACK (car EVENT) (PACK SDL_WINDOWEVENT))
                (COMP_PACK (car (cdr EVENT)) (PACK SDL_WINDOWEVENT_CLOSE)) )
             (do 1
+   			   #(uv_fs_event_stop FS_EVENT_HANDLER)
                (SDL_DestroyWindow WIN)
-               (uv_stop LOOP)
                (uv_run_nowait LOOP)
+               (uv_stop LOOP)
                (SDL_Quit)
                (bye) ) ) ) )
    (uv_run_nowait LOOP) )
