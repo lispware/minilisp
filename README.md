@@ -18,21 +18,21 @@ PicoLisp implementation is tied to POSIX/Linux and gcc more tightly that I'd lik
 
 ## Building
 
-Build depends on libuv and libSDL2. Please take a look at the Dockerfile to see how they may be installed.
+The interperter could be built with or without libuv and libSDL. Please take a look at the Dockerfile to see how libuv and libSDL may be installed.
 
 ```bash
 git clone https://github.com/lispware/minilisp.git
 cd minilisp/src
-make
+make -j8 USE_LIBUV_AND_LIBSDL=1 [You may skip USE_LIBUV_AND_LIBSDL=1 if you do not have those dependencies]
 ```
 
 #### Windows
 
-Build depends on libuv and libSDL2. Prebuilt binaries for those are automatically fetched from https://github.com/ckkashyap/WindowsBinaries
+The interperter could be built with or without libuv and libSDL. Prebuilt binaries for those are automatically fetched from https://github.com/ckkashyap/WindowsBinaries
 
 Assuming that you have run vcvars64.bat or vcvars32.bat to ensure that Micrsoft C compiler is set in the PATH.
 ```bash
-nmake -f nmakefile PLAT=[x64|x86]
+nmake -f nmakefile PLAT=[x64|x86] USE_LIBUV_AND_LIBSDL=1 [You may skip USE_LIBUV_AND_LIBSDL=1 if you do not have those dependencies]
 ```
 
 #### GNULinux and MacOS / OS X
@@ -41,6 +41,12 @@ Assuming that you have gcc
 ```bash
 make
 ```
+
+## Demo
+
+Go into the demo/present directory and run the following
+
+../../bin/picoLisp client.l [On Windows, that would be ..\..\src\picoLisp.exe client.l]. This should open up a window with contents rendered as specified in refresh.l. You can make changes to refresh.l and it should immediately update the window.
 
 ### Acknowledgements
 
