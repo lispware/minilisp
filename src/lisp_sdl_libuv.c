@@ -56,8 +56,9 @@ typedef struct {
 } ConnectionHandle;
 
 typedef struct {
-	uv_fs_event_t watcher;
-	any callback;
+    uv_fs_event_t watcher;
+    any fn;
+    any callback;
 } FileWatcherHandle;
 
 void on_close(uv_handle_t *handle);
@@ -125,11 +126,11 @@ any LISP_SDL_SetTransparency(any ex)
     any p5 = EVAL(car(x));
     int B = unBox(p5);
 
-	SDL_PixelFormat* textureFormat = SDL_AllocFormat(SDL_GetWindowPixelFormat(window));
+    SDL_PixelFormat* textureFormat = SDL_AllocFormat(SDL_GetWindowPixelFormat(window));
     Uint32 transparentColorKey = SDL_MapRGB(textureFormat, R, G, B);
     SDL_SetColorKey(texture, SDL_TRUE, transparentColorKey);
 
-	return Nil;
+    return Nil;
 }
 
 any LISP_SDL_RenderClear(any ex)
@@ -246,13 +247,13 @@ any LISP_IMG_Load(any ex)
     {
         for(int j = 0; j < width; j++)
         {
-			int o = ((height - i - 1) * width * 4) + (j * 4);
-			pixels[o++] = imagePixels[pi++];
-			pixels[o++] = imagePixels[pi++];
-			pixels[o++] = imagePixels[pi++];
-			pixels[o++] = 0;
+            int o = ((height - i - 1) * width * 4) + (j * 4);
+            pixels[o++] = imagePixels[pi++];
+            pixels[o++] = imagePixels[pi++];
+            pixels[o++] = imagePixels[pi++];
+            pixels[o++] = 0;
         }
-		pi+=PADDING;
+        pi+=PADDING;
     }
 
     PACK(imageSurface, P);
@@ -355,7 +356,7 @@ any LISP_SDL_SetWindowSize(any ex)
     word W = unBox(p2);
     word H = unBox(p3);
 
-	SDL_SetWindowSize(window, W, H);
+    SDL_SetWindowSize(window, W, H);
 
 
     return Nil;
@@ -377,7 +378,7 @@ any LISP_SDL_SetWindowPosition(any ex)
     word X = unBox(p2);
     word Y = unBox(p3);
 
-	SDL_SetWindowPosition(window, X, Y);
+    SDL_SetWindowPosition(window, X, Y);
 
     return Nil;
 }
@@ -510,7 +511,7 @@ any LISP_SDL_SetRenderDrawBlendMode(any ex)
     int _mode = M == Nil? 0 : unBox(M);
     SDL_BlendMode modes[] = {SDL_BLENDMODE_NONE,SDL_BLENDMODE_BLEND,SDL_BLENDMODE_ADD,SDL_BLENDMODE_MOD,SDL_BLENDMODE_MUL};
 
-	SDL_SetRenderDrawBlendMode((SDL_Renderer*)renderer, modes[_mode]);
+    SDL_SetRenderDrawBlendMode((SDL_Renderer*)renderer, modes[_mode]);
 
     return Nil;
 }
@@ -558,11 +559,11 @@ any LISP_SDL_RenderFillRect(any ex)
     x = cdr(x);
     any H = EVAL(car(x));
 
-	SDL_Rect rect;
-	rect.x = unBox(X);
-	rect.y = unBox(Y);
-	rect.w = unBox(W);
-	rect.h = unBox(H);
+    SDL_Rect rect;
+    rect.x = unBox(X);
+    rect.y = unBox(Y);
+    rect.w = unBox(W);
+    rect.h = unBox(H);
     SDL_RenderFillRect((SDL_Renderer*)renderer, &rect);
 
     return Nil;
@@ -693,19 +694,22 @@ any LISP_uv_queue_work(any ex)
 // (uv_fs_event_start LOOP "/path/file" (callback)
 void uv_file_change(uv_fs_event_t* handle, const char* filename, int events, int status)
 {
-	if (status < 0)
-	{
-		fprintf(stderr, "Error in file event callback: %s\n", uv_strerror(status));
-		return;
-	}
+    if (status < 0)
+    {
+        fprintf(stderr, "Error in file event callback: %s\n", uv_strerror(status));
+        return;
+    }
 
     if (events & UV_CHANGE) {
-    	FileWatcherHandle *h = (FileWatcherHandle*)handle;
-    	prog(h->callback);
+        FileWatcherHandle *h = (FileWatcherHandle*)handle;
+        bindFrame f;
+        any y = h->fn;
+        Bind(y,f),  val(y) = mkStr(filename);
+        prog(h->callback);
     }
 }
 
-// TODO: Add the corresponding stop
+// (setq FS_EVENT_HANDLER (uv_fs_event_start LOOP "refresh.l" (file-change)))
 any LISP_fs_event_start(any ex)
 {
     any x = ex;
@@ -719,10 +723,10 @@ any LISP_fs_event_start(any ex)
 
     int ret = uv_fs_event_init(loop, &handle->watcher);
     if (ret)
-	{
+    {
         fprintf(stderr, "Error initializing file watcher: %s\n", uv_strerror(ret));
-		return Nil;
-	}
+        return Nil;
+    }
 
     x = cdr(x);
     any p2 = EVAL(car(x));
@@ -730,14 +734,18 @@ any LISP_fs_event_start(any ex)
     bufString(p2, fileName);
 
     x = cdr(x);
+    any p3 = car(x);
+    handle->fn = p3;
+
+    x = cdr(x);
     handle->callback = x;
 
     ret = uv_fs_event_start(handle, uv_file_change, fileName, UV_FS_EVENT_RECURSIVE);
     if(ret !=0)
-	{
+    {
         fprintf(stderr, "Error starting file watcher: %s\n", uv_strerror(ret));
         return Nil;
-	}
+    }
 
     PACK(handle, P);
     return P;
@@ -754,7 +762,7 @@ any LISP_fs_event_stop(any ex)
     FileWatcherHandle *handle = (FileWatcherHandle*)l;
 
     uv_fs_event_stop((uv_fs_event_t*)handle);
-	uv_close((uv_handle_t*)handle, on_close);
+    uv_close((uv_handle_t*)handle, on_close);
 
     return Nil;
 }
@@ -1072,22 +1080,22 @@ any LISP_uv_tcp_listen(any ex)
 
 any doCalloc(any ex)
 {
-	any x, y;
-	x = cdr(ex);
-	y = EVAL(car(x));
-	word n = isNil(y) ? 100 : unBox(y);
-	void *mem = calloc(n, 1);
-	PACK(mem, R);
-	return R;
+    any x, y;
+    x = cdr(ex);
+    y = EVAL(car(x));
+    word n = isNil(y) ? 100 : unBox(y);
+    void *mem = calloc(n, 1);
+    PACK(mem, R);
+    return R;
 }
 
 any doFree(any ex)
 {
-	any x = cdr(ex);
-	any p1 = EVAL(car(x));
-	UNPACK(p1, mem);
-	free((void*)mem);
-	return Nil;
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, mem);
+    free((void*)mem);
+    return Nil;
 }
 
 #endif //USE_LIBUV_AND_LIBSDL
