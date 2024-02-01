@@ -33,7 +33,7 @@
 (setq FONT_TEXTURE (SDL_CreateTextureFromSurface RENDERER FONT))
 (SDL_FreeSurface FONT)
 
-(SDL_SetWindowPosition WIN 0 0)
+(SDL_SetWindowPosition WIN 100 100)
 
 (load "lib.l")
 (load "page1.l")
