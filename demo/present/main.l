@@ -13,7 +13,7 @@
 	      CODE2 (pack
 				"-de file-change" N  "(FileName)"
    					"(uv_fs_event_stop FS_EVENT_HANDLER" N ")"
-   					"(prinl FileName \" is changed\")"
+   					#"(prinl FileName \" is changed\")"
    					"(load FileName)"
    					"(setq FS_EVENT_HANDLER" N " (uv_fs_event_start LOOP FileName FN (file-change" I " FN)))"))
    		(load CODE1)
@@ -33,10 +33,10 @@
 (setq FONT_TEXTURE (SDL_CreateTextureFromSurface RENDERER FONT))
 (SDL_FreeSurface FONT)
 
-(SDL_SetWindowPosition WIN 100 1000)
-(load "page1.l")
+(SDL_SetWindowPosition WIN 0 0)
 
 (load "lib.l")
+(load "page1.l")
 
 (loop
    (while (SDL_PollEvent)
