@@ -44,38 +44,14 @@
          (if (COMP_PACK (car EVENT) (PACK SDL_MOUSEBUTTONDOWN))
             (do 1
                (let (MP (SDL_GetMouseState))
-                  (uv_queue_work LOOP (TASK MP))
-                  (SDL_SetRenderDrawColor RENDERER 0 255 0 127)
-                  (drawBox (car MP) (cdr MP))
+                  (SDL_SetRenderDrawColor RENDERER 0 255 0 50)
                   (SDL_RenderFillRect
                      RENDERER
                      (- (car MP) 20)
                      (- (cdr MP) 20)
                      40
                      40 )
-                  (SDL_SetRenderDrawColor RENDERER 255 255 0 255)
-                  (SDL_RenderFillRect
-                     RENDERER
-                     (+ (car MP) 0)
-                     (+ (cdr MP) 0)
-                     40
-                     40 )
-                  (SDL_RenderDrawPoint RENDERER (car MP) (cdr MP))
                   (SDL_RenderPresent RENDERER) ) ) )
-         (if (COMP_PACK (car EVENT) (PACK SDL_USEREVENT))
-            (do 1
-               (let
-                  (ED (car (cdr EVENT))
-                     BUF (car (cdr ED))
-                     RGB (getColor BUF)
-                     R (car RGB)
-                     G (car (cdr RGB))
-                     B (car (cdr (cdr RGB)))
-                     X1 (car (car ED))
-                     Y1 (cdr (car ED)) )
-                  (SDL_SetRenderDrawColor RENDERER R G B)
-                  (drawBox X1 Y1) )
-               (SDL_RenderPresent RENDERER) ) )
          (if
             (and
                (COMP_PACK (car EVENT) (PACK SDL_WINDOWEVENT))
