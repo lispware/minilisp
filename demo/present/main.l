@@ -36,6 +36,8 @@
 (SDL_SetWindowPosition WIN 100 1000)
 (load "page1.l")
 
+(load "lib.l")
+
 (loop
    (while (SDL_PollEvent)
       (let (EVENT @)
