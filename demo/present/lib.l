@@ -45,3 +45,10 @@
       (for C (chop S)
          (g-draw-char C X YY RW RH)
          (setq X (+ X (if RW RW FONT_WIDTH))) ) ) )
+
+(de g-fill-rect (X1 Y1 X2 Y2)
+	(SDL_RenderFillRect RENDERER X1 Y1 X2 Y2))
+
+(de g-update ()
+	(SDL_RenderPresent RENDERER))
+
