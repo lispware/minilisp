@@ -2,6 +2,6 @@
 (SDL_RenderFillRect RENDERER 100 100 200 200)
 
 (g-clear)
-(draw-str "hello" 100 200 FONT_WIDTH FONT_HEIGHT)
+(g-draw-str "hello" 100 200)
 
 (SDL_RenderPresent RENDERER)

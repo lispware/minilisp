@@ -38,10 +38,10 @@
          R (% I 15)
          Y (+ FONT_OFFSET_Y (* D FONT_HEIGHT))
          X (+ FONT_OFFSET_X (* R FONT_WIDTH 2)) )
-      (SDL_RenderCopy RENDERER FONT_TEXTURE X Y FONT_WIDTH FONT_HEIGHT XX YY RW RH) ) )
+      (SDL_RenderCopy RENDERER FONT_TEXTURE X Y FONT_WIDTH FONT_HEIGHT XX YY (if RW RW FONT_WIDTH) (if RH RH FONT_HEIGHT)) ) )
 
 (de g-draw-str (S XX YY RW RH)
    (let X XX
       (for C (chop S)
          (g-draw-char C X YY RW RH)
-         (setq X (+ X RW)) ) ) )
+         (setq X (+ X (if RW RW FONT_WIDTH))) ) ) )
