@@ -43,5 +43,5 @@
 (de g-draw-str (S XX YY RW RH)
    (let X XX
       (for C (chop S)
-         (draw-char C X YY RW RH)
+         (g-draw-char C X YY RW RH)
          (setq X (+ X RW)) ) ) )
