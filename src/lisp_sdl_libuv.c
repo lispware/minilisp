@@ -61,6 +61,12 @@ typedef struct {
     any callback;
 } FileWatcherHandle;
 
+typedef struct {
+	uv_fs_t req;
+	any result;
+	any callback;
+} FileStatRequest;
+
 void on_close(uv_handle_t *handle);
 
 void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
@@ -706,11 +712,12 @@ void uv_file_change(uv_fs_event_t* handle, const char* filename, int events, int
         any y = h->fn;
         Bind(y,f),  val(y) = mkStr(filename);
         prog(h->callback);
+    	Unbind(f);
     }
 }
 
 // (setq FS_EVENT_HANDLER (uv_fs_event_start LOOP "refresh.l" (file-change)))
-any LISP_fs_event_start(any ex)
+any LISP_uv_fs_event_start(any ex)
 {
     any x = ex;
 
@@ -751,8 +758,61 @@ any LISP_fs_event_start(any ex)
     return P;
 }
 
+void check_file_existence(uv_fs_t* req) {
+	FileStatRequest *handle = (FileStatRequest*)req;
+	bindFrame f;
+    any y = handle->result;
+    Bind(y,f),  val(y) = req->result ? Nil : T;
+    prog(handle->callback);
+    Unbind(f);
+
+    if (req->result != 0 && req->result != UV_ENOENT)
+    {
+        printf("Error checking file existence: %s\n", uv_strerror(req->result));
+    }
+
+    // Cleanup and free resources
+    uv_fs_req_cleanup(req);
+    free(req);
+}
+
+// (uv_fs_event_start LOOP "file.txt" E (exists E))
+any LISP_uv_fs_stat(any ex)
+{
+    any x = ex;
+
+    x = cdr(x);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, l);
+    uv_loop_t *loop = (uv_loop_t*)l;
+
+    x = cdr(x);
+    any p2 = EVAL(car(x));
+    char *fileName = (char *)calloc(bufSize(p2), 1);
+    bufString(p2, fileName);
+
+    FileStatRequest *req = (FileStatRequest*)calloc(sizeof(FileStatRequest), 1);
+
+    x = cdr(x);
+    any p3 = car(x);
+    req->result = p3;
+
+    x = cdr(x);
+    req->callback = x;
+
+	int result = uv_fs_stat(loop, req, fileName, check_file_existence);
+    if (result)
+    {
+        fprintf(stderr, "Error scheduling file existence check: %s\n", uv_strerror(result));
+        free(req);
+        return Nil;
+    }
+
+    return Nil;
+}
+
 // this does the closure of the handle too
-any LISP_fs_event_stop(any ex)
+any LISP_uv_fs_event_stop(any ex)
 {
     any x = ex;
 
