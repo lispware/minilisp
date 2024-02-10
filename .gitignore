@@ -5,3 +5,4 @@
 test/*
 bin/*
 src/gen3m
+src/DEPS/*

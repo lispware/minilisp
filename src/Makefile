@@ -4,15 +4,21 @@
 .SILENT:
 
 bin = ../bin
-picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c
+picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c lisp_sdl_libuv.c lisp_sdl_libuv_stub.c
 
-CC = gcc $(PLAT)
+ifdef USE_LIBUV_AND_LIBSDL
+CC=gcc -DUSE_LIBUV_AND_LIBSDL
+LIBS=-lSDL2 -luv
+else
+CC = gcc
+endif
 
 picolisp: $(bin)/picolisp
 
 .c.o:
 	echo $*.c:
-	$(CC) -c -O2 -pipe \
+	$(CC) -c -O3 -pipe \
+        -I /usr/local/include/SDL2 \
 	-falign-functions -fomit-frame-pointer -fno-strict-aliasing \
 	-W -Wimplicit -Wreturn-type -Wunused -Wformat \
 	-Wuninitialized -Wstrict-prototypes \
@@ -21,7 +27,7 @@ picolisp: $(bin)/picolisp
 $(bin)/picolisp: $(picoFiles:.c=.o)
 	mkdir -p $(bin)
 	echo "  " link picolisp:
-	$(CC) -o $(bin)/picolisp $(picoFiles:.c=.o) -lc -lm
+	$(CC) -o $(bin)/picolisp $(picoFiles:.c=.o) -lc $(LIBS) 
 	strip $(bin)/picolisp
 
 $(picoFiles:.c=.o): pico.h sym.d rom.d ram.d
