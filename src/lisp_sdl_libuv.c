@@ -40,7 +40,7 @@ typedef struct {
 } ReadRequest;
 
 typedef struct {
-    uv_stream_t tcp;
+    uv_tcp_t tcp;
     any callback;
     any data;
     any binding;
