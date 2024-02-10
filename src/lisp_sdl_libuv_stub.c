@@ -175,15 +175,21 @@ any LISP_uv_queue_work(any ex)
 	return Nil;
 }
 
-any LISP_fs_event_start(any ex)
+any LISP_uv_fs_event_start(any ex)
 {
 	printf("STUB: LISP_fs_event_start\n");
 	return Nil;
 }
 
-any LISP_fs_event_stop(any ex)
+any LISP_uv_fs_event_stop(any ex)
 {
 	printf("STUB: LISP_fs_event_stop\n");
+	return Nil;
+}
+
+any LISP_uv_fs_stat(any ex)
+{
+	printf("STUB: LISP_fs_stat\n");
 	return Nil;
 }
 
