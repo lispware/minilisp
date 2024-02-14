@@ -10,3 +10,8 @@ Features
 
 Semantics
    'heap' and 'gc' in kB instead of MB
+
+
+Additional diffs
+1. Function pointers are not directly stored in the cell. Instead, there is a Functions array and the cell actually contains the index into the array. This is done because some C compilers dont guarantee that function pointers are aligned.
+
