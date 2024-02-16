@@ -165,9 +165,9 @@ typedef struct catchFrame {
 #endif
 
 #ifdef MICROSOFT_C
-MEM_ALIGN any const Functions[];
+MEM_ALIGN any Functions[];
 #else
-extern any const __attribute__ ((__aligned__(2*WORD))) Functions[];
+extern any __attribute__ ((__aligned__(2*WORD))) Functions[];
 #endif
 
 /* Globals */
@@ -181,7 +181,7 @@ extern FILE *InFile, *OutFile;
 extern any TheKey, TheCls, Thrown;
 extern any Intern[2], Transient[2];
 extern any ApplyArgs, ApplyBody;
-extern any const Rom[];
+extern any Rom[];
 extern any Ram[];
 
 /* Prototypes */

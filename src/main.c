@@ -22,7 +22,7 @@ MEM_ALIGN any Ram[] = {
    #include "ram.d"
 };
 
-MEM_ALIGN any const Rom[] = {
+MEM_ALIGN any  Rom[] = {
    #include "rom.d"
 };
 
@@ -34,14 +34,16 @@ any __attribute__ ((__aligned__(2*WORD))) Ram[] = {
    #include "ram.d"
 };
 
-any const __attribute__ ((__aligned__(2*WORD))) Rom[] = {
+any __attribute__ ((__aligned__(2*WORD))) Rom[] = {
    #include "rom.d"
 };
 
-any const __attribute__ ((__aligned__(2*WORD))) Functions[] = {
+any __attribute__ ((__aligned__(2*WORD))) Functions[] = {
    #include "functions.d"
 };
 #endif
+
+#include "numbers.d"
 
 static bool Jam;
 static jmp_buf ErrRst;
@@ -726,11 +728,25 @@ any loadAll(any ex) {
    return x;
 }
 
+void check()
+{
+	for(int i = 0; i < NUMBERS_COUNT; i+=2)
+	{
+		word *p = Numbers[i];
+		word n = unBox(Numbers[i+1]);
+		n = n*2;
+		printf("%p Ram=%p Rom=%p\n", p, Ram, Rom);
+		*p = box(n);
+		//printf("%p %p %d\n", *p, Numbers[i+1], Numbers[i+1]);
+	}
+}
+
 /*** Main ***/
 int main(int ac, char *av[]) {
    int i;
    char *p;
 
+check();
    AV0 = *av++;
    AV = av;
    heapAlloc();

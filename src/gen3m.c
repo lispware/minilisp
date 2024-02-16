@@ -43,6 +43,14 @@ typedef struct symbol {
 char *functions[MAXFUNCTIONS];
 int FUNC_CTR=0;
 
+typedef struct _nextNumber
+{
+	char address[40];
+	word value;
+	struct _nextNumber *next;
+} NumberList;
+NumberList *NL;
+
 static symbol *Intern, *Transient;
 
 static byte Ascii6[] = {
@@ -129,9 +137,32 @@ static void mkSym(int *ix, char ***list, char *mem, char *name, char *value) {
    }
 }
 
-static void print(char buf[], int x) {
+static void addNumber(int ram, int carOrCdr, int idx, int x)
+{
+	if (!(x&2)) return;
+   	   NumberList * oldNL = NL;
+   	   NL = (NumberList * )calloc(sizeof(NumberList), 1);
+   	   NL->next = oldNL;
+   	   char *ram0 = "(Ram+%d)";
+   	   char *ram1 = "(Ram+%d+1)";
+   	   char *rom0 = "(Rom+%d)";
+   	   char *rom1 = "(Rom+%d+1)";
+   	   if (ram)
+	   {
+	   	if (carOrCdr == 0) sprintf(NL->address, ram0, idx);
+	   	else sprintf(NL->address, ram1, idx);
+	   }
+	   else
+	   {
+	   	if (carOrCdr == 0) sprintf(NL->address, rom0, idx);
+	   	else sprintf(NL->address, rom1, idx);
+	   }
+	   NL->value = x;
+}
+
+static void print(char buf[], int x, int where) {
    if (x & 2)
-      sprintf(buf, "%d", x);
+      sprintf(buf, "%d/*_N%d*/", x, where);
    else if ((x >>= 2) > 0)
       sprintf(buf, "(Rom+%d)", x);
    else
@@ -142,11 +173,14 @@ static int cons(int x, int y) {
    int i, ix = RomIx;
    char car[40], cdr[40];
 
-   print(car, x);
-   print(cdr, y);
+   print(car, x, 0);
+   print(cdr, y, 1);
    for (i = 0; i < RomIx;  i += 2)
       if (strcmp(car, Rom[i]) == 0  &&  strcmp(cdr, Rom[i+1]) == 0)
          return i << 2;
+
+   addNumber(0, 0, RomIx, x);
+   addNumber(0, 1, RomIx, y);
    addList(&RomIx, &Rom, car, 0);
    addList(&RomIx, &Rom, cdr, 0);
    return ix << 2;
@@ -311,7 +345,7 @@ static int read0(bool top) {
       *p = '\0';
       if (x = lookup(&Transient, Token))
          return x;
-      print(buf, -(RamIx + 1) << 2);
+      print(buf, -(RamIx + 1) << 2, 2);
       insert(&Transient, Token, x = ramSym(Token, buf));
       return x;
    }
@@ -383,7 +417,7 @@ int main(int ac, char *av[]) {
                }
                putc(Chr, fp);
             }
-            print(buf, x);
+            print(buf, x, 3);
             fprintf(fp, " (any)%s\n", buf);
          }
          x >>= 2;
@@ -409,28 +443,35 @@ int main(int ac, char *av[]) {
             fprintf(fp, "any %s(any);\n", Token);
          }
          else {                                 // Value
-            print(buf, read0(YES));
+         	 word val = read0(YES);
+            print(buf, val, 4);
             if (x > 0)
+			{
+				addNumber(0, 1, RomIx - 2, val);
                Rom[x] = strdup(buf);
+			}
             else
+			{
+				addNumber(1, 1, RamIx - 2, val);
                Ram[-x] = strdup(buf);
+			}
          }
          while (skip() == ',') {                // Properties
             Chr = getchar();
             if (Chr == EOF)
                break;
-            print(buf, read0(YES));
+            print(buf, read0(YES), 5);
             ix = RomIx;
             if (x > 0) {
                addList(&RomIx, &Rom, Rom[x-1], 0);
                addList(&RomIx, &Rom, buf, 0);
-               print(buf, ix << 2);
+               print(buf, ix << 2, 6);
                Rom[x-1] = strdup(buf);
             }
             else {
                addList(&RomIx, &Rom, Ram[-x-1], 0);
                addList(&RomIx, &Rom, buf, 0);
-               print(buf, ix << 2);
+               print(buf, ix << 2, 7);
                Ram[-x-1] = strdup(buf);
             }
          }
@@ -452,6 +493,19 @@ int main(int ac, char *av[]) {
    if (fp = fopen("functions.d", "w")) {
       for (x = 0; x < FUNC_CTR; x++)
          fprintf(fp, "(any)%s,\n", functions[x]);
+      fclose(fp);
+   }
+   if (fp = fopen("numbers.d", "w")) {
+   	   int numbersCount=0;
+	   fprintf(fp, "any Numbers[] = {\n", numbersCount);
+   	   while(NL != NULL)
+       {
+         fprintf(fp, "%s,\n", NL->address);
+         fprintf(fp, "%d,\n", NL->value);
+         NL=NL->next;
+         numbersCount+=2;
+       }
+	   fprintf(fp, "};\n#define NUMBERS_COUNT (%d)", numbersCount);
       fclose(fp);
    }
    return 0;
