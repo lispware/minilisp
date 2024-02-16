@@ -728,16 +728,13 @@ any loadAll(any ex) {
    return x;
 }
 
-void check()
+void fixNumbers()
 {
 	for(int i = 0; i < NUMBERS_COUNT; i+=2)
 	{
 		word *p = Numbers[i];
 		word n = unBox(Numbers[i+1]);
-		n = n*2;
-		printf("%p Ram=%p Rom=%p\n", p, Ram, Rom);
 		*p = box(n);
-		//printf("%p %p %d\n", *p, Numbers[i+1], Numbers[i+1]);
 	}
 }
 
@@ -746,7 +743,7 @@ int main(int ac, char *av[]) {
    int i;
    char *p;
 
-check();
+   fixNumbers();
    AV0 = *av++;
    AV = av;
    heapAlloc();
