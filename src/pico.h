@@ -146,7 +146,7 @@ typedef struct catchFrame {
 /* Evaluation */
 #define EVAL(x)         (isNum(x)? x : isSym(x)? val(x) : evList(x))
 //#define evSubr(f,x)     (*(fun)(num(f) & ~2))(x)
-#define evSubr(f,x) 	((fun)(Functions[num(f)>>3]))(x);
+#define evSubr(f,x) 	((fun)(Functions[num(f)>>2]))(x);
 
 /* Error checking */
 #define NeedNum(ex,x)   if (!isNum(x)) numError(ex,x)
