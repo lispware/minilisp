@@ -176,24 +176,21 @@ void dingo()
     printf("Start %d\n", __LINE__ );
 
     bf_init(&bf_ctx, NUM1);
-    printf("Start %d\n", __LINE__ );
-    bf_set_ui(NUM1, 10);
-    printf("Start %d\n", __LINE__ );
+    bf_set_ui(NUM1, 1234);
     bf_init(&bf_ctx, NUM2);
-    printf("Start %d\n", __LINE__ );
-    bf_set_ui(NUM2, 20);
-    printf("Start %d\n", __LINE__ );
+    bf_set_ui(NUM2, 10);
     bf_init(&bf_ctx, NUM3);
     bf_set_ui(NUM3, 1234);
 
-    long long pres = 10;;
-    bf_add(NUM3, NUM1, NUM2, pres, BF_RNDN);
+    long long pres = 100;;
+    bf_mul_si(NUM3, NUM1, 10, pres, BF_RNDN);
+    //bf_add_si(NUM3, NUM1, 5, pres, BF_RNDN);
 
     long long x = bf_get_int32(&pres, NUM3, BF_RNDN);
 
     size_t digits_len;
-    size_t n_digits=1;
-    char *digits = bf_ftoa(&digits_len, NUM3, 10, n_digits + 1,
+    size_t n_digits=10;
+    char *digits = bf_ftoa(&digits_len, NUM3, 10, 1,
                              BF_FTOA_FORMAT_FIXED | BF_RNDZ);
 
     printf("End INT=%d #digits=%d, %s\n", pres, digits_len, digits);

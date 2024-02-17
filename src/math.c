@@ -30,6 +30,9 @@ any symToNum(any s, int scl, int sep, int ign) {
    bool sign, frac;
    uword n;
 
+   bf_t *NUM = (bf_t*)calloc(sizeof(bf_t), 1);
+   bf_init(&bf_ctx, NUM);
+
    if (!(c = getByte1(&i, &w, &s)))
       return NULL;
    while (c <= ' ')  /* Skip white space */
@@ -42,7 +45,8 @@ any symToNum(any s, int scl, int sep, int ign) {
    if ((c -= '0') > 9)
       return NULL;
    frac = NO;
-   n = c;
+   //n = c;
+   bf_set_ui(NUM, c);
    while ((c = getByte(&i, &w, &s))  &&  (!frac || scl)) {
       if ((int)c == sep) {
          if (frac)
@@ -53,6 +57,8 @@ any symToNum(any s, int scl, int sep, int ign) {
          if ((c -= '0') > 9)
             return NULL;
          n = n * 10 + c;
+        bf_mul_si(NUM, NUM, 10, LIBBF_PRES, BF_RNDN);
+        bf_add_si(NUM, NUM, c, LIBBF_PRES, BF_RNDN);
          if (frac)
             --scl;
       }
@@ -70,7 +76,9 @@ any symToNum(any s, int scl, int sep, int ign) {
    if (frac)
       while (--scl >= 0)
          n *= 10;
-   return box(sign? -n : n);
+   //return box(sign? -n : n);
+   if (sign) bf_mul_si(NUM, NUM, -1, LIBBF_PRES, BF_RNDN);
+   return boxBF(NUM);
 }
 
 /* Make symbol from number */

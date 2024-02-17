@@ -100,7 +100,10 @@ typedef struct catchFrame {
 #define num(x)          ((word)(x))
 #define txt(n)          ((any)(num(n)<<1|1))
 #define box(n)          ((any)(num(n)<<2|2))
+#define boxBF(n)        ((any)(num(n)|6))
 #define unBox(n)        (num(n)>>2)
+#define unBoxBF(n)      ((num(n)>>3)<<3)
+#define LIBBF_PRES      (100)
 #define Zero            ((any)2)
 #define One             ((any)6)
 
@@ -140,6 +143,7 @@ typedef struct catchFrame {
 #define isNil(x)        ((x)==Nil)
 #define isTxt(x)        (num(x)&1)
 #define isNum(x)        (num(x)&2)
+#define isNumBF(x)      (num(x)&4)
 #define isSym(x)        (num(x)&WORD)
 #define isSymb(x)       ((num(x)&(WORD+2))==WORD)
 #define isCell(x)       (!(num(x)&(2*WORD-1)))
@@ -147,7 +151,7 @@ typedef struct catchFrame {
 /* Evaluation */
 #define EVAL(x)         (isNum(x)? x : isSym(x)? val(x) : evList(x))
 //#define evSubr(f,x)     (*(fun)(num(f) & ~2))(x)
-#define evSubr(f,x) 	((fun)(Functions[num(f)>>2]))(x);
+#define evSubr(f,x) 	((fun)(Functions[num(f)>>3]))(x);
 
 /* Error checking */
 #define NeedNum(ex,x)   if (!isNum(x)) numError(ex,x)
@@ -185,6 +189,7 @@ extern any ApplyArgs, ApplyBody;
 extern any Rom[];
 extern any Ram[];
 extern  bf_context_t bf_ctx;
+void *my_bf_realloc(void *opaque, void *ptr, size_t size);
 
 /* Prototypes */
 void *alloc(void*,size_t);
@@ -237,6 +242,7 @@ void numError(any,any);
 any numToSym(any,int,int,int);
 void outName(any);
 void outNum(word);
+void outNumBF(word);
 void outString(char*);
 void pack(any,int*,uword*,any*,cell*);
 int pathSize(any);
