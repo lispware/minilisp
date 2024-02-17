@@ -989,11 +989,11 @@ void prin(any x) {
       {
           if (isNumBF(x))
           {
-              printf("BF\n");
+              outNumBF(unBoxBF(x));
           }
           else
           {
-              outNum(unBoxBF(x));
+              outNum(unBox(x));
           }
       }
       else if (isSym(x)) {

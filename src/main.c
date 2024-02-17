@@ -229,6 +229,8 @@ bool equal(any x, any y) {
 
    if (x == y)
       return YES;
+   if (isNumBF(x))
+      return bf_cmp_eq((bf_t*)unBoxBF(x), (bf_t*)unBoxBF(y)) != 0;
    if (isNum(x))
       return NO;
    if (isSym(x)) {
