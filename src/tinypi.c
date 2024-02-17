@@ -191,7 +191,18 @@ void dingo()
 
     long long x = bf_get_int32(&pres, NUM3, BF_RNDN);
 
-    printf("End %d\n", pres);
+    size_t digits_len;
+    size_t n_digits=1;
+    char *digits = bf_ftoa(&digits_len, NUM3, 10, n_digits + 1,
+                             BF_FTOA_FORMAT_FIXED | BF_RNDZ);
+
+    printf("End INT=%d #digits=%d, %s\n", pres, digits_len, digits);
+    bf_delete(NUM1);
+    bf_delete(NUM2);
+    bf_delete(NUM3);
+    free(NUM1);
+    free(NUM2);
+    free(NUM3);
     exit(0);
 }
 
@@ -205,6 +216,7 @@ int main(int argc, char **argv)
     int arg_idx, dec_output;
     char *digits;
     size_t digits_len;
+
     
     dec_output = 1;
     verbose = 0;
