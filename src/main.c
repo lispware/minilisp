@@ -17,6 +17,11 @@ any TheKey, TheCls, Thrown;
 any Intern[2], Transient[2];
 any ApplyArgs, ApplyBody;
 
+void *my_bf_realloc(void *opaque, void *ptr, size_t size)
+{
+    return realloc(ptr, size);
+}
+
 /* RAM Symbols */
 #ifdef MICROSOFT_C
 MEM_ALIGN any Ram[] = {
@@ -733,10 +738,12 @@ void fixNumbers()
 {
 	for(int i = 0; i < NUMBERS_COUNT; i+=2)
 	{
-		word *p = Numbers[i];
+        bf_t *NUM = (bf_t*)calloc(sizeof(bf_t), 1);
+        bf_init(&bf_ctx, NUM);
 		word n = unBox(Numbers[i+1]);
-
-		*p = box(n);
+        bf_set_ui(NUM, n);
+		word *p = Numbers[i];
+		*p = box(NUM);
 	}
 }
 
@@ -745,6 +752,7 @@ int main(int ac, char *av[]) {
    int i;
    char *p;
 
+   bf_context_init(&bf_ctx, my_bf_realloc, NULL);
    fixNumbers();
    AV0 = *av++;
    AV = av;
