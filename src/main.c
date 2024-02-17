@@ -743,7 +743,7 @@ void fixNumbers()
 		word n = unBox(Numbers[i+1]);
         bf_set_ui(NUM, n);
 		word *p = Numbers[i];
-		*p = box(NUM);
+		*p = boxBF(NUM);
 	}
 }
 
