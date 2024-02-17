@@ -163,15 +163,15 @@ any doAdd(any ex) {
    x = cdr(ex);
    if (isNil(y = EVAL(car(x))))
       return Nil;
-   NeedNum(ex,y);
-   n = unBox(y);
+   NeedNumBF(ex,y);
+   n = unBoxBF(y);
    while (isCell(x = cdr(x))) {
       if (isNil(y = EVAL(car(x))))
          return Nil;
-      NeedNum(ex,y);
-      n += unBox(y);
+      NeedNumBF(ex,y);
+      bf_add((bf_t*)n,(bf_t*)n,(bf_t*)(unBoxBF(y)), LIBBF_PRES, BF_RNDN);
    }
-   return box(n);
+   return boxBF(n);
 }
 
 // (- 'num ..) -> num

@@ -155,6 +155,7 @@ typedef struct catchFrame {
 
 /* Error checking */
 #define NeedNum(ex,x)   if (!isNum(x)) numError(ex,x)
+#define NeedNumBF(ex,x)   if (!isNumBF(x)) numError(ex,x)
 #define NeedSym(ex,x)   if (!isSym(x)) symError(ex,x)
 #define NeedSymb(ex,x)  if (!isSymb(x)) symError(ex,x)
 #define NeedPair(ex,x)  if (!isCell(x)) pairError(ex,x)
