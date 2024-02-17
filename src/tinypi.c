@@ -162,8 +162,42 @@ static void pi_chud(bf_t *Q, int64_t prec)
     bf_delete(&G);
 }
 
+//  gcc -I . libbf.c cutils.c tinypi.c -lm
+void dingo()
+{
+    printf("Start %d\n", __LINE__ );
+    bf_context_init(&bf_ctx, my_bf_realloc, NULL);
+    printf("Start %d\n", __LINE__ );
+
+    bf_t *NUM1 = (bf_t*)calloc(sizeof(bf_t), 1);
+    bf_t *NUM2 = (bf_t*)calloc(sizeof(bf_t), 1);
+    bf_t *NUM3 = (bf_t*)calloc(sizeof(bf_t), 1);
+
+    printf("Start %d\n", __LINE__ );
+
+    bf_init(&bf_ctx, NUM1);
+    printf("Start %d\n", __LINE__ );
+    bf_set_ui(NUM1, 10);
+    printf("Start %d\n", __LINE__ );
+    bf_init(&bf_ctx, NUM2);
+    printf("Start %d\n", __LINE__ );
+    bf_set_ui(NUM2, 20);
+    printf("Start %d\n", __LINE__ );
+    bf_init(&bf_ctx, NUM3);
+    bf_set_ui(NUM3, 1234);
+
+    long long pres = 10;;
+    bf_add(NUM3, NUM1, NUM2, pres, BF_RNDN);
+
+    long long x = bf_get_int32(&pres, NUM3, BF_RNDN);
+
+    printf("End %d\n", pres);
+    exit(0);
+}
+
 int main(int argc, char **argv)
 {
+    dingo();
     int64_t n_digits, prec, n_bits, ti_tot;
     bf_t PI;
     const char *output_filename;

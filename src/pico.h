@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <setjmp.h>
 #include <stdint.h>
+#include "libbf.h"
 
 #ifndef CELLS
 #define CELLS (1024*1024/sizeof(cell))
@@ -183,6 +184,7 @@ extern any Intern[2], Transient[2];
 extern any ApplyArgs, ApplyBody;
 extern any Rom[];
 extern any Ram[];
+extern  bf_context_t bf_ctx;
 
 /* Prototypes */
 void *alloc(void*,size_t);

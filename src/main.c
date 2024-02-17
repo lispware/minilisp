@@ -5,6 +5,7 @@
 #include "pico.h"
 
 /* Globals */
+bf_context_t bf_ctx;
 int Chr, Trace;
 char **AV, *AV0, *Home;
 heap *Heaps;
@@ -734,6 +735,7 @@ void fixNumbers()
 	{
 		word *p = Numbers[i];
 		word n = unBox(Numbers[i+1]);
+
 		*p = box(n);
 	}
 }
