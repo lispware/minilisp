@@ -885,6 +885,18 @@ void outNum(word n) {
    outString(buf);
 }
 
+void outNumBF(word n) {
+    size_t digits_len;
+    size_t n_digits=1;
+    char *digits = bf_ftoa(&digits_len, (bf_t*)n, 10, n_digits + 1,
+                             BF_FTOA_FORMAT_FIXED | BF_RNDZ);
+   //char buf[BITS/2];
+
+   //bufNum(buf, n);
+   outString(digits);
+   free(digits);
+}
+
 void prIntern(any nm) {
    int i, c;
    uword w;
@@ -917,7 +929,16 @@ void prTransient(any nm) {
 /* Print one expression */
 void print(any x) {
    if (isNum(x))
-      outNum(unBox(x));
+   {
+       if(isNumBF(x))
+       {
+           outNumBF(unBoxBF(x));
+       }
+       else
+       {
+           outNum(unBox(x));
+       }
+   }
    else if (isSym(x)) {
       any nm = name(x);
 
@@ -967,7 +988,16 @@ void print(any x) {
 void prin(any x) {
    if (!isNil(x)) {
       if (isNum(x))
-         outNum(unBox(x));
+      {
+          if (isNumBF(x))
+          {
+              printf("BF\n");
+          }
+          else
+          {
+              outNum(unBoxBF(x));
+          }
+      }
       else if (isSym(x)) {
          int i, c;
          uword w;

@@ -20,7 +20,7 @@ typedef unsigned char byte;
 typedef enum {NO,YES} bool;
 
 #define txt(n)    (n << 1| 1)
-#define box(n)    (n << 2| 2)
+#define box(n)    (n << 3| 6)
 
 #define Nil    (1 << 2)
 #define T      (5 << 2)
@@ -438,7 +438,7 @@ int main(int ac, char *av[]) {
 	    f = FUNC_CTR++;
 	    functions[f] = (char*)malloc(200);
 	    sprintf(functions[f], "%s", Token);
-            sprintf(buf, "(num(%d) + 2) /* %d */", (f << 2), f);
+            sprintf(buf, "(num(%d) + 2) /* %d */", (f << 3), f);
             Ram[-x] = strdup(buf);
             fprintf(fp, "any %s(any);\n", Token);
          }
