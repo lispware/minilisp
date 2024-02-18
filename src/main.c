@@ -571,6 +571,16 @@ any evList(any ex) {
 word evNum(any ex, any x) {return xNum(ex, EVAL(car(x)));}
 
 word xNum(any ex, any x) {
+    if (isNumBF(x))
+    {
+        word n = 0;
+        if (bf_get_int32(&n, (bf_t*)(unBoxBF(x)), BF_RNDN))
+        {
+            printf("Failed to get the integer\n");
+            exit(0);
+        }
+        return n;
+    }
    NeedNum(ex,x);
    return unBox(x);
 }
