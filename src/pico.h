@@ -275,6 +275,7 @@ void varError(any,any);
 void wrOpen(any,any,outFrame*);
 word xNum(any,any);
 any xSym(any);
+any NewBFNumber(word n);
 
 /* List element access */
 static inline any nCdr(int n, any x) {

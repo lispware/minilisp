@@ -651,7 +651,7 @@ any mkDat(int y, int m, int d) {
    if (y<0 || m<1 || m>12 || d<1 || d>mon[m] && (m!=2 || d!=29 || y%4 || !(y%100) && y%400))
       return Nil;
    n = (12*y + m - 3) / 12;
-   return box((4404*y+367*m-1094)/12 - 2*n + n/4 - n/100 + n/400 + d);
+   return NewBFNumber((4404*y+367*m-1094)/12 - 2*n + n/4 - n/100 + n/400 + d);
 }
 
 // (date 'dat) -> (y m d)
@@ -680,9 +680,9 @@ any doDate(any ex) {
          m += 3;
       else
          ++y,  m -= 9;
-      Push(c1, cons(box(d), Nil));
-      data(c1) = cons(box(m), data(c1));
-      data(c1) = cons(box(y), data(c1));
+      Push(c1, cons(NewBFNumber(d), Nil));
+      data(c1) = cons(NewBFNumber(m), data(c1));
+      data(c1) = cons(NewBFNumber(y), data(c1));
       return Pop(c1);
    }
    y = xNum(ex,z);
@@ -746,16 +746,22 @@ any loadAll(any ex) {
    return x;
 }
 
+any NewBFNumber(word n)
+{
+    bf_t *NUM = (bf_t*)calloc(sizeof(bf_t), 1);
+    bf_init(&bf_ctx, NUM);
+    bf_set_si(NUM, n);
+    return boxBF(NUM);
+}
+
 void fixNumbers()
 {
 	for(int i = 0; i < NUMBERS_COUNT; i+=2)
 	{
-        bf_t *NUM = (bf_t*)calloc(sizeof(bf_t), 1);
-        bf_init(&bf_ctx, NUM);
 		word n = unBox(Numbers[i+1]);
-        bf_set_ui(NUM, n);
+		n >>= 1;
 		word *p = Numbers[i];
-		*p = boxBF(NUM);
+		*p = NewBFNumber(n);
 	}
 }
 
