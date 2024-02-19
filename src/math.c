@@ -32,6 +32,9 @@ any symToNum(any s, int scl, int sep, int ign) {
 
    bf_t *NUM = (bf_t*)calloc(sizeof(bf_t), 1);
    bf_init(&bf_ctx, NUM);
+   bf_t *DIVIDOR = (bf_t*)calloc(sizeof(bf_t), 1);
+   bf_init(&bf_ctx, DIVIDOR);
+   bf_set_si(DIVIDOR, 1);
 
    if (!(c = getByte1(&i, &w, &s)))
       return NULL;
@@ -57,10 +60,13 @@ any symToNum(any s, int scl, int sep, int ign) {
          if ((c -= '0') > 9)
             return NULL;
          n = n * 10 + c;
-        bf_mul_si(NUM, NUM, 10, LIBBF_PRES, BF_RNDN);
-        bf_add_si(NUM, NUM, c, LIBBF_PRES, BF_RNDN);
+        bf_mul_si(NUM, NUM, 10, LIBBF_PREC, BF_RNDN);
+        bf_add_si(NUM, NUM, c, LIBBF_PREC, BF_RNDN);
          if (frac)
+         {
+             bf_mul_si(DIVIDOR, DIVIDOR, 10, LIBBF_PREC, BF_RNDN);
             --scl;
+         }
       }
    }
    if (c) {
@@ -73,11 +79,10 @@ any symToNum(any s, int scl, int sep, int ign) {
             return NULL;
       }
    }
-   if (frac)
-      while (--scl >= 0)
-         n *= 10;
-   //return box(sign? -n : n);
-   if (sign) bf_mul_si(NUM, NUM, -1, LIBBF_PRES, BF_RNDN);
+
+   if (frac) bf_div(NUM, NUM, DIVIDOR, LIBBF_PREC_FORDIV, BF_RNDN);
+
+   if (sign) bf_mul_si(NUM, NUM, -1, LIBBF_PREC, BF_RNDN);
    return boxBF(NUM);
 }
 
@@ -169,7 +174,7 @@ any doAdd(any ex) {
       if (isNil(y = EVAL(car(x))))
          return Nil;
       NeedNumBF(ex,y);
-      bf_add((bf_t*)n,(bf_t*)n,(bf_t*)(unBoxBF(y)), LIBBF_PRES, BF_RNDN);
+      bf_add((bf_t*)n,(bf_t*)n,(bf_t*)(unBoxBF(y)), LIBBF_PREC, BF_RNDN);
    }
    return boxBF(n);
 }
