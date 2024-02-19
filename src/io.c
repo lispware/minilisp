@@ -887,10 +887,10 @@ void outNum(word n) {
 
 void outNumBF(word n) {
     size_t digits_len;
-    size_t n_digits=20;
+    size_t n_digits=20000;
     // TODO check to see what's the right thing to do here
     char *digits = bf_ftoa(&digits_len, (bf_t*)n, 10, n_digits + 1,
-                             BF_FTOA_FORMAT_FIXED | BF_RNDZ);
+                             BF_FTOA_FORMAT_FREE_MIN | BF_RNDZ);
    outString(digits);
    free(digits);
 }

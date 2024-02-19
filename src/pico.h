@@ -103,7 +103,7 @@ typedef struct catchFrame {
 #define boxBF(n)        ((any)(num(n)|6))
 #define unBox(n)        (num(n)>>2)
 #define unBoxBF(n)      ((num(n)>>3)<<3)
-#define LIBBF_PRES      (100)
+#define LIBBF_PRES      (200000)
 #define Zero            ((any)2)
 #define One             ((any)6)
 
