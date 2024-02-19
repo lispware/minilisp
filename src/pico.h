@@ -143,7 +143,7 @@ typedef struct catchFrame {
 /* Predicates */
 #define isNil(x)        ((x)==Nil)
 #define isTxt(x)        (num(x)&1)
-#define isNum(x)        (num(x)&2)
+#define isNum(x)        ((num(x)&2)||(num(x)&4))
 #define isNumBF(x)      (num(x)&4)
 #define isSym(x)        (num(x)&WORD)
 #define isSymb(x)       ((num(x)&(WORD+2))==WORD)
