@@ -37,28 +37,34 @@ any symToNum(any s, int scl, int sep, int ign) {
    bf_set_si(DIVIDOR, 1);
 
    if (!(c = getByte1(&i, &w, &s)))
-      return NULL;
+      //return NULL;
+      goto FAIL;
    while (c <= ' ')  /* Skip white space */
       if (!(c = getByte(&i, &w, &s)))
-         return NULL;
+         //return NULL;
+         goto FAIL;
    sign = NO;
    if (c == '+'  ||  c == '-' && (sign = YES))
       if (!(c = getByte(&i, &w, &s)))
-         return NULL;
+         //return NULL;
+         goto FAIL;
    if ((c -= '0') > 9)
-      return NULL;
+      //return NULL;
+      goto FAIL;
    frac = NO;
    //n = c;
    bf_set_ui(NUM, c);
    while ((c = getByte(&i, &w, &s))  &&  (!frac || scl)) {
       if ((int)c == sep) {
          if (frac)
-            return NULL;
+            //return NULL;
+            goto FAIL;
          frac = YES;
       }
       else if ((int)c != ign) {
          if ((c -= '0') > 9)
-            return NULL;
+            //return NULL;
+            goto FAIL;
          n = n * 10 + c;
         bf_mul_si(NUM, NUM, 10, LIBBF_PREC, BF_RNDN);
         bf_add_si(NUM, NUM, c, LIBBF_PREC, BF_RNDN);
@@ -71,19 +77,32 @@ any symToNum(any s, int scl, int sep, int ign) {
    }
    if (c) {
       if ((c -= '0') > 9)
-         return NULL;
+         //return NULL;
+         goto FAIL;
       if (c >= 5)
          n += 1;
       while (c = getByte(&i, &w, &s)) {
          if ((c -= '0') > 9)
-            return NULL;
+            //return NULL;
+            goto FAIL;
       }
    }
 
    if (frac) bf_div(NUM, NUM, DIVIDOR, LIBBF_PREC_FORDIV, BF_RNDN);
 
+   bf_delete(DIVIDOR);
+   free(DIVIDOR);
+
    if (sign) bf_mul_si(NUM, NUM, -1, LIBBF_PREC, BF_RNDN);
    return boxBF(NUM);
+
+
+FAIL:
+    bf_delete(NUM);
+    bf_delete(DIVIDOR);
+    free(NUM);
+    free(DIVIDOR);
+    return NULL;
 }
 
 /* Make symbol from number */
