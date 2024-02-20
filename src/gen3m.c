@@ -30,7 +30,7 @@ static int Bits, Chr, RomIx, RamIx;
 static char **Rom, **Ram;
 static char Token[1024];
 
-static int read0(bool);
+static word read0(bool);
 static char Delim[] = " \t\n\r\"'(),[]`~{}";
 
 typedef struct symbol {
@@ -235,8 +235,8 @@ static bool testEsc(void) {
 }
 
 /* Read a list */
-static int rdList(int z) {
-   int x;
+static word rdList(word z) {
+   word x;
 
    if (skip() == ')') {
       Chr = getchar();
@@ -260,8 +260,8 @@ static int rdList(int z) {
 }
 
 /* Read one expression */
-static int read0(bool top) {
-   int x;
+static word read0(bool top) {
+   word x;
    word w;
    char *p, buf[40];
 
