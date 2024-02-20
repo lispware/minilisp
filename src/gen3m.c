@@ -117,7 +117,7 @@ static void mkSym(int *ix, char ***list, char *mem, char *name, char *value) {
       i += d;
    }
    if (bin) {
-      if (i <= (Bits-2))
+      if (i <= (Bits-3))
          addList(&RomIx, &Rom, LX_FMT, box(w));
       else {
          addList(&RomIx, &Rom, "(Rom+%d)", RomIx + 2);

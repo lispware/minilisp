@@ -99,9 +99,9 @@ typedef struct catchFrame {
 /* Number access */
 #define num(x)          ((word)(x))
 #define txt(n)          ((any)(num(n)<<1|1))
-#define box(n)          ((any)(num(n)<<2|2))
+#define box(n)          ((any)(num(n)<<3|6))
 #define boxBF(n)        ((any)(num(n)|6))
-#define unBox(n)        (num(n)>>2)
+#define unBox(n)        (num(n)>>3)
 #define unBoxBF(n)      ((num(n)>>3)<<3)
 #define LIBBF_PREC      (BF_PREC_INF)
 #define LIBBF_PREC_FORDIV      (1024)
