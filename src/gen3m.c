@@ -39,6 +39,14 @@ typedef struct symbol {
    struct symbol *less, *more;
 } symbol;
 
+typedef struct _nextNumber
+{
+    char address[40];
+    word value;
+    struct _nextNumber *next;
+} NumberList;
+NumberList *NL;
+
 #define MAXFUNCTIONS 1024
 char *functions[MAXFUNCTIONS];
 int FUNC_CTR=0;
@@ -67,6 +75,30 @@ static void noReadMacros(void) {
 
 static void eofErr(void) {
    giveup("EOF Overrun");
+}
+
+static void addNumber(int ram, int carOrCdr, int idx, int x)
+{
+    if (!(x&2)) return;
+
+    NumberList * oldNL = NL;
+    NL = (NumberList * )calloc(sizeof(NumberList), 1);
+    NL->next = oldNL;
+    char *ram0 = "(Ram+%d)";
+    char *ram1 = "(Ram+%d+1)";
+    char *rom0 = "(Rom+%d)";
+    char *rom1 = "(Rom+%d+1)";
+    if (ram)
+    {
+        if (carOrCdr == 0) sprintf(NL->address, ram0, idx);
+        else sprintf(NL->address, ram1, idx);
+    }
+    else
+    {
+        if (carOrCdr == 0) sprintf(NL->address, rom0, idx);
+        else sprintf(NL->address, rom1, idx);
+    }
+    NL->value = x;
 }
 
 #ifdef WIN64
@@ -147,6 +179,9 @@ static int cons(int x, int y) {
    for (i = 0; i < RomIx;  i += 2)
       if (strcmp(car, Rom[i]) == 0  &&  strcmp(cdr, Rom[i+1]) == 0)
          return i << 2;
+
+   addNumber(0, 0, RomIx, x);
+   addNumber(0, 1, RomIx, y);
    addList(&RomIx, &Rom, car, 0);
    addList(&RomIx, &Rom, cdr, 0);
    return ix << 2;
@@ -409,11 +444,18 @@ int main(int ac, char *av[]) {
             fprintf(fp, "any %s(any);\n", Token);
          }
          else {                                 // Value
-            print(buf, read0(YES));
+            word val = read0(YES);
+            print(buf, val);
             if (x > 0)
+            {
+                addNumber(0, 1, RomIx - 2, val);
                Rom[x] = strdup(buf);
+            }
             else
+            {
+                addNumber(1, 1, RamIx - 2, val);
                Ram[-x] = strdup(buf);
+            }
          }
          while (skip() == ',') {                // Properties
             Chr = getchar();
@@ -452,6 +494,19 @@ int main(int ac, char *av[]) {
    if (fp = fopen("functions.d", "w")) {
       for (x = 0; x < FUNC_CTR; x++)
          fprintf(fp, "(any)%s,\n", functions[x]);
+      fclose(fp);
+   }
+   if (fp = fopen("numbers.d", "w")) {
+       int numbersCount=0;
+       fprintf(fp, "any Numbers[] = {\n", numbersCount);
+       while(NL != NULL)
+       {
+         fprintf(fp, "%s,\n", NL->address);
+         fprintf(fp, "%d,\n", NL->value);
+         NL=NL->next;
+         numbersCount+=2;
+       }
+       fprintf(fp, "};\n#define NUMBERS_COUNT (%d)", numbersCount);
       fclose(fp);
    }
    return 0;

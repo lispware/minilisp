@@ -43,6 +43,8 @@ any const __attribute__ ((__aligned__(2*WORD))) Functions[] = {
 };
 #endif
 
+#include "numbers.d"
+
 static bool Jam;
 static jmp_buf ErrRst;
 
