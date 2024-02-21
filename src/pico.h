@@ -181,7 +181,7 @@ extern FILE *InFile, *OutFile;
 extern any TheKey, TheCls, Thrown;
 extern any Intern[2], Transient[2];
 extern any ApplyArgs, ApplyBody;
-extern any const Rom[];
+extern any Rom[];
 extern any Ram[];
 
 /* Prototypes */

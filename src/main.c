@@ -22,7 +22,7 @@ MEM_ALIGN any Ram[] = {
    #include "ram.d"
 };
 
-MEM_ALIGN any const Rom[] = {
+MEM_ALIGN any Rom[] = {
    #include "rom.d"
 };
 
@@ -34,7 +34,7 @@ any __attribute__ ((__aligned__(2*WORD))) Ram[] = {
    #include "ram.d"
 };
 
-any const __attribute__ ((__aligned__(2*WORD))) Rom[] = {
+any __attribute__ ((__aligned__(2*WORD))) Rom[] = {
    #include "rom.d"
 };
 
@@ -728,11 +728,22 @@ any loadAll(any ex) {
    return x;
 }
 
+void fixNumbers()
+{
+    for(int i = 0; i < NUMBERS_COUNT; i+=2)
+    {
+        word n = unBox(Numbers[i+1]);
+        word *p = Numbers[i];
+        *p = box(n);
+    }
+}
+
 /*** Main ***/
 int main(int ac, char *av[]) {
    int i;
    char *p;
 
+   fixNumbers();
    AV0 = *av++;
    AV = av;
    heapAlloc();
