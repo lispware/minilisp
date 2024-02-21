@@ -5,6 +5,7 @@
 #include "pico.h"
 
 /* Globals */
+bf_context_t bf_ctx;
 int Chr, Trace;
 char **AV, *AV0, *Home;
 heap *Heaps;
@@ -15,6 +16,11 @@ FILE *InFile, *OutFile;
 any TheKey, TheCls, Thrown;
 any Intern[2], Transient[2];
 any ApplyArgs, ApplyBody;
+
+void *my_bf_realloc(void *opaque, void *ptr, size_t size)
+{
+    return realloc(ptr, size);
+}
 
 /* RAM Symbols */
 #ifdef MICROSOFT_C
@@ -728,6 +734,14 @@ any loadAll(any ex) {
    return x;
 }
 
+any NewBFNumber(word n)
+{
+    bf_t *NUM = (bf_t*)calloc(sizeof(bf_t), 1);
+    bf_init(&bf_ctx, NUM);
+    bf_set_si(NUM, n);
+    return box(NUM);
+}
+
 void fixNumbers()
 {
     for(int i = 0; i < NUMBERS_COUNT; i+=2)
@@ -743,6 +757,7 @@ int main(int ac, char *av[]) {
    int i;
    char *p;
 
+   bf_context_init(&bf_ctx, my_bf_realloc, NULL);
    fixNumbers();
    AV0 = *av++;
    AV = av;
