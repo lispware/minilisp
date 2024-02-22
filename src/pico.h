@@ -103,7 +103,7 @@ typedef struct catchFrame {
 #define unBox(n)        (num(n)>>3)
 #define Zero            ((any)2)
 #define One             ((any)10)
-#define OneWithoutTag             ((any)8)
+#define OneWithoutTag             ((word)8)
 
 /* Symbol access */
 #define symPtr(x)       ((any)&(x)->cdr)

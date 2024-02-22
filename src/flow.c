@@ -1062,7 +1062,7 @@ any doDo(any x) {
       if (isNum(f)) {
          if (f == Zero)
             return z;
-         f = (any)(num(f) - (word)OneWithoutTag);
+         f = (any)(num(f) - OneWithoutTag);
       }
       y = x;
       do {

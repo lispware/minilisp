@@ -197,7 +197,7 @@ any doInc(any ex) {
    if (isNil(data(c1) = EVAL(car(x))))
       return Nil;
    if (isNum(data(c1)))
-      return (any)(num(data(c1)) + OneWithoutTag
+      return (any)(num(data(c1)) + OneWithoutTag);
    CheckVar(ex,data(c1));
    if (!isCell(x = cdr(x))) {
       if (isNil(val(data(c1))))
