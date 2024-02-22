@@ -1487,7 +1487,7 @@ any doProve(any x) {
                               cons(data(tp1), cons(data(tp2),data(e))) ) ) ),
                      car(data(q)) );
             data(nl) = cons(data(n), data(nl));
-            data(n) = (any)(num(data(n)) + 4);
+            data(n) = (any)(num(data(n)) + OneWithoutTag);
             data(tp2) = cons(cdr(data(tp1)), data(tp2));
             data(tp1) = cdar(data(alt));
             data(alt) = Nil;

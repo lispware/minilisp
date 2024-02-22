@@ -197,13 +197,13 @@ any doInc(any ex) {
    if (isNil(data(c1) = EVAL(car(x))))
       return Nil;
    if (isNum(data(c1)))
-      return (any)(num(data(c1)) + 4);
+      return (any)(num(data(c1)) + OneWithoutTag
    CheckVar(ex,data(c1));
    if (!isCell(x = cdr(x))) {
       if (isNil(val(data(c1))))
          return Nil;
       NeedNum(ex,val(data(c1)));
-      val(data(c1)) = (any)(num(val(data(c1))) + 4);
+      val(data(c1)) = (any)(num(val(data(c1))) + OneWithoutTag);
    }
    else {
       Save(c1);
@@ -228,13 +228,13 @@ any doDec(any ex) {
    if (isNil(data(c1) = EVAL(car(x))))
       return Nil;
    if (isNum(data(c1)))
-      return (any)(num(data(c1)) - 4);
+      return (any)(num(data(c1)) - OneWithoutTag);
    CheckVar(ex,data(c1));
    if (!isCell(x = cdr(x))) {
       if (isNil(val(data(c1))))
          return Nil;
       NeedNum(ex,val(data(c1)));
-      val(data(c1)) = (any)(num(val(data(c1))) - 4);
+      val(data(c1)) = (any)(num(val(data(c1))) - OneWithoutTag);
    }
    else {
       Save(c1);
