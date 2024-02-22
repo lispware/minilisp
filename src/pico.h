@@ -17,6 +17,7 @@
 #endif
 
 #define BITS (8*WORD)
+#define NUM_TAG_BITS (3)
 
 #ifdef WIN64
 typedef unsigned long long uword;
@@ -99,8 +100,8 @@ typedef struct catchFrame {
 /* Number access */
 #define num(x)          ((word)(x))
 #define txt(n)          ((any)(num(n)<<1|1))
-#define box(n)          ((any)(num(n)<<3|2))
-#define unBox(n)        (num(n)>>3)
+#define box(n)          ((any)(num(n)<<NUM_TAG_BITS|2))
+#define unBox(n)        (num(n)>>NUM_TAG_BITS)
 #define Zero            ((any)2)
 #define One             ((any)10)
 #define OneWithoutTag             ((word)8)
@@ -148,7 +149,7 @@ typedef struct catchFrame {
 /* Evaluation */
 #define EVAL(x)         (isNum(x)? x : isSym(x)? val(x) : evList(x))
 //#define evSubr(f,x)     (*(fun)(num(f) & ~2))(x)
-#define evSubr(f,x) 	((fun)(Functions[num(f)>>3]))(x);
+#define evSubr(f,x) 	((fun)(Functions[num(f)>>NUM_TAG_BITS]))(x);
 
 /* Error checking */
 #define NeedNum(ex,x)   if (!isNum(x)) numError(ex,x)
