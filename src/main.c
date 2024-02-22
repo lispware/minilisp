@@ -15,6 +15,12 @@ FILE *InFile, *OutFile;
 any TheKey, TheCls, Thrown;
 any Intern[2], Transient[2];
 any ApplyArgs, ApplyBody;
+bf_context_t bf_ctx;
+
+void *_bf_realloc(void *opaque, void *ptr, size_t size)
+{
+    return realloc(ptr, size);
+}
 
 /* RAM Symbols */
 #ifdef MICROSOFT_C
@@ -731,6 +737,7 @@ int main(int ac, char *av[]) {
    int i;
    char *p;
 
+   bf_context_init(&bf_ctx, _bf_realloc, NULL);
    AV0 = *av++;
    AV = av;
    heapAlloc();
