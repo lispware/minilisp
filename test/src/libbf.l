@@ -1,2 +1,7 @@
-(test "123.456" (Ntoa (N "123.456") 6))
-(test "255" (Ntoa (N "ff" 16) 3))
+(let X (BN "123.456") 
+    (test "123.456" (BNtoa X 6))
+    (finally (BNdelete X)))
+
+(let X (BN "ff" 16)
+    (test "255" (BNtoa X 3))
+    (finally (BNdelete X)))
