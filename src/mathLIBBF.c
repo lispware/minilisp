@@ -76,10 +76,8 @@ any LISP_BN_Add(any ex)
     while (isCell(x = cdr(x))) {
         if (isNil(y = EVAL(car(x))))
             return Nil;
-        {
             UNPACK(y, __n);
             bf_add(SUM, SUM,(bf_t*)__n, BF_PREC_INF, BF_RNDN);
-        }
     }
 
     PACK(SUM, R);
@@ -88,14 +86,26 @@ any LISP_BN_Add(any ex)
 
 any LISP_BN_delete(any ex)
 {
-    any x = ex;
-    x = cdr(x);
-    any p1 = EVAL(car(x));
-    UNPACK(p1, _n);
-    bf_t *n = (bf_t*)_n;
+    any x, y;
+    word n;
 
-    bf_delete(n);
-    free(n);
+    x = cdr(ex);
+    if (isNil(y = EVAL(car(x))))
+        return Nil;
+
+    UNPACK(y, _n);
+    //printf("DELETEING %s ", bf_ftoa(NULL, _n, 10, 10, BF_RNDF));
+    bf_delete((bf_t*)_n);
+
+    while (isCell(x = cdr(x))) {
+        if (isNil(y = EVAL(car(x))))
+            return Nil;
+        UNPACK(y, __n);
+        //printf("DELETEING %s ", bf_ftoa(NULL, __n, 10, 10, BF_RNDF));
+        bf_delete((bf_t*)__n);
+    }
+
+    printf("\n");
 
     return Nil;
 }
