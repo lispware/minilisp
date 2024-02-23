@@ -60,7 +60,30 @@ FAIL:
 
 any LISP_BN_Add(any ex)
 {
-    return Nil;
+    any x, y;
+    word n;
+
+    x = cdr(ex);
+    if (isNil(y = EVAL(car(x))))
+        return Nil;
+
+    bf_t *SUM = (bf_t*)calloc(sizeof(bf_t), 1);
+    bf_init(&bf_ctx, SUM);
+
+    UNPACK(y, _n);
+    bf_set(SUM, (bf_t*)_n);
+
+    while (isCell(x = cdr(x))) {
+        if (isNil(y = EVAL(car(x))))
+            return Nil;
+        {
+            UNPACK(y, __n);
+            bf_add(SUM, SUM,(bf_t*)__n, BF_PREC_INF, BF_RNDN);
+        }
+    }
+
+    PACK(SUM, R);
+    return R;
 }
 
 any LISP_BN_delete(any ex)
