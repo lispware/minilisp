@@ -105,7 +105,7 @@ any LISP_BN_delete(any ex)
         bf_delete((bf_t*)__n);
     }
 
-    printf("\n");
+    //printf("\n");
 
     return Nil;
 }
