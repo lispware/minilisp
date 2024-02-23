@@ -1,5 +1,7 @@
 @echo off
 
+..\src\picolisp ..\lib.l ..\lib\misc.l src\libbf.l -bye
+
 ..\src\picolisp ..\lib.l ..\lib\misc.l src\main_miniPicoLisp.l -bye
 
 ..\src\picolisp ..\lib.l ..\lib\misc.l src\apply.l -bye
