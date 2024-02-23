@@ -14,7 +14,7 @@
     __R = (__H << (BITS / 2)) | __L; }
 
 
-any LISP_N(any ex)
+any LISP_BN(any ex)
 {
     any x = ex;
     x = cdr(x);
@@ -58,12 +58,26 @@ FAIL:
     return Nil;
 }
 
-any LISP_N_Add(any ex)
+any LISP_BN_Add(any ex)
 {
     return Nil;
 }
 
-any LISP_N_ToA(any ex)
+any LISP_BN_delete(any ex)
+{
+    any x = ex;
+    x = cdr(x);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, _n);
+    bf_t *n = (bf_t*)_n;
+
+    bf_delete(n);
+    free(n);
+
+    return Nil;
+}
+
+any LISP_BN_ToA(any ex)
 {
     any x = ex;
     x = cdr(x);

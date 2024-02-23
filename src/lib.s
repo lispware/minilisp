@@ -368,9 +368,10 @@ uv_read_start {LISP_uv_read_start}
 uv_stop {LISP_uv_stop}
 uv_close {LISP_uv_close}
 
-N {LISP_N}
-N+ {LISP_N_Add}
-Ntoa {LISP_N_ToA}
+BN {LISP_BN}
+BN+ {LISP_BN_Add}
+BNtoa {LISP_BN_ToA}
+BNdelete {LISP_BN_delete}
 
 
 # vi:et:ts=3:sw=3
