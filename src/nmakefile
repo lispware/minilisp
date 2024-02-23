@@ -15,7 +15,7 @@ CFLAGS = $(CFLAGS) /DUSE_LIBUV_AND_LIBSDL /I libsdl2/SDL2-2.28.5/include  /I lib
 LIBS = libuv\$(PLAT)\uv.lib libsdl2\SDL2-2.28.5\lib\$(PLAT)\SDL2.lib
 !endif
 
-picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c lisp_sdl_libuv.c lisp_sdl_libuv_stub.c
+picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c lisp_sdl_libuv.c lisp_sdl_libuv_stub.c libbf.c cutils.c mathLIBBF.c
 objFiles = $(picoFiles:.c=.obj)
 
 picolisp.exe: libuv libsdl2 sym.d rom.d ram.d $(objFiles)

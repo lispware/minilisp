@@ -4,7 +4,7 @@
 .SILENT:
 
 bin = ../bin
-picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c lisp_sdl_libuv.c lisp_sdl_libuv_stub.c
+picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c lisp_sdl_libuv.c lisp_sdl_libuv_stub.c libbf.c cutils.c mathLIBBF.c
 
 ifdef USE_LIBUV_AND_LIBSDL
 CC=gcc -DUSE_LIBUV_AND_LIBSDL
