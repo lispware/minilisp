@@ -6,11 +6,11 @@
 bin = ../bin
 picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c lisp_sdl_libuv.c lisp_sdl_libuv_stub.c libbf.c cutils.c mathLIBBF.c
 
-ifdef USE_LIBUV_AND_LIBSDL
-CC=gcc -DUSE_LIBUV_AND_LIBSDL
-LIBS=-lSDL2 -luv
+ifdef DONT_USE_LIBUV_AND_LIBSDL
+CC=gcc -DDONT_USE_LIBUV_AND_LIBSDL
 else
 CC = gcc
+LIBS=-lSDL2 -luv
 endif
 
 picolisp: $(bin)/picolisp
@@ -32,8 +32,8 @@ $(bin)/picolisp: $(picoFiles:.c=.o)
 
 $(picoFiles:.c=.o): pico.h sym.d rom.d ram.d
 
-sym.d rom.d ram.d: gen3m init.s lib.s pilog.s
-	./gen3m 0 init.s lib.s pilog.s
+sym.d rom.d ram.d: gen3m init.s lib.s pilog.s libuv.s libsdl.s libbf.s
+	./gen3m 0 init.s lib.s pilog.s libuv.s libsdl.s libbf.s
 
 gen3m: gen3m.c
 	$(CC) -o gen3m gen3m.c

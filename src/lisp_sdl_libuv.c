@@ -1,4 +1,4 @@
-#ifdef USE_LIBUV_AND_LIBSDL
+#ifndef DONT_USE_LIBUV_AND_LIBSDL
 
 #include <uv.h>
 #include <SDL.h>
@@ -1158,4 +1158,4 @@ any doFree(any ex)
     return Nil;
 }
 
-#endif //USE_LIBUV_AND_LIBSDL
+#endif //DONT_USE_LIBUV_AND_LIBSDL

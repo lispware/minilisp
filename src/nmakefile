@@ -10,8 +10,10 @@ PLAT = x86
 CFLAGS = /DWIN64
 !endif
 
-!ifdef USE_LIBUV_AND_LIBSDL
-CFLAGS = $(CFLAGS) /DUSE_LIBUV_AND_LIBSDL /I libsdl2/SDL2-2.28.5/include  /I libuv/include 
+LIBS = libuv\$(PLAT)\uv.lib libsdl2\SDL2-2.28.5\lib\$(PLAT)\SDL2.lib
+
+!ifdef DONT_USE_LIBUV_AND_LIBSDL
+CFLAGS = $(CFLAGS) /DDONT_USE_LIBUV_AND_LIBSDL /I libsdl2/SDL2-2.28.5/include  /I libuv/include 
 LIBS = libuv\$(PLAT)\uv.lib libsdl2\SDL2-2.28.5\lib\$(PLAT)\SDL2.lib
 !endif
 
@@ -24,8 +26,8 @@ picolisp.exe: libuv libsdl2 sym.d rom.d ram.d $(objFiles)
 gen3m.exe: gen3m.c
 	cl /nologo $(CFLAGS) gen3m.c /Fe:gen3m.exe
 
-sym.d rom.d ram.d functions.d: gen3m.exe init.s lib.s pilog.s
-	gen3m.exe 0 init.s lib.s pilog.s
+sym.d rom.d ram.d functions.d: gen3m.exe init.s lib.s pilog.s libuv.s libsdl.s libbf.s
+	gen3m.exe 0 init.s lib.s pilog.s libuv.s libsdl.s libbf.s
 
 .c.obj: 
 	cl /nologo $(OPT) $(CFLAGS) /DMICROSOFT_C /c $*.c /Fo$@

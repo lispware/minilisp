@@ -1,4 +1,4 @@
-#ifndef USE_LIBUV_AND_LIBSDL
+#ifdef DONT_USE_LIBUV_AND_LIBSDL
 #include "pico.h"
 
 any LISP_SDL_CreateWindow(any ex)
@@ -247,4 +247,4 @@ any doFree(any ex)
 	return Nil;
 }
 
-#endif // USE_LIBUV_AND_LIBSDL
+#endif //DONT_USE_LIBUV_AND_LIBSDL
