@@ -4,13 +4,21 @@
 .SILENT:
 
 bin = ../bin
-picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c lisp_sdl_libuv.c lisp_sdl_libuv_stub.c libbf.c cutils.c mathLIBBF.c
+picoFiles = main.c gc.c apply.c flow.c sym.c subr.c math.c io.c lisp_libsdl.c lisp_libsdl_stub.c lisp_libuv.c lisp_libuv_stub.c libbf.c cutils.c mathLIBBF.c
 
-ifdef DONT_USE_LIBUV_AND_LIBSDL
-CC=gcc -DDONT_USE_LIBUV_AND_LIBSDL
-else
 CC = gcc
-LIBS=-lSDL2 -luv
+LIBS=
+
+ifdef DONT_USE_LIBSDL
+CC+= -DDONT_USE_LIBSDL
+else
+LIBS+= -lSDL2
+endif
+
+ifdef DONT_USE_LIBUV
+CC+= -DDONT_USE_LIBUV
+else
+LIBS+= -luv
 endif
 
 picolisp: $(bin)/picolisp
