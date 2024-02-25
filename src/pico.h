@@ -269,6 +269,19 @@ void wrOpen(any,any,outFrame*);
 word xNum(any,any);
 any xSym(any);
 
+#define PACK(__M, __R) any __R; { \
+    word __r = (word)__M; \
+    word allOnes = -1; \
+    uword __mask = ((uword)allOnes >> (BITS / 2)); \
+    word __low = __r & __mask; \
+    word __high = (__r >> (BITS / 2))  & __mask; \
+    __R = cons(box(__high), box(__low)); }
+
+#define UNPACK(__M, __R) uword __R; {\
+    uword __H = unBox(car(__M));\
+    uword __L = unBox(cdr(__M));\
+    __R = (__H << (BITS / 2)) | __L; }
+
 /* List element access */
 static inline any nCdr(int n, any x) {
    while (--n >= 0)
