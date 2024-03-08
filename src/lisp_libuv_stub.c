@@ -73,4 +73,22 @@ any LISP_uv_tcp_listen(any ex)
 	return Nil;
 }
 
+any LISP_uv_fs_open(any ex)
+{
+	printf("STUB: LISP_uv_fs_open\n");
+    return Nil;
+}
+
+any LISP_uv_fs_read(any ex)
+{
+	printf("STUB: LISP_uv_fs_read\n");
+    return Nil;
+}
+
+any LISP_uv_fs_close(any ex)
+{
+	printf("STUB: LISP_uv_fs_close\n");
+    return Nil;
+}
+
 #endif //DONT_USE_LIBUV
