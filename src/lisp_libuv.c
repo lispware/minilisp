@@ -62,8 +62,9 @@ typedef struct {
 typedef struct {
 	uv_fs_t req;
 	any result;
+    any file;
 	any callback;
-	char *buffer;
+    uv_buf_t buf;
 } FileReadRequest;
 
 void on_close(uv_handle_t *handle);
@@ -329,7 +330,6 @@ any LISP_uv_fs_open(any ex)
     return ex;
 }
 
-static uv_buf_t iov;
 void on_uv_fs_read(uv_fs_t* req) {
     FileReadRequest *r = (FileReadRequest*)req;
 
@@ -341,16 +341,19 @@ void on_uv_fs_read(uv_fs_t* req) {
 
 	any cb = r->callback;
 	any params = cdr(car(cb));
-    any y = car(params);
-    any z = car(cdr(params));
+    any p0 = car(params);
+    any p1 = car(cdr(params));
+    any p2 = car(cdr(cdr(params)));
 
-	bindFrame f, g;
+	bindFrame e, f, g;
 
-	void *ptr = r->buffer;
+	void *ptr = r->buf.base;
 	PACK(ptr, B);
-    Bind(y,f),  val(y) = B;
-    Bind(z,g),  val(z) = box(req->result); // TODO this can  be incorrect since num is BITS-2
+	Bind(p0,e), val(p0) = r->file;
+    Bind(p1,f),  val(p1) = B;
+    Bind(p2,g),  val(p2) = box(req->result); // TODO this can  be incorrect since num is BITS-2
     prog(r->callback);
+    Unbind(e);
     Unbind(f);
     Unbind(g);
 
@@ -382,9 +385,9 @@ any LISP_uv_fs_read(any ex)
 
     x = cdr(x);
     req->callback = x;
-    req->buffer=(char*)calloc(len, 1);
-    iov = uv_buf_init(req->buffer, len);
-	int result = uv_fs_read(loop, req, file, &iov, 1, -1, on_uv_fs_read);
+    req->buf = uv_buf_init((char*)calloc(len, 1), len);
+    req->file=p2;
+	int result = uv_fs_read(loop, req, file, &req->buf, 1, -1, on_uv_fs_read);
 
     return ex;
 }

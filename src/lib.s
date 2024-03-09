@@ -330,5 +330,6 @@ calloc {doCalloc}
 free {doFree}
 COMP_PACK {COMP_PACK}
 PACK {doPACK}
+buf2str {doBuf2Str}
 
 # vi:et:ts=3:sw=3

@@ -752,6 +752,14 @@ any doFree(any ex)
     return Nil;
 }
 
+any doBuf2Str(any ex)
+{
+    any x = cdr(ex);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, mem);
+    return mkStr(mem);
+}
+
 /*** Main ***/
 int main(int ac, char *av[]) {
    int i;
