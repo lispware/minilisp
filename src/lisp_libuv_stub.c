@@ -85,6 +85,12 @@ any LISP_uv_fs_read(any ex)
     return Nil;
 }
 
+any LISP_uv_fs_write(any ex)
+{
+	printf("STUB: LISP_uv_fs_read\n");
+    return Nil;
+}
+
 any LISP_uv_fs_close(any ex)
 {
 	printf("STUB: LISP_uv_fs_close\n");

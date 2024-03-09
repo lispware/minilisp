@@ -392,6 +392,73 @@ any LISP_uv_fs_read(any ex)
     return ex;
 }
 
+void on_uv_fs_write(uv_fs_t* req) {
+    FileReadRequest *r = (FileReadRequest*)req;
+
+    if (req->result < 0)
+    {
+        printf("Error opening file: %s\n", uv_strerror(req->result));
+        return;
+    }
+
+	any cb = r->callback;
+	any params = cdr(car(cb));
+    any p0 = car(params);
+    any p1 = car(cdr(params));
+    any p2 = car(cdr(cdr(params)));
+
+	bindFrame e, f, g;
+
+	void *ptr = r->buf.base;
+	PACK(ptr, B);
+	Bind(p0,e), val(p0) = r->file;
+    Bind(p1,f),  val(p1) = B;
+    Bind(p2,g),  val(p2) = box(req->result); // TODO this can  be incorrect since num is BITS-2
+    prog(r->callback);
+    Unbind(e);
+    Unbind(f);
+    Unbind(g);
+
+    // Cleanup and free resources
+    uv_fs_req_cleanup(req);
+    free(req);
+}
+
+// (uv_fs_write LOOP FILE CONTENT 2 (on_write F B L))
+any LISP_uv_fs_write(any ex)
+{
+    any x = ex;
+
+    x = cdr(x);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, l);
+    uv_loop_t *loop = (uv_loop_t*)l;
+
+    x = cdr(x);
+    any p2 = EVAL(car(x));
+    UNPACK(p2, file);
+
+    x = cdr(x);
+    any p3 = EVAL(car(x));
+    UNPACK(p3, buffer);
+
+    x = cdr(x);
+    any p4 = EVAL(car(x));
+    if (isNil(p4)) return Nil;
+    if (!isNum(p4)) return Nil;
+    word len = unBox(p4);
+
+    FileReadRequest *req = (FileReadRequest*)calloc(sizeof(FileReadRequest), 1);
+
+    x = cdr(x);
+    req->callback = x;
+    req->buf = uv_buf_init(buffer, len);
+    req->file=p2;
+	int result = uv_fs_write(loop, req, file, &req->buf, 1, -1, on_uv_fs_write);
+
+    return ex;
+}
+
 any LISP_uv_fs_close(any ex)
 {
     return ex;
