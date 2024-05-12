@@ -764,4 +764,16 @@ any LISP_uv_tcp_listen(any ex)
     return Nil;
 }
 
+any LISP_uv_timer_init(any ex)
+{
+	printf("HELLO INIT\n");
+	return Nil;
+}
+
+any LISP_uv_timer_start(any ex)
+{
+	printf("HELLO\n");
+	return Nil;
+}
+
 #endif // DONT_USE_LIBUV
