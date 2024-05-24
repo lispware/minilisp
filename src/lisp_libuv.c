@@ -788,7 +788,16 @@ any LISP_uv_timer_init(any ex)
 void timer_callback(uv_timer_t* handle)
 {
 	TimerHandle *h = (TimerHandle*)handle;
-	printf("Timer callback %p\n", h->callback);
+	printf("Timer callback %p %p %p\n", h->callback, car(h->callback), cdr(h->callback));
+	word xx = (word)(cdr(h->callback));
+	if (xx&1)
+    {
+        printf("NOT A CELL\n");
+    }
+    else
+    {
+	    prog(h->callback);
+    }
 }
 
 any LISP_uv_timer_start(any ex)
@@ -800,8 +809,6 @@ any LISP_uv_timer_start(any ex)
 	UNPACK(p1, t);
 	TimerHandle *timer = (TimerHandle*)t;
 
-	timer->callback = (any)0x1234;
-
 	x = cdr(x);
 	any p2 = EVAL(car(x));
 	word startAfter = unBox(p2);
@@ -809,6 +816,10 @@ any LISP_uv_timer_start(any ex)
 	x = cdr(x);
 	any p3 = EVAL(car(x));
 	word repeatEvery = unBox(p3);
+
+	x = cdr(x);
+	timer->callback = x;
+	printf("Timer callback %p %p %p\n", timer->callback, car(timer->callback), cdr(timer->callback));
 
 	uv_timer_start(timer, timer_callback, startAfter, repeatEvery);
 
