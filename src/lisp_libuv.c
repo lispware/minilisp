@@ -764,6 +764,11 @@ any LISP_uv_tcp_listen(any ex)
     return Nil;
 }
 
+typedef struct {
+    uv_timer_t timer;
+    any callback;
+} TimerHandle;
+
 any LISP_uv_timer_init(any ex)
 {
     any x = ex;
@@ -773,7 +778,7 @@ any LISP_uv_timer_init(any ex)
     UNPACK(p1, l);
     uv_loop_t *loop = (uv_loop_t*)l;
 
-    uv_timer_t *timer_req = (uv_timer_t*)calloc(sizeof(uv_timer_t), 1);
+    TimerHandle *timer_req = (TimerHandle*)calloc(sizeof(TimerHandle), 1);
     uv_timer_init(loop, timer_req);
 
     PACK(timer_req, RET);
@@ -782,7 +787,8 @@ any LISP_uv_timer_init(any ex)
 
 void timer_callback(uv_timer_t* handle)
 {
-	printf("Timer callback\n");
+	TimerHandle *h = (TimerHandle*)handle;
+	printf("Timer callback %p\n", h->callback);
 }
 
 any LISP_uv_timer_start(any ex)
@@ -792,11 +798,14 @@ any LISP_uv_timer_start(any ex)
 	x = cdr(x);
 	any p1 = EVAL(car(x));
 	UNPACK(p1, t);
-	uv_timer_t *timer = (uv_timer_t*)t;
+	TimerHandle *timer = (TimerHandle*)t;
+
+	timer->callback = (any)0x1234;
 
 	x = cdr(x);
 	any p2 = EVAL(car(x));
 	word startAfter = unBox(p2);
+
 	x = cdr(x);
 	any p3 = EVAL(car(x));
 	word repeatEvery = unBox(p3);
