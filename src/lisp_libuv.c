@@ -717,6 +717,20 @@ any LISP_uv_timer_start(any ex)
 	return Nil;
 }
 
+any LISP_uv_timer_stop(any ex)
+{
+	any x = ex;
+
+	x = cdr(x);
+	any p1 = EVAL(car(x));
+	UNPACK(p1, t);
+	TimerHandle *timer = (TimerHandle*)t;
+
+	uv_timer_stop(timer);
+
+	return Nil;
+}
+
 // FS STUFF START
 
 void on_uv_fs_open(uv_fs_t* req)
@@ -788,7 +802,8 @@ any LISP_uv_fs_open(any ex)
     return ex;
 }
 
-void on_uv_fs_read(uv_fs_t* req) {
+void on_uv_fs_read(uv_fs_t* req)
+{
     FileReadRequest *r = (FileReadRequest*)req;
 
     if (req->result < 0)

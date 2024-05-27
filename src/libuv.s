@@ -15,6 +15,7 @@ uv_read_start {LISP_uv_read_start}
 uv_stop {LISP_uv_stop}
 uv_close {LISP_uv_close}
 uv_timer_start {LISP_uv_timer_start}
+uv_timer_stop {LISP_uv_timer_stop}
 uv_timer_init {LISP_uv_timer_init}
 
 # vi:et:ts=3:sw=3
