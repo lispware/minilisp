@@ -270,127 +270,6 @@ any LISP_uv_fs_event_stop(any ex)
     return Nil;
 }
 
-void on_uv_fs_open(uv_fs_t* req) {
-    if (req->result < 0)
-    {
-        printf("Error opening file: %s\n", uv_strerror(req->result));
-        return;
-    }
-
-	FileOpenRequest *handle = (FileOpenRequest*)req;
-	any cb = handle->callback;
-	any params = cdr(car(cb));
-    any y = car(params);
-
-    PACK(req->result, file);
-	bindFrame f;
-    Bind(y,f),  val(y) = file;
-    prog(handle->callback);
-    Unbind(f);
-
-    // Cleanup and free resources
-    uv_fs_req_cleanup(req);
-    free(req);
-}
-
-any LISP_uv_fs_open(any ex)
-{
-    any x = ex;
-
-    x = cdr(x);
-    any p1 = EVAL(car(x));
-    UNPACK(p1, l);
-    uv_loop_t *loop = (uv_loop_t*)l;
-
-    x = cdr(x);
-    any p2 = EVAL(car(x));
-    char *fileName = (char *)calloc(bufSize(p2), 1);
-    bufString(p2, fileName);
-
-    int mode = UV_FS_O_RDONLY;//READ
-    x = cdr(x);
-    any p3 = car(x);
-    if (isSym(p3))
-    {
-        char *modeStr = (char *)calloc(bufSize(p3), 1);
-        bufString(p3, modeStr);
-        if (modeStr[0] == 'W') mode = UV_FS_O_WRONLY | UV_FS_O_CREAT; // WRITE
-        if (modeStr[0] == 'A') mode = UV_FS_O_WRONLY | UV_FS_O_CREAT | UV_FS_O_APPEND; // APPEND
-        free(modeStr);
-    }
-
-    FileOpenRequest *req = (FileOpenRequest*)calloc(sizeof(FileOpenRequest), 1);
-
-    x = cdr(x);
-    req->callback = x;
-
-	int result = uv_fs_open(loop, req, fileName, mode, 0666, on_uv_fs_open);
-
-    free(fileName);
-    return ex;
-}
-
-void on_uv_fs_read(uv_fs_t* req) {
-    FileReadRequest *r = (FileReadRequest*)req;
-
-    if (req->result < 0)
-    {
-        printf("Error opening file: %s\n", uv_strerror(req->result));
-        return;
-    }
-
-	any cb = r->callback;
-	any params = cdr(car(cb));
-    any p0 = car(params);
-    any p1 = car(cdr(params));
-    any p2 = car(cdr(cdr(params)));
-
-	bindFrame e, f, g;
-
-	void *ptr = r->buf.base;
-	PACK(ptr, B);
-	Bind(p0,e), val(p0) = r->file;
-    Bind(p1,f),  val(p1) = B;
-    Bind(p2,g),  val(p2) = box(req->result); // TODO this can  be incorrect since num is BITS-2
-    prog(r->callback);
-    Unbind(e);
-    Unbind(f);
-    Unbind(g);
-
-    // Cleanup and free resources
-    uv_fs_req_cleanup(req);
-    free(req);
-}
-
-any LISP_uv_fs_read(any ex)
-{
-    any x = ex;
-
-    x = cdr(x);
-    any p1 = EVAL(car(x));
-    UNPACK(p1, l);
-    uv_loop_t *loop = (uv_loop_t*)l;
-
-    x = cdr(x);
-    any p2 = EVAL(car(x));
-    UNPACK(p2, file);
-
-    x = cdr(x);
-    any p3 = EVAL(car(x));
-    if (isNil(p3)) return Nil;
-    if (!isNum(p3)) return Nil;
-    word len = unBox(p3);
-
-    FileReadRequest *req = (FileReadRequest*)calloc(sizeof(FileReadRequest), 1);
-
-    x = cdr(x);
-    req->callback = x;
-    req->buf = uv_buf_init((char*)calloc(len, 1), len);
-    req->file=p2;
-	int result = uv_fs_read(loop, req, file, &req->buf, 1, -1, on_uv_fs_read);
-
-    return ex;
-}
 
 void on_uv_fs_write(uv_fs_t* req) {
     FileReadRequest *r = (FileReadRequest*)req;
@@ -788,7 +667,6 @@ any LISP_uv_timer_init(any ex)
 void timer_callback(uv_timer_t* handle)
 {
 	TimerHandle *h = (TimerHandle*)handle;
-	//printf("Timer callback %p %p %p\n", h->callback, car(h->callback), cdr(h->callback));
 
     char var[] = "12345678901234567890";
     bindFrame f;
@@ -802,7 +680,6 @@ void timer_callback(uv_timer_t* handle)
         sprintf(var, "VAR%d\n", (++i));
         Bind(y, f), val(y) = mkStr(var);
     }
-    printf("\n");
 
     any func = cdr(cb);
     prog(func);
@@ -839,5 +716,151 @@ any LISP_uv_timer_start(any ex)
 
 	return Nil;
 }
+
+// FS STUFF START
+
+void on_uv_fs_open(uv_fs_t* req)
+{
+    if (req->result < 0)
+    {
+        printf("Error opening file: %s\n", uv_strerror(req->result));
+        return;
+    }
+
+	FileOpenRequest *handle = (FileOpenRequest*)req;
+	any cb = handle->callback;
+	any params = car(cb);
+    any y = car(params);
+
+    PACK(req->result, file);
+	bindFrame f;
+    Bind(y,f),  val(y) = file;
+    prog(cdr(handle->callback));
+
+    // Cleanup and free resources
+    Unbind(f);
+    uv_fs_req_cleanup(req);
+    free(req);
+}
+
+any LISP_uv_fs_open(any ex)
+{
+    any x = ex;
+
+    x = cdr(x);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, l);
+    uv_loop_t *loop = (uv_loop_t*)l;
+
+    x = cdr(x);
+    any p2 = EVAL(car(x));
+    char *fileName = (char *)calloc(bufSize(p2), 1);
+    bufString(p2, fileName);
+
+    int mode = UV_FS_O_RDONLY;//READ
+    x = cdr(x);
+    any p3 = car(x);
+    if (isSym(p3))
+    {
+        char *modeStr = (char *)calloc(bufSize(p3), 1);
+        bufString(p3, modeStr);
+        if (modeStr[0] == 'W') mode = UV_FS_O_WRONLY | UV_FS_O_CREAT; // WRITE
+        if (modeStr[0] == 'A') mode = UV_FS_O_WRONLY | UV_FS_O_CREAT | UV_FS_O_APPEND; // APPEND
+        free(modeStr);
+    }
+
+    FileOpenRequest *req = (FileOpenRequest*)calloc(sizeof(FileOpenRequest), 1);
+
+	x = cdr(x);
+	any p4 = EVAL(car(x));
+	req->callback = p4;
+
+	if (!isCell(p4))
+    {
+        printf("Callback must be a cell\n");
+    }
+
+    req->callback = p4;
+
+	int result = uv_fs_open(loop, req, fileName, mode, 0666, on_uv_fs_open);
+
+    free(fileName);
+    return ex;
+}
+
+void on_uv_fs_read(uv_fs_t* req) {
+    FileReadRequest *r = (FileReadRequest*)req;
+
+    if (req->result < 0)
+    {
+        printf("Error opening file: %s\n", uv_strerror(req->result));
+        return;
+    }
+
+	any cb = r->callback;
+	any params = car(cb);
+    any p0 = car(params);
+    params = cdr(params);
+    any p1 = car(params);
+    params = cdr(params);
+    any p2 = car(params);
+
+	bindFrame e, f, g;
+
+	void *ptr = r->buf.base;
+	PACK(ptr, B);
+	Bind(p0,e), val(p0) = r->file;
+    Bind(p1,f), val(p1) = B;
+    Bind(p2,g), val(p2) = box(req->result); // TODO this can  be incorrect since num is BITS-2
+    prog(cdr(r->callback));
+    Unbind(e);
+    Unbind(f);
+    Unbind(g);
+
+    // Cleanup and free resources
+    uv_fs_req_cleanup(req);
+    free(req);
+}
+
+// (uv_fs_read LOOP FILE 10 on_read)
+any LISP_uv_fs_read(any ex)
+{
+    any x = ex;
+
+    x = cdr(x);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, l);
+    uv_loop_t *loop = (uv_loop_t*)l;
+
+    x = cdr(x);
+    any p2 = EVAL(car(x));
+    UNPACK(p2, file);
+
+    x = cdr(x);
+    any p3 = EVAL(car(x));
+    if (isNil(p3)) return Nil;
+    if (!isNum(p3)) return Nil;
+    word len = unBox(p3);
+
+	x = cdr(x);
+	any p4 = EVAL(car(x));
+	if (!isCell(p4))
+    {
+        printf("Callback must be a cell\n");
+        return Nil;
+    }
+
+    FileReadRequest *req = (FileReadRequest*)calloc(sizeof(FileReadRequest), 1);
+
+	req->callback = p4;
+
+    req->buf = uv_buf_init((char*)calloc(len, 1), len);
+    req->file=p2;
+	int result = uv_fs_read(loop, req, file, &req->buf, 1, -1, on_uv_fs_read);
+
+    return ex;
+}
+
+// FS STUFF END
 
 #endif // DONT_USE_LIBUV
