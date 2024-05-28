@@ -276,7 +276,7 @@ void on_uv_fs_write(uv_fs_t* req) {
 
     if (req->result < 0)
     {
-        printf("Error opening file: %s\n", uv_strerror(req->result));
+        printf("Error opening file for write: %s\n", uv_strerror(req->result));
         return;
     }
 
@@ -335,11 +335,6 @@ any LISP_uv_fs_write(any ex)
     req->file=p2;
 	int result = uv_fs_write(loop, req, file, &req->buf, 1, -1, on_uv_fs_write);
 
-    return ex;
-}
-
-any LISP_uv_fs_close(any ex)
-{
     return ex;
 }
 
@@ -808,7 +803,7 @@ void on_uv_fs_read(uv_fs_t* req)
 
     if (req->result < 0)
     {
-        printf("Error opening file: %s\n", uv_strerror(req->result));
+        printf("Error opening file for read: %s\n", uv_strerror(req->result));
         return;
     }
 
@@ -875,6 +870,34 @@ any LISP_uv_fs_read(any ex)
 
     return ex;
 }
+
+void on_fs_close(uv_fs_t *req)
+{
+    uv_fs_req_cleanup(req);
+    free(req);
+}
+
+any LISP_uv_fs_close(any ex)
+{
+    any x = ex;
+
+    x = cdr(x);
+    any p1 = EVAL(car(x));
+    UNPACK(p1, l);
+    uv_loop_t *loop = (uv_loop_t*)l;
+
+    x = cdr(x);
+    any p2 = EVAL(car(x));
+    UNPACK(p2, file);
+
+    FileOpenRequest *req = (FileOpenRequest*)file;
+
+    uv_fs_t *close_req = (uv_fs_t*)calloc(sizeof(uv_fs_t), 1);
+    uv_fs_close(loop, close_req, file, on_fs_close);
+
+    return ex;
+}
+
 
 // FS STUFF END
 
